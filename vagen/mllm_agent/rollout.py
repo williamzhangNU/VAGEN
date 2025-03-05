@@ -151,7 +151,7 @@ class QwenVLRolloutManger():
                     record_entry["text_template"] = re.sub(r'<image([^>]+)>', '<image>', template)
         self.recorder[env_id].append(record_entry)
 
-    def __getitem__(self, recording, step, window_size,compute_loss_mask=False):
+    def __getitem__(self, recording, step, window_size,compute_loss_mask=False,final=False):
         """
         Given a recording, generate the input for MLLM
         
@@ -184,7 +184,8 @@ class QwenVLRolloutManger():
             chat.append({"role": "user", "content": record['text_template']})
             
     
-            if i < len(history) - 1:
+            if i < len(history) - 1 or final:
+                assert 'llm_raw_response' in record['info']
                 llm_raw_response = record['info']['llm_raw_response']
                 # filtering llm generated <image> tokens
                 llm_raw_response = re.sub(r'<image>', '', llm_raw_response)
@@ -337,5 +338,5 @@ class QwenVLRolloutManger():
         """
         batch=[]
         for env_id in self.envs.keys():
-            batch.append(self.__getitem__(self.recorder[env_id], self.env_states[env_id]['step'], self.config.window_size,loss_mask=True))
+            batch.append(self.__getitem__(self.recorder[env_id], self.env_states[env_id]['step'], self.config.window_size,loss_mask=True,final=True))
         return collate_fn(batch)
