@@ -8,7 +8,7 @@ from transformers import PreTrainedTokenizer, ProcessorMixin
 from verl.utils.model import compute_position_id_with_mask
 import verl.utils.torch_functional as verl_F
 from dataclasses import dataclass
-from vagen.envs.register import REGISTERED_ENVS
+from vagen.env.register import REGISTERED_ENVS
 from verl.utils.dataset.rl_dataset import process_image, collate_fn
 import re
 # using factory to initialize the list
