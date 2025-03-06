@@ -1,19 +1,22 @@
 import gym
 from gym_sokoban.envs.sokoban_env import SokobanEnv as GymSokobanEnv
 import numpy as np
-from ragen.utils import NoLoggerWarnings
-from ragen.env.sokoban.room_utils import generate_room
-from ragen.utils import set_seed
 import re
 import copy
 from typing import Tuple, Dict, Optional, List
 from dataclasses import dataclass
 
-from ragen.env.base import (
+from vagen.env.register import register
+from vagen.utils import NoLoggerWarnings
+from vagen.env.sokoban.room_utils import generate_room
+from vagen.utils import set_seed
+from vagen.env.base import (
     BaseEnv,
     BaseGame,
     PromptTemplate,
     EnvFeedback,
+    EnvFeedbackSingleStep,
+    EnvObservation,
 )
 
 system_prompt = """
@@ -222,6 +225,7 @@ class PreprocessResult:
         }
 
 
+@register(name="sokoban")
 class SokobanGame(BaseGame):
 
     INVALID_ACTION = 0
@@ -329,14 +333,14 @@ class SokobanGame(BaseGame):
         reward: float = 0,
         done: bool = False,
         info: Dict = {},
-    ) -> EnvFeedback:
+    ) -> EnvFeedbackSingleStep:
         """
         Postprocess the observation from environment to feedback for LLM.
         The returned observation_template is a string with placeholder,
             and multi_modal_observation defines mapping from placeholder to multi-modal observation.
         """
         if env_finished_before:
-            return EnvFeedback(env_finished_before = True)
+            return EnvFeedbackSingleStep(step_env_finished_before=True)
 
         image_placeholder = "<image1>" # NOTE by default, only one image appears in the observation.
 
@@ -361,26 +365,36 @@ class SokobanGame(BaseGame):
             observation['visual'] = cls.convert_numpy_to_PIL(observation['visual'])
 
         
-
-        return EnvFeedback(
-            observation_template = observation_template.format(observation=image_placeholder, reward=reward, done=done),
-            multi_modal_observation = {image_placeholder: observation['visual']},
-            action_str = last_action_str,
+        # env_observation = EnvObservation(
+        #     observation_template = observation_template.format(observation=image_placeholder, reward=reward, done=done),
+        #     multi_modal_observation = {image_placeholder: observation['visual']},
+        # )
+        env_observation = EnvObservation()
+        env_observation.create_observation(
+            text=observation_template,
+            contents=[observation['visual'], reward, done],
+            replace_keys=['observation', 'reward', 'done']
+        )
+        
+        return EnvFeedbackSingleStep(
+            step_env_observation = env_observation,
+            step_action_str = last_action_str,
             step_reward = reward,
-            done = done,
-            info = info,
+            step_done = done,
+            step_info = info,
         )
     
 
-    def step(self, raw_text: str) -> List[EnvFeedback]:
+    def step(self, raw_text: str) -> EnvFeedback:
 
         if self.finished():
-            return [self._postprocess(env_finished_before=True)]
+            return EnvFeedback(env_feedbacks=[self._postprocess(env_finished_before=True)])
 
         preprocess_result = self._preprocess(raw_text)
-        env_feedbacks = []
+        env_feedback = EnvFeedback()
         actions = preprocess_result.action
         action_valid = preprocess_result.action_valid
+        env_feedback.info['llm_raw_response'] = raw_text
 
 
         for action, valid in zip(actions, action_valid):
@@ -397,7 +411,7 @@ class SokobanGame(BaseGame):
                 last_action = self.INVALID_ACTION
 
             observation = self._get_observation()
-            env_feedback = self._postprocess(
+            env_feedback_single_step = self._postprocess(
                 action_valid=valid, 
                 last_action_str=self.env.ACTION_LOOKUP[last_action],
                 observation=observation, 
@@ -405,11 +419,11 @@ class SokobanGame(BaseGame):
                 done=done, 
                 info=info
             )
-            env_feedbacks.append(env_feedback)
+            env_feedback.add_step(env_feedback_single_step)
             if done or self.finished():
                 break
 
-        return env_feedbacks
+        return env_feedback
     
     def reset(self, seed: Optional[int] = None) -> EnvFeedback:
         """

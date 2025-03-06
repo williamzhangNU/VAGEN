@@ -8,11 +8,13 @@ from transformers import PreTrainedTokenizer, ProcessorMixin
 from verl.utils.model import compute_position_id_with_mask
 import verl.utils.torch_functional as verl_F
 from dataclasses import dataclass
-from vagen.env.register import REGISTERED_ENVS
 from verl.utils.dataset.rl_dataset import process_image, collate_fn
 import re
 # using factory to initialize the list
 from dataclasses import dataclass, field
+
+from vagen.env.register import REGISTERED_ENVS
+from vagen.env.base import EnvFeedback, EnvConfig
 
 @dataclass
 class QwenVLRolloutConifg:
@@ -44,7 +46,7 @@ class QwenVLRolloutManger():
         self.batch_idx_to_env_id = None # dict
     
         
-    def reset(self, env_configs):
+    def reset(self, env_configs: List[EnvConfig]):
         """
         Reset environments based on provided configurations, reusing environments when possible.
         
@@ -66,14 +68,14 @@ class QwenVLRolloutManger():
         for env_id, env in self.envs.items():
             env_name = env.name_repr()
             env_config = env.config_repr(env.config)
-            bucket_key = f"{env_name}:{config_key}"
+            bucket_key = f"{env_name}:{env_config}"
             env_buckets[bucket_key].add(env_id)
         
         for i, cfg in enumerate(env_configs):
             env_id = i
-            env_name = cfg["env_name"]
-            env_config = cfg["config"]
-            seed = cfg["seed"]
+            env_name = cfg.env_name
+            env_config = cfg.env_config
+            seed = cfg.seed
             
             # Create bucket key
             config_key = REGISTERED_ENVS[env_name].config_repr(env_config)
@@ -88,7 +90,7 @@ class QwenVLRolloutManger():
                     "config":env_config,
                 }
             else:
-                # don't initialize the environment here, close unused environments fisrt
+                # don't initialize the environment here, close unused environments first
                 new_envs[env_id] = {
                     "env_class":REGISTERED_ENVS[env_name],
                     "seed":seed,
@@ -114,19 +116,18 @@ class QwenVLRolloutManger():
                 self.envs[k] = v["env"]
             else:
                 assert "env_class" in v
-                self.envs[k] = v["env_class"](v["config"])
-            obs, info = self.envs[k].reset(v["seed"])
-            initial_obs[env_id] = obs
-            initial_info[env_id] = info
-            self.record(env_id, obs=obs, info=info, done=False, reward=0.0, step=0)
+                self.envs[k] = v["env_class"](**v["config"])
+            env_feedback = self.envs[k].reset(v["seed"])
+            initial_obs[env_id] = env_feedback.env_observation
+            initial_info[env_id] = env_feedback.info
+            self.record(env_id, env_feedback)
         
         self.env_states = {env_id: {'step': 0, 'done': False} for env_id in self.envs}
         
         return initial_obs, initial_info
     
     
-    
-    def record(self, env_id, obs, info, done=None, reward=None):
+    def record(self, env_id, env_feedback: EnvFeedback):
         """
         Record each step's obs, info, done, reward,
         Please include "llm_raw_response" in info # it will be decoded by rollout manager and pass to env, then should pass back
@@ -134,24 +135,33 @@ class QwenVLRolloutManger():
         # Create a record entry for this step
         record_entry = {
             'env_id': env_id,
-            'done': done,
-            'reward': reward,
-            'info': copy.deepcopy(info) if info is not None else None
+            'done': env_feedback.done,
+            'reward': env_feedback.step_reward,
+            'info': copy.deepcopy(env_feedback.info) if env_feedback.info is not None else None
         }
         
         # Process observations if provided
-        if obs is not None:
-            if isinstance(obs, dict):
-                template = obs.get('template', '')
-                mllm_keys = re.findall(r'<image([^>]+)>', template)
-                # Process multimodal inputs if present in observation
-                if mllm_keys and self.processor is not None:
-                    record_entry["image_data"] = [process_image(obs[key]) for key in mllm_keys]
-                    #record_entry["image_inputs"] = self.processor.image_processor(record_entry["image_data"], return_tensors='pt')
-                    record_entry["text_template"] = re.sub(r'<image([^>]+)>', '<image>', template)
+        env_observation = env_feedback.env_observation
+        if env_observation is not None:
+            template = env_observation.observation_template
+            mm_observation = env_observation.multi_modal_observation
+
+            mllm_keys = re.findall(r'<image([^>]+)>', template)
+            # Process multimodal inputs if present in observation
+            if mllm_keys and self.processor is not None:
+                record_entry["image_data"] = [process_image(mm_observation[key]) for key in mllm_keys]
+                #record_entry["image_inputs"] = self.processor.image_processor(record_entry["image_data"], return_tensors='pt')
+                record_entry["text_template"] = re.sub(r'<image([^>]+)>', '<image>', template)
         self.recorder[env_id].append(record_entry)
 
-    def __getitem__(self, recording, step, window_size,compute_loss_mask=False,final=False):
+    def __getitem__(
+            self, 
+            recording, 
+            step, 
+            window_size,
+            compute_loss_mask=False,
+            final=False,
+        ):
         """
         Given a recording, generate the input for MLLM
         
@@ -163,16 +173,16 @@ class QwenVLRolloutManger():
         Returns:
             Dictionary containing properly formatted inputs for the MLLM
         """
-        assert step>=0
+        assert step >= 0
         
         start_step = max(0, step - window_size)
         end_step = step
-        history = recording[start_step:end_step + 1]
+        history = recording[start_step: end_step + 1]
         chat = []
         
   
         env_id = history[0]['env_id']
-        chat.append({"role": "system", "content": self.envs[env_id].instruction})
+        chat.append({"role": "system", "content": self.envs[env_id].get_task_instruction()})
         
    
         if history:
@@ -191,8 +201,8 @@ class QwenVLRolloutManger():
                 llm_raw_response = re.sub(r'<image>', '', llm_raw_response)
                 if compute_loss_mask:
                     # filtering special tokens for llm_raw_response, then adding them to the beginning and end of the response
-                    sptk_b= self.config.sptk_for_loss_mask[0]
-                    sptk_e= self.config.sptk_for_loss_mask[1]
+                    sptk_b = self.config.sptk_for_loss_mask[0]
+                    sptk_e = self.config.sptk_for_loss_mask[1]
                     llm_raw_response = re.sub('s_e', '', llm_raw_response)
                     llm_raw_response = re.sub('s_b', '', llm_raw_response)
                     llm_raw_response = sptk_b + llm_raw_response + sptk_e
@@ -270,7 +280,7 @@ class QwenVLRolloutManger():
 
         return row_dict
        
-    def gen_batch(self, step,window_size):
+    def gen_batch(self, step, window_size):
         
         batch=[]
         self.batch_idx_to_env_id = {}
@@ -317,15 +327,15 @@ class QwenVLRolloutManger():
             input_batch = self.gen_batch(step, self.config.window_size)
             output_batch=self.actor_rollout_wg(input_batch)
             responses_str = self.tokenizer.batch_decode(
-            output_batch.batch['responses'], 
-            skip_special_tokens=True
-        )
+                output_batch.batch['responses'], 
+                skip_special_tokens=True
+            )
             
-            for batch_idx, env_id in self.batch_idx_to_env_id.items():
-                obs,info,dones,reward=self.envs[env_id].step(responses_str[batch_idx])
+            for batch_idx, env_id in self.batch_idx_to_env_id.items(): # TODO whether multiple actions in one rollout are considered here
+                env_feedback = self.envs[env_id].step(responses_str[batch_idx])
                 self.env_states[env_id]['step'] += 1
-                self.env_states[env_id]['done'] = dones
-                self.record(env_id, obs=obs, info=info, done=dones, reward=reward)
+                self.env_states[env_id]['done'] = env_feedback.done
+                self.record(env_id, env_feedback)
         
         
         
