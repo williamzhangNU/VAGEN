@@ -153,35 +153,26 @@ class QwenVLRolloutManger():
             
             # Get all placeholders from mm_observation keys
             placeholders = list(mm_observation.keys())
-            position_for_each_placeholder = defaultdict(list)
-            placeholder_counter = 0
 
             if placeholders and self.processor is not None:
                 record_entry["image_data"] = []
-            
-            # for each placeholder, find all occurance in template (find its position)
-            for placeholder in placeholders:
-                position_for_each_placeholder[placeholder] = [m.start() for m in re.finditer(placeholder, template)]
-                placeholder_counter += len(position_for_each_placeholder[placeholder])
-            
 
-            while placeholder_counter > 0:
-                # choose the first placeholder in all positions
-                first_index, first_index_placeholder = None, None
-                for placeholder, positions in position_for_each_placeholder.items():
-                    if positions:
-                        if first_index is None:
-                            first_index = positions[0]
-                            first_index_placeholder = placeholder
-                        elif positions[0] < first_index:
-                            first_index = positions[0]
-                            first_index_placeholder = placeholder
-                # replace the first placeholder with <image>
-                template = template[:first_index] + '<image>' + template[first_index+len(first_index_placeholder):]
-                placeholder_counter -= 1
-                position_for_each_placeholder[first_index_placeholder].pop(0)
+            # Create a list of all placeholder positions with their corresponding placeholder
+            all_positions = []
+            for placeholder in placeholders:
+                positions = [m.start() for m in re.finditer(placeholder, template)]
+                for pos in positions:
+                    all_positions.append((pos, placeholder))
+
+            # Sort positions in ascending order
+            all_positions.sort(key=lambda x: x[0])  # This sorts based on the first element of each tuple (position)
+
+            # Now process in order of occurrence
+            while all_positions:
+                position, placeholder = all_positions.pop(0)
+                template = template[:position] + '<image>' + template[position+len(placeholder):]
                 if "image_data" in record_entry:
-                    record_entry["image_data"].append(process_image(mm_observation[first_index_placeholder]))
+                    record_entry["image_data"].append(process_image(mm_observation[placeholder]))
             
             record_entry["text_template"] = template
             
