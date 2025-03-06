@@ -3,19 +3,21 @@ from typing import List, Union, Optional
 import copy
 from collections import defaultdict
 import torch
+import numpy as np
 from transformers import PreTrainedTokenizer, ProcessorMixin
+from dataclasses import dataclass, field
 
+from verl import DataProto
 from verl.utils.model import compute_position_id_with_mask
 import verl.utils.torch_functional as verl_F
-from dataclasses import dataclass
 from verl.utils.dataset.rl_dataset import process_image, collate_fn
 import re
 # using factory to initialize the list
-from dataclasses import dataclass, field
 
 from vagen.env.register import REGISTERED_ENVS
 from vagen.env.base import EnvFeedback, EnvConfig
 
+# TODO an extra class for recorder
 @dataclass
 class QwenVLRolloutConifg:
     window_size=5
@@ -23,7 +25,7 @@ class QwenVLRolloutConifg:
     max_turns=5
     n_gpu_per_node=1 # used for multigpu batch balancing
     # use factory to initialize the list
-    sptk_for_loss_mask=field(default_factory=lambda: ['<|box_start|>', '<|box_end|>'])
+    sptk_for_loss_mask: List[str] = field(default_factory=lambda: ['<|box_start|>', '<|box_end|>'])
     
 class QwenVLRolloutManger():
     def __init__(self,
@@ -49,6 +51,9 @@ class QwenVLRolloutManger():
     def reset(self, env_configs: List[EnvConfig]):
         """
         Reset environments based on provided configurations, reusing environments when possible.
+        - For env with same config and env_name, reuse the same environment (reset)
+        - For env with different config or env_name, close the old environment and create a new one
+        - Reset the recorder
         
         Args:
             env_configs: List of environment configurations containing env_name, config, and seed
@@ -136,7 +141,7 @@ class QwenVLRolloutManger():
         record_entry = {
             'env_id': env_id,
             'done': env_feedback.done,
-            'reward': env_feedback.step_reward,
+            'reward': env_feedback.reward,
             'info': copy.deepcopy(env_feedback.info) if env_feedback.info is not None else None
         }
         
@@ -145,13 +150,52 @@ class QwenVLRolloutManger():
         if env_observation is not None:
             template = env_observation.observation_template
             mm_observation = env_observation.multi_modal_observation
+            
+            # Get all placeholders from mm_observation keys
+            placeholders = list(mm_observation.keys())
+            position_for_each_placeholder = defaultdict(list)
+            placeholder_counter = 0
 
-            mllm_keys = re.findall(r'<image([^>]+)>', template)
-            # Process multimodal inputs if present in observation
-            if mllm_keys and self.processor is not None:
-                record_entry["image_data"] = [process_image(mm_observation[key]) for key in mllm_keys]
-                #record_entry["image_inputs"] = self.processor.image_processor(record_entry["image_data"], return_tensors='pt')
-                record_entry["text_template"] = re.sub(r'<image([^>]+)>', '<image>', template)
+            if placeholders and self.processor is not None:
+                record_entry["image_data"] = []
+            
+            # for each placeholder, find all occurance in template (find its position)
+            for placeholder in placeholders:
+                position_for_each_placeholder[placeholder] = [m.start() for m in re.finditer(placeholder, template)]
+                placeholder_counter += len(position_for_each_placeholder[placeholder])
+            
+
+            while placeholder_counter > 0:
+                # choose the first placeholder in all positions
+                first_index, first_index_placeholder = None, None
+                for placeholder, positions in position_for_each_placeholder.items():
+                    if positions:
+                        if first_index is None:
+                            first_index = positions[0]
+                            first_index_placeholder = placeholder
+                        elif positions[0] < first_index:
+                            first_index = positions[0]
+                            first_index_placeholder = placeholder
+                # replace the first placeholder with <image>
+                template = template[:first_index] + '<image>' + template[first_index+len(first_index_placeholder):]
+                placeholder_counter -= 1
+                position_for_each_placeholder[first_index_placeholder].pop(0)
+                if "image_data" in record_entry:
+                    record_entry["image_data"].append(process_image(mm_observation[first_index_placeholder]))
+            
+            record_entry["text_template"] = template
+            
+        # if env_observation is not None:
+        #     template = env_observation.observation_template
+        #     mm_observation = env_observation.multi_modal_observation
+
+        #     mllm_keys = re.findall(r'<image([^>]+)>', template)
+        #     # Process multimodal inputs if present in observation
+        #     if mllm_keys and self.processor is not None:
+        #         record_entry["image_data"] = [process_image(mm_observation[key]) for key in mllm_keys]
+        #         #record_entry["image_inputs"] = self.processor.image_processor(record_entry["image_data"], return_tensors='pt')
+        #         record_entry["text_template"] = re.sub(r'<image([^>]+)>', '<image>', template)
+
         self.recorder[env_id].append(record_entry)
 
     def __getitem__(
@@ -203,13 +247,13 @@ class QwenVLRolloutManger():
                     # filtering special tokens for llm_raw_response, then adding them to the beginning and end of the response
                     sptk_b = self.config.sptk_for_loss_mask[0]
                     sptk_e = self.config.sptk_for_loss_mask[1]
-                    llm_raw_response = re.sub('s_e', '', llm_raw_response)
-                    llm_raw_response = re.sub('s_b', '', llm_raw_response)
+                    llm_raw_response = re.sub(sptk_e, '', llm_raw_response)
+                    llm_raw_response = re.sub(sptk_b, '', llm_raw_response)
                     llm_raw_response = sptk_b + llm_raw_response + sptk_e
                 chat.append({"role": "assistant", "content": record['info']['llm_raw_response']})
         chat.append({"role": "assistant", "content": "<think>"})
         
- 
+        # TODO for vllm no embedding
         image_data=[image for image in record["image_data"] for record in history if 'multi_modal_inputs' in record]
         image_inputs = self.processor.image_processor(image_data, return_tensors='pt')
         has_images = len(image_data) > 0
@@ -339,14 +383,18 @@ class QwenVLRolloutManger():
         
         
         
-    def get_final_trajectory(self):
+    def get_final_trajectory(self) -> DataProto:
         """
         Get the final trajectory of all environments
         
         Returns:
             Dictionary containing the final trajectory of all environments
         """
-        batch=[]
+        batch_list = []
         for env_id in self.envs.keys():
-            batch.append(self.__getitem__(self.recorder[env_id], self.env_states[env_id]['step'], self.config.window_size,loss_mask=True,final=True))
-        return collate_fn(batch)
+            row_dict = self.__getitem__(self.recorder[env_id], self.env_states[env_id]['step'], self.config.window_size,loss_mask=True,final=True)
+            row_dict['reward_model'] = {"style": "given", "ground_truth": {"reward": self.envs[env_id].get_traj_reward()}}
+            batch_list.append(row_dict)
+        batch_dict = collate_fn(batch_list)
+        batch: DataProto = DataProto.from_single_dict(batch_dict)
+        return batch

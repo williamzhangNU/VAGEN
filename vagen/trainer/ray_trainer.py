@@ -883,12 +883,13 @@ class RayPPOTrainer(object):
 
         # perform validation before training
         # currently, we only support validation using the reward_function.
-        if self.val_reward_fn is not None and self.config.trainer.get('val_before_train', True):
-            val_metrics = self._validate()
-            pprint(f'Initial validation metrics: {val_metrics}')
-            logger.log(data=val_metrics, step=self.global_steps)
-            if self.config.trainer.get('val_only', False):
-                return
+        # TODO implement validation
+        # if self.val_reward_fn is not None and self.config.trainer.get('val_before_train', True):
+        #     val_metrics = self._validate()
+        #     pprint(f'Initial validation metrics: {val_metrics}')
+        #     logger.log(data=val_metrics, step=self.global_steps)
+        #     if self.config.trainer.get('val_only', False):
+        #         return
 
         # we start from step 1
         self.global_steps += 1
@@ -952,7 +953,7 @@ class RayPPOTrainer(object):
                 env_configs = [
                     EnvConfig(env_name=batch.non_tensor_batch['extra_info'][i]['env_name'],
                               env_config=batch.non_tensor_batch['extra_info'][i]['env_config'],
-                              seed=batch.non_tensor_batch['extra_info'][i]['index'])
+                              seed=batch.non_tensor_batch['extra_info'][i]['seed'])
                     for i in range(len(batch))
                 ]
                 rollout_manager.reset(env_configs)
@@ -962,13 +963,17 @@ class RayPPOTrainer(object):
                     with _timer('gen', timing_raw):
                         # gen_batch_output = self.actor_rollout_wg.generate_sequences(gen_batch)
                         rollout_manager.rollout_loop()
-                        gen_batch_output = rollout_manager.get_final_trajectory()
+                        final_gen_batch_output = rollout_manager.get_final_trajectory()
+
+                    with torch.no_grad():
+                        output = self.actor_rollout_wg.compute_log_prob(final_gen_batch_output)
+                        final_gen_batch_output = final_gen_batch_output.union(output)
 
                     batch.non_tensor_batch['uid'] = np.array([str(uuid.uuid4()) for _ in range(len(batch.batch))],
                                                              dtype=object)
                     # repeat to align with repeated responses in rollout
                     batch = batch.repeat(repeat_times=self.config.actor_rollout_ref.rollout.n, interleave=True)
-                    batch = batch.union(gen_batch_output)
+                    batch = batch.union(final_gen_batch_output)
 
                     # balance the number of valid tokens on each dp rank.
                     # Note that this breaks the order of data inside the batch.

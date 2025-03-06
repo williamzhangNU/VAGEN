@@ -14,7 +14,8 @@
 """
 Note that we don't combine the main with ray_trainer as ray_trainer is used by other main.
 """
-from verl.trainer.ppo.ray_trainer import RayPPOTrainer
+from vagen.trainer.ray_trainer import RayPPOTrainer
+from vagen.utils.compute_score import compute_score
 
 import ray
 import hydra
@@ -22,7 +23,7 @@ import hydra
 
 @hydra.main(config_path='config', config_name='ppo_trainer', version_base=None)
 def main(config):
-    run_ppo(config)
+    run_ppo(config, compute_score=compute_score)
 
 
 def run_ppo(config, compute_score=None):
@@ -66,7 +67,7 @@ def main_task(config, compute_score=None):
     else:
         raise NotImplementedError
 
-    from verl.trainer.ppo.ray_trainer import ResourcePoolManager, Role
+    from vagen.trainer.ray_trainer import ResourcePoolManager, Role
 
     role_worker_mapping = {
         Role.ActorRollout: ray.remote(ActorRolloutRefWorker),

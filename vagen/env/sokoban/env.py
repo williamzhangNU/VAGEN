@@ -238,11 +238,17 @@ class SokobanGame(BaseGame):
         ):
         super().__init__(**env_config)
 
-        self.env_config.setdefault('dim_room', (6, 6))
-        self.env_config.setdefault('num_boxes', 1)
-        self.env_config.setdefault('max_steps', 100)
-        self.env_config.setdefault('search_depth', 30)
-        self.env = SokobanEnv(**self.env_config)
+        dim_room = self.env_config.get('dim_room', (6, 6))
+        num_boxes = self.env_config.get('num_boxes', 1)
+        max_steps = self.env_config.get('max_steps', 100)
+        search_depth = self.env_config.get('search_depth', 30)
+        self.env = SokobanEnv(
+            dim_room=dim_room,
+            num_boxes=num_boxes,
+            max_steps=max_steps,
+            search_depth=search_depth
+        )
+        self.use_visual = self.env_config.get('use_visual', False)
         
     @classmethod
     def _extract_action(cls, text):
@@ -273,21 +279,34 @@ class SokobanGame(BaseGame):
         return cls.INVALID_ACTION
     
     def _get_observation(self):
-        return {
-            'text': self.env.render('text'),
-            'visual': self.env.render('rgb_array'),
-        }
+        """
+        Get the observation of the environment.
+        If use_visual is True, return the visual observation (PIL RGBA image).
+        """
+        if self.use_visual:
+            visual_observation = self.env.render('rgb_array')
+            if isinstance(visual_observation, np.ndarray):
+                visual_observation = self.convert_numpy_to_PIL(visual_observation)
+            return {
+                'text': self.env.render('text'),
+                'visual': visual_observation,
+            }
+        else:
+            return {
+                'text': self.env.render('text'),
+            }
     
     @classmethod
     def _preprocess(cls, text: str) -> PreprocessResult:
         """Preprocess the raw text from LLM into a list of actions.
+        Ensure at least one action (may be invalid).
+
         Args:
             text: raw text from LLM
 
         Returns:
-            Dict of list of actions
+            PreprocessResult containing parsed actions and validity flags
         """
-
         preprocess_result = PreprocessResult(
             action=[],
             action_valid=[],
@@ -295,18 +314,23 @@ class SokobanGame(BaseGame):
             raw_text=text,
         )
 
-        # 1. extract answer from <answer>...</answer>
-        match = re.search(r"<answer>(.*?)</answer>", text)
-        if match:
-            answer = match.group(1).strip()
-            preprocess_result.extracted_answer = [answer]
-        else:
+        # 1. Extract answer from <answer>...</answer>
+        match = re.search(r"<answer>(.*?)</answer>", text, re.DOTALL)
+        if not match:
+            # No valid answer format found
+            preprocess_result.action = [cls.INVALID_ACTION]
+            preprocess_result.action_valid = [False]
+            preprocess_result.extracted_answer = [""]
             return preprocess_result
 
-        # 2. extract actions from answer
+        answer = match.group(1).strip()
+        preprocess_result.extracted_answer = [answer]
+
+        # 2. Extract actions from answer
         # Split by newlines, commas, or semicolons to handle multiple actions
         action_texts = re.split(r'[,;\n]+', answer)
         
+        valid_actions_found = False
         for action_text in action_texts:
             action_text = action_text.strip()
             if not action_text:
@@ -316,9 +340,16 @@ class SokobanGame(BaseGame):
             if action != cls.INVALID_ACTION:
                 preprocess_result.action.append(action)
                 preprocess_result.action_valid.append(True)
+                valid_actions_found = True
             else:
                 preprocess_result.action.append(cls.INVALID_ACTION)
                 preprocess_result.action_valid.append(False)
+        
+        # If no valid actions were found, return a single invalid action
+        if not valid_actions_found and not preprocess_result.action:
+            preprocess_result.action = [cls.INVALID_ACTION]
+            preprocess_result.action_valid = [False]
+            preprocess_result.extracted_answer = [""]
         
         return preprocess_result
         
@@ -342,36 +373,17 @@ class SokobanGame(BaseGame):
         if env_finished_before:
             return EnvFeedbackSingleStep(step_env_finished_before=True)
 
-        image_placeholder = "<image1>" # NOTE by default, only one image appears in the observation.
-
         if env_init:
-            observation_template = cls.PROMPT_TEMPLATE.init_observation_template.format(observation=image_placeholder)
+            observation_template = cls.PROMPT_TEMPLATE.init_observation_template
         else:
             if not action_valid:
-                observation_template = cls.PROMPT_TEMPLATE.invalid_action_template.format(
-                    observation=image_placeholder,
-                    reward=reward,
-                    done=done,
-                )
+                observation_template = cls.PROMPT_TEMPLATE.invalid_action_template
             else:
-                observation_template = cls.PROMPT_TEMPLATE.valid_action_template.format(
-                    action=last_action_str,
-                    observation=image_placeholder,
-                    reward=reward,
-                    done=done,
-                )
+                observation_template = cls.PROMPT_TEMPLATE.valid_action_template
 
-        if isinstance(observation['visual'], np.ndarray):
-            observation['visual'] = cls.convert_numpy_to_PIL(observation['visual'])
-
-        
-        # env_observation = EnvObservation(
-        #     observation_template = observation_template.format(observation=image_placeholder, reward=reward, done=done),
-        #     multi_modal_observation = {image_placeholder: observation['visual']},
-        # )
         env_observation = EnvObservation()
         env_observation.create_observation(
-            text=observation_template,
+            template=observation_template,
             contents=[observation['visual'], reward, done],
             replace_keys=['observation', 'reward', 'done']
         )
@@ -409,6 +421,7 @@ class SokobanGame(BaseGame):
                 done = False
                 info = {} # TODO
                 last_action = self.INVALID_ACTION
+            self.traj_reward += reward
 
             observation = self._get_observation()
             env_feedback_single_step = self._postprocess(
@@ -430,6 +443,7 @@ class SokobanGame(BaseGame):
         Reset the environment and return the observation at the first step.
         """
         self.env.reset(seed=seed)
+        self.traj_reward = 0
         observation = self._get_observation()
         return self._postprocess(
             env_init=True,

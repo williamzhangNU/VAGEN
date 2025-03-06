@@ -27,15 +27,6 @@ class PromptTemplate:
         return self.system_prompt + '\n' +self.instruction_prompt
 
 
-# @dataclass
-# class EnvFeedback:
-#     """Dataclass for managing environment feedback."""
-#     env_observation: EnvObservation = field(default_factory=EnvObservation)
-#     action_str: str = ""
-#     step_reward: float = 0.0
-#     done: bool = False
-#     env_finished_before: bool = False
-#     info: Dict = field(default_factory=dict)
 
 @dataclass
 class EnvObservation:
@@ -63,14 +54,19 @@ class EnvObservation:
         if "{index}" not in self.placeholder_format:
             raise ValueError("placeholder_format must contain '{index}' for proper formatting")
     
-    def create_observation(self, text: str, contents: List[Any], replace_keys: List[str] = ['observation']) -> None:
+    def create_observation(
+            self,
+            template: str,
+            contents: List[Any],
+            replace_keys: List[str] = ['observation']
+        ) -> None:
         """
         Create an observation template with text and images.
         
         Args:
-            text: The text part of the observation
+            template: The text part of the observation
             contents: A list of content objects to include in the observation
-            replace_key: The key to replace in the observation template
+            replace_keys: The key to replace in the observation template
 
         This function will:
         1. Create placeholders in the text for each image
@@ -78,7 +74,7 @@ class EnvObservation:
         3. Set the observation_template with image placeholders
         """
         # Start with the input text
-        result_template = text
+        result_template = template
         assert len(replace_keys) == len(contents), "replace_keys and contents must have the same length"
         
         # Add each image and insert placeholder
@@ -334,6 +330,7 @@ class BaseGame(ABC):
 
     def __init__(self, **env_config):
         self.env_config = env_config
+        self.traj_reward = 0
 
     @classmethod
     def get_task_instruction(cls) -> str:
@@ -394,3 +391,6 @@ class BaseGame(ABC):
     def config_repr(cls, config: Dict) -> str:
         """Get the config of the environment."""
     
+    def get_traj_reward(self) -> float:
+        """Get the reward of the environment."""
+        return self.traj_reward
