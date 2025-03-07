@@ -20,11 +20,10 @@ from vagen.env.base import EnvFeedback, EnvConfig
 # TODO an extra class for recorder
 @dataclass
 class QwenVLRolloutConifg:
-    window_size=5
-    max_prompt_length=1024
-    max_turns=5
-    n_gpu_per_node=1 # used for multigpu batch balancing
-    # use factory to initialize the list
+    window_size: int = 5
+    max_prompt_length: int = 1024
+    max_turns: int = 5
+    n_gpu_per_node: int = 1 # used for multigpu batch balancing
     sptk_for_loss_mask: List[str] = field(default_factory=lambda: ['<|box_start|>', '<|box_end|>'])
     
 class QwenVLRolloutManger():
@@ -170,7 +169,7 @@ class QwenVLRolloutManger():
             # Now process in order of occurrence
             while all_positions:
                 position, placeholder = all_positions.pop(0)
-                template = template[:position] + '<image>' + template[position+len(placeholder):]
+                template = template[:position] + '<image>' + template[position + len(placeholder):]
                 if "image_data" in record_entry:
                     record_entry["image_data"].append(process_image(mm_observation[placeholder]))
             
@@ -317,7 +316,7 @@ class QwenVLRolloutManger():
        
     def gen_batch(self, step, window_size):
         
-        batch=[]
+        batch = []
         self.batch_idx_to_env_id = {}
         batch_idx = 0
         for env_id in self.envs.keys():
@@ -326,9 +325,9 @@ class QwenVLRolloutManger():
             batch.append(self.__getitem__(self.recorder[env_id], step, window_size))
             self.batch_idx_to_env_id[batch_idx] = env_id
             batch_idx += 1
-        if len(batch)%self.config.n_gpu_per_node!=0:
+        if len(batch) % self.config.n_gpu_per_node!=0:
             # Pad the batch to make it divisible by n_gpu_per_node
-            while len(batch)%self.config.n_gpu_per_node!=0:
+            while len(batch) % self.config.n_gpu_per_node != 0:
                 batch.append(batch[-1])
         return collate_fn(batch)
     
@@ -358,9 +357,9 @@ class QwenVLRolloutManger():
         Returns:
             Dictionary containing the results of the step
         """
-        for step in self.config.max_turns-1:
+        for step in self.config.max_turns - 1:
             input_batch = self.gen_batch(step, self.config.window_size)
-            output_batch=self.actor_rollout_wg(input_batch)
+            output_batch = self.actor_rollout_wg(input_batch)
             responses_str = self.tokenizer.batch_decode(
                 output_batch.batch['responses'], 
                 skip_special_tokens=True
