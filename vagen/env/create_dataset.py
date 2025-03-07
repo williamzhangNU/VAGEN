@@ -12,7 +12,7 @@ class DatasetCreator:
         with open(config_path, 'r') as f:
             self.config = yaml.safe_load(f)
         self.env_name = self.config['env']['name']
-        self.env_kwargs = self.config['env']['env_kwargs']
+        self.env_config = self.config['env']['env_config']
         self.data_dir = self.config['env']['data_dir']
         
         
@@ -30,7 +30,7 @@ class DatasetCreator:
             split = "train" if seed_idx < start_seed + train_size else "test"
             env_settings = {
                 'env_name': self.env_name,
-                'env_kwargs': self.env_kwargs,
+                'env_config': self.env_config,
                 'seed': seed_idx
             }
             return {

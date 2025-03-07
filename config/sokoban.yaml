@@ -2,7 +2,7 @@
 env:
   name: "sokoban"
   data_dir: "data/sokoban"
-  env_kwargs:
+  env_config:
     dim_x: 6
     dim_y: 6
     num_boxes: 1
