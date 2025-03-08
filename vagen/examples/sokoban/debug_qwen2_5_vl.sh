@@ -2,7 +2,7 @@ set -x
 
 export VLLM_ATTENTION_BACKEND=XFORMERS
 
-python3 -m main_ppo \
+python3 -m vagen.trainer.main_ppo \
     algorithm.adv_estimator=grpo \
     data.train_files=data/sokoban/train.parquet \
     data.val_files=data/sokoban/test.parquet \
@@ -41,4 +41,5 @@ python3 -m main_ppo \
     trainer.save_freq=-1 \
     trainer.test_freq=5 \
     trainer.total_epochs=15 \
-    +max_turns=1 2>&1 | tee debug.log
+    +max_turns=2 \
+    2>&1 | tee debug.log

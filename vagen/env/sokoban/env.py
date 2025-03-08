@@ -238,17 +238,17 @@ class SokobanGame(BaseGame):
         ):
         super().__init__(**env_config)
 
-        dim_room = self.env_config.get('dim_room', (6, 6))
-        num_boxes = self.env_config.get('num_boxes', 1)
-        max_steps = self.env_config.get('max_steps', 100)
-        search_depth = self.env_config.get('search_depth', 30)
+        dim_room = self.env_config['dim_room']
+        num_boxes = self.env_config['num_boxes']
+        max_steps = self.env_config['max_steps']
+        search_depth = self.env_config['search_depth']
         self.env = SokobanEnv(
             dim_room=dim_room,
             num_boxes=num_boxes,
             max_steps=max_steps,
             search_depth=search_depth
         )
-        self.use_visual = self.env_config.get('use_visual', False)
+        self.visual_env = self.env_config.get('visual_env', True)
         
     @classmethod
     def _extract_action(cls, text):
@@ -281,9 +281,9 @@ class SokobanGame(BaseGame):
     def _get_observation(self):
         """
         Get the observation of the environment.
-        If use_visual is True, return the visual observation (PIL RGBA image).
+        If visual_env is True, return the visual observation (PIL RGBA image).
         """
-        if self.use_visual:
+        if self.visual_env:
             visual_observation = self.env.render('rgb_array')
             if isinstance(visual_observation, np.ndarray):
                 visual_observation = self.convert_numpy_to_PIL(visual_observation)
@@ -356,10 +356,8 @@ class SokobanGame(BaseGame):
     @classmethod
     def _postprocess(
         cls, 
-        env_finished_before: bool = False,
         env_init: bool = False,
         action_valid: bool = True,
-        last_action_str: str = "",
         observation: Dict = {},
         reward: float = 0,
         done: bool = False,
@@ -370,27 +368,32 @@ class SokobanGame(BaseGame):
         The returned observation_template is a string with placeholder,
             and multi_modal_observation defines mapping from placeholder to multi-modal observation.
         """
-        if env_finished_before:
-            return EnvFeedbackSingleStep(step_env_finished_before=True)
+        env_observation = EnvObservation()
 
         if env_init:
             observation_template = cls.PROMPT_TEMPLATE.init_observation_template
+            env_observation.create_observation(
+                template=observation_template,
+                contents=[observation['visual']],
+                replace_keys=['{observation}']
+            )
         else:
             if not action_valid:
                 observation_template = cls.PROMPT_TEMPLATE.invalid_action_template
             else:
                 observation_template = cls.PROMPT_TEMPLATE.valid_action_template
+            
+            env_observation.create_observation(
+                template=observation_template,
+                contents=[observation['visual'], reward, done],
+                replace_keys=['{observation}', '{reward}', '{done}']
+            )
 
-        env_observation = EnvObservation()
-        env_observation.create_observation(
-            template=observation_template,
-            contents=[observation['visual'], reward, done],
-            replace_keys=['observation', 'reward', 'done']
-        )
+        
+        
         
         return EnvFeedbackSingleStep(
-            step_env_observation = env_observation,
-            step_action_str = last_action_str,
+            step_observation = env_observation,
             step_reward = reward,
             step_done = done,
             step_info = info,
@@ -399,14 +402,13 @@ class SokobanGame(BaseGame):
 
     def step(self, raw_text: str) -> EnvFeedback:
 
-        if self.finished():
-            return EnvFeedback(env_feedbacks=[self._postprocess(env_finished_before=True)])
+        assert not self.finished(), "Environment finished before step"
 
         preprocess_result = self._preprocess(raw_text)
         env_feedback = EnvFeedback()
         actions = preprocess_result.action
         action_valid = preprocess_result.action_valid
-        env_feedback.info['llm_raw_response'] = raw_text
+        env_feedback.llm_raw_response = raw_text
 
 
         for action, valid in zip(actions, action_valid):
@@ -415,22 +417,24 @@ class SokobanGame(BaseGame):
                 reward = step_result['step_reward']
                 done = step_result['done']
                 info = step_result['info']
-                last_action = action
             else:
                 reward = self.PENALTY_FOR_INVALID
                 done = False
                 info = {} # TODO
-                last_action = self.INVALID_ACTION
+                action = self.INVALID_ACTION
             self.traj_reward += reward
 
             observation = self._get_observation()
             env_feedback_single_step = self._postprocess(
-                action_valid=valid, 
-                last_action_str=self.env.ACTION_LOOKUP[last_action],
+                action_valid=valid,
                 observation=observation, 
                 reward=reward, 
                 done=done, 
-                info=info
+                info={
+                    'action_valid': valid,
+                    'action_str': self.env.ACTION_LOOKUP[action],
+                    **info,
+                }
             )
             env_feedback.add_step(env_feedback_single_step)
             if done or self.finished():
@@ -445,10 +449,11 @@ class SokobanGame(BaseGame):
         self.env.reset(seed=seed)
         self.traj_reward = 0
         observation = self._get_observation()
-        return self._postprocess(
+        step_feedback = self._postprocess(
             env_init=True,
             observation=observation,
         )
+        return EnvFeedback(env_feedbacks=[step_feedback])
 
     def finished(self) -> bool:
         return self.env.finished()

@@ -181,20 +181,16 @@ class EnvFeedbackSingleStep:
         step_action_str: String representation of the action taken.
         step_reward: Reward received for taking the action.
         step_done: Flag indicating if the episode is done after this step.
-        step_env_finished_before: Flag indicating if the environment was already 
-                                 finished before this step.
         step_info: Additional information about the step.
     """
-    step_env_observation: EnvObservation = field(default_factory=EnvObservation)
-    step_action_str: str = ""
+    step_observation: EnvObservation = field(default_factory=EnvObservation)
     step_reward: float = 0.0
     step_done: bool = False
-    step_env_finished_before: bool = False
     step_info: Dict[str, Any] = field(default_factory=dict)
     
     def is_terminal(self) -> bool:
         """Check if this step resulted in a terminal state."""
-        return self.step_done or self.step_env_finished_before
+        return self.step_done
 
 
 @dataclass
@@ -207,17 +203,12 @@ class EnvFeedback:
         info: Additional information about the overall feedback.
     """
     env_feedbacks: List[EnvFeedbackSingleStep] = field(default_factory=list)
-    info: Dict[str, Any] = field(default_factory=dict)
+    llm_raw_response: str = ""
 
     @property
-    def env_observation(self) -> EnvObservation:
+    def observation(self) -> EnvObservation:
         """Get the merged observation from all steps."""
-        return EnvObservation.merge_observation([feedback.step_env_observation for feedback in self.env_feedbacks])
-    
-    @property
-    def action_str(self) -> List[str]:
-        """Get the action string from all steps."""
-        return [feedback.step_action_str for feedback in self.env_feedbacks]
+        return EnvObservation.merge_observation([feedback.step_observation for feedback in self.env_feedbacks])
     
     @property
     def reward(self) -> float:
@@ -233,6 +224,18 @@ class EnvFeedback:
     def done(self) -> List[bool]:
         """Check if any step resulted in a terminal state."""
         return any(feedback.is_terminal() for feedback in self.env_feedbacks)
+    
+    @property
+    def info(self) -> Dict[str, Any]:
+        """Get the info from all steps."""
+        llm_raw_response = self.llm_raw_response
+        merged_info = []
+        for feedback in self.env_feedbacks:
+            merged_info.append(feedback.step_info)
+        return {
+            'llm_raw_response': llm_raw_response,
+            'info_each_step': merged_info,
+        }
     
     def add_step(self, step: EnvFeedbackSingleStep) -> None:
         """Add a new step feedback to the collection."""
@@ -339,19 +342,12 @@ class BaseGame(ABC):
 
     @staticmethod
     def convert_numpy_to_PIL(numpy_array: np.ndarray) -> Image.Image:
-        """Convert a numpy array to a PIL RGBA image."""
+        """Convert a numpy array to a PIL RGB image."""
         if numpy_array.shape[-1] == 3:
-            # Convert RGB to RGBA by adding an alpha channel
-            height, width, _ = numpy_array.shape
-            rgba_array = np.zeros((height, width, 4), dtype=numpy_array.dtype)
-            rgba_array[:, :, 0:3] = numpy_array
-            rgba_array[:, :, 3] = 255  # Set alpha channel to fully opaque
-            return Image.fromarray(rgba_array, mode='RGBA')
-        elif numpy_array.shape[-1] == 4:
-            # Already has 4 channels, assume it's RGBA
-            return Image.fromarray(numpy_array, mode='RGBA')
+            # Convert numpy array to RGB PIL Image
+            return Image.fromarray(numpy_array, mode='RGB')
         else:
-            raise ValueError(f"Unsupported number of channels: {numpy_array.shape[-1]}. Expected 3 (RGB) or 4 (RGBA).")
+            raise ValueError(f"Unsupported number of channels: {numpy_array.shape[-1]}. Expected 3 (RGB).")
 
     @abstractmethod
     def _preprocess(self, text: str) -> Dict:

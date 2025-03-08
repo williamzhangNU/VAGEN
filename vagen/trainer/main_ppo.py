@@ -14,7 +14,7 @@
 """
 Note that we don't combine the main with ray_trainer as ray_trainer is used by other main.
 """
-from vagen.trainer.ray_trainer import RayPPOTrainer
+from vagen.trainer.ppo.ray_trainer import RayPPOTrainer
 from vagen.utils.compute_score import compute_score
 
 import ray
@@ -67,7 +67,7 @@ def main_task(config, compute_score=None):
     else:
         raise NotImplementedError
 
-    from vagen.trainer.ray_trainer import ResourcePoolManager, Role
+    from vagen.trainer.ppo.ray_trainer import ResourcePoolManager, Role
 
     role_worker_mapping = {
         Role.ActorRollout: ray.remote(ActorRolloutRefWorker),
