@@ -301,7 +301,6 @@ class QwenVLRolloutManger():
         
         start_step = max(0, step - window_size) if window_size is not None else 0
         end_step = step
-        print(len(recording), f'start_step: {start_step}, end_step: {end_step}, step: {step}, window_size: {window_size},')
         assert len(recording) >= max(1, end_step + 1 - start_step), 'History length is not enough'
         history = recording[start_step: end_step + 1]
 
