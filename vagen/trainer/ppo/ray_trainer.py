@@ -914,6 +914,17 @@ class RayPPOTrainer(object):
                 timing_raw = {}
 
                 batch: DataProto = DataProto.from_single_dict(batch_dict)
+                # pop these keys so it will not cause error when rollout
+                if 'multi_modal_inputs' in batch.non_tensor_batch.keys():
+                    batch.pop(
+                        batch_keys=['input_ids', 'attention_mask', 'position_ids'],
+                        non_tensor_batch_keys=['raw_prompt_ids', 'multi_modal_data', 'multi_modal_inputs'],
+                    )
+                else:
+                    batch.pop(
+                        batch_keys=['input_ids', 'attention_mask', 'position_ids'],
+                        non_tensor_batch_keys=['raw_prompt_ids'],
+                    )
 
                 # original codes
                 # # pop those keys for generation
@@ -968,7 +979,6 @@ class RayPPOTrainer(object):
                     with torch.no_grad():
                         output = self.actor_rollout_wg.compute_log_prob(final_gen_batch_output)
                         final_gen_batch_output = final_gen_batch_output.union(output)
-
                     batch.non_tensor_batch['uid'] = np.array([str(uuid.uuid4()) for _ in range(len(batch.batch))],
                                                              dtype=object)
                     # repeat to align with repeated responses in rollout

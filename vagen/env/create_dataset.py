@@ -33,11 +33,11 @@ class DatasetCreator:
                 'env_config': self.env_config,
                 'seed': seed_idx
             }
+
+            # TODO: no reward model defined here for the reward will be generated while rollout
             return {
                 "data_source": self.env_name,
                 "prompt": [{"role": "user", "content": instruction}],
-                "ability": "bfs",
-                "reward_model": {"style": "rule", "ground_truth": {"target": 0, "numbers": [0, 0]}},
                 "extra_info": {"split": split, **env_settings}
             }
 
@@ -119,10 +119,9 @@ class DatasetCreator:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--config_path', type=str, default='config.yaml')
-    parser.add_argument('--start_seed', type=int, default=0)
-    parser.add_argument('--train_size', type=int, default=100)
-    parser.add_argument('--test_size', type=int, default=100)
+    parser.add_argument('--start_seed', type=int, default=10000)
+    parser.add_argument('--train_size', type=int, default=10000)
+    parser.add_argument('--test_size', type=int, default=1000)
     args = parser.parse_args()
     creator = DatasetCreator(config_path=args.config_path)
     creator.create_dataset(start_seed=args.start_seed, train_size=args.train_size, test_size=args.test_size)
-    creator.merge_parquet_files(source_files=[f'{creator.data_dir}/train.parquet', f'{creator.data_dir}/test.parquet'], output_file=f'{creator.data_dir}/merged.parquet')

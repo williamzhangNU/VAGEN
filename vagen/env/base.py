@@ -65,7 +65,7 @@ class EnvObservation:
         
         Args:
             template: The text part of the observation
-            contents: A list of content objects to include in the observation
+            contents: A list of content objects to include in the observation (str, int, Image.Image, ...)
             replace_keys: The key to replace in the observation template
 
         This function will:
@@ -82,8 +82,9 @@ class EnvObservation:
 
             assert replace_keys[i] in result_template, f"replace_keys[{i}] must be in text"
 
-            if isinstance(content, str):
-                result_template = result_template.replace(replace_keys[i], content)
+            if not isinstance(content, Image.Image):
+                # transform content to string
+                result_template = result_template.replace(replace_keys[i], str(content))
                 continue
 
             # Create the placeholder for this image
