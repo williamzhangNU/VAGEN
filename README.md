@@ -49,6 +49,8 @@ VAGEN addresses these challenges by focusing optimization on the most critical d
 
 ## Installation
 
+**Note:** if you plan to use multi-turn with **Each Turn as Independent Data Sample**, please use the **multiturn-update branch** of **both verl and VAGEN**.
+
 ```bash
 # Create a new conda environment
 conda create -n vagen python=3.10 -y
