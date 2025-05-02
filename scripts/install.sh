@@ -12,24 +12,25 @@ echo "Starting installation process..."
 # cd ../
 
 echo "Installing vagen dependencies..."
-pip install 'qwen-vl-utils'
-pip install 'mathruler'
-pip install 'matplotlib'
-pip install 'flask'
+uv pip install 'qwen-vl-utils'
+uv pip install 'mathruler'
+uv pip install 'matplotlib'
+uv pip install 'flask'
 
 
-echo "Installing flash-attn with no build isolation..."
-pip install flash-attn --no-build-isolation
+# echo "Installing flash-attn with no build isolation..."
+# pip install flash-attn --no-build-isolation
 
 echo "Installing vagen package..."
-pip install -e .
+uv pip install -e .
 
 echo "Installing Sokoban dependencies"
-pip install 'gym'
-pip install 'gym-sokoban'
+uv pip install 'gym'
+uv pip install 'gym-sokoban'
 
 echo "Installing Frozenlake dependencies"
-pip install 'gymnasium'
-pip install "gymnasium[toy-text]"
+uv pip install 'gymnasium'
+uv pip install 'pygame'
+uv pip install "gym-toytext"
 
 echo "Installation complete, to install dependencies for other environments, refer to env/readme!"

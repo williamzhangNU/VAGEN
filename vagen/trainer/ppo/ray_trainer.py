@@ -102,6 +102,84 @@ class ResourcePoolManager:
 import torch
 from verl.utils.torch_functional import masked_mean
 
+from tensordict import TensorDict
+
+
+def augment_with_next_value(data_proto: DataProto) -> DataProto:
+    """
+    Split DataProto.batch into a list of dicts and add next_value for each sample.
+
+    Args:
+        data_proto (DataProto): DataProto containing batch (TensorDict), which must have at least:
+            - 'env_id': in non_tensor_batch
+            - 'step_id': in non_tensor_batch
+            - 'value': numeric tensor
+
+    Returns:
+        List[Dict[str, Any]]: Each dict corresponds to one sample, containing original key-value pairs +
+            'next_value': value of next step_id with same env_id (0 for last step)
+    """
+    td: TensorDict = data_proto.batch
+    non_td = data_proto.non_tensor_batch
+    print(non_td.keys())
+    # get tensor batch's batch size
+    batch_size_tensor = td.batch_size[0] if td.batch_size else 0
+    # get non tensor batch's batch size
+    batch_size_non_tensor = len(non_td['env_id']) if 'env_id' in non_td else 0
+    print(batch_size_tensor, batch_size_non_tensor)
+    
+
+    # 1. split into list of dict
+    samples: List[Dict[str, Any]] = []
+    for i in range(batch_size_tensor):
+        sample = {}
+        # add data from tensor batch
+        for key in td.keys():
+            tensor = td.get(key)[i]
+            # if tensor is a scalar, convert to Python native type, otherwise convert to numpy array
+            if tensor.numel() == 1:
+                sample[key] = tensor.item()
+            else:
+                sample[key] = tensor
+        # add data from non tensor batch
+        for key in non_td.keys():
+            sample[key] = non_td[key][i]
+        samples.append(sample)
+
+    print(samples[0].keys())
+
+    # 2. group by env_id and sort by step_id
+    groups: Dict[Any, List[int]] = defaultdict(list)  # env_id -> list of batch indices
+    for idx, s in enumerate(samples):
+        groups[s['env_id']].append(idx)
+
+    for env_id, idx_list in groups.items():
+        # sort by step_id
+        idx_list.sort(key=lambda j: samples[j]['step_id'])
+        # for each idx, find the next value
+        for pos, idx in enumerate(idx_list):
+            if pos < len(idx_list) - 1:
+                next_idx = idx_list[pos + 1]
+                next_value = samples[next_idx]['values'][samples[next_idx]['single_end_of_response_position']]
+                # ensure next_value is a scalar tensor and convert to int type
+                if isinstance(next_value, torch.Tensor):
+                    if next_value.numel() == 1:
+                        next_value = int(next_value.item())
+                    else:
+                        raise ValueError("next_value should be a scalar tensor")
+                samples[idx]['next_value'] = next_value
+            else:
+                # last step
+                samples[idx]['next_value'] = 0
+
+    augmented_samples = collate_fn(samples)
+    augmented_samples = DataProto.from_single_dict(augmented_samples)
+
+    print(augmented_samples.batch.keys())
+
+    return augmented_samples
+
+
 
 def apply_kl_penalty(data: DataProto, kl_ctrl: core_algos.AdaptiveKLController, kl_penalty='kl'):
     responses = data.batch['responses']
@@ -152,8 +230,12 @@ def compute_advantage(data: DataProto, adv_estimator, gamma=1.0, lam=1.0, num_re
                                                                     lam=lam)
         data.batch['advantages'] = advantages
         data.batch['returns'] = returns
+
+    #### support multi-turn update with MASKED_GAE
     elif adv_estimator == AdvantageEstimator.MASKED_GAE:
         values = data.batch['values']
+        step_id = data.non_tensor_batch['step_id']
+        env_id = data.non_tensor_batch['env_id']
         responses = data.batch['responses']
         response_length = responses.size(-1)
         attention_mask = data.batch['attention_mask']
@@ -162,6 +244,9 @@ def compute_advantage(data: DataProto, adv_estimator, gamma=1.0, lam=1.0, num_re
         gae_mask = data.batch['gae_mask'][:, -response_length:]
         advantages, returns =core_algos.compute_gae_advantage_return_with_loss_mask(token_level_rewards=token_level_rewards,
                                                                 values=values,
+                                                                step_id=step_id,
+                                                                env_id=env_id,
+                                                                next_values=data.non_tensor_batch['next_value'],
                                                                 loss_mask=gae_mask,
                                                                 gamma=gamma,
                                                                 lam=lam)
@@ -1129,15 +1214,21 @@ class RayPPOTrainer(object):
                     #                                          dtype=object)
                     # # repeat to align with repeated responses in rollout
                     # batch = batch.repeat(repeat_times=self.config.actor_rollout_ref.rollout.n, interleave=True)
-                    batch = batch.union(final_gen_batch_output)
 
+                    #### modified
+                    #batch = batch.union(final_gen_batch_output)\
+                    meta_info = batch.meta_info
+
+                    batch = final_gen_batch_output
+                    batch.meta_info = meta_info
                     # balance the number of valid tokens on each dp rank.
                     # Note that this breaks the order of data inside the batch.
                     # Please take care when you implement group based adv computation such as GRPO and rloo
                     self._balance_batch(batch, metrics=metrics)
 
                     # compute global_valid tokens
-                    batch.meta_info['global_token_num'] = torch.sum(batch.batch['attention_mask'], dim=-1).tolist()
+                    global_token_num = torch.sum(batch.batch['attention_mask'], dim=-1).tolist()
+                    batch.meta_info['global_token_num'] = global_token_num
 
                     # recompute old_log_probs
                     with _timer('old_log_prob', timing_raw):
@@ -1155,6 +1246,11 @@ class RayPPOTrainer(object):
                         with _timer('values', timing_raw):
                             values = self.critic_wg.compute_values(batch)
                             batch = batch.union(values)
+                    
+                    #### modified
+                    meta_info = batch.meta_info
+                    batch = augment_with_next_value(batch)
+                    batch.meta_info = meta_info
 
                     with _timer('adv', timing_raw):
                         # compute scores. Support both model and function-based.

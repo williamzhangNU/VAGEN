@@ -530,6 +530,10 @@ class QwenVLRolloutManagerService():
         row_dict['position_ids'] = position_ids
         index = row_dict.get("extra_info", {}).get("index", 0)
         row_dict["index"] = index
+        #### modified
+        row_dict['env_id'] = recording[0]['env_id']
+        row_dict['step_id'] = step
+        row_dict['single_end_of_response_position'] = reward_positions[-1]-1 # -1 because we have a prompt padding token
         return row_dict
 
     @torch.no_grad()
@@ -633,15 +637,24 @@ class QwenVLRolloutManagerService():
             batch (DataProto): batch of final trajectory of all environments
         """
         batch_list = []
-        reward_rst=self.env_client.compute_reward_batch(list(self.envs.keys()))
+        # reward_rst=self.env_client.compute_reward_batch(list(self.envs.keys()))
         for env_id in self.envs.keys():
-            row_dict = self._generate_input_for_uptate(
-                recording=self.recorder[env_id],
-                step=self.env_states[env_id]['step'],
-                window_size=None,
-            )
-            row_dict['reward_model'] = {"style": "given", "ground_truth": {"reward": reward_rst[env_id]}}
-            batch_list.append(row_dict)
+            recording = self.recorder[env_id]
+            for step in range(1,len(recording)):
+                row_dict = self._generate_input_for_uptate(
+                    recording=recording,
+                    step=step,
+                    window_size=self.config.window_size,
+                )
+                #### row_dict['reward_model'] = {"style": "given", "ground_truth": {"reward": reward_rst[env_id]}}
+                batch_list.append(row_dict)
+
+        if len(batch_list) % self.config.ppo_mini_batch_size != 0:
+            # Pad the batch to make it divisible by ppo_mini_batch_size
+            while len(batch_list) % self.config.ppo_mini_batch_size != 0:
+                # randomly select a sample to pad
+                random_idx = np.random.randint(0, len(batch_list))
+                batch_list.append(batch_list[random_idx].copy())
         batch_dict = collate_fn(batch_list)
         batch = DataProto.from_single_dict(batch_dict)
         return batch

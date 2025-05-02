@@ -206,3 +206,4 @@ rollout_manager:
   use_service: False
   timeout: 1200
   max_workers: 8
+  ppo_mini_batch_size: ${actor_rollout_ref.actor.ppo_mini_batch_size}

@@ -125,3 +125,5 @@ log*
 # analysis folder
 svg_analysis_results/
 temp/
+
+vagen/examples/frozen_lake_aico_service/core
