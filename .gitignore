@@ -128,3 +128,6 @@ temp/
 benchmark_results/
 env_benchmark_results/
 results/
+
+# ChartAgent
+vagen/env/chart_agent/ChartAgent/
