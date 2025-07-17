@@ -1,0 +1,139 @@
+{
+  "name": "room_setting",
+  "objects": [
+    {
+      "name": "chair_willisau_riale",
+      "pos": [
+        -4,
+        -2
+      ],
+      "ori": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "green_side_chair",
+      "pos": [
+        2,
+        -1
+      ],
+      "ori": [
+        -1,
+        0
+      ]
+    },
+    {
+      "name": "red_side_chair",
+      "pos": [
+        3,
+        1
+      ],
+      "ori": [
+        -1,
+        0
+      ]
+    },
+    {
+      "name": "linbrazil_diz_armchair",
+      "pos": [
+        3,
+        -3
+      ],
+      "ori": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "wood_chair",
+      "pos": [
+        -3,
+        2
+      ],
+      "ori": [
+        0,
+        1
+      ]
+    }
+  ],
+  "agent": {
+    "name": "agent",
+    "pos": [
+      -5,
+      -3
+    ],
+    "ori": [
+      0,
+      1
+    ]
+  },
+  "all_objects": [
+    {
+      "name": "agent",
+      "pos": [
+        -5,
+        -3
+      ],
+      "ori": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "chair_willisau_riale",
+      "pos": [
+        -4,
+        -2
+      ],
+      "ori": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "green_side_chair",
+      "pos": [
+        2,
+        -1
+      ],
+      "ori": [
+        -1,
+        0
+      ]
+    },
+    {
+      "name": "red_side_chair",
+      "pos": [
+        3,
+        1
+      ],
+      "ori": [
+        -1,
+        0
+      ]
+    },
+    {
+      "name": "linbrazil_diz_armchair",
+      "pos": [
+        3,
+        -3
+      ],
+      "ori": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "wood_chair",
+      "pos": [
+        -3,
+        2
+      ],
+      "ori": [
+        0,
+        1
+      ]
+    }
+  ]
+}

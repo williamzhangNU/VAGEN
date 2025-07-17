@@ -1,0 +1,420 @@
+{
+  "room_size": [
+    10,
+    10
+  ],
+  "screen_size": [
+    2048,
+    2048
+  ],
+  "seed": 57,
+  "min_distance": 0.5,
+  "objects": [
+    {
+      "oid": 6170987,
+      "model": "chair_thonet_marshall",
+      "pos": {
+        "x": 3,
+        "y": 0,
+        "z": -4
+      },
+      "rot": {
+        "x": 0,
+        "y": 180,
+        "z": 0
+      },
+      "size": [
+        0.3967712,
+        0.48217699999999997
+      ]
+    },
+    {
+      "oid": 2612517,
+      "model": "dark_red_club_chair",
+      "pos": {
+        "x": 0,
+        "y": 0,
+        "z": 1
+      },
+      "rot": {
+        "x": 0,
+        "y": 180,
+        "z": 0
+      },
+      "size": [
+        0.920526,
+        0.8340363
+      ]
+    },
+    {
+      "oid": 8487171,
+      "model": "brown_leather_side_chair",
+      "pos": {
+        "x": -4,
+        "y": 0,
+        "z": -3
+      },
+      "rot": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "size": [
+        0.6674332000000001,
+        0.6301832
+      ]
+    },
+    {
+      "oid": 2643532,
+      "model": "lapalma_stil_chair",
+      "pos": {
+        "x": 1,
+        "y": 0,
+        "z": 3
+      },
+      "rot": {
+        "x": 0,
+        "y": 270,
+        "z": 0
+      },
+      "size": [
+        0.4800618,
+        0.5100285
+      ]
+    },
+    {
+      "oid": 8902694,
+      "model": "linbrazil_diz_armchair",
+      "pos": {
+        "x": -2,
+        "y": 0,
+        "z": -2
+      },
+      "rot": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "size": [
+        0.7621276,
+        0.913583
+      ]
+    }
+  ],
+  "cameras": [
+    {
+      "id": "central",
+      "label": "C",
+      "position": {
+        "x": -2,
+        "y": 0.8,
+        "z": 0
+      },
+      "rotation": {
+        "y": 90.0
+      }
+    },
+    {
+      "id": "obj1",
+      "label": "1",
+      "position": {
+        "x": 3,
+        "y": 0.8,
+        "z": -4
+      },
+      "rotation": {
+        "y": -36.86989764584402
+      }
+    },
+    {
+      "id": "obj2",
+      "label": "2",
+      "position": {
+        "x": 0,
+        "y": 0.8,
+        "z": 1
+      },
+      "rotation": {
+        "y": 180.0
+      }
+    },
+    {
+      "id": "obj3",
+      "label": "3",
+      "position": {
+        "x": -4,
+        "y": 0.8,
+        "z": -3
+      },
+      "rotation": {
+        "y": 53.13010235415598
+      }
+    },
+    {
+      "id": "obj4",
+      "label": "4",
+      "position": {
+        "x": 1,
+        "y": 0.8,
+        "z": 3
+      },
+      "rotation": {
+        "y": -161.565051177078
+      }
+    },
+    {
+      "id": "obj5",
+      "label": "5",
+      "position": {
+        "x": -2,
+        "y": 0.8,
+        "z": -2
+      },
+      "rotation": {
+        "y": 45.0
+      }
+    }
+  ],
+  "images": [
+    {
+      "file": "central_facing_north.png",
+      "cam_id": "central",
+      "pos": {
+        "x": -2,
+        "y": 0.8,
+        "z": 0
+      },
+      "direction": "north"
+    },
+    {
+      "file": "central_facing_east.png",
+      "cam_id": "central",
+      "pos": {
+        "x": -2,
+        "y": 0.8,
+        "z": 0
+      },
+      "direction": "east"
+    },
+    {
+      "file": "central_facing_south.png",
+      "cam_id": "central",
+      "pos": {
+        "x": -2,
+        "y": 0.8,
+        "z": 0
+      },
+      "direction": "south"
+    },
+    {
+      "file": "central_facing_west.png",
+      "cam_id": "central",
+      "pos": {
+        "x": -2,
+        "y": 0.8,
+        "z": 0
+      },
+      "direction": "west"
+    },
+    {
+      "file": "obj1_facing_north.png",
+      "cam_id": "obj1",
+      "pos": {
+        "x": 3,
+        "y": 0.8,
+        "z": -4
+      },
+      "direction": "north"
+    },
+    {
+      "file": "obj1_facing_east.png",
+      "cam_id": "obj1",
+      "pos": {
+        "x": 3,
+        "y": 0.8,
+        "z": -4
+      },
+      "direction": "east"
+    },
+    {
+      "file": "obj1_facing_south.png",
+      "cam_id": "obj1",
+      "pos": {
+        "x": 3,
+        "y": 0.8,
+        "z": -4
+      },
+      "direction": "south"
+    },
+    {
+      "file": "obj1_facing_west.png",
+      "cam_id": "obj1",
+      "pos": {
+        "x": 3,
+        "y": 0.8,
+        "z": -4
+      },
+      "direction": "west"
+    },
+    {
+      "file": "obj2_facing_north.png",
+      "cam_id": "obj2",
+      "pos": {
+        "x": 0,
+        "y": 0.8,
+        "z": 1
+      },
+      "direction": "north"
+    },
+    {
+      "file": "obj2_facing_east.png",
+      "cam_id": "obj2",
+      "pos": {
+        "x": 0,
+        "y": 0.8,
+        "z": 1
+      },
+      "direction": "east"
+    },
+    {
+      "file": "obj2_facing_south.png",
+      "cam_id": "obj2",
+      "pos": {
+        "x": 0,
+        "y": 0.8,
+        "z": 1
+      },
+      "direction": "south"
+    },
+    {
+      "file": "obj2_facing_west.png",
+      "cam_id": "obj2",
+      "pos": {
+        "x": 0,
+        "y": 0.8,
+        "z": 1
+      },
+      "direction": "west"
+    },
+    {
+      "file": "obj3_facing_north.png",
+      "cam_id": "obj3",
+      "pos": {
+        "x": -4,
+        "y": 0.8,
+        "z": -3
+      },
+      "direction": "north"
+    },
+    {
+      "file": "obj3_facing_east.png",
+      "cam_id": "obj3",
+      "pos": {
+        "x": -4,
+        "y": 0.8,
+        "z": -3
+      },
+      "direction": "east"
+    },
+    {
+      "file": "obj3_facing_south.png",
+      "cam_id": "obj3",
+      "pos": {
+        "x": -4,
+        "y": 0.8,
+        "z": -3
+      },
+      "direction": "south"
+    },
+    {
+      "file": "obj3_facing_west.png",
+      "cam_id": "obj3",
+      "pos": {
+        "x": -4,
+        "y": 0.8,
+        "z": -3
+      },
+      "direction": "west"
+    },
+    {
+      "file": "obj4_facing_north.png",
+      "cam_id": "obj4",
+      "pos": {
+        "x": 1,
+        "y": 0.8,
+        "z": 3
+      },
+      "direction": "north"
+    },
+    {
+      "file": "obj4_facing_east.png",
+      "cam_id": "obj4",
+      "pos": {
+        "x": 1,
+        "y": 0.8,
+        "z": 3
+      },
+      "direction": "east"
+    },
+    {
+      "file": "obj4_facing_south.png",
+      "cam_id": "obj4",
+      "pos": {
+        "x": 1,
+        "y": 0.8,
+        "z": 3
+      },
+      "direction": "south"
+    },
+    {
+      "file": "obj4_facing_west.png",
+      "cam_id": "obj4",
+      "pos": {
+        "x": 1,
+        "y": 0.8,
+        "z": 3
+      },
+      "direction": "west"
+    },
+    {
+      "file": "obj5_facing_north.png",
+      "cam_id": "obj5",
+      "pos": {
+        "x": -2,
+        "y": 0.8,
+        "z": -2
+      },
+      "direction": "north"
+    },
+    {
+      "file": "obj5_facing_east.png",
+      "cam_id": "obj5",
+      "pos": {
+        "x": -2,
+        "y": 0.8,
+        "z": -2
+      },
+      "direction": "east"
+    },
+    {
+      "file": "obj5_facing_south.png",
+      "cam_id": "obj5",
+      "pos": {
+        "x": -2,
+        "y": 0.8,
+        "z": -2
+      },
+      "direction": "south"
+    },
+    {
+      "file": "obj5_facing_west.png",
+      "cam_id": "obj5",
+      "pos": {
+        "x": -2,
+        "y": 0.8,
+        "z": -2
+      },
+      "direction": "west"
+    }
+  ]
+}

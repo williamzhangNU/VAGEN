@@ -1,0 +1,139 @@
+{
+  "name": "room_setting",
+  "objects": [
+    {
+      "name": "chair_eames_plastic_armchair",
+      "pos": [
+        0,
+        -4
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "emeco_navy_chair",
+      "pos": [
+        3,
+        -4
+      ],
+      "ori": [
+        -1,
+        0
+      ]
+    },
+    {
+      "name": "chair_billiani_doll",
+      "pos": [
+        -3,
+        -2
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "ligne_roset_armchair",
+      "pos": [
+        0,
+        0
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "yellow_side_chair",
+      "pos": [
+        3,
+        1
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    }
+  ],
+  "agent": {
+    "name": "agent",
+    "pos": [
+      3,
+      0
+    ],
+    "ori": [
+      0,
+      -1
+    ]
+  },
+  "all_objects": [
+    {
+      "name": "agent",
+      "pos": [
+        3,
+        0
+      ],
+      "ori": [
+        0,
+        -1
+      ]
+    },
+    {
+      "name": "chair_eames_plastic_armchair",
+      "pos": [
+        0,
+        -4
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "emeco_navy_chair",
+      "pos": [
+        3,
+        -4
+      ],
+      "ori": [
+        -1,
+        0
+      ]
+    },
+    {
+      "name": "chair_billiani_doll",
+      "pos": [
+        -3,
+        -2
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "ligne_roset_armchair",
+      "pos": [
+        0,
+        0
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "yellow_side_chair",
+      "pos": [
+        3,
+        1
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    }
+  ]
+}

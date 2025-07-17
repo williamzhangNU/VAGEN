@@ -31,4 +31,7 @@ primitive_skill:
 sokoban:
   max_workers: 48
   use_state_reward: ${use_state_reward}
+spatial:
+  max_workers: 48
+  use_state_reward: ${use_state_reward}
 

@@ -1,0 +1,139 @@
+{
+  "name": "room_setting",
+  "objects": [
+    {
+      "name": "naughtone_pinch_stool_chair",
+      "pos": [
+        1,
+        -2
+      ],
+      "ori": [
+        0,
+        -1
+      ]
+    },
+    {
+      "name": "tan_side_chair",
+      "pos": [
+        -1,
+        1
+      ],
+      "ori": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "white_lounger_chair",
+      "pos": [
+        -2,
+        -2
+      ],
+      "ori": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "brown_leather_side_chair",
+      "pos": [
+        -4,
+        1
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "tan_lounger_chair",
+      "pos": [
+        0,
+        -4
+      ],
+      "ori": [
+        0,
+        -1
+      ]
+    }
+  ],
+  "agent": {
+    "name": "agent",
+    "pos": [
+      3,
+      1
+    ],
+    "ori": [
+      0,
+      -1
+    ]
+  },
+  "all_objects": [
+    {
+      "name": "agent",
+      "pos": [
+        3,
+        1
+      ],
+      "ori": [
+        0,
+        -1
+      ]
+    },
+    {
+      "name": "naughtone_pinch_stool_chair",
+      "pos": [
+        1,
+        -2
+      ],
+      "ori": [
+        0,
+        -1
+      ]
+    },
+    {
+      "name": "tan_side_chair",
+      "pos": [
+        -1,
+        1
+      ],
+      "ori": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "white_lounger_chair",
+      "pos": [
+        -2,
+        -2
+      ],
+      "ori": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "brown_leather_side_chair",
+      "pos": [
+        -4,
+        1
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "tan_lounger_chair",
+      "pos": [
+        0,
+        -4
+      ],
+      "ori": [
+        0,
+        -1
+      ]
+    }
+  ]
+}

@@ -1,0 +1,139 @@
+{
+  "name": "room_setting",
+  "objects": [
+    {
+      "name": "chair_eames_plastic_armchair",
+      "pos": [
+        -4,
+        3
+      ],
+      "ori": [
+        -1,
+        0
+      ]
+    },
+    {
+      "name": "chair_annabelle",
+      "pos": [
+        -1,
+        1
+      ],
+      "ori": [
+        0,
+        -1
+      ]
+    },
+    {
+      "name": "green_side_chair",
+      "pos": [
+        -2,
+        -3
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "dark_red_club_chair",
+      "pos": [
+        -4,
+        -2
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "brown_leather_dining_chair",
+      "pos": [
+        -1,
+        -1
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    }
+  ],
+  "agent": {
+    "name": "agent",
+    "pos": [
+      4,
+      3
+    ],
+    "ori": [
+      0,
+      -1
+    ]
+  },
+  "all_objects": [
+    {
+      "name": "agent",
+      "pos": [
+        4,
+        3
+      ],
+      "ori": [
+        0,
+        -1
+      ]
+    },
+    {
+      "name": "chair_eames_plastic_armchair",
+      "pos": [
+        -4,
+        3
+      ],
+      "ori": [
+        -1,
+        0
+      ]
+    },
+    {
+      "name": "chair_annabelle",
+      "pos": [
+        -1,
+        1
+      ],
+      "ori": [
+        0,
+        -1
+      ]
+    },
+    {
+      "name": "green_side_chair",
+      "pos": [
+        -2,
+        -3
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "dark_red_club_chair",
+      "pos": [
+        -4,
+        -2
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "brown_leather_dining_chair",
+      "pos": [
+        -1,
+        -1
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    }
+  ]
+}

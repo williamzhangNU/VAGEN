@@ -1,0 +1,139 @@
+{
+  "name": "room_setting",
+  "objects": [
+    {
+      "name": "naughtone_pinch_stool_chair",
+      "pos": [
+        0,
+        3
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "green_side_chair",
+      "pos": [
+        -1,
+        -4
+      ],
+      "ori": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "yellow_side_chair",
+      "pos": [
+        2,
+        -3
+      ],
+      "ori": [
+        0,
+        -1
+      ]
+    },
+    {
+      "name": "chair_thonet_marshall",
+      "pos": [
+        0,
+        0
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "wood_chair",
+      "pos": [
+        0,
+        -2
+      ],
+      "ori": [
+        0,
+        -1
+      ]
+    }
+  ],
+  "agent": {
+    "name": "agent",
+    "pos": [
+      0,
+      2
+    ],
+    "ori": [
+      -1,
+      0
+    ]
+  },
+  "all_objects": [
+    {
+      "name": "agent",
+      "pos": [
+        0,
+        2
+      ],
+      "ori": [
+        -1,
+        0
+      ]
+    },
+    {
+      "name": "naughtone_pinch_stool_chair",
+      "pos": [
+        0,
+        3
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "green_side_chair",
+      "pos": [
+        -1,
+        -4
+      ],
+      "ori": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "yellow_side_chair",
+      "pos": [
+        2,
+        -3
+      ],
+      "ori": [
+        0,
+        -1
+      ]
+    },
+    {
+      "name": "chair_thonet_marshall",
+      "pos": [
+        0,
+        0
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "wood_chair",
+      "pos": [
+        0,
+        -2
+      ],
+      "ori": [
+        0,
+        -1
+      ]
+    }
+  ]
+}

@@ -1,0 +1,139 @@
+{
+  "name": "room_setting",
+  "objects": [
+    {
+      "name": "linen_dining_chair",
+      "pos": [
+        3,
+        -3
+      ],
+      "ori": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "vitra_meda_chair",
+      "pos": [
+        -2,
+        -3
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "wood_chair",
+      "pos": [
+        2,
+        -1
+      ],
+      "ori": [
+        -1,
+        0
+      ]
+    },
+    {
+      "name": "white_lounger_chair",
+      "pos": [
+        3,
+        2
+      ],
+      "ori": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "linbrazil_diz_armchair",
+      "pos": [
+        -1,
+        -1
+      ],
+      "ori": [
+        -1,
+        0
+      ]
+    }
+  ],
+  "agent": {
+    "name": "agent",
+    "pos": [
+      -5,
+      -2
+    ],
+    "ori": [
+      0,
+      1
+    ]
+  },
+  "all_objects": [
+    {
+      "name": "agent",
+      "pos": [
+        -5,
+        -2
+      ],
+      "ori": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "linen_dining_chair",
+      "pos": [
+        3,
+        -3
+      ],
+      "ori": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "vitra_meda_chair",
+      "pos": [
+        -2,
+        -3
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "wood_chair",
+      "pos": [
+        2,
+        -1
+      ],
+      "ori": [
+        -1,
+        0
+      ]
+    },
+    {
+      "name": "white_lounger_chair",
+      "pos": [
+        3,
+        2
+      ],
+      "ori": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "linbrazil_diz_armchair",
+      "pos": [
+        -1,
+        -1
+      ],
+      "ori": [
+        -1,
+        0
+      ]
+    }
+  ]
+}

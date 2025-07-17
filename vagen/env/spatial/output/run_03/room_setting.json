@@ -1,0 +1,139 @@
+{
+  "name": "room_setting",
+  "objects": [
+    {
+      "name": "naughtone_pinch_stool_chair",
+      "pos": [
+        2,
+        2
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "vitra_meda_chair",
+      "pos": [
+        2,
+        -2
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "ligne_roset_armchair",
+      "pos": [
+        0,
+        -3
+      ],
+      "ori": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "emeco_navy_chair",
+      "pos": [
+        2,
+        0
+      ],
+      "ori": [
+        -1,
+        0
+      ]
+    },
+    {
+      "name": "red_side_chair",
+      "pos": [
+        -4,
+        -3
+      ],
+      "ori": [
+        0,
+        1
+      ]
+    }
+  ],
+  "agent": {
+    "name": "agent",
+    "pos": [
+      1,
+      -5
+    ],
+    "ori": [
+      1,
+      0
+    ]
+  },
+  "all_objects": [
+    {
+      "name": "agent",
+      "pos": [
+        1,
+        -5
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "naughtone_pinch_stool_chair",
+      "pos": [
+        2,
+        2
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "vitra_meda_chair",
+      "pos": [
+        2,
+        -2
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "ligne_roset_armchair",
+      "pos": [
+        0,
+        -3
+      ],
+      "ori": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "emeco_navy_chair",
+      "pos": [
+        2,
+        0
+      ],
+      "ori": [
+        -1,
+        0
+      ]
+    },
+    {
+      "name": "red_side_chair",
+      "pos": [
+        -4,
+        -3
+      ],
+      "ori": [
+        0,
+        1
+      ]
+    }
+  ]
+}

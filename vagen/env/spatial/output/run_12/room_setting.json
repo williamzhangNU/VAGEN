@@ -1,0 +1,139 @@
+{
+  "name": "room_setting",
+  "objects": [
+    {
+      "name": "wood_chair",
+      "pos": [
+        -2,
+        2
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "chair_willisau_riale",
+      "pos": [
+        -3,
+        -1
+      ],
+      "ori": [
+        -1,
+        0
+      ]
+    },
+    {
+      "name": "white_lounger_chair",
+      "pos": [
+        -4,
+        -3
+      ],
+      "ori": [
+        0,
+        -1
+      ]
+    },
+    {
+      "name": "brown_leather_side_chair",
+      "pos": [
+        3,
+        0
+      ],
+      "ori": [
+        -1,
+        0
+      ]
+    },
+    {
+      "name": "vitra_meda_chair",
+      "pos": [
+        3,
+        3
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    }
+  ],
+  "agent": {
+    "name": "agent",
+    "pos": [
+      -2,
+      -2
+    ],
+    "ori": [
+      1,
+      0
+    ]
+  },
+  "all_objects": [
+    {
+      "name": "agent",
+      "pos": [
+        -2,
+        -2
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "wood_chair",
+      "pos": [
+        -2,
+        2
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "chair_willisau_riale",
+      "pos": [
+        -3,
+        -1
+      ],
+      "ori": [
+        -1,
+        0
+      ]
+    },
+    {
+      "name": "white_lounger_chair",
+      "pos": [
+        -4,
+        -3
+      ],
+      "ori": [
+        0,
+        -1
+      ]
+    },
+    {
+      "name": "brown_leather_side_chair",
+      "pos": [
+        3,
+        0
+      ],
+      "ori": [
+        -1,
+        0
+      ]
+    },
+    {
+      "name": "vitra_meda_chair",
+      "pos": [
+        3,
+        3
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    }
+  ]
+}

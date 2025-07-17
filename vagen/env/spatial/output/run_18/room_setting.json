@@ -1,0 +1,139 @@
+{
+  "name": "room_setting",
+  "objects": [
+    {
+      "name": "linbrazil_diz_armchair",
+      "pos": [
+        3,
+        -2
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "vitra_meda_chair",
+      "pos": [
+        -4,
+        -1
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "green_side_chair",
+      "pos": [
+        1,
+        2
+      ],
+      "ori": [
+        0,
+        -1
+      ]
+    },
+    {
+      "name": "blue_club_chair",
+      "pos": [
+        -3,
+        2
+      ],
+      "ori": [
+        -1,
+        0
+      ]
+    },
+    {
+      "name": "dark_red_club_chair",
+      "pos": [
+        3,
+        -4
+      ],
+      "ori": [
+        0,
+        -1
+      ]
+    }
+  ],
+  "agent": {
+    "name": "agent",
+    "pos": [
+      -3,
+      0
+    ],
+    "ori": [
+      0,
+      1
+    ]
+  },
+  "all_objects": [
+    {
+      "name": "agent",
+      "pos": [
+        -3,
+        0
+      ],
+      "ori": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "linbrazil_diz_armchair",
+      "pos": [
+        3,
+        -2
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "vitra_meda_chair",
+      "pos": [
+        -4,
+        -1
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "green_side_chair",
+      "pos": [
+        1,
+        2
+      ],
+      "ori": [
+        0,
+        -1
+      ]
+    },
+    {
+      "name": "blue_club_chair",
+      "pos": [
+        -3,
+        2
+      ],
+      "ori": [
+        -1,
+        0
+      ]
+    },
+    {
+      "name": "dark_red_club_chair",
+      "pos": [
+        3,
+        -4
+      ],
+      "ori": [
+        0,
+        -1
+      ]
+    }
+  ]
+}

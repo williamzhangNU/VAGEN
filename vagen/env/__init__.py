@@ -63,13 +63,12 @@ except ImportError:
     pass
 
 try:
-    from .blackjack import BlackjackEnv, BlackjackEnvConfig, BlackjackService, BlackjackServiceConfig
-    REGISTERED_ENV["blackjack"] = {
-        "env_cls": BlackjackEnv,
-        "config_cls": BlackjackEnvConfig,
-        "service_cls": BlackjackService,
-        "service_config_cls": BlackjackServiceConfig
+    from .spatial import SpatialGym, SpatialGymConfig, SpatialGymService, SpatialGymServiceConfig
+    REGISTERED_ENV["spatial"] = {
+        "env_cls": SpatialGym,
+        "config_cls": SpatialGymConfig,
+        "service_cls": SpatialGymService,
+        "service_config_cls": SpatialGymServiceConfig
     }
 except ImportError:
     pass
-

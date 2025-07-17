@@ -1,0 +1,8 @@
+env1:
+  env_name: spatial
+  env_config: 
+    exp_type: passive
+  train_size: 10
+  test_size: 10
+
+  # TODO handle multiple (list) eval_tasks (json serializable)
