@@ -11,58 +11,20 @@ from vagen.env.utils.parse_utils import parse_freethink
 
 from vagen.env.spatial.Base.tos_base import (
     EvaluationManager,
-    Room,
     ActionSequence,
     ExplorationManager,
-    generate_room,
-    MoveAction,
-    RotateAction,
-    ReturnAction,
-    ObserveAction,
-    TermAction,
     BaseAction
 )
 from vagen.env.spatial.Base.tos_base.utils.room_utils import initialize_room_from_json
 from vagen.env.spatial.utils.generate_history import AutoExplore
+from vagen.env.spatial.utils.action_utils import action_results_to_text
+from vagen.env.spatial.utils.image_handler import ImageHandler
 from vagen.env.spatial.prompt import (
     ACTIVE_INSTRUCTION, 
     PASSIVE_INSTRUCTION, 
     EVALUATION_INSTRUCTION,
     FORMAT_PROMPT
 )
-
-instruction = (
-    "# Spatial Mapping Task\n"
-    "\n"
-    "You are exploring a room to discover spatial relationships between objects.\n"
-    "Build a complete mental map by finding where each object is relative to others.\n"
-    "\n"
-    "## Spatial Relationships\n"
-    "When you query an object, you get its position relative to you: (horizontal, vertical)\n"
-    "\n"
-    "- Horizontal: left, right, same\n"
-    "- Vertical: front, back, same\n"
-    "- Example: (left, front) means object is to your left and in front of you\n"
-    "\n"
-    "## Key Points\n"
-    "- Relationships are relative: if A is left of B, then B is right of A\n"
-    "- Terminate when you have enough information to map all object pairs\n"
-    "\n"
-    "## Room Layout\n"
-    "{room_info}\n"
-    "\n"
-    "{exp_history}\n"
-    "\n"
-    "{exp_answer_format}\n"
-)
-
-
-def _vector_to_dir(ori: np.ndarray) -> str:
-    """Convert orientation vector to cardinal direction string."""
-    vec = tuple(np.round(ori).astype(int))
-    mapping = {(0, 1): 'north', (1, 0): 'east', (0, -1): 'south', (-1, 0): 'west'}
-    return mapping.get(vec, 'north')
-
 
 class SpatialGym(gym.Env):
 
@@ -87,39 +49,10 @@ class SpatialGym(gym.Env):
 
 
     def _init_data(self, seed: int = None):
-        # Load metadata JSON
-        # TODO change to new json format
-
-        subdirs = [d for d in os.listdir(self.config.base_dir) if os.path.isdir(os.path.join(self.config.base_dir, d))]
-        data_idx = (seed % len(subdirs)) if seed else np.random.randint(0, len(subdirs))
-        self.image_dir = os.path.join(self.config.base_dir, subdirs[data_idx])
-        with open(os.path.join(self.image_dir, "meta_data.json"), 'r') as f:
-            self.json_data = json.load(f)
-        
-        # Map object names to camera IDs by matching coordinates
-        # Example: "chair_willisau_riale" at (-1, -3) maps to "obj1" camera at (-1, -3)
-        self.name_to_cam = {'central': 'central'}
-        
-        for obj in self.json_data.get('objects', []):
-            obj_pos = (obj['pos']['x'], obj['pos']['z'])
-            obj_name = obj['model']
-            
-            # Find camera at same x,z position
-            for cam in self.json_data.get('cameras', []):
-                if cam['id'] == 'central':
-                    continue
-                cam_pos = (cam['position']['x'], cam['position']['z'])
-                if obj_pos == cam_pos:
-                    self.name_to_cam[obj_name] = cam['id']
-                    break
-
-        # Preload all images: {cam_id}_facing_{direction}.png
-        self.image_map = {}
-        for entry in self.json_data.get('images', []):
-            key = (entry['cam_id'], entry['direction'])
-            filename = entry['file']
-            path = os.path.join(self.image_dir, filename)
-            self.image_map[key] = Image.open(path).resize(self.config.image_size, Image.LANCZOS)
+        """Initialize data and image handler."""
+        self.image_handler = ImageHandler(self.config.base_dir, seed, self.config.image_size)
+        self.image_dir = self.image_handler.image_dir
+        self.json_data = self.image_handler.json_data
 
 
     def _generate_initial_observation(self) -> str:
@@ -127,7 +60,7 @@ class SpatialGym(gym.Env):
         room_desc = self.initial_room.get_room_description()
         
         if self.config.exp_type == 'passive':
-            auto_explore = AutoExplore(self.initial_room, self.np_random, self.json_data, self.image_dir, self.config.image_size)
+            auto_explore = AutoExplore(self.initial_room, self.np_random, self.image_handler)
             exp_history_obs = auto_explore.gen_exp_history()
             exp_history = f"## Exploration History\n{exp_history_obs['obs_str']}"
             eval_question = self.evaluation_manager.get_current_question(self.initial_room.copy())
@@ -157,7 +90,7 @@ class SpatialGym(gym.Env):
     def _create_obs(self, obs_str: str, include_visual: bool = False) -> dict:
         obs = {'obs_str': obs_str + "\n" + FORMAT_PROMPT}
         if include_visual:
-            img = self.image_map[(self.name_to_cam[self.current_position], self.current_direction)]
+            img = self.image_handler.get_image(self.current_position, self.current_direction)
             obs['multi_modal_data'] = {self.config.image_placeholder: [img]}
         return obs
     
@@ -282,14 +215,16 @@ class SpatialGym(gym.Env):
         else:
             # Execute exploration action, TODO give better reward to efficient exploration
             if action_sequence:
-                result, exp_info = self.exploration_manager.explore(action_sequence)
+                include_visual = True
+                exp_info, action_results = self.exploration_manager.execute_action_sequence(action_sequence)
                 self._update_agent_state()
                 # Track redundant queries
                 if exp_info.get('redundant', False):
                     self.n_redundant_queries += 1
                     reward += -1 # redundant observe penalty
-                obs_str += result + "\n" + f"You observe: {self.config.image_placeholder}"
-                include_visual = True
+                
+                # Convert action results to text observation
+                obs_str += action_results_to_text(action_results, self.config.image_placeholder)
             obs_str += f"\nYou have a maximum of {self.remaining_exp_steps} exploration steps left."
         
         return self._create_obs(obs_str, include_visual=include_visual), reward, False, {}

@@ -2,7 +2,9 @@ env1:
   env_name: spatial
   env_config: 
     exp_type: passive
+    eval_tasks:
+      - task_type: rot
+        task_kwargs:
+          turn_direction: clockwise
   train_size: 10
   test_size: 10
-
-  # TODO handle multiple (list) eval_tasks (json serializable)
