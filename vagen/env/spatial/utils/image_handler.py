@@ -11,7 +11,7 @@ from PIL import Image
 class ImageHandler:
     """Handle images and data initialization based on position and orientation."""
     
-    def __init__(self, base_dir: str, seed: int = None, image_size: tuple = (224, 224), preload_images: bool = True):
+    def __init__(self, base_dir: str, seed: int = None, image_size: tuple = (512, 512), preload_images: bool = True):
         """
         Initialize image handler with data loading.
         

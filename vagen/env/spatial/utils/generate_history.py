@@ -47,7 +47,7 @@ class AutoExplore:
         
         # Find position: which object is at same location as agent
         position_name = 'central'  # default
-        for obj in self.exp_manager.exploration_room.objects:
+        for obj in [obj for obj in self.exp_manager.exploration_room.objects if obj.name != 'agent_anchor']:
             if np.allclose(obj.pos, agent.pos):
                 position_name = obj.name
                 break
@@ -64,7 +64,7 @@ class AutoExplore:
         
         Returns:
             action_results_per_turn: ActionResults for each turn
-            images: Images for each observe action (all valid)
+            images: Images for each observe action
         """
         assert self.room.agent is not None, "Agent is not in the room"
 
@@ -128,6 +128,7 @@ class AutoExplore:
                     image = self.image_handler.get_image(position, direction)
                     images.append(image)
                 except KeyError:
+                    print(f"Image not found for position: {position}, direction: {direction}")
                     pass  # Image not found, skip
             
             # Observation marks end of turn
@@ -205,6 +206,8 @@ if __name__ == "__main__":
     import json
     import os
 
+    BaseAction.set_field_of_view(90)
+
     # Load data
     base_dir = os.path.join(os.path.dirname(__file__), "../output")
     image_handler = ImageHandler(base_dir, seed=0)  # Use run_00
@@ -225,7 +228,7 @@ if __name__ == "__main__":
         print(f"\nImages collected: {len(images)}")
         
         # Save images to local directory
-        output_dir = os.path.join(image_handler.image_dir, "saved_images")
+        output_dir = "saved_images"
         os.makedirs(output_dir, exist_ok=True)
         
         for i, image in enumerate(images):
