@@ -15,7 +15,7 @@ from vagen.env.spatial.Base.tos_base import (
     ExplorationManager,
     BaseAction
 )
-from vagen.env.spatial.Base.tos_base.utils.room_utils import initialize_room_from_json
+from vagen.env.spatial.utils.initialize_room import initialize_room_from_json
 from vagen.env.spatial.utils.generate_history import AutoExplore
 from vagen.env.spatial.utils.action_utils import action_results_to_text
 from vagen.env.spatial.utils.image_handler import ImageHandler
@@ -106,7 +106,7 @@ class SpatialGym(gym.Env):
         assert np.array_equal(agent.ori, np.array([0, 1])), f"Agent orientation is not (0,1), got {agent.ori}"
         
         # 1. Find position: which object is at same location as agent (0,0)
-        position_name = 'central'  # default (if at agent_anchor, original position)
+        position_name = 'agent'  # default (if at agent_anchor, original position)
         for obj in room.objects:
             if np.allclose(obj.pos, agent.pos):  # same position as agent
                 position_name = obj.name
@@ -132,7 +132,7 @@ class SpatialGym(gym.Env):
         super().reset(seed=seed)
 
         self._init_data(seed=seed)
-        self.current_position = 'central'
+        self.current_position = 'agent'
         self.current_direction = 'north'
 
         # Generate initial room

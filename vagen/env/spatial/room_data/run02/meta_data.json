@@ -1,0 +1,456 @@
+{
+  "room_size": [
+    8,
+    8
+  ],
+  "screen_size": [
+    512,
+    512
+  ],
+  "seed": 2,
+  "min_distance": 0.5,
+  "objects": [
+    {
+      "object_id": 8864337,
+      "model": "white_lamp",
+      "name": "white lamp",
+      "pos": {
+        "x": 2.4282068928281264,
+        "y": 0,
+        "z": -0.5535214137088451
+      },
+      "rot": {
+        "x": 0,
+        "y": 180,
+        "z": 0
+      },
+      "size": [
+        0.6999984,
+        1.4422802
+      ],
+      "attributes": {
+        "scale": 2.0
+      }
+    },
+    {
+      "object_id": 5379746,
+      "model": "chair_annabelle",
+      "name": "green chair",
+      "pos": {
+        "x": -0.42432298061032414,
+        "y": 0,
+        "z": 0.18308247376663012
+      },
+      "rot": {
+        "x": 0,
+        "y": 270,
+        "z": 0
+      },
+      "size": [
+        0.5,
+        0.5574072999999999
+      ],
+      "attributes": {
+        "scale": 1.0,
+        "color": {
+          "name": "green",
+          "r": 0.0,
+          "g": 1.0,
+          "b": 0.0,
+          "a": 1.0
+        }
+      }
+    },
+    {
+      "object_id": 16775869,
+      "model": "vase_01",
+      "name": "vase",
+      "pos": {
+        "x": -0.912506818633958,
+        "y": 0,
+        "z": -2.4789582652376567
+      },
+      "rot": {
+        "x": 0,
+        "y": 180,
+        "z": 0
+      },
+      "size": [
+        0.19367014,
+        0.19367016
+      ],
+      "attributes": {
+        "scale": 2.0
+      }
+    }
+  ],
+  "cameras": [
+    {
+      "id": "agent",
+      "label": "A",
+      "position": {
+        "x": -0.11743142263524353,
+        "y": 0.8,
+        "z": -2.2752170550995143
+      },
+      "rotation": {
+        "y": 2.9546015479082524
+      }
+    },
+    {
+      "id": "8864337",
+      "label": "1",
+      "position": {
+        "x": 2.4282068928281264,
+        "y": 0.8,
+        "z": -0.5535214137088451
+      },
+      "rotation": {
+        "y": -77.15857903764905
+      }
+    },
+    {
+      "id": "5379746",
+      "label": "2",
+      "position": {
+        "x": -0.42432298061032414,
+        "y": 0.8,
+        "z": 0.18308247376663012
+      },
+      "rotation": {
+        "y": 113.33873013139365
+      }
+    },
+    {
+      "id": "16775869",
+      "label": "3",
+      "position": {
+        "x": -0.912506818633958,
+        "y": 0.8,
+        "z": -2.4789582652376567
+      },
+      "rotation": {
+        "y": 20.208707639359176
+      }
+    }
+  ],
+  "images": [
+    {
+      "file": "agent_facing_north.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": -0.11743142263524353,
+        "y": 0.8,
+        "z": -2.2752170550995143
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 5379746,
+          "model": "chair_annabelle",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "agent_facing_east.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": -0.11743142263524353,
+        "y": 0.8,
+        "z": -2.2752170550995143
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 8864337,
+          "model": "white_lamp",
+          "visibility_ratio": 0.9697372498168374,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "agent_facing_south.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": -0.11743142263524353,
+        "y": 0.8,
+        "z": -2.2752170550995143
+      },
+      "direction": "south",
+      "object_ratios": []
+    },
+    {
+      "file": "agent_facing_west.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": -0.11743142263524353,
+        "y": 0.8,
+        "z": -2.2752170550995143
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 16775869,
+          "model": "vase_01",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "8864337_facing_north.png",
+      "cam_id": "8864337",
+      "pos": {
+        "x": 2.4282068928281264,
+        "y": 0.8,
+        "z": -0.5535214137088451
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 8864337,
+          "model": "white_lamp",
+          "visibility_ratio": 0.3786646311860899,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "8864337_facing_east.png",
+      "cam_id": "8864337",
+      "pos": {
+        "x": 2.4282068928281264,
+        "y": 0.8,
+        "z": -0.5535214137088451
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 8864337,
+          "model": "white_lamp",
+          "visibility_ratio": 0.12133536881391006,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "8864337_facing_south.png",
+      "cam_id": "8864337",
+      "pos": {
+        "x": 2.4282068928281264,
+        "y": 0.8,
+        "z": -0.5535214137088451
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 8864337,
+          "model": "white_lamp",
+          "visibility_ratio": 0.37866463118608984,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "8864337_facing_west.png",
+      "cam_id": "8864337",
+      "pos": {
+        "x": 2.4282068928281264,
+        "y": 0.8,
+        "z": -0.5535214137088451
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 8864337,
+          "model": "white_lamp",
+          "visibility_ratio": 0.12133536881391009,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 5379746,
+          "model": "chair_annabelle",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 16775869,
+          "model": "vase_01",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "5379746_facing_north.png",
+      "cam_id": "5379746",
+      "pos": {
+        "x": -0.42432298061032414,
+        "y": 0.8,
+        "z": 0.18308247376663012
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 5379746,
+          "model": "chair_annabelle",
+          "visibility_ratio": 0.224252534905804,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "5379746_facing_east.png",
+      "cam_id": "5379746",
+      "pos": {
+        "x": -0.42432298061032414,
+        "y": 0.8,
+        "z": 0.18308247376663012
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 8864337,
+          "model": "white_lamp",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 5379746,
+          "model": "chair_annabelle",
+          "visibility_ratio": 0.2757474650941959,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "5379746_facing_south.png",
+      "cam_id": "5379746",
+      "pos": {
+        "x": -0.42432298061032414,
+        "y": 0.8,
+        "z": 0.18308247376663012
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 5379746,
+          "model": "chair_annabelle",
+          "visibility_ratio": 0.22425253490580405,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 16775869,
+          "model": "vase_01",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "5379746_facing_west.png",
+      "cam_id": "5379746",
+      "pos": {
+        "x": -0.42432298061032414,
+        "y": 0.8,
+        "z": 0.18308247376663012
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 5379746,
+          "model": "chair_annabelle",
+          "visibility_ratio": 0.27574746509419584,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "16775869_facing_north.png",
+      "cam_id": "16775869",
+      "pos": {
+        "x": -0.912506818633958,
+        "y": 0.8,
+        "z": -2.4789582652376567
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 5379746,
+          "model": "chair_annabelle",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 16775869,
+          "model": "vase_01",
+          "visibility_ratio": 0.25000002581709013,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "16775869_facing_east.png",
+      "cam_id": "16775869",
+      "pos": {
+        "x": -0.912506818633958,
+        "y": 0.8,
+        "z": -2.4789582652376567
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 8864337,
+          "model": "white_lamp",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 16775869,
+          "model": "vase_01",
+          "visibility_ratio": 0.24999997418290992,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "16775869_facing_south.png",
+      "cam_id": "16775869",
+      "pos": {
+        "x": -0.912506818633958,
+        "y": 0.8,
+        "z": -2.4789582652376567
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 16775869,
+          "model": "vase_01",
+          "visibility_ratio": 0.25000002581709013,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "16775869_facing_west.png",
+      "cam_id": "16775869",
+      "pos": {
+        "x": -0.912506818633958,
+        "y": 0.8,
+        "z": -2.4789582652376567
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 16775869,
+          "model": "vase_01",
+          "visibility_ratio": 0.24999997418290992,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    }
+  ]
+}

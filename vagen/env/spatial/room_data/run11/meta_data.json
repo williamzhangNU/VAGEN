@@ -1,0 +1,497 @@
+{
+  "room_size": [
+    8,
+    8
+  ],
+  "screen_size": [
+    512,
+    512
+  ],
+  "seed": 11,
+  "min_distance": 0.5,
+  "objects": [
+    {
+      "object_id": 718250,
+      "model": "red_side_chair",
+      "name": "red chair",
+      "pos": {
+        "x": -1.2960362677640405,
+        "y": 0,
+        "z": 0.19167916504647553
+      },
+      "rot": {
+        "x": 0,
+        "y": 180,
+        "z": 0
+      },
+      "size": [
+        0.7019478,
+        0.6942999999999999
+      ],
+      "attributes": {
+        "scale": 1.0,
+        "color": {
+          "name": "red",
+          "r": 1.0,
+          "g": 0.0,
+          "b": 0.0,
+          "a": 1.0
+        }
+      }
+    },
+    {
+      "object_id": 12723101,
+      "model": "white_club_chair",
+      "name": "white chair",
+      "pos": {
+        "x": 0.15196889933329794,
+        "y": 0,
+        "z": -0.9916989365743476
+      },
+      "rot": {
+        "x": 0,
+        "y": 180,
+        "z": 0
+      },
+      "size": [
+        0.7982815,
+        0.9681153
+      ],
+      "attributes": {
+        "scale": 1.0
+      }
+    },
+    {
+      "object_id": 3006842,
+      "model": "fridge_large",
+      "name": "fridge",
+      "pos": {
+        "x": -2.772786227077539,
+        "y": 0,
+        "z": 1.929507882094616
+      },
+      "rot": {
+        "x": 0,
+        "y": 270,
+        "z": 0
+      },
+      "size": [
+        0.72946528,
+        0.62507816
+      ],
+      "attributes": {
+        "scale": 0.8
+      }
+    }
+  ],
+  "cameras": [
+    {
+      "id": "agent",
+      "label": "A",
+      "position": {
+        "x": 2.890536651547695,
+        "y": 0.8,
+        "z": 1.6489609291990934
+      },
+      "rotation": {
+        "y": -119.70340883127552
+      }
+    },
+    {
+      "id": "718250",
+      "label": "1",
+      "position": {
+        "x": -1.2960362677640405,
+        "y": 0.8,
+        "z": 0.19167916504647553
+      },
+      "rotation": {
+        "y": 98.41285706854228
+      }
+    },
+    {
+      "id": "12723101",
+      "label": "2",
+      "position": {
+        "x": 0.15196889933329794,
+        "y": 0.8,
+        "z": -0.9916989365743476
+      },
+      "rotation": {
+        "y": -8.712285995141212
+      }
+    },
+    {
+      "id": "3006842",
+      "label": "3",
+      "position": {
+        "x": -2.772786227077539,
+        "y": 0.8,
+        "z": 1.929507882094616
+      },
+      "rotation": {
+        "y": 124.83302584650457
+      }
+    }
+  ],
+  "images": [
+    {
+      "file": "agent_facing_north.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": 2.890536651547695,
+        "y": 0.8,
+        "z": 1.6489609291990934
+      },
+      "direction": "north",
+      "object_ratios": []
+    },
+    {
+      "file": "agent_facing_east.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": 2.890536651547695,
+        "y": 0.8,
+        "z": 1.6489609291990934
+      },
+      "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "agent_facing_south.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": 2.890536651547695,
+        "y": 0.8,
+        "z": 1.6489609291990934
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 12723101,
+          "model": "white_club_chair",
+          "visibility_ratio": 0.39897672230614867,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "agent_facing_west.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": 2.890536651547695,
+        "y": 0.8,
+        "z": 1.6489609291990934
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 718250,
+          "model": "red_side_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 12723101,
+          "model": "white_club_chair",
+          "visibility_ratio": 0.6010232776938503,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 3006842,
+          "model": "fridge_large",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "718250_facing_north.png",
+      "cam_id": "718250",
+      "pos": {
+        "x": -1.2960362677640405,
+        "y": 0.8,
+        "z": 0.19167916504647553
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 718250,
+          "model": "red_side_chair",
+          "visibility_ratio": 0.24727622196408322,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 3006842,
+          "model": "fridge_large",
+          "visibility_ratio": 0.8100582138467769,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "718250_facing_east.png",
+      "cam_id": "718250",
+      "pos": {
+        "x": -1.2960362677640405,
+        "y": 0.8,
+        "z": 0.19167916504647553
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 718250,
+          "model": "red_side_chair",
+          "visibility_ratio": 0.2527237780359166,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 12723101,
+          "model": "white_club_chair",
+          "visibility_ratio": 0.7524480016384917,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "718250_facing_south.png",
+      "cam_id": "718250",
+      "pos": {
+        "x": -1.2960362677640405,
+        "y": 0.8,
+        "z": 0.19167916504647553
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 718250,
+          "model": "red_side_chair",
+          "visibility_ratio": 0.2472762219640833,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 12723101,
+          "model": "white_club_chair",
+          "visibility_ratio": 0.2475519983615083,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "718250_facing_west.png",
+      "cam_id": "718250",
+      "pos": {
+        "x": -1.2960362677640405,
+        "y": 0.8,
+        "z": 0.19167916504647553
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 718250,
+          "model": "red_side_chair",
+          "visibility_ratio": 0.2527237780359166,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 3006842,
+          "model": "fridge_large",
+          "visibility_ratio": 0.18994178615322213,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "12723101_facing_north.png",
+      "cam_id": "12723101",
+      "pos": {
+        "x": 0.15196889933329794,
+        "y": 0.8,
+        "z": -0.9916989365743476
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 718250,
+          "model": "red_side_chair",
+          "visibility_ratio": 0.19279238808103666,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 12723101,
+          "model": "white_club_chair",
+          "visibility_ratio": 0.29385681127031044,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 3006842,
+          "model": "fridge_large",
+          "visibility_ratio": 0.4951357414270991,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "12723101_facing_east.png",
+      "cam_id": "12723101",
+      "pos": {
+        "x": 0.15196889933329794,
+        "y": 0.8,
+        "z": -0.9916989365743476
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 12723101,
+          "model": "white_club_chair",
+          "visibility_ratio": 0.20614318872968948,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "12723101_facing_south.png",
+      "cam_id": "12723101",
+      "pos": {
+        "x": 0.15196889933329794,
+        "y": 0.8,
+        "z": -0.9916989365743476
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 12723101,
+          "model": "white_club_chair",
+          "visibility_ratio": 0.2938568112703105,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "12723101_facing_west.png",
+      "cam_id": "12723101",
+      "pos": {
+        "x": 0.15196889933329794,
+        "y": 0.8,
+        "z": -0.9916989365743476
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 718250,
+          "model": "red_side_chair",
+          "visibility_ratio": 0.8072076119189625,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 12723101,
+          "model": "white_club_chair",
+          "visibility_ratio": 0.20614318872968948,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 3006842,
+          "model": "fridge_large",
+          "visibility_ratio": 0.5048642585728982,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "3006842_facing_north.png",
+      "cam_id": "3006842",
+      "pos": {
+        "x": -2.772786227077539,
+        "y": 0.8,
+        "z": 1.929507882094616
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 3006842,
+          "model": "fridge_large",
+          "visibility_ratio": 0.28577521880136647,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "3006842_facing_east.png",
+      "cam_id": "3006842",
+      "pos": {
+        "x": -2.772786227077539,
+        "y": 0.8,
+        "z": 1.929507882094616
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 718250,
+          "model": "red_side_chair",
+          "visibility_ratio": 0.19596143754503023,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 12723101,
+          "model": "white_club_chair",
+          "visibility_ratio": 0.5036651706071298,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 3006842,
+          "model": "fridge_large",
+          "visibility_ratio": 0.2142247811986336,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "3006842_facing_south.png",
+      "cam_id": "3006842",
+      "pos": {
+        "x": -2.772786227077539,
+        "y": 0.8,
+        "z": 1.929507882094616
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 718250,
+          "model": "red_side_chair",
+          "visibility_ratio": 0.8040385624549699,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 12723101,
+          "model": "white_club_chair",
+          "visibility_ratio": 0.49633482939287027,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 3006842,
+          "model": "fridge_large",
+          "visibility_ratio": 0.2857752188013661,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "3006842_facing_west.png",
+      "cam_id": "3006842",
+      "pos": {
+        "x": -2.772786227077539,
+        "y": 0.8,
+        "z": 1.929507882094616
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 3006842,
+          "model": "fridge_large",
+          "visibility_ratio": 0.21422478119863347,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    }
+  ]
+}

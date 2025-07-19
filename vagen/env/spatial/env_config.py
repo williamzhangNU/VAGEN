@@ -31,7 +31,7 @@ class SpatialGymConfig(BaseEnvConfig):
     
     # Environment specific configuration
     # Room configuration
-    base_dir: str = os.path.join(os.path.dirname(__file__), "output/")
+    base_dir: str = os.path.join(os.path.dirname(__file__), "room_data/")
     # Exploration configuration
     exp_type: str = 'passive'
     perspective: str = 'ego'

@@ -4,7 +4,7 @@ Simple image handler for spatial environments
 import os
 import json
 import numpy as np
-from typing import Dict, Tuple, Union
+from typing import Dict, Union
 from PIL import Image
 
 
@@ -24,10 +24,12 @@ class ImageHandler:
         self.image_size = image_size
         self.preload_images = preload_images
         self.image_dir, self.json_data = self._load_data(base_dir, seed)
-        self._name_to_cam = self._build_name_to_cam_mapping(self.json_data)
+        self.objects = {obj['object_id']: obj for obj in self.json_data.get('objects', [])}
         self._image_map = self._load_images()
+        self.name_2_cam_id = {obj['name']: obj['object_id'] for obj in self.objects.values()}
+        self.name_2_cam_id['agent'] = 'agent'
     
-    def _load_data(self, base_dir: str, seed: int = None) -> Tuple[str, dict]:
+    def _load_data(self, base_dir: str, seed: int = None) -> tuple:
         """Load JSON data from selected subdirectory."""
         subdirs = [d for d in os.listdir(base_dir) if os.path.isdir(os.path.join(base_dir, d))]
         data_idx = (seed % len(subdirs)) if seed else np.random.randint(0, len(subdirs))
@@ -38,30 +40,12 @@ class ImageHandler:
             
         return image_dir, json_data
     
-    def _build_name_to_cam_mapping(self, json_data: dict) -> Dict[str, str]:
-        """Map object names to camera IDs by matching positions."""
-        name_to_cam = {'central': 'central'}
-        
-        for obj in json_data.get('objects', []):
-            obj_pos = (obj['pos']['x'], obj['pos']['z'])
-            obj_name = obj['model']
-            
-            for cam in json_data.get('cameras', []):
-                if cam['id'] == 'central':
-                    continue
-                cam_pos = (cam['position']['x'], cam['position']['z'])
-                if obj_pos == cam_pos:
-                    name_to_cam[obj_name] = cam['id']
-                    break
-        
-        return name_to_cam
-    
-    def _load_images(self) -> Dict[Tuple[str, str], Union[Image.Image, str]]:
+    def _load_images(self) -> Dict[str, Union[Image.Image, str]]:
         """Load images or paths based on preload setting."""
         image_map = {}
         
         for entry in self.json_data.get('images', []):
-            key = (entry['cam_id'], entry['direction'])
+            key = f"{entry['cam_id']}_facing_{entry['direction']}"
             path = os.path.join(self.image_dir, entry['file'])
             
             if os.path.exists(path):
@@ -72,31 +56,27 @@ class ImageHandler:
         
         return image_map
     
-    def get_image(self, position: str, direction: str) -> Image.Image:
+    def get_image(self, name: str, direction: str) -> Image.Image:
         """
-        Get image for given position and direction.
+        Get image for given camera ID and direction.
         
         Args:
-            position: Object/position name (e.g., 'central', 'chair_willisau_riale')
+            name: Name of the object ('agent' or object_name as string)
             direction: Cardinal direction ('north', 'south', 'east', 'west')
             
         Returns:
             PIL Image
             
         Raises:
-            KeyError: If position or image not found
+            KeyError: If image not found
         """
-        if position not in self._name_to_cam:
-            raise KeyError(f"Position '{position}' not found")
+        key = f"{self.name_2_cam_id[name]}_facing_{direction}"
         
-        cam_id = self._name_to_cam[position]
-        image_key = (cam_id, direction)
-        
-        if image_key not in self._image_map:
-            raise KeyError(f"Image not found for position '{position}' (cam_id: '{cam_id}') facing '{direction}'")
+        if key not in self._image_map:
+            raise KeyError(f"Image not found for name '{name}' facing '{direction}'")
         
         if self.preload_images:
-            return self._image_map[image_key]
+            return self._image_map[key]
         else:
-            path = self._image_map[image_key]
+            path = self._image_map[key]
             return Image.open(path).resize(self.image_size, Image.LANCZOS)

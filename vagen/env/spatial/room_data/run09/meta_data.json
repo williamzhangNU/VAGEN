@@ -1,0 +1,456 @@
+{
+  "room_size": [
+    8,
+    8
+  ],
+  "screen_size": [
+    512,
+    512
+  ],
+  "seed": 999,
+  "min_distance": 0.5,
+  "objects": [
+    {
+      "object_id": 13161285,
+      "model": "wood_chair",
+      "name": "wooden chair",
+      "pos": {
+        "x": 1.1833175252496606,
+        "y": 0,
+        "z": -0.9487352434940568
+      },
+      "rot": {
+        "x": 0,
+        "y": 180,
+        "z": 0
+      },
+      "size": [
+        0.4298932,
+        0.47789539999999997
+      ],
+      "attributes": {
+        "scale": 1.0
+      }
+    },
+    {
+      "object_id": 14668548,
+      "model": "linen_dining_chair",
+      "name": "pink chair",
+      "pos": {
+        "x": -1.5405066737929178,
+        "y": 0,
+        "z": -1.8148218802274088
+      },
+      "rot": {
+        "x": 0,
+        "y": 180,
+        "z": 0
+      },
+      "size": [
+        0.6261426,
+        0.6553732
+      ],
+      "attributes": {
+        "scale": 1.0,
+        "color": {
+          "name": "pink",
+          "r": 1.0,
+          "g": 0.0,
+          "b": 1.0,
+          "a": 1.0
+        }
+      }
+    },
+    {
+      "object_id": 13498545,
+      "model": "kettle",
+      "name": "kettle",
+      "pos": {
+        "x": 1.4643013986205766,
+        "y": 0,
+        "z": -2.1053106604915968
+      },
+      "rot": {
+        "x": 0,
+        "y": 180,
+        "z": 0
+      },
+      "size": [
+        0.42410292,
+        0.29691716
+      ],
+      "attributes": {
+        "scale": 2.0
+      }
+    }
+  ],
+  "cameras": [
+    {
+      "id": "agent",
+      "label": "A",
+      "position": {
+        "x": 0.46658994646898844,
+        "y": 0.8,
+        "z": -2.881552360293319
+      },
+      "rotation": {
+        "y": -9.197680820531666
+      }
+    },
+    {
+      "id": "13161285",
+      "label": "1",
+      "position": {
+        "x": 1.1833175252496606,
+        "y": 0.8,
+        "z": -0.9487352434940568
+      },
+      "rotation": {
+        "y": -51.2787980816061
+      }
+    },
+    {
+      "id": "14668548",
+      "label": "2",
+      "position": {
+        "x": -1.5405066737929178,
+        "y": 0.8,
+        "z": -1.8148218802274088
+      },
+      "rotation": {
+        "y": 40.326172702296695
+      }
+    },
+    {
+      "id": "13498545",
+      "label": "3",
+      "position": {
+        "x": 1.4643013986205766,
+        "y": 0.8,
+        "z": -2.1053106604915968
+      },
+      "rotation": {
+        "y": -34.81967398434964
+      }
+    }
+  ],
+  "images": [
+    {
+      "file": "agent_facing_north.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": 0.46658994646898844,
+        "y": 0.8,
+        "z": -2.881552360293319
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 13161285,
+          "model": "wood_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "agent_facing_east.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": 0.46658994646898844,
+        "y": 0.8,
+        "z": -2.881552360293319
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 13498545,
+          "model": "kettle",
+          "visibility_ratio": 0.9232382691185042,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "agent_facing_south.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": 0.46658994646898844,
+        "y": 0.8,
+        "z": -2.881552360293319
+      },
+      "direction": "south",
+      "object_ratios": []
+    },
+    {
+      "file": "agent_facing_west.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": 0.46658994646898844,
+        "y": 0.8,
+        "z": -2.881552360293319
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 14668548,
+          "model": "linen_dining_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "13161285_facing_north.png",
+      "cam_id": "13161285",
+      "pos": {
+        "x": 1.1833175252496606,
+        "y": 0.8,
+        "z": -0.9487352434940568
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 13161285,
+          "model": "wood_chair",
+          "visibility_ratio": 0.27511124819364235,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "13161285_facing_east.png",
+      "cam_id": "13161285",
+      "pos": {
+        "x": 1.1833175252496606,
+        "y": 0.8,
+        "z": -0.9487352434940568
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 13161285,
+          "model": "wood_chair",
+          "visibility_ratio": 0.22488875180635762,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "13161285_facing_south.png",
+      "cam_id": "13161285",
+      "pos": {
+        "x": 1.1833175252496606,
+        "y": 0.8,
+        "z": -0.9487352434940568
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 13161285,
+          "model": "wood_chair",
+          "visibility_ratio": 0.27511124819364235,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 13498545,
+          "model": "kettle",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "13161285_facing_west.png",
+      "cam_id": "13161285",
+      "pos": {
+        "x": 1.1833175252496606,
+        "y": 0.8,
+        "z": -0.9487352434940568
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 13161285,
+          "model": "wood_chair",
+          "visibility_ratio": 0.22488875180635762,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 14668548,
+          "model": "linen_dining_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "14668548_facing_north.png",
+      "cam_id": "14668548",
+      "pos": {
+        "x": -1.5405066737929178,
+        "y": 0.8,
+        "z": -1.8148218802274088
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 14668548,
+          "model": "linen_dining_chair",
+          "visibility_ratio": 0.26115036440306083,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "14668548_facing_east.png",
+      "cam_id": "14668548",
+      "pos": {
+        "x": -1.5405066737929178,
+        "y": 0.8,
+        "z": -1.8148218802274088
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 13161285,
+          "model": "wood_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 14668548,
+          "model": "linen_dining_chair",
+          "visibility_ratio": 0.2388496355969393,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 13498545,
+          "model": "kettle",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "14668548_facing_south.png",
+      "cam_id": "14668548",
+      "pos": {
+        "x": -1.5405066737929178,
+        "y": 0.8,
+        "z": -1.8148218802274088
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 14668548,
+          "model": "linen_dining_chair",
+          "visibility_ratio": 0.26115036440306055,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "14668548_facing_west.png",
+      "cam_id": "14668548",
+      "pos": {
+        "x": -1.5405066737929178,
+        "y": 0.8,
+        "z": -1.8148218802274088
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 14668548,
+          "model": "linen_dining_chair",
+          "visibility_ratio": 0.2388496355969392,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "13498545_facing_north.png",
+      "cam_id": "13498545",
+      "pos": {
+        "x": 1.4643013986205766,
+        "y": 0.8,
+        "z": -2.1053106604915968
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 13161285,
+          "model": "wood_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 13498545,
+          "model": "kettle",
+          "visibility_ratio": 0.17502659495954406,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "13498545_facing_east.png",
+      "cam_id": "13498545",
+      "pos": {
+        "x": 1.4643013986205766,
+        "y": 0.8,
+        "z": -2.1053106604915968
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 13498545,
+          "model": "kettle",
+          "visibility_ratio": 0.324973405040456,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "13498545_facing_south.png",
+      "cam_id": "13498545",
+      "pos": {
+        "x": 1.4643013986205766,
+        "y": 0.8,
+        "z": -2.1053106604915968
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 13498545,
+          "model": "kettle",
+          "visibility_ratio": 0.17502659495954356,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "13498545_facing_west.png",
+      "cam_id": "13498545",
+      "pos": {
+        "x": 1.4643013986205766,
+        "y": 0.8,
+        "z": -2.1053106604915968
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 14668548,
+          "model": "linen_dining_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 13498545,
+          "model": "kettle",
+          "visibility_ratio": 0.3249734050404559,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    }
+  ]
+}

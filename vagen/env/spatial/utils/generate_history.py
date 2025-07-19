@@ -25,6 +25,7 @@ from vagen.env.spatial.Base.tos_base import (
 )
 from vagen.env.spatial.utils.action_utils import action_results_to_text
 from vagen.env.spatial.utils.image_handler import ImageHandler
+from vagen.env.spatial.utils.initialize_room import initialize_room_from_json
 
 class AutoExplore:
     """
@@ -46,7 +47,7 @@ class AutoExplore:
         agent = self.exp_manager.exploration_room.agent
         
         # Find position: which object is at same location as agent
-        position_name = 'central'  # default
+        position_name = 'agent'  # default
         for obj in [obj for obj in self.exp_manager.exploration_room.objects if obj.name != 'agent_anchor']:
             if np.allclose(obj.pos, agent.pos):
                 position_name = obj.name
@@ -201,7 +202,6 @@ class AutoExplore:
 
 if __name__ == "__main__":
     import re
-    from vagen.env.spatial.Base.tos_base.utils.room_utils import initialize_room_from_json
     from gymnasium.utils import seeding
     import json
     import os
@@ -209,7 +209,7 @@ if __name__ == "__main__":
     BaseAction.set_field_of_view(90)
 
     # Load data
-    base_dir = os.path.join(os.path.dirname(__file__), "../output")
+    base_dir = os.path.join(os.path.dirname(__file__), "../room_data")
     image_handler = ImageHandler(base_dir, seed=0)  # Use run_00
 
     rng1 = seeding.np_random(2)[0]

@@ -1,0 +1,454 @@
+{
+  "room_size": [
+    8,
+    8
+  ],
+  "screen_size": [
+    512,
+    512
+  ],
+  "seed": 4,
+  "min_distance": 0.5,
+  "objects": [
+    {
+      "object_id": 2460657,
+      "model": "basket_18inx18inx12iin",
+      "name": "basket",
+      "pos": {
+        "x": -0.7217614999737156,
+        "y": 0,
+        "z": 1.2089701698269477
+      },
+      "rot": {
+        "x": 0,
+        "y": 270,
+        "z": 0
+      },
+      "size": [
+        0.914,
+        0.914
+      ],
+      "attributes": {
+        "scale": 2.0
+      }
+    },
+    {
+      "object_id": 4831169,
+      "model": "red_side_chair",
+      "name": "red chair",
+      "pos": {
+        "x": -2.8568371438020943,
+        "y": 0,
+        "z": 2.190265466365136
+      },
+      "rot": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "size": [
+        0.7019478,
+        0.6942999999999999
+      ],
+      "attributes": {
+        "scale": 1.0,
+        "color": {
+          "name": "red",
+          "r": 1.0,
+          "g": 0.0,
+          "b": 0.0,
+          "a": 1.0
+        }
+      }
+    },
+    {
+      "object_id": 13945120,
+      "model": "vase_01",
+      "name": "vase",
+      "pos": {
+        "x": -3.2334757107979977,
+        "y": 0,
+        "z": -0.4476610841006061
+      },
+      "rot": {
+        "x": 0,
+        "y": 180,
+        "z": 0
+      },
+      "size": [
+        0.19367014,
+        0.19367016
+      ],
+      "attributes": {
+        "scale": 2.0
+      }
+    }
+  ],
+  "cameras": [
+    {
+      "id": "agent",
+      "label": "A",
+      "position": {
+        "x": -1.3245246411630007,
+        "y": 0.8,
+        "z": -2.7908460706804674
+      },
+      "rotation": {
+        "y": 25.388833220211136
+      }
+    },
+    {
+      "id": "2460657",
+      "label": "1",
+      "position": {
+        "x": -0.7217614999737156,
+        "y": 0.8,
+        "z": 1.2089701698269477
+      },
+      "rotation": {
+        "y": 149.16257809241574
+      }
+    },
+    {
+      "id": "4831169",
+      "label": "2",
+      "position": {
+        "x": -2.8568371438020943,
+        "y": 0.8,
+        "z": 2.190265466365136
+      },
+      "rotation": {
+        "y": 127.47647836724852
+      }
+    },
+    {
+      "id": "13945120",
+      "label": "3",
+      "position": {
+        "x": -3.2334757107979977,
+        "y": 0.8,
+        "z": -0.4476610841006061
+      },
+      "rotation": {
+        "y": 82.11774629502698
+      }
+    }
+  ],
+  "images": [
+    {
+      "file": "agent_facing_north.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": -1.3245246411630007,
+        "y": 0.8,
+        "z": -2.7908460706804674
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 2460657,
+          "model": "basket_18inx18inx12iin",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 4831169,
+          "model": "red_side_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 13945120,
+          "model": "vase_01",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "agent_facing_east.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": -1.3245246411630007,
+        "y": 0.8,
+        "z": -2.7908460706804674
+      },
+      "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "agent_facing_south.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": -1.3245246411630007,
+        "y": 0.8,
+        "z": -2.7908460706804674
+      },
+      "direction": "south",
+      "object_ratios": []
+    },
+    {
+      "file": "agent_facing_west.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": -1.3245246411630007,
+        "y": 0.8,
+        "z": -2.7908460706804674
+      },
+      "direction": "west",
+      "object_ratios": []
+    },
+    {
+      "file": "2460657_facing_north.png",
+      "cam_id": "2460657",
+      "pos": {
+        "x": -0.7217614999737156,
+        "y": 0.8,
+        "z": 1.2089701698269477
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 2460657,
+          "model": "basket_18inx18inx12iin",
+          "visibility_ratio": 0.25,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "2460657_facing_east.png",
+      "cam_id": "2460657",
+      "pos": {
+        "x": -0.7217614999737156,
+        "y": 0.8,
+        "z": 1.2089701698269477
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 2460657,
+          "model": "basket_18inx18inx12iin",
+          "visibility_ratio": 0.24999999999999986,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "2460657_facing_south.png",
+      "cam_id": "2460657",
+      "pos": {
+        "x": -0.7217614999737156,
+        "y": 0.8,
+        "z": 1.2089701698269477
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 2460657,
+          "model": "basket_18inx18inx12iin",
+          "visibility_ratio": 0.24999999999999997,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "2460657_facing_west.png",
+      "cam_id": "2460657",
+      "pos": {
+        "x": -0.7217614999737156,
+        "y": 0.8,
+        "z": 1.2089701698269477
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 2460657,
+          "model": "basket_18inx18inx12iin",
+          "visibility_ratio": 0.24999999999999994,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 4831169,
+          "model": "red_side_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 13945120,
+          "model": "vase_01",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "4831169_facing_north.png",
+      "cam_id": "4831169",
+      "pos": {
+        "x": -2.8568371438020943,
+        "y": 0.8,
+        "z": 2.190265466365136
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 4831169,
+          "model": "red_side_chair",
+          "visibility_ratio": 0.2527237780359166,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "4831169_facing_east.png",
+      "cam_id": "4831169",
+      "pos": {
+        "x": -2.8568371438020943,
+        "y": 0.8,
+        "z": 2.190265466365136
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 2460657,
+          "model": "basket_18inx18inx12iin",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 4831169,
+          "model": "red_side_chair",
+          "visibility_ratio": 0.24727622196408336,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "4831169_facing_south.png",
+      "cam_id": "4831169",
+      "pos": {
+        "x": -2.8568371438020943,
+        "y": 0.8,
+        "z": 2.190265466365136
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 4831169,
+          "model": "red_side_chair",
+          "visibility_ratio": 0.2527237780359166,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 13945120,
+          "model": "vase_01",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "4831169_facing_west.png",
+      "cam_id": "4831169",
+      "pos": {
+        "x": -2.8568371438020943,
+        "y": 0.8,
+        "z": 2.190265466365136
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 4831169,
+          "model": "red_side_chair",
+          "visibility_ratio": 0.24727622196408336,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "13945120_facing_north.png",
+      "cam_id": "13945120",
+      "pos": {
+        "x": -3.2334757107979977,
+        "y": 0.8,
+        "z": -0.4476610841006061
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 4831169,
+          "model": "red_side_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 13945120,
+          "model": "vase_01",
+          "visibility_ratio": 0.25000002581709013,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "13945120_facing_east.png",
+      "cam_id": "13945120",
+      "pos": {
+        "x": -3.2334757107979977,
+        "y": 0.8,
+        "z": -0.4476610841006061
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 2460657,
+          "model": "basket_18inx18inx12iin",
+          "visibility_ratio": 0.9979224116658251,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 13945120,
+          "model": "vase_01",
+          "visibility_ratio": 0.24999997418290984,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "13945120_facing_south.png",
+      "cam_id": "13945120",
+      "pos": {
+        "x": -3.2334757107979977,
+        "y": 0.8,
+        "z": -0.4476610841006061
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 13945120,
+          "model": "vase_01",
+          "visibility_ratio": 0.25000002581709,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "13945120_facing_west.png",
+      "cam_id": "13945120",
+      "pos": {
+        "x": -3.2334757107979977,
+        "y": 0.8,
+        "z": -0.4476610841006061
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 13945120,
+          "model": "vase_01",
+          "visibility_ratio": 0.24999997418290984,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    }
+  ]
+}
