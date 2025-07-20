@@ -1,13 +1,49 @@
 models:
+  # gpt4.1-nano:
+  #   provider: openai
+  #   model_name: gpt-4.1-nano
+  #   max_tokens: 1024
+  #   temperature: 0.0
+  #   presence_penalty: 0.0
+  #   frequency_penalty: 0.0
+  #   max_retries: 3
+  #   timeout: 60
+
+  # gpt4.1-mini:
+  #   provider: openai
+  #   model_name: gpt-4.1-mini
+  #   max_tokens: 1024
+  #   temperature: 0.0
+  #   presence_penalty: 0.0
+  #   frequency_penalty: 0.0
+  #   max_retries: 3
+  #   timeout: 60
+
   gpt4o:
     provider: openai
     model_name: gpt-4o
     max_tokens: 1024
-    temperature: 0.7
+    temperature: 0.0
     presence_penalty: 0.0
     frequency_penalty: 0.0
     max_retries: 3
     timeout: 60
+
+  # claude_4_sonnet:
+  #   provider: claude
+  #   model_name: claude-4-sonnet-20250514
+  #   max_tokens: 1024
+  #   temperature: 0.0
+
+  # gpt4o:
+  #   provider: openai
+  #   model_name: gpt-4o
+  #   max_tokens: 1024
+  #   temperature: 0.7
+  #   presence_penalty: 0.0
+  #   frequency_penalty: 0.0
+  #   max_retries: 3
+  #   timeout: 60
 
   # claude_3_sonnet:
   #   provider: claude

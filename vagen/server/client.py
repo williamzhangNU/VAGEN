@@ -2,6 +2,7 @@ from typing import Dict, List, Tuple, Optional, Any, Union
 import requests
 import time
 from vagen.server.serial import deserialize_observation, deserialize_step_result
+from vagen.server.serial import serialize_dict
 
 class BatchEnvClient:
     """
@@ -104,7 +105,7 @@ class BatchEnvClient:
         Args:
             ids2configs: Dictionary mapping environment IDs to their configurations
         """
-        response = self._make_request("environments", "POST", {"ids2configs": ids2configs})
+        response = self._make_request("environments", "POST", {"ids2configs": serialize_dict(ids2configs)})
         if response.get("success") != True:
             raise Exception(f"Failed to create environments: {response.get('error', 'Unknown error')}")
         

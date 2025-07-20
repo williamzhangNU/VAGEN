@@ -3,6 +3,7 @@ from typing import List, Dict, Any, Optional, Tuple
 from omegaconf import ListConfig, OmegaConf
 import os
 import json
+import numpy as np
 
 from vagen.env.base.base_env_config import BaseEnvConfig
 from vagen.env.spatial.Base.tos_base.evaluation.tasks import EvalTaskType
@@ -53,22 +54,6 @@ class SpatialGymConfig(BaseEnvConfig):
         self._validate_exp_type()
         self._validate_field_of_view()
         self._validate_eval_tasks()
-        # Convert eval_tasks to string after validation, this is for serialization in rollout service
-        self._eval_tasks_str = json.dumps(self.eval_tasks)
-        del self.__dict__['eval_tasks']
-
-    @property
-    def eval_tasks(self) -> List[Dict[str, Any]]:
-        """Return eval_tasks as dict from stored string."""
-        return json.loads(self._eval_tasks_str)
-
-    def _convert_eval_tasks_to_string(self) -> str:
-        """Convert eval_tasks to JSON string."""
-        return json.dumps(self.eval_tasks)
-    
-    def get_eval_tasks_from_string(self, eval_tasks_str: str) -> List[Dict[str, Any]]:
-        """Convert JSON string back to eval_tasks dict."""
-        return json.loads(eval_tasks_str)
 
     def _validate_exp_type(self):
         """Validate exp_type parameter."""
@@ -86,6 +71,10 @@ class SpatialGymConfig(BaseEnvConfig):
 
         if isinstance(self.eval_tasks, ListConfig):
             self.eval_tasks = OmegaConf.to_container(self.eval_tasks, resolve=True)
+
+        if isinstance(self.eval_tasks, np.ndarray):
+            self.eval_tasks = self.eval_tasks.tolist()
+
         
         if not self.eval_tasks:
             raise ValueError("eval_tasks must be non-empty")
@@ -148,7 +137,8 @@ class SpatialGymConfig(BaseEnvConfig):
 
 
 if __name__ == "__main__":
-    config = SpatialGymConfig()
+    config = SpatialGymConfig(eval_tasks=[{"task_type": "rot", "task_kwargs": {"turn_direction": "clockwise"}}])
     print(config)
     print(config.to_dict())
     print(config.config_id())
+    print(config.eval_tasks)

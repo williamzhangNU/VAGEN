@@ -27,6 +27,7 @@ def action_results_to_text(
     for result in action_results:
         if result.success:
             if result.action_type == 'observe' and not use_text_obs:
+                messages.append(result.message)
                 messages.append(f"You observe: {image_placeholder}")
             else:
                 messages.append(result.message)

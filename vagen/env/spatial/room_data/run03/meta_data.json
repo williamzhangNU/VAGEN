@@ -7,75 +7,39 @@
     512,
     512
   ],
-  "seed": 3,
+  "seed": 33,
   "min_distance": 0.5,
   "objects": [
     {
-      "object_id": 13103219,
-      "model": "dining_room_table",
-      "name": "white table",
+      "object_id": 1586402,
+      "model": "cabinet_24_wood_beach_honey",
+      "name": "wooden cabinet",
       "pos": {
-        "x": -2.4826005973979752,
+        "x": -1.5616549240268258,
         "y": 0,
-        "z": -0.7331135134882429
+        "z": 1.3526528700313865
       },
       "rot": {
         "x": 0,
-        "y": 90,
+        "y": 0,
         "z": 0
       },
       "size": [
-        1.0922,
-        1.0922
+        0.6073107,
+        0.6424497
       ],
       "attributes": {
-        "scale": 1.0,
-        "color": {
-          "name": "white",
-          "r": 1.0,
-          "g": 1.0,
-          "b": 1.0,
-          "a": 1.0
-        }
+        "scale": 1.0
       }
     },
     {
-      "object_id": 79864,
-      "model": "ligne_roset_armchair",
-      "name": "black chair",
+      "object_id": 6504317,
+      "model": "5ft_wood_shelving",
+      "name": "shelf",
       "pos": {
-        "x": -1.4442907984543096,
+        "x": -2.512507086225921,
         "y": 0,
-        "z": -2.513209882182907
-      },
-      "rot": {
-        "x": 0,
-        "y": 180,
-        "z": 0
-      },
-      "size": [
-        0.8185906,
-        1.4368143
-      ],
-      "attributes": {
-        "scale": 1.0,
-        "color": {
-          "name": "black",
-          "r": 0.0,
-          "g": 0.0,
-          "b": 0.0,
-          "a": 1.0
-        }
-      }
-    },
-    {
-      "object_id": 9268356,
-      "model": "tan_side_chair",
-      "name": "yellow chair",
-      "pos": {
-        "x": 1.3397263830667598,
-        "y": 0,
-        "z": -1.1769240616823156
+        "z": -0.025063861899535134
       },
       "rot": {
         "x": 0,
@@ -83,18 +47,55 @@
         "z": 0
       },
       "size": [
-        0.6737104,
-        0.7263248
+        0.3857705,
+        0.9451682
       ],
       "attributes": {
-        "scale": 1.0,
-        "color": {
-          "name": "yellow",
-          "r": 1.0,
-          "g": 1.0,
-          "b": 0.0,
-          "a": 1.0
-        }
+        "scale": 1.0
+      }
+    },
+    {
+      "object_id": 12120715,
+      "model": "kettle",
+      "name": "kettle",
+      "pos": {
+        "x": -0.2354558061171479,
+        "y": 0,
+        "z": 0.04297099159013307
+      },
+      "rot": {
+        "x": 0,
+        "y": 270,
+        "z": 0
+      },
+      "size": [
+        0.42410292,
+        0.29691716
+      ],
+      "attributes": {
+        "scale": 2.0
+      }
+    },
+    {
+      "object_id": 9327142,
+      "model": "vase_01",
+      "name": "vase",
+      "pos": {
+        "x": -0.9202909910523838,
+        "y": 0,
+        "z": -1.8086753550229293
+      },
+      "rot": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "size": [
+        0.19367014,
+        0.19367016
+      ],
+      "attributes": {
+        "scale": 2.0
       }
     }
   ],
@@ -103,48 +104,60 @@
       "id": "agent",
       "label": "A",
       "position": {
-        "x": 0.2550787624142936,
+        "x": 1.6253379533905497,
         "y": 0.8,
-        "z": -0.05849684311876713
+        "z": -2.9297160271026432
       },
       "rotation": {
-        "y": -77.08377912797225
+        "y": -29.02048895418726
       }
     },
     {
-      "id": "13103219",
+      "id": "1586402",
       "label": "1",
       "position": {
-        "x": -2.4826005973979752,
+        "x": -1.5616549240268258,
         "y": 0.8,
-        "z": -0.7331135134882429
+        "z": 1.3526528700313865
       },
       "rotation": {
-        "y": 73.54809637075117
+        "y": 130.8980073870745
       }
     },
     {
-      "id": "79864",
+      "id": "6504317",
       "label": "2",
       "position": {
-        "x": -1.4442907984543096,
+        "x": -2.512507086225921,
         "y": 0.8,
-        "z": -2.513209882182907
+        "z": -0.025063861899535134
       },
       "rotation": {
-        "y": 29.885109704195497
+        "y": 89.42845698610931
       }
     },
     {
-      "id": "9268356",
+      "id": "12120715",
       "label": "3",
       "position": {
-        "x": 1.3397263830667598,
+        "x": -0.2354558061171479,
         "y": 0.8,
-        "z": -1.1769240616823156
+        "z": 0.04297099159013307
       },
       "rotation": {
-        "y": -48.70131128221893
+        "y": 100.34272943165509
+      }
+    },
+    {
+      "id": "9327142",
+      "label": "4",
+      "position": {
+        "x": -0.9202909910523838,
+        "y": 0.8,
+        "z": -1.8086753550229293
+      },
+      "rotation": {
+        "y": 26.967922329688253
       }
     }
   ],
@@ -153,321 +166,446 @@
       "file": "agent_facing_north.png",
       "cam_id": "agent",
       "pos": {
-        "x": 0.2550787624142936,
+        "x": 1.6253379533905497,
         "y": 0.8,
-        "z": -0.05849684311876713
+        "z": -2.9297160271026432
       },
       "direction": "north",
-      "object_ratios": []
+      "object_ratios": [
+        {
+          "object_id": 1586402,
+          "model": "cabinet_24_wood_beach_honey",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 12120715,
+          "model": "kettle",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
     },
     {
       "file": "agent_facing_east.png",
       "cam_id": "agent",
       "pos": {
-        "x": 0.2550787624142936,
+        "x": 1.6253379533905497,
         "y": 0.8,
-        "z": -0.05849684311876713
+        "z": -2.9297160271026432
       },
       "direction": "east",
-      "object_ratios": [
-        {
-          "object_id": 9268356,
-          "model": "tan_side_chair",
-          "visibility_ratio": 0.45354948888072877,
-          "occlusion_ratio": 1.0
-        }
-      ]
+      "object_ratios": []
     },
     {
       "file": "agent_facing_south.png",
       "cam_id": "agent",
       "pos": {
-        "x": 0.2550787624142936,
+        "x": 1.6253379533905497,
         "y": 0.8,
-        "z": -0.05849684311876713
+        "z": -2.9297160271026432
       },
       "direction": "south",
-      "object_ratios": [
-        {
-          "object_id": 79864,
-          "model": "ligne_roset_armchair",
-          "visibility_ratio": 0.9410578118785189,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 9268356,
-          "model": "tan_side_chair",
-          "visibility_ratio": 0.5464505111192712,
-          "occlusion_ratio": 1.0
-        }
-      ]
+      "object_ratios": []
     },
     {
       "file": "agent_facing_west.png",
       "cam_id": "agent",
       "pos": {
-        "x": 0.2550787624142936,
+        "x": 1.6253379533905497,
         "y": 0.8,
-        "z": -0.05849684311876713
+        "z": -2.9297160271026432
       },
       "direction": "west",
       "object_ratios": [
         {
-          "object_id": 13103219,
-          "model": "dining_room_table",
+          "object_id": 6504317,
+          "model": "5ft_wood_shelving",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 9327142,
+          "model": "vase_01",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "13103219_facing_north.png",
-      "cam_id": "13103219",
+      "file": "1586402_facing_north.png",
+      "cam_id": "1586402",
       "pos": {
-        "x": -2.4826005973979752,
+        "x": -1.5616549240268258,
         "y": 0.8,
-        "z": -0.7331135134882429
+        "z": 1.3526528700313865
       },
       "direction": "north",
       "object_ratios": [
         {
-          "object_id": 13103219,
-          "model": "dining_room_table",
-          "visibility_ratio": 0.25,
+          "object_id": 1586402,
+          "model": "cabinet_24_wood_beach_honey",
+          "visibility_ratio": 0.2636738331421122,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "13103219_facing_east.png",
-      "cam_id": "13103219",
+      "file": "1586402_facing_east.png",
+      "cam_id": "1586402",
       "pos": {
-        "x": -2.4826005973979752,
+        "x": -1.5616549240268258,
         "y": 0.8,
-        "z": -0.7331135134882429
+        "z": 1.3526528700313865
       },
       "direction": "east",
       "object_ratios": [
         {
-          "object_id": 13103219,
-          "model": "dining_room_table",
-          "visibility_ratio": 0.25,
+          "object_id": 1586402,
+          "model": "cabinet_24_wood_beach_honey",
+          "visibility_ratio": 0.23632616685788752,
           "occlusion_ratio": 1.0
         },
         {
-          "object_id": 9268356,
-          "model": "tan_side_chair",
+          "object_id": 12120715,
+          "model": "kettle",
+          "visibility_ratio": 0.5389462998001153,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "1586402_facing_south.png",
+      "cam_id": "1586402",
+      "pos": {
+        "x": -1.5616549240268258,
+        "y": 0.8,
+        "z": 1.3526528700313865
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 1586402,
+          "model": "cabinet_24_wood_beach_honey",
+          "visibility_ratio": 0.26367383314211235,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 6504317,
+          "model": "5ft_wood_shelving",
+          "visibility_ratio": 0.9219289232207039,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 12120715,
+          "model": "kettle",
+          "visibility_ratio": 0.46105370019988484,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 9327142,
+          "model": "vase_01",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "13103219_facing_south.png",
-      "cam_id": "13103219",
+      "file": "1586402_facing_west.png",
+      "cam_id": "1586402",
       "pos": {
-        "x": -2.4826005973979752,
+        "x": -1.5616549240268258,
         "y": 0.8,
-        "z": -0.7331135134882429
-      },
-      "direction": "south",
-      "object_ratios": [
-        {
-          "object_id": 13103219,
-          "model": "dining_room_table",
-          "visibility_ratio": 0.24999999999999992,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 79864,
-          "model": "ligne_roset_armchair",
-          "visibility_ratio": 0.9366877264640869,
-          "occlusion_ratio": 1.0
-        }
-      ]
-    },
-    {
-      "file": "13103219_facing_west.png",
-      "cam_id": "13103219",
-      "pos": {
-        "x": -2.4826005973979752,
-        "y": 0.8,
-        "z": -0.7331135134882429
+        "z": 1.3526528700313865
       },
       "direction": "west",
       "object_ratios": [
         {
-          "object_id": 13103219,
-          "model": "dining_room_table",
-          "visibility_ratio": 0.24999999999999992,
+          "object_id": 1586402,
+          "model": "cabinet_24_wood_beach_honey",
+          "visibility_ratio": 0.2363261668578877,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "79864_facing_north.png",
-      "cam_id": "79864",
+      "file": "6504317_facing_north.png",
+      "cam_id": "6504317",
       "pos": {
-        "x": -1.4442907984543096,
+        "x": -2.512507086225921,
         "y": 0.8,
-        "z": -2.513209882182907
+        "z": -0.025063861899535134
       },
       "direction": "north",
       "object_ratios": [
         {
-          "object_id": 13103219,
-          "model": "dining_room_table",
-          "visibility_ratio": 0.9485332024332919,
+          "object_id": 1586402,
+          "model": "cabinet_24_wood_beach_honey",
+          "visibility_ratio": 0.9497519878178696,
           "occlusion_ratio": 1.0
         },
         {
-          "object_id": 79864,
-          "model": "ligne_roset_armchair",
-          "visibility_ratio": 0.3575684763159721,
+          "object_id": 6504317,
+          "model": "5ft_wood_shelving",
+          "visibility_ratio": 0.10203752623078079,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "79864_facing_east.png",
-      "cam_id": "79864",
+      "file": "6504317_facing_east.png",
+      "cam_id": "6504317",
       "pos": {
-        "x": -1.4442907984543096,
+        "x": -2.512507086225921,
         "y": 0.8,
-        "z": -2.513209882182907
+        "z": -0.025063861899535134
       },
       "direction": "east",
       "object_ratios": [
         {
-          "object_id": 79864,
-          "model": "ligne_roset_armchair",
-          "visibility_ratio": 0.1424315236840278,
+          "object_id": 6504317,
+          "model": "5ft_wood_shelving",
+          "visibility_ratio": 0.39796247376921895,
           "occlusion_ratio": 1.0
         },
         {
-          "object_id": 9268356,
-          "model": "tan_side_chair",
+          "object_id": 12120715,
+          "model": "kettle",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "79864_facing_south.png",
-      "cam_id": "79864",
+      "file": "6504317_facing_south.png",
+      "cam_id": "6504317",
       "pos": {
-        "x": -1.4442907984543096,
+        "x": -2.512507086225921,
         "y": 0.8,
-        "z": -2.513209882182907
+        "z": -0.025063861899535134
       },
       "direction": "south",
       "object_ratios": [
         {
-          "object_id": 79864,
-          "model": "ligne_roset_armchair",
-          "visibility_ratio": 0.3575684763159721,
+          "object_id": 6504317,
+          "model": "5ft_wood_shelving",
+          "visibility_ratio": 0.1020375262307809,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 9327142,
+          "model": "vase_01",
+          "visibility_ratio": 0.9999310216571267,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "79864_facing_west.png",
-      "cam_id": "79864",
+      "file": "6504317_facing_west.png",
+      "cam_id": "6504317",
       "pos": {
-        "x": -1.4442907984543096,
+        "x": -2.512507086225921,
         "y": 0.8,
-        "z": -2.513209882182907
+        "z": -0.025063861899535134
       },
       "direction": "west",
       "object_ratios": [
         {
-          "object_id": 79864,
-          "model": "ligne_roset_armchair",
-          "visibility_ratio": 0.1424315236840279,
+          "object_id": 6504317,
+          "model": "5ft_wood_shelving",
+          "visibility_ratio": 0.3979624737692191,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "9268356_facing_north.png",
-      "cam_id": "9268356",
+      "file": "12120715_facing_north.png",
+      "cam_id": "12120715",
       "pos": {
-        "x": 1.3397263830667598,
+        "x": -0.2354558061171479,
         "y": 0.8,
-        "z": -1.1769240616823156
+        "z": 0.04297099159013307
       },
       "direction": "north",
       "object_ratios": [
         {
-          "object_id": 9268356,
-          "model": "tan_side_chair",
-          "visibility_ratio": 0.2318901956810507,
+          "object_id": 1586402,
+          "model": "cabinet_24_wood_beach_honey",
+          "visibility_ratio": 0.4742902215248526,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 12120715,
+          "model": "kettle",
+          "visibility_ratio": 0.3249734050404557,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "9268356_facing_east.png",
-      "cam_id": "9268356",
+      "file": "12120715_facing_east.png",
+      "cam_id": "12120715",
       "pos": {
-        "x": 1.3397263830667598,
+        "x": -0.2354558061171479,
         "y": 0.8,
-        "z": -1.1769240616823156
+        "z": 0.04297099159013307
       },
       "direction": "east",
       "object_ratios": [
         {
-          "object_id": 9268356,
-          "model": "tan_side_chair",
-          "visibility_ratio": 0.26810980431894926,
+          "object_id": 12120715,
+          "model": "kettle",
+          "visibility_ratio": 0.17502659495954426,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "9268356_facing_south.png",
-      "cam_id": "9268356",
+      "file": "12120715_facing_south.png",
+      "cam_id": "12120715",
       "pos": {
-        "x": 1.3397263830667598,
+        "x": -0.2354558061171479,
         "y": 0.8,
-        "z": -1.1769240616823156
+        "z": 0.04297099159013307
       },
       "direction": "south",
       "object_ratios": [
         {
-          "object_id": 9268356,
-          "model": "tan_side_chair",
-          "visibility_ratio": 0.2318901956810506,
+          "object_id": 12120715,
+          "model": "kettle",
+          "visibility_ratio": 0.3249734050404558,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 9327142,
+          "model": "vase_01",
+          "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "9268356_facing_west.png",
-      "cam_id": "9268356",
+      "file": "12120715_facing_west.png",
+      "cam_id": "12120715",
       "pos": {
-        "x": 1.3397263830667598,
+        "x": -0.2354558061171479,
         "y": 0.8,
-        "z": -1.1769240616823156
+        "z": 0.04297099159013307
       },
       "direction": "west",
       "object_ratios": [
         {
-          "object_id": 13103219,
-          "model": "dining_room_table",
+          "object_id": 1586402,
+          "model": "cabinet_24_wood_beach_honey",
+          "visibility_ratio": 0.525709778475146,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 6504317,
+          "model": "5ft_wood_shelving",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         },
         {
-          "object_id": 79864,
-          "model": "ligne_roset_armchair",
+          "object_id": 12120715,
+          "model": "kettle",
+          "visibility_ratio": 0.1750265949595443,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "9327142_facing_north.png",
+      "cam_id": "9327142",
+      "pos": {
+        "x": -0.9202909910523838,
+        "y": 0.8,
+        "z": -1.8086753550229293
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 1586402,
+          "model": "cabinet_24_wood_beach_honey",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         },
         {
-          "object_id": 9268356,
-          "model": "tan_side_chair",
-          "visibility_ratio": 0.2681098043189492,
+          "object_id": 6504317,
+          "model": "5ft_wood_shelving",
+          "visibility_ratio": 0.702498770007134,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 12120715,
+          "model": "kettle",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 9327142,
+          "model": "vase_01",
+          "visibility_ratio": 0.25000002581709013,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "9327142_facing_east.png",
+      "cam_id": "9327142",
+      "pos": {
+        "x": -0.9202909910523838,
+        "y": 0.8,
+        "z": -1.8086753550229293
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 9327142,
+          "model": "vase_01",
+          "visibility_ratio": 0.24999997418290992,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "9327142_facing_south.png",
+      "cam_id": "9327142",
+      "pos": {
+        "x": -0.9202909910523838,
+        "y": 0.8,
+        "z": -1.8086753550229293
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 9327142,
+          "model": "vase_01",
+          "visibility_ratio": 0.25000002581709013,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "9327142_facing_west.png",
+      "cam_id": "9327142",
+      "pos": {
+        "x": -0.9202909910523838,
+        "y": 0.8,
+        "z": -1.8086753550229293
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 6504317,
+          "model": "5ft_wood_shelving",
+          "visibility_ratio": 0.29750122999286466,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 9327142,
+          "model": "vase_01",
+          "visibility_ratio": 0.24999997418290992,
           "occlusion_ratio": 1.0
         }
       ]
