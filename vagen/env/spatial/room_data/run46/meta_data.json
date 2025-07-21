@@ -1,0 +1,511 @@
+{
+  "room_size": [
+    8,
+    8
+  ],
+  "screen_size": [
+    512,
+    512
+  ],
+  "seed": 2036,
+  "min_distance": 0.5,
+  "objects": [
+    {
+      "object_id": 14371416,
+      "model": "red_lamp",
+      "name": "red lamp",
+      "pos": {
+        "x": 0.0,
+        "y": 0,
+        "z": -1.0
+      },
+      "rot": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "size": [
+        0.5249988,
+        1.08171015
+      ],
+      "attributes": {
+        "scale": 1.5,
+        "has_orientation": false
+      }
+    },
+    {
+      "object_id": 13505109,
+      "model": "wood_chair",
+      "name": "blue chair",
+      "pos": {
+        "x": -2.0,
+        "y": 0,
+        "z": -1.0
+      },
+      "rot": {
+        "x": 0,
+        "y": 180,
+        "z": 0
+      },
+      "size": [
+        0.4298932,
+        0.47789539999999997
+      ],
+      "attributes": {
+        "scale": 1.0,
+        "has_orientation": true,
+        "color": {
+          "name": "blue",
+          "r": 0.0,
+          "g": 0.0,
+          "b": 1.0,
+          "a": 1.0
+        },
+        "orientation": "south"
+      }
+    },
+    {
+      "object_id": 9540629,
+      "model": "dining_room_table",
+      "name": "wooden table",
+      "pos": {
+        "x": 2,
+        "y": 0,
+        "z": -1
+      },
+      "rot": {
+        "x": 0,
+        "y": 270,
+        "z": 0
+      },
+      "size": [
+        1.0922,
+        1.0922
+      ],
+      "attributes": {
+        "scale": 1.0,
+        "has_orientation": false
+      }
+    },
+    {
+      "object_id": 2821517,
+      "model": "white_club_chair",
+      "name": "white chair",
+      "pos": {
+        "x": 0.0,
+        "y": 0,
+        "z": 2.0
+      },
+      "rot": {
+        "x": 0,
+        "y": 270,
+        "z": 0
+      },
+      "size": [
+        0.7982815,
+        0.9681153
+      ],
+      "attributes": {
+        "scale": 1.0,
+        "has_orientation": true,
+        "orientation": "west"
+      }
+    }
+  ],
+  "cameras": [
+    {
+      "id": "agent",
+      "label": "A",
+      "position": {
+        "x": -3,
+        "y": 0.8,
+        "z": -2
+      },
+      "rotation": {
+        "y": 56.309932474020215
+      }
+    },
+    {
+      "id": "14371416",
+      "label": "1",
+      "position": {
+        "x": 0.0,
+        "y": 0.8,
+        "z": -1.0
+      },
+      "rotation": {
+        "y": -0.0
+      }
+    },
+    {
+      "id": "13505109",
+      "label": "2",
+      "position": {
+        "x": -2.0,
+        "y": 0.8,
+        "z": -1.0
+      },
+      "rotation": {
+        "y": 63.43494882292201
+      }
+    },
+    {
+      "id": "9540629",
+      "label": "3",
+      "position": {
+        "x": 2,
+        "y": 0.8,
+        "z": -1
+      },
+      "rotation": {
+        "y": -63.43494882292201
+      }
+    },
+    {
+      "id": "2821517",
+      "label": "4",
+      "position": {
+        "x": 0.0,
+        "y": 0.8,
+        "z": 2.0
+      },
+      "rotation": {
+        "y": -180.0
+      }
+    }
+  ],
+  "images": [
+    {
+      "file": "agent_facing_north.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": -3,
+        "y": 0.8,
+        "z": -2
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 13505109,
+          "model": "wood_chair",
+          "visibility_ratio": 0.4999999999999996,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 2821517,
+          "model": "white_club_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "agent_facing_east.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": -3,
+        "y": 0.8,
+        "z": -2
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 14371416,
+          "model": "red_lamp",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 13505109,
+          "model": "wood_chair",
+          "visibility_ratio": 0.4999999999999991,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 9540629,
+          "model": "dining_room_table",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "agent_facing_south.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": -3,
+        "y": 0.8,
+        "z": -2
+      },
+      "direction": "south",
+      "object_ratios": []
+    },
+    {
+      "file": "agent_facing_west.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": -3,
+        "y": 0.8,
+        "z": -2
+      },
+      "direction": "west",
+      "object_ratios": []
+    },
+    {
+      "file": "14371416_facing_north.png",
+      "cam_id": "14371416",
+      "pos": {
+        "x": 0.0,
+        "y": 0.8,
+        "z": -1.0
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 2821517,
+          "model": "white_club_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "14371416_facing_east.png",
+      "cam_id": "14371416",
+      "pos": {
+        "x": 0.0,
+        "y": 0.8,
+        "z": -1.0
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 9540629,
+          "model": "dining_room_table",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "14371416_facing_south.png",
+      "cam_id": "14371416",
+      "pos": {
+        "x": 0.0,
+        "y": 0.8,
+        "z": -1.0
+      },
+      "direction": "south",
+      "object_ratios": []
+    },
+    {
+      "file": "14371416_facing_west.png",
+      "cam_id": "14371416",
+      "pos": {
+        "x": 0.0,
+        "y": 0.8,
+        "z": -1.0
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 13505109,
+          "model": "wood_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "13505109_facing_north.png",
+      "cam_id": "13505109",
+      "pos": {
+        "x": -2.0,
+        "y": 0.8,
+        "z": -1.0
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 2821517,
+          "model": "white_club_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "13505109_facing_east.png",
+      "cam_id": "13505109",
+      "pos": {
+        "x": -2.0,
+        "y": 0.8,
+        "z": -1.0
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 14371416,
+          "model": "red_lamp",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 9540629,
+          "model": "dining_room_table",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "13505109_facing_south.png",
+      "cam_id": "13505109",
+      "pos": {
+        "x": -2.0,
+        "y": 0.8,
+        "z": -1.0
+      },
+      "direction": "south",
+      "object_ratios": []
+    },
+    {
+      "file": "13505109_facing_west.png",
+      "cam_id": "13505109",
+      "pos": {
+        "x": -2.0,
+        "y": 0.8,
+        "z": -1.0
+      },
+      "direction": "west",
+      "object_ratios": []
+    },
+    {
+      "file": "9540629_facing_north.png",
+      "cam_id": "9540629",
+      "pos": {
+        "x": 2,
+        "y": 0.8,
+        "z": -1
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 2821517,
+          "model": "white_club_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "9540629_facing_east.png",
+      "cam_id": "9540629",
+      "pos": {
+        "x": 2,
+        "y": 0.8,
+        "z": -1
+      },
+      "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "9540629_facing_south.png",
+      "cam_id": "9540629",
+      "pos": {
+        "x": 2,
+        "y": 0.8,
+        "z": -1
+      },
+      "direction": "south",
+      "object_ratios": []
+    },
+    {
+      "file": "9540629_facing_west.png",
+      "cam_id": "9540629",
+      "pos": {
+        "x": 2,
+        "y": 0.8,
+        "z": -1
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 14371416,
+          "model": "red_lamp",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 13505109,
+          "model": "wood_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "2821517_facing_north.png",
+      "cam_id": "2821517",
+      "pos": {
+        "x": 0.0,
+        "y": 0.8,
+        "z": 2.0
+      },
+      "direction": "north",
+      "object_ratios": []
+    },
+    {
+      "file": "2821517_facing_east.png",
+      "cam_id": "2821517",
+      "pos": {
+        "x": 0.0,
+        "y": 0.8,
+        "z": 2.0
+      },
+      "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "2821517_facing_south.png",
+      "cam_id": "2821517",
+      "pos": {
+        "x": 0.0,
+        "y": 0.8,
+        "z": 2.0
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 14371416,
+          "model": "red_lamp",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 13505109,
+          "model": "wood_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 9540629,
+          "model": "dining_room_table",
+          "visibility_ratio": 0.9964369041772156,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "2821517_facing_west.png",
+      "cam_id": "2821517",
+      "pos": {
+        "x": 0.0,
+        "y": 0.8,
+        "z": 2.0
+      },
+      "direction": "west",
+      "object_ratios": []
+    }
+  ]
+}

@@ -1,0 +1,517 @@
+{
+  "room_size": [
+    8,
+    8
+  ],
+  "screen_size": [
+    512,
+    512
+  ],
+  "seed": 2089,
+  "min_distance": 0.5,
+  "objects": [
+    {
+      "object_id": 16427728,
+      "model": "dining_room_table",
+      "name": "wooden table",
+      "pos": {
+        "x": -3.0,
+        "y": 0,
+        "z": 0.0
+      },
+      "rot": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "size": [
+        1.0922,
+        1.0922
+      ],
+      "attributes": {
+        "scale": 1.0,
+        "has_orientation": false
+      }
+    },
+    {
+      "object_id": 9825981,
+      "model": "5ft_wood_shelving",
+      "name": "shelf",
+      "pos": {
+        "x": 1,
+        "y": 0,
+        "z": 0
+      },
+      "rot": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "size": [
+        0.3857705,
+        0.9451682
+      ],
+      "attributes": {
+        "scale": 1.0,
+        "has_orientation": false
+      }
+    },
+    {
+      "object_id": 1975452,
+      "model": "cabinet_36_white_wood",
+      "name": "white cabinet",
+      "pos": {
+        "x": 1,
+        "y": 0,
+        "z": 2
+      },
+      "rot": {
+        "x": 0,
+        "y": 180,
+        "z": 0
+      },
+      "size": [
+        0.9098790999999999,
+        0.6424497
+      ],
+      "attributes": {
+        "scale": 1.0,
+        "has_orientation": false,
+        "color": {
+          "name": "white",
+          "r": 1.0,
+          "g": 1.0,
+          "b": 1.0,
+          "a": 1.0
+        }
+      }
+    },
+    {
+      "object_id": 2953999,
+      "model": "white_club_chair",
+      "name": "green chair",
+      "pos": {
+        "x": 1,
+        "y": 0,
+        "z": -2
+      },
+      "rot": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "size": [
+        0.7982815,
+        0.9681153
+      ],
+      "attributes": {
+        "scale": 1.0,
+        "has_orientation": true,
+        "color": {
+          "name": "green",
+          "r": 0.0,
+          "g": 1.0,
+          "b": 0.0,
+          "a": 1.0
+        },
+        "orientation": "east"
+      }
+    }
+  ],
+  "cameras": [
+    {
+      "id": "agent",
+      "label": "A",
+      "position": {
+        "x": 2,
+        "y": 0.8,
+        "z": -3
+      },
+      "rotation": {
+        "y": -33.690067525979785
+      }
+    },
+    {
+      "id": "16427728",
+      "label": "1",
+      "position": {
+        "x": -3.0,
+        "y": 0.8,
+        "z": 0.0
+      },
+      "rotation": {
+        "y": 90.0
+      }
+    },
+    {
+      "id": "9825981",
+      "label": "2",
+      "position": {
+        "x": 1,
+        "y": 0.8,
+        "z": 0
+      },
+      "rotation": {
+        "y": -90.0
+      }
+    },
+    {
+      "id": "1975452",
+      "label": "3",
+      "position": {
+        "x": 1,
+        "y": 0.8,
+        "z": 2
+      },
+      "rotation": {
+        "y": -153.434948822922
+      }
+    },
+    {
+      "id": "2953999",
+      "label": "4",
+      "position": {
+        "x": 1,
+        "y": 0.8,
+        "z": -2
+      },
+      "rotation": {
+        "y": -26.56505117707799
+      }
+    }
+  ],
+  "images": [
+    {
+      "file": "agent_facing_north.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": 2,
+        "y": 0.8,
+        "z": -3
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 9825981,
+          "model": "5ft_wood_shelving",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 1975452,
+          "model": "cabinet_36_white_wood",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 2953999,
+          "model": "white_club_chair",
+          "visibility_ratio": 0.4999999999999997,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "agent_facing_east.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": 2,
+        "y": 0.8,
+        "z": -3
+      },
+      "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "agent_facing_south.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": 2,
+        "y": 0.8,
+        "z": -3
+      },
+      "direction": "south",
+      "object_ratios": []
+    },
+    {
+      "file": "agent_facing_west.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": 2,
+        "y": 0.8,
+        "z": -3
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 16427728,
+          "model": "dining_room_table",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 2953999,
+          "model": "white_club_chair",
+          "visibility_ratio": 0.49999999999999967,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "16427728_facing_north.png",
+      "cam_id": "16427728",
+      "pos": {
+        "x": -3.0,
+        "y": 0.8,
+        "z": 0.0
+      },
+      "direction": "north",
+      "object_ratios": []
+    },
+    {
+      "file": "16427728_facing_east.png",
+      "cam_id": "16427728",
+      "pos": {
+        "x": -3.0,
+        "y": 0.8,
+        "z": 0.0
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 9825981,
+          "model": "5ft_wood_shelving",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 1975452,
+          "model": "cabinet_36_white_wood",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 2953999,
+          "model": "white_club_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "16427728_facing_south.png",
+      "cam_id": "16427728",
+      "pos": {
+        "x": -3.0,
+        "y": 0.8,
+        "z": 0.0
+      },
+      "direction": "south",
+      "object_ratios": []
+    },
+    {
+      "file": "16427728_facing_west.png",
+      "cam_id": "16427728",
+      "pos": {
+        "x": -3.0,
+        "y": 0.8,
+        "z": 0.0
+      },
+      "direction": "west",
+      "object_ratios": []
+    },
+    {
+      "file": "9825981_facing_north.png",
+      "cam_id": "9825981",
+      "pos": {
+        "x": 1,
+        "y": 0.8,
+        "z": 0
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 1975452,
+          "model": "cabinet_36_white_wood",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "9825981_facing_east.png",
+      "cam_id": "9825981",
+      "pos": {
+        "x": 1,
+        "y": 0.8,
+        "z": 0
+      },
+      "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "9825981_facing_south.png",
+      "cam_id": "9825981",
+      "pos": {
+        "x": 1,
+        "y": 0.8,
+        "z": 0
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 2953999,
+          "model": "white_club_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "9825981_facing_west.png",
+      "cam_id": "9825981",
+      "pos": {
+        "x": 1,
+        "y": 0.8,
+        "z": 0
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 16427728,
+          "model": "dining_room_table",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "1975452_facing_north.png",
+      "cam_id": "1975452",
+      "pos": {
+        "x": 1,
+        "y": 0.8,
+        "z": 2
+      },
+      "direction": "north",
+      "object_ratios": []
+    },
+    {
+      "file": "1975452_facing_east.png",
+      "cam_id": "1975452",
+      "pos": {
+        "x": 1,
+        "y": 0.8,
+        "z": 2
+      },
+      "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "1975452_facing_south.png",
+      "cam_id": "1975452",
+      "pos": {
+        "x": 1,
+        "y": 0.8,
+        "z": 2
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 9825981,
+          "model": "5ft_wood_shelving",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 2953999,
+          "model": "white_club_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "1975452_facing_west.png",
+      "cam_id": "1975452",
+      "pos": {
+        "x": 1,
+        "y": 0.8,
+        "z": 2
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 16427728,
+          "model": "dining_room_table",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "2953999_facing_north.png",
+      "cam_id": "2953999",
+      "pos": {
+        "x": 1,
+        "y": 0.8,
+        "z": -2
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 9825981,
+          "model": "5ft_wood_shelving",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 1975452,
+          "model": "cabinet_36_white_wood",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "2953999_facing_east.png",
+      "cam_id": "2953999",
+      "pos": {
+        "x": 1,
+        "y": 0.8,
+        "z": -2
+      },
+      "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "2953999_facing_south.png",
+      "cam_id": "2953999",
+      "pos": {
+        "x": 1,
+        "y": 0.8,
+        "z": -2
+      },
+      "direction": "south",
+      "object_ratios": []
+    },
+    {
+      "file": "2953999_facing_west.png",
+      "cam_id": "2953999",
+      "pos": {
+        "x": 1,
+        "y": 0.8,
+        "z": -2
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 16427728,
+          "model": "dining_room_table",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,510 @@
+{
+  "room_size": [
+    8,
+    8
+  ],
+  "screen_size": [
+    512,
+    512
+  ],
+  "seed": 2082,
+  "min_distance": 0.5,
+  "objects": [
+    {
+      "object_id": 14627826,
+      "model": "cabinet_24_wood_beach_honey",
+      "name": "wooden cabinet",
+      "pos": {
+        "x": 0.0,
+        "y": 0,
+        "z": -3.0
+      },
+      "rot": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "size": [
+        0.6073107,
+        0.6424497
+      ],
+      "attributes": {
+        "scale": 1.0,
+        "has_orientation": false
+      }
+    },
+    {
+      "object_id": 10007006,
+      "model": "white_lamp",
+      "name": "white lamp",
+      "pos": {
+        "x": 1,
+        "y": 0,
+        "z": 2
+      },
+      "rot": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "size": [
+        0.5249988,
+        1.08171015
+      ],
+      "attributes": {
+        "scale": 1.5,
+        "has_orientation": false
+      }
+    },
+    {
+      "object_id": 9935312,
+      "model": "white_club_chair",
+      "name": "white chair",
+      "pos": {
+        "x": 2,
+        "y": 0,
+        "z": 0
+      },
+      "rot": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "size": [
+        0.7982815,
+        0.9681153
+      ],
+      "attributes": {
+        "scale": 1.0,
+        "has_orientation": true,
+        "orientation": "east"
+      }
+    },
+    {
+      "object_id": 7217315,
+      "model": "red_lamp",
+      "name": "red lamp",
+      "pos": {
+        "x": -1.0,
+        "y": 0,
+        "z": 2.0
+      },
+      "rot": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "size": [
+        0.5249988,
+        1.08171015
+      ],
+      "attributes": {
+        "scale": 1.5,
+        "has_orientation": false
+      }
+    }
+  ],
+  "cameras": [
+    {
+      "id": "agent",
+      "label": "A",
+      "position": {
+        "x": 2,
+        "y": 0.8,
+        "z": -1
+      },
+      "rotation": {
+        "y": -63.43494882292201
+      }
+    },
+    {
+      "id": "14627826",
+      "label": "1",
+      "position": {
+        "x": 0.0,
+        "y": 0.8,
+        "z": -3.0
+      },
+      "rotation": {
+        "y": -0.0
+      }
+    },
+    {
+      "id": "10007006",
+      "label": "2",
+      "position": {
+        "x": 1,
+        "y": 0.8,
+        "z": 2
+      },
+      "rotation": {
+        "y": -153.434948822922
+      }
+    },
+    {
+      "id": "9935312",
+      "label": "3",
+      "position": {
+        "x": 2,
+        "y": 0.8,
+        "z": 0
+      },
+      "rotation": {
+        "y": -90.0
+      }
+    },
+    {
+      "id": "7217315",
+      "label": "4",
+      "position": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": 2.0
+      },
+      "rotation": {
+        "y": 153.434948822922
+      }
+    }
+  ],
+  "images": [
+    {
+      "file": "agent_facing_north.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": 2,
+        "y": 0.8,
+        "z": -1
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 10007006,
+          "model": "white_lamp",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 9935312,
+          "model": "white_club_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 7217315,
+          "model": "red_lamp",
+          "visibility_ratio": 0.4999999999999992,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "agent_facing_east.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": 2,
+        "y": 0.8,
+        "z": -1
+      },
+      "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "agent_facing_south.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": 2,
+        "y": 0.8,
+        "z": -1
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 14627826,
+          "model": "cabinet_24_wood_beach_honey",
+          "visibility_ratio": 0.4999999999999988,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "agent_facing_west.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": 2,
+        "y": 0.8,
+        "z": -1
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 14627826,
+          "model": "cabinet_24_wood_beach_honey",
+          "visibility_ratio": 0.5,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 7217315,
+          "model": "red_lamp",
+          "visibility_ratio": 0.4999999999999991,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "14627826_facing_north.png",
+      "cam_id": "14627826",
+      "pos": {
+        "x": 0.0,
+        "y": 0.8,
+        "z": -3.0
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 10007006,
+          "model": "white_lamp",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 9935312,
+          "model": "white_club_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 7217315,
+          "model": "red_lamp",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "14627826_facing_east.png",
+      "cam_id": "14627826",
+      "pos": {
+        "x": 0.0,
+        "y": 0.8,
+        "z": -3.0
+      },
+      "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "14627826_facing_south.png",
+      "cam_id": "14627826",
+      "pos": {
+        "x": 0.0,
+        "y": 0.8,
+        "z": -3.0
+      },
+      "direction": "south",
+      "object_ratios": []
+    },
+    {
+      "file": "14627826_facing_west.png",
+      "cam_id": "14627826",
+      "pos": {
+        "x": 0.0,
+        "y": 0.8,
+        "z": -3.0
+      },
+      "direction": "west",
+      "object_ratios": []
+    },
+    {
+      "file": "10007006_facing_north.png",
+      "cam_id": "10007006",
+      "pos": {
+        "x": 1,
+        "y": 0.8,
+        "z": 2
+      },
+      "direction": "north",
+      "object_ratios": []
+    },
+    {
+      "file": "10007006_facing_east.png",
+      "cam_id": "10007006",
+      "pos": {
+        "x": 1,
+        "y": 0.8,
+        "z": 2
+      },
+      "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "10007006_facing_south.png",
+      "cam_id": "10007006",
+      "pos": {
+        "x": 1,
+        "y": 0.8,
+        "z": 2
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 14627826,
+          "model": "cabinet_24_wood_beach_honey",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 9935312,
+          "model": "white_club_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "10007006_facing_west.png",
+      "cam_id": "10007006",
+      "pos": {
+        "x": 1,
+        "y": 0.8,
+        "z": 2
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 7217315,
+          "model": "red_lamp",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "9935312_facing_north.png",
+      "cam_id": "9935312",
+      "pos": {
+        "x": 2,
+        "y": 0.8,
+        "z": 0
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 10007006,
+          "model": "white_lamp",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "9935312_facing_east.png",
+      "cam_id": "9935312",
+      "pos": {
+        "x": 2,
+        "y": 0.8,
+        "z": 0
+      },
+      "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "9935312_facing_south.png",
+      "cam_id": "9935312",
+      "pos": {
+        "x": 2,
+        "y": 0.8,
+        "z": 0
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 14627826,
+          "model": "cabinet_24_wood_beach_honey",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "9935312_facing_west.png",
+      "cam_id": "9935312",
+      "pos": {
+        "x": 2,
+        "y": 0.8,
+        "z": 0
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 7217315,
+          "model": "red_lamp",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "7217315_facing_north.png",
+      "cam_id": "7217315",
+      "pos": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": 2.0
+      },
+      "direction": "north",
+      "object_ratios": []
+    },
+    {
+      "file": "7217315_facing_east.png",
+      "cam_id": "7217315",
+      "pos": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": 2.0
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 10007006,
+          "model": "white_lamp",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 9935312,
+          "model": "white_club_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "7217315_facing_south.png",
+      "cam_id": "7217315",
+      "pos": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": 2.0
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 14627826,
+          "model": "cabinet_24_wood_beach_honey",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "7217315_facing_west.png",
+      "cam_id": "7217315",
+      "pos": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": 2.0
+      },
+      "direction": "west",
+      "object_ratios": []
+    }
+  ]
+}

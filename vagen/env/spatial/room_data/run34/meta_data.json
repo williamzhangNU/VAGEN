@@ -1,0 +1,518 @@
+{
+  "room_size": [
+    8,
+    8
+  ],
+  "screen_size": [
+    512,
+    512
+  ],
+  "seed": 2024,
+  "min_distance": 0.5,
+  "objects": [
+    {
+      "object_id": 792897,
+      "model": "lapalma_stil_chair",
+      "name": "pink chair",
+      "pos": {
+        "x": 0,
+        "y": 0,
+        "z": 2
+      },
+      "rot": {
+        "x": 0,
+        "y": 270,
+        "z": 0
+      },
+      "size": [
+        0.4800618,
+        0.5100285
+      ],
+      "attributes": {
+        "scale": 1.0,
+        "has_orientation": true,
+        "color": {
+          "name": "pink",
+          "r": 1.0,
+          "g": 0.0,
+          "b": 1.0,
+          "a": 1.0
+        },
+        "orientation": "west"
+      }
+    },
+    {
+      "object_id": 5211091,
+      "model": "dining_room_table",
+      "name": "wooden table",
+      "pos": {
+        "x": -1.0,
+        "y": 0,
+        "z": -3.0
+      },
+      "rot": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "size": [
+        1.0922,
+        1.0922
+      ],
+      "attributes": {
+        "scale": 1.0,
+        "has_orientation": false
+      }
+    },
+    {
+      "object_id": 12372477,
+      "model": "cabinet_36_white_wood",
+      "name": "white cabinet",
+      "pos": {
+        "x": -2.0,
+        "y": 0,
+        "z": 3.0
+      },
+      "rot": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "size": [
+        0.9098790999999999,
+        0.6424497
+      ],
+      "attributes": {
+        "scale": 1.0,
+        "has_orientation": false,
+        "color": {
+          "name": "white",
+          "r": 1.0,
+          "g": 1.0,
+          "b": 1.0,
+          "a": 1.0
+        }
+      }
+    },
+    {
+      "object_id": 708661,
+      "model": "basket_18inx18inx12iin",
+      "name": "basket",
+      "pos": {
+        "x": 2.0,
+        "y": 0,
+        "z": 3.0
+      },
+      "rot": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "size": [
+        0.914,
+        0.914
+      ],
+      "attributes": {
+        "scale": 2.0,
+        "has_orientation": false
+      }
+    }
+  ],
+  "cameras": [
+    {
+      "id": "agent",
+      "label": "A",
+      "position": {
+        "x": -2,
+        "y": 0.8,
+        "z": 0
+      },
+      "rotation": {
+        "y": 90.0
+      }
+    },
+    {
+      "id": "792897",
+      "label": "1",
+      "position": {
+        "x": 0,
+        "y": 0.8,
+        "z": 2
+      },
+      "rotation": {
+        "y": 180.0
+      }
+    },
+    {
+      "id": "5211091",
+      "label": "2",
+      "position": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": -3.0
+      },
+      "rotation": {
+        "y": 18.43494882292201
+      }
+    },
+    {
+      "id": "12372477",
+      "label": "3",
+      "position": {
+        "x": -2.0,
+        "y": 0.8,
+        "z": 3.0
+      },
+      "rotation": {
+        "y": 146.30993247402023
+      }
+    },
+    {
+      "id": "708661",
+      "label": "4",
+      "position": {
+        "x": 2.0,
+        "y": 0.8,
+        "z": 3.0
+      },
+      "rotation": {
+        "y": -146.30993247402023
+      }
+    }
+  ],
+  "images": [
+    {
+      "file": "agent_facing_north.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": -2,
+        "y": 0.8,
+        "z": 0
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 792897,
+          "model": "lapalma_stil_chair",
+          "visibility_ratio": 0.4999999999999993,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 12372477,
+          "model": "cabinet_36_white_wood",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "agent_facing_east.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": -2,
+        "y": 0.8,
+        "z": 0
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 792897,
+          "model": "lapalma_stil_chair",
+          "visibility_ratio": 0.4999999999999997,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 708661,
+          "model": "basket_18inx18inx12iin",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "agent_facing_south.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": -2,
+        "y": 0.8,
+        "z": 0
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 5211091,
+          "model": "dining_room_table",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "agent_facing_west.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": -2,
+        "y": 0.8,
+        "z": 0
+      },
+      "direction": "west",
+      "object_ratios": []
+    },
+    {
+      "file": "792897_facing_north.png",
+      "cam_id": "792897",
+      "pos": {
+        "x": 0,
+        "y": 0.8,
+        "z": 2
+      },
+      "direction": "north",
+      "object_ratios": []
+    },
+    {
+      "file": "792897_facing_east.png",
+      "cam_id": "792897",
+      "pos": {
+        "x": 0,
+        "y": 0.8,
+        "z": 2
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 708661,
+          "model": "basket_18inx18inx12iin",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "792897_facing_south.png",
+      "cam_id": "792897",
+      "pos": {
+        "x": 0,
+        "y": 0.8,
+        "z": 2
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 5211091,
+          "model": "dining_room_table",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "792897_facing_west.png",
+      "cam_id": "792897",
+      "pos": {
+        "x": 0,
+        "y": 0.8,
+        "z": 2
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 12372477,
+          "model": "cabinet_36_white_wood",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "5211091_facing_north.png",
+      "cam_id": "5211091",
+      "pos": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": -3.0
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 792897,
+          "model": "lapalma_stil_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 12372477,
+          "model": "cabinet_36_white_wood",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 708661,
+          "model": "basket_18inx18inx12iin",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "5211091_facing_east.png",
+      "cam_id": "5211091",
+      "pos": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": -3.0
+      },
+      "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "5211091_facing_south.png",
+      "cam_id": "5211091",
+      "pos": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": -3.0
+      },
+      "direction": "south",
+      "object_ratios": []
+    },
+    {
+      "file": "5211091_facing_west.png",
+      "cam_id": "5211091",
+      "pos": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": -3.0
+      },
+      "direction": "west",
+      "object_ratios": []
+    },
+    {
+      "file": "12372477_facing_north.png",
+      "cam_id": "12372477",
+      "pos": {
+        "x": -2.0,
+        "y": 0.8,
+        "z": 3.0
+      },
+      "direction": "north",
+      "object_ratios": []
+    },
+    {
+      "file": "12372477_facing_east.png",
+      "cam_id": "12372477",
+      "pos": {
+        "x": -2.0,
+        "y": 0.8,
+        "z": 3.0
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 792897,
+          "model": "lapalma_stil_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 708661,
+          "model": "basket_18inx18inx12iin",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "12372477_facing_south.png",
+      "cam_id": "12372477",
+      "pos": {
+        "x": -2.0,
+        "y": 0.8,
+        "z": 3.0
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 5211091,
+          "model": "dining_room_table",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "12372477_facing_west.png",
+      "cam_id": "12372477",
+      "pos": {
+        "x": -2.0,
+        "y": 0.8,
+        "z": 3.0
+      },
+      "direction": "west",
+      "object_ratios": []
+    },
+    {
+      "file": "708661_facing_north.png",
+      "cam_id": "708661",
+      "pos": {
+        "x": 2.0,
+        "y": 0.8,
+        "z": 3.0
+      },
+      "direction": "north",
+      "object_ratios": []
+    },
+    {
+      "file": "708661_facing_east.png",
+      "cam_id": "708661",
+      "pos": {
+        "x": 2.0,
+        "y": 0.8,
+        "z": 3.0
+      },
+      "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "708661_facing_south.png",
+      "cam_id": "708661",
+      "pos": {
+        "x": 2.0,
+        "y": 0.8,
+        "z": 3.0
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 5211091,
+          "model": "dining_room_table",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "708661_facing_west.png",
+      "cam_id": "708661",
+      "pos": {
+        "x": 2.0,
+        "y": 0.8,
+        "z": 3.0
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 792897,
+          "model": "lapalma_stil_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 12372477,
+          "model": "cabinet_36_white_wood",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    }
+  ]
+}

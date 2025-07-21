@@ -7,17 +7,17 @@
     512,
     512
   ],
-  "seed": 88,
+  "seed": 1998,
   "min_distance": 0.5,
   "objects": [
     {
-      "object_id": 12362633,
-      "model": "linen_dining_chair",
-      "name": "pink chair",
+      "object_id": 12278697,
+      "model": "white_club_chair",
+      "name": "white chair",
       "pos": {
-        "x": 2.791878436221403,
+        "x": 0,
         "y": 0,
-        "z": 2.232818867424943
+        "z": 1
       },
       "rot": {
         "x": 0,
@@ -25,84 +25,90 @@
         "z": 0
       },
       "size": [
-        0.6261426,
-        0.6553732
+        0.7982815,
+        0.9681153
       ],
       "attributes": {
         "scale": 1.0,
+        "has_orientation": true,
+        "orientation": "west"
+      }
+    },
+    {
+      "object_id": 3303149,
+      "model": "kettle",
+      "name": "kettle",
+      "pos": {
+        "x": -2.0,
+        "y": 0,
+        "z": -3.0
+      },
+      "rot": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "size": [
+        0.381692628,
+        0.26722544400000003
+      ],
+      "attributes": {
+        "scale": 1.8,
+        "has_orientation": false
+      }
+    },
+    {
+      "object_id": 1079515,
+      "model": "ligne_roset_armchair",
+      "name": "black chair",
+      "pos": {
+        "x": 0.0,
+        "y": 0,
+        "z": -3.0
+      },
+      "rot": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "size": [
+        0.8185906,
+        1.4368143
+      ],
+      "attributes": {
+        "scale": 1.0,
+        "has_orientation": true,
         "color": {
-          "name": "pink",
-          "r": 1.0,
+          "name": "black",
+          "r": 0.0,
           "g": 0.0,
-          "b": 1.0,
+          "b": 0.0,
           "a": 1.0
-        }
+        },
+        "orientation": "east"
       }
     },
     {
-      "object_id": 10152594,
-      "model": "microwave",
-      "name": "microwave",
+      "object_id": 9135081,
+      "model": "basket_18inx18inx12iin",
+      "name": "basket",
       "pos": {
-        "x": 2.362433735940982,
-        "y": 0,
-        "z": -1.8831657945520464
-      },
-      "rot": {
-        "x": 0,
+        "x": 2,
         "y": 0,
         "z": 0
       },
-      "size": [
-        0.7570321499999999,
-        0.40748157000000007
-      ],
-      "attributes": {
-        "scale": 1.5
-      }
-    },
-    {
-      "object_id": 789628,
-      "model": "red_lamp",
-      "name": "red lamp",
-      "pos": {
-        "x": -3.2010480385255757,
-        "y": 0,
-        "z": 0.837051091121481
-      },
       "rot": {
         "x": 0,
-        "y": 180,
+        "y": 270,
         "z": 0
       },
       "size": [
-        0.6999984,
-        1.4422802
+        0.914,
+        0.914
       ],
       "attributes": {
-        "scale": 2.0
-      }
-    },
-    {
-      "object_id": 5369426,
-      "model": "wood_chair",
-      "name": "wooden chair",
-      "pos": {
-        "x": 0.1648885895186023,
-        "y": 0,
-        "z": -3.091538402751422
-      },
-      "rot": {
-        "x": 0,
-        "y": 0,
-        "z": 0
-      },
-      "size": [
-        0.4298932,
-        0.47789539999999997
-      ],
-      "attributes": {
-        "scale": 1.0
+        "scale": 2.0,
+        "has_orientation": false
       }
     }
   ],
@@ -111,60 +117,60 @@
       "id": "agent",
       "label": "A",
       "position": {
-        "x": -1.1425938105758906,
+        "x": -2,
         "y": 0.8,
-        "z": -2.3140386203339443
+        "z": 0
       },
       "rotation": {
-        "y": 26.27859805918006
+        "y": 90.0
       }
     },
     {
-      "id": "12362633",
+      "id": "12278697",
       "label": "1",
       "position": {
-        "x": 2.791878436221403,
+        "x": 0,
         "y": 0.8,
-        "z": 2.232818867424943
+        "z": 1
       },
       "rotation": {
-        "y": -128.65124941104256
+        "y": 180.0
       }
     },
     {
-      "id": "10152594",
+      "id": "3303149",
       "label": "2",
       "position": {
-        "x": 2.362433735940982,
+        "x": -2.0,
         "y": 0.8,
-        "z": -1.8831657945520464
+        "z": -3.0
       },
       "rotation": {
-        "y": -51.44061479759516
+        "y": 33.690067525979785
       }
     },
     {
-      "id": "789628",
+      "id": "1079515",
       "label": "3",
       "position": {
-        "x": -3.2010480385255757,
+        "x": 0.0,
         "y": 0.8,
-        "z": 0.837051091121481
+        "z": -3.0
       },
       "rotation": {
-        "y": 104.65430365608576
+        "y": -0.0
       }
     },
     {
-      "id": "5369426",
+      "id": "9135081",
       "label": "4",
       "position": {
-        "x": 0.1648885895186023,
+        "x": 2,
         "y": 0.8,
-        "z": -3.091538402751422
+        "z": 0
       },
       "rotation": {
-        "y": -3.053003402795416
+        "y": -90.0
       }
     }
   ],
@@ -173,45 +179,32 @@
       "file": "agent_facing_north.png",
       "cam_id": "agent",
       "pos": {
-        "x": -1.1425938105758906,
+        "x": -2,
         "y": 0.8,
-        "z": -2.3140386203339443
+        "z": 0
       },
       "direction": "north",
-      "object_ratios": [
-        {
-          "object_id": 12362633,
-          "model": "linen_dining_chair",
-          "visibility_ratio": 0.9990191374521298,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 789628,
-          "model": "red_lamp",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
+      "object_ratios": []
     },
     {
       "file": "agent_facing_east.png",
       "cam_id": "agent",
       "pos": {
-        "x": -1.1425938105758906,
+        "x": -2,
         "y": 0.8,
-        "z": -2.3140386203339443
+        "z": 0
       },
       "direction": "east",
       "object_ratios": [
         {
-          "object_id": 10152594,
-          "model": "microwave",
+          "object_id": 12278697,
+          "model": "white_club_chair",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         },
         {
-          "object_id": 5369426,
-          "model": "wood_chair",
+          "object_id": 9135081,
+          "model": "basket_18inx18inx12iin",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
@@ -221,386 +214,289 @@
       "file": "agent_facing_south.png",
       "cam_id": "agent",
       "pos": {
-        "x": -1.1425938105758906,
+        "x": -2,
         "y": 0.8,
-        "z": -2.3140386203339443
+        "z": 0
       },
       "direction": "south",
-      "object_ratios": []
+      "object_ratios": [
+        {
+          "object_id": 3303149,
+          "model": "kettle",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 1079515,
+          "model": "ligne_roset_armchair",
+          "visibility_ratio": 0.993067321377246,
+          "occlusion_ratio": 1.0
+        }
+      ]
     },
     {
       "file": "agent_facing_west.png",
       "cam_id": "agent",
       "pos": {
-        "x": -1.1425938105758906,
+        "x": -2,
         "y": 0.8,
-        "z": -2.3140386203339443
+        "z": 0
       },
       "direction": "west",
       "object_ratios": []
     },
     {
-      "file": "12362633_facing_north.png",
-      "cam_id": "12362633",
+      "file": "12278697_facing_north.png",
+      "cam_id": "12278697",
       "pos": {
-        "x": 2.791878436221403,
+        "x": 0,
         "y": 0.8,
-        "z": 2.232818867424943
+        "z": 1
       },
       "direction": "north",
-      "object_ratios": [
-        {
-          "object_id": 12362633,
-          "model": "linen_dining_chair",
-          "visibility_ratio": 0.2388496355969392,
-          "occlusion_ratio": 1.0
-        }
-      ]
+      "object_ratios": []
     },
     {
-      "file": "12362633_facing_east.png",
-      "cam_id": "12362633",
+      "file": "12278697_facing_east.png",
+      "cam_id": "12278697",
       "pos": {
-        "x": 2.791878436221403,
+        "x": 0,
         "y": 0.8,
-        "z": 2.232818867424943
+        "z": 1
       },
       "direction": "east",
       "object_ratios": [
         {
-          "object_id": 12362633,
-          "model": "linen_dining_chair",
-          "visibility_ratio": 0.26115036440306055,
+          "object_id": 9135081,
+          "model": "basket_18inx18inx12iin",
+          "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "12362633_facing_south.png",
-      "cam_id": "12362633",
+      "file": "12278697_facing_south.png",
+      "cam_id": "12278697",
       "pos": {
-        "x": 2.791878436221403,
+        "x": 0,
         "y": 0.8,
-        "z": 2.232818867424943
+        "z": 1
       },
       "direction": "south",
       "object_ratios": [
         {
-          "object_id": 12362633,
-          "model": "linen_dining_chair",
-          "visibility_ratio": 0.23884963559693953,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 10152594,
-          "model": "microwave",
+          "object_id": 3303149,
+          "model": "kettle",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         },
         {
-          "object_id": 5369426,
-          "model": "wood_chair",
+          "object_id": 1079515,
+          "model": "ligne_roset_armchair",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "12362633_facing_west.png",
-      "cam_id": "12362633",
+      "file": "12278697_facing_west.png",
+      "cam_id": "12278697",
       "pos": {
-        "x": 2.791878436221403,
+        "x": 0,
         "y": 0.8,
-        "z": 2.232818867424943
+        "z": 1
       },
       "direction": "west",
-      "object_ratios": [
-        {
-          "object_id": 12362633,
-          "model": "linen_dining_chair",
-          "visibility_ratio": 0.2611503644030604,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 789628,
-          "model": "red_lamp",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
+      "object_ratios": []
     },
     {
-      "file": "10152594_facing_north.png",
-      "cam_id": "10152594",
+      "file": "3303149_facing_north.png",
+      "cam_id": "3303149",
       "pos": {
-        "x": 2.362433735940982,
+        "x": -2.0,
         "y": 0.8,
-        "z": -1.8831657945520464
+        "z": -3.0
       },
       "direction": "north",
       "object_ratios": [
         {
-          "object_id": 12362633,
-          "model": "linen_dining_chair",
+          "object_id": 12278697,
+          "model": "white_club_chair",
           "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 10152594,
-          "model": "microwave",
-          "visibility_ratio": 0.13456547717293119,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "10152594_facing_east.png",
-      "cam_id": "10152594",
+      "file": "3303149_facing_east.png",
+      "cam_id": "3303149",
       "pos": {
-        "x": 2.362433735940982,
+        "x": -2.0,
         "y": 0.8,
-        "z": -1.8831657945520464
+        "z": -3.0
       },
       "direction": "east",
       "object_ratios": [
         {
-          "object_id": 10152594,
-          "model": "microwave",
-          "visibility_ratio": 0.36543452282706884,
+          "object_id": 1079515,
+          "model": "ligne_roset_armchair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 9135081,
+          "model": "basket_18inx18inx12iin",
+          "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "10152594_facing_south.png",
-      "cam_id": "10152594",
+      "file": "3303149_facing_south.png",
+      "cam_id": "3303149",
       "pos": {
-        "x": 2.362433735940982,
+        "x": -2.0,
         "y": 0.8,
-        "z": -1.8831657945520464
+        "z": -3.0
       },
       "direction": "south",
-      "object_ratios": [
-        {
-          "object_id": 10152594,
-          "model": "microwave",
-          "visibility_ratio": 0.13456547717293119,
-          "occlusion_ratio": 1.0
-        }
-      ]
+      "object_ratios": []
     },
     {
-      "file": "10152594_facing_west.png",
-      "cam_id": "10152594",
+      "file": "3303149_facing_west.png",
+      "cam_id": "3303149",
       "pos": {
-        "x": 2.362433735940982,
+        "x": -2.0,
         "y": 0.8,
-        "z": -1.8831657945520464
+        "z": -3.0
       },
       "direction": "west",
-      "object_ratios": [
-        {
-          "object_id": 10152594,
-          "model": "microwave",
-          "visibility_ratio": 0.36543452282706884,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 789628,
-          "model": "red_lamp",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 5369426,
-          "model": "wood_chair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
+      "object_ratios": []
     },
     {
-      "file": "789628_facing_north.png",
-      "cam_id": "789628",
+      "file": "1079515_facing_north.png",
+      "cam_id": "1079515",
       "pos": {
-        "x": -3.2010480385255757,
+        "x": 0.0,
         "y": 0.8,
-        "z": 0.837051091121481
+        "z": -3.0
       },
       "direction": "north",
       "object_ratios": [
         {
-          "object_id": 789628,
-          "model": "red_lamp",
-          "visibility_ratio": 0.3786646311860899,
+          "object_id": 12278697,
+          "model": "white_club_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 9135081,
+          "model": "basket_18inx18inx12iin",
+          "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "789628_facing_east.png",
-      "cam_id": "789628",
+      "file": "1079515_facing_east.png",
+      "cam_id": "1079515",
       "pos": {
-        "x": -3.2010480385255757,
+        "x": 0.0,
         "y": 0.8,
-        "z": 0.837051091121481
+        "z": -3.0
       },
       "direction": "east",
-      "object_ratios": [
-        {
-          "object_id": 12362633,
-          "model": "linen_dining_chair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 10152594,
-          "model": "microwave",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 789628,
-          "model": "red_lamp",
-          "visibility_ratio": 0.1213353688139101,
-          "occlusion_ratio": 1.0
-        }
-      ]
+      "object_ratios": []
     },
     {
-      "file": "789628_facing_south.png",
-      "cam_id": "789628",
+      "file": "1079515_facing_south.png",
+      "cam_id": "1079515",
       "pos": {
-        "x": -3.2010480385255757,
+        "x": 0.0,
         "y": 0.8,
-        "z": 0.837051091121481
+        "z": -3.0
       },
       "direction": "south",
-      "object_ratios": [
-        {
-          "object_id": 789628,
-          "model": "red_lamp",
-          "visibility_ratio": 0.3786646311860899,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 5369426,
-          "model": "wood_chair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
+      "object_ratios": []
     },
     {
-      "file": "789628_facing_west.png",
-      "cam_id": "789628",
+      "file": "1079515_facing_west.png",
+      "cam_id": "1079515",
       "pos": {
-        "x": -3.2010480385255757,
+        "x": 0.0,
         "y": 0.8,
-        "z": 0.837051091121481
+        "z": -3.0
       },
       "direction": "west",
       "object_ratios": [
         {
-          "object_id": 789628,
-          "model": "red_lamp",
-          "visibility_ratio": 0.1213353688139101,
+          "object_id": 3303149,
+          "model": "kettle",
+          "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "5369426_facing_north.png",
-      "cam_id": "5369426",
+      "file": "9135081_facing_north.png",
+      "cam_id": "9135081",
       "pos": {
-        "x": 0.1648885895186023,
+        "x": 2,
         "y": 0.8,
-        "z": -3.091538402751422
+        "z": 0
       },
       "direction": "north",
-      "object_ratios": [
-        {
-          "object_id": 12362633,
-          "model": "linen_dining_chair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 789628,
-          "model": "red_lamp",
-          "visibility_ratio": 0.8719492703645235,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 5369426,
-          "model": "wood_chair",
-          "visibility_ratio": 0.2751112481936428,
-          "occlusion_ratio": 1.0
-        }
-      ]
+      "object_ratios": []
     },
     {
-      "file": "5369426_facing_east.png",
-      "cam_id": "5369426",
+      "file": "9135081_facing_east.png",
+      "cam_id": "9135081",
       "pos": {
-        "x": 0.1648885895186023,
+        "x": 2,
         "y": 0.8,
-        "z": -3.091538402751422
+        "z": 0
       },
       "direction": "east",
-      "object_ratios": [
-        {
-          "object_id": 10152594,
-          "model": "microwave",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 5369426,
-          "model": "wood_chair",
-          "visibility_ratio": 0.22488875180635717,
-          "occlusion_ratio": 1.0
-        }
-      ]
+      "object_ratios": []
     },
     {
-      "file": "5369426_facing_south.png",
-      "cam_id": "5369426",
+      "file": "9135081_facing_south.png",
+      "cam_id": "9135081",
       "pos": {
-        "x": 0.1648885895186023,
+        "x": 2,
         "y": 0.8,
-        "z": -3.091538402751422
+        "z": 0
       },
       "direction": "south",
       "object_ratios": [
         {
-          "object_id": 5369426,
-          "model": "wood_chair",
-          "visibility_ratio": 0.2751112481936426,
+          "object_id": 1079515,
+          "model": "ligne_roset_armchair",
+          "visibility_ratio": 0.9930673213772457,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "5369426_facing_west.png",
-      "cam_id": "5369426",
+      "file": "9135081_facing_west.png",
+      "cam_id": "9135081",
       "pos": {
-        "x": 0.1648885895186023,
+        "x": 2,
         "y": 0.8,
-        "z": -3.091538402751422
+        "z": 0
       },
       "direction": "west",
       "object_ratios": [
         {
-          "object_id": 789628,
-          "model": "red_lamp",
-          "visibility_ratio": 0.12805072963547515,
+          "object_id": 12278697,
+          "model": "white_club_chair",
+          "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         },
         {
-          "object_id": 5369426,
-          "model": "wood_chair",
-          "visibility_ratio": 0.22488875180635717,
+          "object_id": 3303149,
+          "model": "kettle",
+          "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]

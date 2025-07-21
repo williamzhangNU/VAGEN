@@ -7,68 +7,17 @@
     512,
     512
   ],
-  "seed": 11,
+  "seed": 1991,
   "min_distance": 0.5,
   "objects": [
     {
-      "object_id": 10808455,
-      "model": "red_side_chair",
-      "name": "red chair",
+      "object_id": 11411236,
+      "model": "5ft_wood_shelving",
+      "name": "shelf",
       "pos": {
-        "x": -2.7458317583701213,
+        "x": -3.0,
         "y": 0,
-        "z": 0.7007302700096012
-      },
-      "rot": {
-        "x": 0,
-        "y": 180,
-        "z": 0
-      },
-      "size": [
-        0.7019478,
-        0.6942999999999999
-      ],
-      "attributes": {
-        "scale": 1.0,
-        "color": {
-          "name": "red",
-          "r": 1.0,
-          "g": 0.0,
-          "b": 0.0,
-          "a": 1.0
-        }
-      }
-    },
-    {
-      "object_id": 10637495,
-      "model": "white_club_chair",
-      "name": "white chair",
-      "pos": {
-        "x": -0.4153157255748401,
-        "y": 0,
-        "z": -0.9313661110066684
-      },
-      "rot": {
-        "x": 0,
-        "y": 180,
-        "z": 0
-      },
-      "size": [
-        0.7982815,
-        0.9681153
-      ],
-      "attributes": {
-        "scale": 1.0
-      }
-    },
-    {
-      "object_id": 9917099,
-      "model": "fridge_large",
-      "name": "fridge",
-      "pos": {
-        "x": -2.1381395392842846,
-        "y": 0,
-        "z": 2.7359971081328984
+        "z": 1.0
       },
       "rot": {
         "x": 0,
@@ -76,40 +25,81 @@
         "z": 0
       },
       "size": [
+        0.3857705,
+        0.9451682
+      ],
+      "attributes": {
+        "scale": 1.0,
+        "has_orientation": false
+      }
+    },
+    {
+      "object_id": 15712044,
+      "model": "white_lamp",
+      "name": "white lamp",
+      "pos": {
+        "x": -2.0,
+        "y": 0,
+        "z": -1.0
+      },
+      "rot": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "size": [
+        0.5249988,
+        1.08171015
+      ],
+      "attributes": {
+        "scale": 1.5,
+        "has_orientation": false
+      }
+    },
+    {
+      "object_id": 16467699,
+      "model": "fridge_large",
+      "name": "fridge",
+      "pos": {
+        "x": 0,
+        "y": 0,
+        "z": -1
+      },
+      "rot": {
+        "x": 0,
+        "y": 180,
+        "z": 0
+      },
+      "size": [
         0.72946528,
         0.62507816
       ],
       "attributes": {
-        "scale": 0.8
+        "scale": 0.8,
+        "has_orientation": false
       }
     },
     {
-      "object_id": 1971736,
-      "model": "linen_dining_chair",
-      "name": "pink chair",
+      "object_id": 11641156,
+      "model": "basket_18inx18inx12iin",
+      "name": "basket",
       "pos": {
-        "x": -0.46669530310714347,
+        "x": 2,
         "y": 0,
-        "z": 1.3731259044662716
+        "z": -1
       },
       "rot": {
         "x": 0,
-        "y": 90,
+        "y": 270,
         "z": 0
       },
       "size": [
-        0.6261426,
-        0.6553732
+        0.914,
+        0.914
       ],
       "attributes": {
-        "scale": 1.0,
-        "color": {
-          "name": "pink",
-          "r": 1.0,
-          "g": 0.0,
-          "b": 1.0,
-          "a": 1.0
-        }
+        "scale": 2.0,
+        "has_orientation": false
       }
     }
   ],
@@ -118,60 +108,60 @@
       "id": "agent",
       "label": "A",
       "position": {
-        "x": -0.9522933295053058,
+        "x": -2,
         "y": 0.8,
-        "z": -1.954324253345176
+        "z": -3
       },
       "rotation": {
-        "y": 25.978816062881325
+        "y": 33.690067525979785
       }
     },
     {
-      "id": "10808455",
+      "id": "11411236",
       "label": "1",
       "position": {
-        "x": -2.7458317583701213,
+        "x": -3.0,
         "y": 0.8,
-        "z": 0.7007302700096012
+        "z": 1.0
       },
       "rotation": {
-        "y": 104.31619340928661
+        "y": 108.43494882292202
       }
     },
     {
-      "id": "10637495",
+      "id": "15712044",
       "label": "2",
       "position": {
-        "x": -0.4153157255748401,
+        "x": -2.0,
         "y": 0.8,
-        "z": -0.9313661110066684
+        "z": -1.0
       },
       "rotation": {
-        "y": 24.03309686541352
+        "y": 63.43494882292201
       }
     },
     {
-      "id": "9917099",
+      "id": "16467699",
       "label": "3",
       "position": {
-        "x": -2.1381395392842846,
+        "x": 0,
         "y": 0.8,
-        "z": 2.7359971081328984
+        "z": -1
       },
       "rotation": {
-        "y": 141.9929223793791
+        "y": 0.0
       }
     },
     {
-      "id": "1971736",
+      "id": "11641156",
       "label": "4",
       "position": {
-        "x": -0.46669530310714347,
+        "x": 2,
         "y": 0.8,
-        "z": 1.3731259044662716
+        "z": -1
       },
       "rotation": {
-        "y": 161.22823213943374
+        "y": -63.43494882292201
       }
     }
   ],
@@ -180,34 +170,28 @@
       "file": "agent_facing_north.png",
       "cam_id": "agent",
       "pos": {
-        "x": -0.9522933295053058,
+        "x": -2,
         "y": 0.8,
-        "z": -1.954324253345176
+        "z": -3
       },
       "direction": "north",
       "object_ratios": [
         {
-          "object_id": 10808455,
-          "model": "red_side_chair",
+          "object_id": 11411236,
+          "model": "5ft_wood_shelving",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         },
         {
-          "object_id": 10637495,
-          "model": "white_club_chair",
-          "visibility_ratio": 0.8979191226414438,
+          "object_id": 15712044,
+          "model": "white_lamp",
+          "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         },
         {
-          "object_id": 9917099,
+          "object_id": 16467699,
           "model": "fridge_large",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 1971736,
-          "model": "linen_dining_chair",
-          "visibility_ratio": 1.0,
+          "visibility_ratio": 0.4999999999999997,
           "occlusion_ratio": 1.0
         }
       ]
@@ -216,16 +200,22 @@
       "file": "agent_facing_east.png",
       "cam_id": "agent",
       "pos": {
-        "x": -0.9522933295053058,
+        "x": -2,
         "y": 0.8,
-        "z": -1.954324253345176
+        "z": -3
       },
       "direction": "east",
       "object_ratios": [
         {
-          "object_id": 10637495,
-          "model": "white_club_chair",
-          "visibility_ratio": 0.10208087735855602,
+          "object_id": 16467699,
+          "model": "fridge_large",
+          "visibility_ratio": 0.4999999999999996,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 11641156,
+          "model": "basket_18inx18inx12iin",
+          "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]
@@ -234,9 +224,9 @@
       "file": "agent_facing_south.png",
       "cam_id": "agent",
       "pos": {
-        "x": -0.9522933295053058,
+        "x": -2,
         "y": 0.8,
-        "z": -1.954324253345176
+        "z": -3
       },
       "direction": "south",
       "object_ratios": []
@@ -245,381 +235,264 @@
       "file": "agent_facing_west.png",
       "cam_id": "agent",
       "pos": {
-        "x": -0.9522933295053058,
+        "x": -2,
         "y": 0.8,
-        "z": -1.954324253345176
+        "z": -3
       },
       "direction": "west",
       "object_ratios": []
     },
     {
-      "file": "10808455_facing_north.png",
-      "cam_id": "10808455",
+      "file": "11411236_facing_north.png",
+      "cam_id": "11411236",
       "pos": {
-        "x": -2.7458317583701213,
+        "x": -3.0,
         "y": 0.8,
-        "z": 0.7007302700096012
+        "z": 1.0
       },
       "direction": "north",
-      "object_ratios": [
-        {
-          "object_id": 10808455,
-          "model": "red_side_chair",
-          "visibility_ratio": 0.24727622196408316,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 9917099,
-          "model": "fridge_large",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
+      "object_ratios": []
     },
     {
-      "file": "10808455_facing_east.png",
-      "cam_id": "10808455",
+      "file": "11411236_facing_east.png",
+      "cam_id": "11411236",
       "pos": {
-        "x": -2.7458317583701213,
+        "x": -3.0,
         "y": 0.8,
-        "z": 0.7007302700096012
+        "z": 1.0
       },
       "direction": "east",
       "object_ratios": [
         {
-          "object_id": 10808455,
-          "model": "red_side_chair",
-          "visibility_ratio": 0.2527237780359166,
+          "object_id": 16467699,
+          "model": "fridge_large",
+          "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         },
         {
-          "object_id": 10637495,
-          "model": "white_club_chair",
-          "visibility_ratio": 0.977910245094266,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 1971736,
-          "model": "linen_dining_chair",
+          "object_id": 11641156,
+          "model": "basket_18inx18inx12iin",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "10808455_facing_south.png",
-      "cam_id": "10808455",
+      "file": "11411236_facing_south.png",
+      "cam_id": "11411236",
       "pos": {
-        "x": -2.7458317583701213,
+        "x": -3.0,
         "y": 0.8,
-        "z": 0.7007302700096012
+        "z": 1.0
       },
       "direction": "south",
       "object_ratios": [
         {
-          "object_id": 10808455,
-          "model": "red_side_chair",
-          "visibility_ratio": 0.24727622196408325,
+          "object_id": 15712044,
+          "model": "white_lamp",
+          "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "10808455_facing_west.png",
-      "cam_id": "10808455",
+      "file": "11411236_facing_west.png",
+      "cam_id": "11411236",
       "pos": {
-        "x": -2.7458317583701213,
+        "x": -3.0,
         "y": 0.8,
-        "z": 0.7007302700096012
+        "z": 1.0
       },
       "direction": "west",
-      "object_ratios": [
-        {
-          "object_id": 10808455,
-          "model": "red_side_chair",
-          "visibility_ratio": 0.2527237780359166,
-          "occlusion_ratio": 1.0
-        }
-      ]
+      "object_ratios": []
     },
     {
-      "file": "10637495_facing_north.png",
-      "cam_id": "10637495",
+      "file": "15712044_facing_north.png",
+      "cam_id": "15712044",
       "pos": {
-        "x": -0.4153157255748401,
+        "x": -2.0,
         "y": 0.8,
-        "z": -0.9313661110066684
+        "z": -1.0
       },
       "direction": "north",
       "object_ratios": [
         {
-          "object_id": 10637495,
-          "model": "white_club_chair",
-          "visibility_ratio": 0.29385681127031044,
+          "object_id": 11411236,
+          "model": "5ft_wood_shelving",
+          "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
-        },
+        }
+      ]
+    },
+    {
+      "file": "15712044_facing_east.png",
+      "cam_id": "15712044",
+      "pos": {
+        "x": -2.0,
+        "y": 0.8,
+        "z": -1.0
+      },
+      "direction": "east",
+      "object_ratios": [
         {
-          "object_id": 9917099,
+          "object_id": 16467699,
           "model": "fridge_large",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         },
         {
-          "object_id": 1971736,
-          "model": "linen_dining_chair",
+          "object_id": 11641156,
+          "model": "basket_18inx18inx12iin",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "10637495_facing_east.png",
-      "cam_id": "10637495",
+      "file": "15712044_facing_south.png",
+      "cam_id": "15712044",
       "pos": {
-        "x": -0.4153157255748401,
+        "x": -2.0,
         "y": 0.8,
-        "z": -0.9313661110066684
-      },
-      "direction": "east",
-      "object_ratios": [
-        {
-          "object_id": 10637495,
-          "model": "white_club_chair",
-          "visibility_ratio": 0.20614318872968954,
-          "occlusion_ratio": 1.0
-        }
-      ]
-    },
-    {
-      "file": "10637495_facing_south.png",
-      "cam_id": "10637495",
-      "pos": {
-        "x": -0.4153157255748401,
-        "y": 0.8,
-        "z": -0.9313661110066684
+        "z": -1.0
       },
       "direction": "south",
-      "object_ratios": [
-        {
-          "object_id": 10637495,
-          "model": "white_club_chair",
-          "visibility_ratio": 0.2938568112703105,
-          "occlusion_ratio": 1.0
-        }
-      ]
+      "object_ratios": []
     },
     {
-      "file": "10637495_facing_west.png",
-      "cam_id": "10637495",
+      "file": "15712044_facing_west.png",
+      "cam_id": "15712044",
       "pos": {
-        "x": -0.4153157255748401,
+        "x": -2.0,
         "y": 0.8,
-        "z": -0.9313661110066684
+        "z": -1.0
       },
       "direction": "west",
-      "object_ratios": [
-        {
-          "object_id": 10808455,
-          "model": "red_side_chair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 10637495,
-          "model": "white_club_chair",
-          "visibility_ratio": 0.20614318872968948,
-          "occlusion_ratio": 1.0
-        }
-      ]
+      "object_ratios": []
     },
     {
-      "file": "9917099_facing_north.png",
-      "cam_id": "9917099",
+      "file": "16467699_facing_north.png",
+      "cam_id": "16467699",
       "pos": {
-        "x": -2.1381395392842846,
+        "x": 0,
         "y": 0.8,
-        "z": 2.7359971081328984
+        "z": -1
       },
       "direction": "north",
-      "object_ratios": [
-        {
-          "object_id": 9917099,
-          "model": "fridge_large",
-          "visibility_ratio": 0.2857752188013664,
-          "occlusion_ratio": 1.0
-        }
-      ]
+      "object_ratios": []
     },
     {
-      "file": "9917099_facing_east.png",
-      "cam_id": "9917099",
+      "file": "16467699_facing_east.png",
+      "cam_id": "16467699",
       "pos": {
-        "x": -2.1381395392842846,
+        "x": 0,
         "y": 0.8,
-        "z": 2.7359971081328984
+        "z": -1
       },
       "direction": "east",
       "object_ratios": [
         {
-          "object_id": 9917099,
-          "model": "fridge_large",
-          "visibility_ratio": 0.21422478119863356,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 1971736,
-          "model": "linen_dining_chair",
-          "visibility_ratio": 0.8655478463471087,
+          "object_id": 11641156,
+          "model": "basket_18inx18inx12iin",
+          "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "9917099_facing_south.png",
-      "cam_id": "9917099",
+      "file": "16467699_facing_south.png",
+      "cam_id": "16467699",
       "pos": {
-        "x": -2.1381395392842846,
+        "x": 0,
         "y": 0.8,
-        "z": 2.7359971081328984
+        "z": -1
       },
       "direction": "south",
-      "object_ratios": [
-        {
-          "object_id": 10808455,
-          "model": "red_side_chair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 10637495,
-          "model": "white_club_chair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 9917099,
-          "model": "fridge_large",
-          "visibility_ratio": 0.28577521880136636,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 1971736,
-          "model": "linen_dining_chair",
-          "visibility_ratio": 0.13445215365289134,
-          "occlusion_ratio": 1.0
-        }
-      ]
+      "object_ratios": []
     },
     {
-      "file": "9917099_facing_west.png",
-      "cam_id": "9917099",
+      "file": "16467699_facing_west.png",
+      "cam_id": "16467699",
       "pos": {
-        "x": -2.1381395392842846,
+        "x": 0,
         "y": 0.8,
-        "z": 2.7359971081328984
+        "z": -1
       },
       "direction": "west",
       "object_ratios": [
         {
-          "object_id": 9917099,
-          "model": "fridge_large",
-          "visibility_ratio": 0.21422478119863342,
+          "object_id": 11411236,
+          "model": "5ft_wood_shelving",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 15712044,
+          "model": "white_lamp",
+          "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "1971736_facing_north.png",
-      "cam_id": "1971736",
+      "file": "11641156_facing_north.png",
+      "cam_id": "11641156",
       "pos": {
-        "x": -0.46669530310714347,
+        "x": 2,
         "y": 0.8,
-        "z": 1.3731259044662716
+        "z": -1
       },
       "direction": "north",
-      "object_ratios": [
-        {
-          "object_id": 9917099,
-          "model": "fridge_large",
-          "visibility_ratio": 0.14906450306099447,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 1971736,
-          "model": "linen_dining_chair",
-          "visibility_ratio": 0.2388496355969393,
-          "occlusion_ratio": 1.0
-        }
-      ]
+      "object_ratios": []
     },
     {
-      "file": "1971736_facing_east.png",
-      "cam_id": "1971736",
+      "file": "11641156_facing_east.png",
+      "cam_id": "11641156",
       "pos": {
-        "x": -0.46669530310714347,
+        "x": 2,
         "y": 0.8,
-        "z": 1.3731259044662716
+        "z": -1
       },
       "direction": "east",
-      "object_ratios": [
-        {
-          "object_id": 1971736,
-          "model": "linen_dining_chair",
-          "visibility_ratio": 0.2611503644030606,
-          "occlusion_ratio": 1.0
-        }
-      ]
+      "object_ratios": []
     },
     {
-      "file": "1971736_facing_south.png",
-      "cam_id": "1971736",
+      "file": "11641156_facing_south.png",
+      "cam_id": "11641156",
       "pos": {
-        "x": -0.46669530310714347,
+        "x": 2,
         "y": 0.8,
-        "z": 1.3731259044662716
+        "z": -1
       },
       "direction": "south",
-      "object_ratios": [
-        {
-          "object_id": 10637495,
-          "model": "white_club_chair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 1971736,
-          "model": "linen_dining_chair",
-          "visibility_ratio": 0.23884963559693922,
-          "occlusion_ratio": 1.0
-        }
-      ]
+      "object_ratios": []
     },
     {
-      "file": "1971736_facing_west.png",
-      "cam_id": "1971736",
+      "file": "11641156_facing_west.png",
+      "cam_id": "11641156",
       "pos": {
-        "x": -0.46669530310714347,
+        "x": 2,
         "y": 0.8,
-        "z": 1.3731259044662716
+        "z": -1
       },
       "direction": "west",
       "object_ratios": [
         {
-          "object_id": 10808455,
-          "model": "red_side_chair",
+          "object_id": 11411236,
+          "model": "5ft_wood_shelving",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         },
         {
-          "object_id": 9917099,
-          "model": "fridge_large",
-          "visibility_ratio": 0.8509354969390045,
+          "object_id": 15712044,
+          "model": "white_lamp",
+          "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         },
         {
-          "object_id": 1971736,
-          "model": "linen_dining_chair",
-          "visibility_ratio": 0.2611503644030607,
+          "object_id": 16467699,
+          "model": "fridge_large",
+          "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]

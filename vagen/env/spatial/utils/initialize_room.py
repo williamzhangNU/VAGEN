@@ -19,8 +19,8 @@ def initialize_room_from_json(json_data: Dict[str, Any]) -> Room:
         objects.append(Object(
             name=obj['name'],
             pos=np.array([obj["pos"]["x"], obj["pos"]["z"]]),
-            ori=rotation_map.get(obj["rot"]["y"]),
-            has_orientation=True
+            ori=rotation_map.get(obj["rot"]["y"]) if obj["attributes"]["has_orientation"] else np.array([1, 0]),
+            has_orientation=obj["attributes"]["has_orientation"]
         ))
     # 2) Room size metadata
     room_name = json_data.get("name", "room_from_json")

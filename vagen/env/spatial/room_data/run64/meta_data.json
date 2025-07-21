@@ -1,0 +1,506 @@
+{
+  "room_size": [
+    8,
+    8
+  ],
+  "screen_size": [
+    512,
+    512
+  ],
+  "seed": 2054,
+  "min_distance": 0.5,
+  "objects": [
+    {
+      "object_id": 14137779,
+      "model": "wood_chair",
+      "name": "wooden chair",
+      "pos": {
+        "x": -1.0,
+        "y": 0,
+        "z": 0.0
+      },
+      "rot": {
+        "x": 0,
+        "y": 270,
+        "z": 0
+      },
+      "size": [
+        0.4298932,
+        0.47789539999999997
+      ],
+      "attributes": {
+        "scale": 1.0,
+        "has_orientation": true,
+        "orientation": "west"
+      }
+    },
+    {
+      "object_id": 7834229,
+      "model": "vase_01",
+      "name": "vase",
+      "pos": {
+        "x": 2.0,
+        "y": 0,
+        "z": 1.0
+      },
+      "rot": {
+        "x": 0,
+        "y": 270,
+        "z": 0
+      },
+      "size": [
+        0.174303126,
+        0.17430314400000002
+      ],
+      "attributes": {
+        "scale": 1.8,
+        "has_orientation": false
+      }
+    },
+    {
+      "object_id": 4880884,
+      "model": "kettle",
+      "name": "kettle",
+      "pos": {
+        "x": 1.0,
+        "y": 0,
+        "z": 3.0
+      },
+      "rot": {
+        "x": 0,
+        "y": 180,
+        "z": 0
+      },
+      "size": [
+        0.381692628,
+        0.26722544400000003
+      ],
+      "attributes": {
+        "scale": 1.8,
+        "has_orientation": false
+      }
+    },
+    {
+      "object_id": 10811588,
+      "model": "white_club_chair",
+      "name": "green chair",
+      "pos": {
+        "x": -1,
+        "y": 0,
+        "z": 2
+      },
+      "rot": {
+        "x": 0,
+        "y": 180,
+        "z": 0
+      },
+      "size": [
+        0.7982815,
+        0.9681153
+      ],
+      "attributes": {
+        "scale": 1.0,
+        "has_orientation": true,
+        "color": {
+          "name": "green",
+          "r": 0.0,
+          "g": 1.0,
+          "b": 0.0,
+          "a": 1.0
+        },
+        "orientation": "south"
+      }
+    }
+  ],
+  "cameras": [
+    {
+      "id": "agent",
+      "label": "A",
+      "position": {
+        "x": 0,
+        "y": 0.8,
+        "z": 0
+      },
+      "rotation": {
+        "y": 0.0
+      }
+    },
+    {
+      "id": "14137779",
+      "label": "1",
+      "position": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": 0.0
+      },
+      "rotation": {
+        "y": 90.0
+      }
+    },
+    {
+      "id": "7834229",
+      "label": "2",
+      "position": {
+        "x": 2.0,
+        "y": 0.8,
+        "z": 1.0
+      },
+      "rotation": {
+        "y": -116.56505117707799
+      }
+    },
+    {
+      "id": "4880884",
+      "label": "3",
+      "position": {
+        "x": 1.0,
+        "y": 0.8,
+        "z": 3.0
+      },
+      "rotation": {
+        "y": -161.565051177078
+      }
+    },
+    {
+      "id": "10811588",
+      "label": "4",
+      "position": {
+        "x": -1,
+        "y": 0.8,
+        "z": 2
+      },
+      "rotation": {
+        "y": 153.434948822922
+      }
+    }
+  ],
+  "images": [
+    {
+      "file": "agent_facing_north.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": 0,
+        "y": 0.8,
+        "z": 0
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 4880884,
+          "model": "kettle",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 10811588,
+          "model": "white_club_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "agent_facing_east.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": 0,
+        "y": 0.8,
+        "z": 0
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 7834229,
+          "model": "vase_01",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "agent_facing_south.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": 0,
+        "y": 0.8,
+        "z": 0
+      },
+      "direction": "south",
+      "object_ratios": []
+    },
+    {
+      "file": "agent_facing_west.png",
+      "cam_id": "agent",
+      "pos": {
+        "x": 0,
+        "y": 0.8,
+        "z": 0
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 14137779,
+          "model": "wood_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "14137779_facing_north.png",
+      "cam_id": "14137779",
+      "pos": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": 0.0
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 4880884,
+          "model": "kettle",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 10811588,
+          "model": "white_club_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "14137779_facing_east.png",
+      "cam_id": "14137779",
+      "pos": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": 0.0
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 7834229,
+          "model": "vase_01",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "14137779_facing_south.png",
+      "cam_id": "14137779",
+      "pos": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": 0.0
+      },
+      "direction": "south",
+      "object_ratios": []
+    },
+    {
+      "file": "14137779_facing_west.png",
+      "cam_id": "14137779",
+      "pos": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": 0.0
+      },
+      "direction": "west",
+      "object_ratios": []
+    },
+    {
+      "file": "7834229_facing_north.png",
+      "cam_id": "7834229",
+      "pos": {
+        "x": 2.0,
+        "y": 0.8,
+        "z": 1.0
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 4880884,
+          "model": "kettle",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "7834229_facing_east.png",
+      "cam_id": "7834229",
+      "pos": {
+        "x": 2.0,
+        "y": 0.8,
+        "z": 1.0
+      },
+      "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "7834229_facing_south.png",
+      "cam_id": "7834229",
+      "pos": {
+        "x": 2.0,
+        "y": 0.8,
+        "z": 1.0
+      },
+      "direction": "south",
+      "object_ratios": []
+    },
+    {
+      "file": "7834229_facing_west.png",
+      "cam_id": "7834229",
+      "pos": {
+        "x": 2.0,
+        "y": 0.8,
+        "z": 1.0
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 14137779,
+          "model": "wood_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 10811588,
+          "model": "white_club_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "4880884_facing_north.png",
+      "cam_id": "4880884",
+      "pos": {
+        "x": 1.0,
+        "y": 0.8,
+        "z": 3.0
+      },
+      "direction": "north",
+      "object_ratios": []
+    },
+    {
+      "file": "4880884_facing_east.png",
+      "cam_id": "4880884",
+      "pos": {
+        "x": 1.0,
+        "y": 0.8,
+        "z": 3.0
+      },
+      "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "4880884_facing_south.png",
+      "cam_id": "4880884",
+      "pos": {
+        "x": 1.0,
+        "y": 0.8,
+        "z": 3.0
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 14137779,
+          "model": "wood_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 7834229,
+          "model": "vase_01",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "4880884_facing_west.png",
+      "cam_id": "4880884",
+      "pos": {
+        "x": 1.0,
+        "y": 0.8,
+        "z": 3.0
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 10811588,
+          "model": "white_club_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "10811588_facing_north.png",
+      "cam_id": "10811588",
+      "pos": {
+        "x": -1,
+        "y": 0.8,
+        "z": 2
+      },
+      "direction": "north",
+      "object_ratios": []
+    },
+    {
+      "file": "10811588_facing_east.png",
+      "cam_id": "10811588",
+      "pos": {
+        "x": -1,
+        "y": 0.8,
+        "z": 2
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 7834229,
+          "model": "vase_01",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 4880884,
+          "model": "kettle",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "10811588_facing_south.png",
+      "cam_id": "10811588",
+      "pos": {
+        "x": -1,
+        "y": 0.8,
+        "z": 2
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 14137779,
+          "model": "wood_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "10811588_facing_west.png",
+      "cam_id": "10811588",
+      "pos": {
+        "x": -1,
+        "y": 0.8,
+        "z": 2
+      },
+      "direction": "west",
+      "object_ratios": []
+    }
+  ]
+}
