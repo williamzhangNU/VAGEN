@@ -7,52 +7,52 @@
     512,
     512
   ],
-  "seed": 2049,
+  "seed": 518,
   "min_distance": 0.5,
   "objects": [
     {
-      "object_id": 13451938,
-      "model": "lapalma_stil_chair",
-      "name": "pink chair",
+      "object_id": 4378063,
+      "model": "wood_chair",
+      "name": "blue chair",
       "pos": {
-        "x": 2,
+        "x": 0.0,
         "y": 0,
-        "z": 1
+        "z": 3.0
       },
       "rot": {
         "x": 0,
-        "y": 0,
+        "y": 180,
         "z": 0
       },
       "size": [
-        0.4800618,
-        0.5100285
+        0.4298932,
+        0.47789539999999997
       ],
       "attributes": {
         "scale": 1.0,
         "has_orientation": true,
         "color": {
-          "name": "pink",
-          "r": 1.0,
+          "name": "blue",
+          "r": 0.0,
           "g": 0.0,
           "b": 1.0,
           "a": 1.0
         },
-        "orientation": "north"
+        "orientation": "south"
       }
     },
     {
-      "object_id": 9028283,
+      "object_id": 9510126,
       "model": "5ft_wood_shelving",
       "name": "shelf",
       "pos": {
-        "x": 0.0,
+        "x": 1,
         "y": 0,
-        "z": 2.0
+        "z": 0
       },
       "rot": {
         "x": 0,
-        "y": 0,
+        "y": 270,
         "z": 0
       },
       "size": [
@@ -65,17 +65,17 @@
       }
     },
     {
-      "object_id": 919964,
+      "object_id": 2249476,
       "model": "white_club_chair",
       "name": "white chair",
       "pos": {
-        "x": -2,
+        "x": 0.0,
         "y": 0,
-        "z": -1
+        "z": -2.0
       },
       "rot": {
         "x": 0,
-        "y": 180,
+        "y": 0,
         "z": 0
       },
       "size": [
@@ -85,30 +85,38 @@
       "attributes": {
         "scale": 1.0,
         "has_orientation": true,
-        "orientation": "south"
+        "orientation": "north"
       }
     },
     {
-      "object_id": 12189071,
-      "model": "vase_01",
-      "name": "vase",
+      "object_id": 6998031,
+      "model": "ligne_roset_armchair",
+      "name": "black chair",
       "pos": {
-        "x": 0,
+        "x": -3.0,
         "y": 0,
-        "z": -2
+        "z": -2.0
       },
       "rot": {
         "x": 0,
-        "y": 0,
+        "y": 180,
         "z": 0
       },
       "size": [
-        0.174303126,
-        0.17430314400000002
+        0.8185906,
+        1.4368143
       ],
       "attributes": {
-        "scale": 1.8,
-        "has_orientation": false
+        "scale": 1.0,
+        "has_orientation": true,
+        "color": {
+          "name": "black",
+          "r": 0.0,
+          "g": 0.0,
+          "b": 0.0,
+          "a": 1.0
+        },
+        "orientation": "south"
       }
     }
   ],
@@ -117,60 +125,60 @@
       "id": "agent",
       "label": "A",
       "position": {
-        "x": 0,
+        "x": -2,
         "y": 0.8,
-        "z": 0
+        "z": 2
       },
       "rotation": {
-        "y": 0.0
+        "y": 135.0
       }
     },
     {
-      "id": "13451938",
+      "id": "4378063",
       "label": "1",
-      "position": {
-        "x": 2,
-        "y": 0.8,
-        "z": 1
-      },
-      "rotation": {
-        "y": -116.56505117707799
-      }
-    },
-    {
-      "id": "9028283",
-      "label": "2",
       "position": {
         "x": 0.0,
         "y": 0.8,
-        "z": 2.0
+        "z": 3.0
       },
       "rotation": {
         "y": -180.0
       }
     },
     {
-      "id": "919964",
-      "label": "3",
+      "id": "9510126",
+      "label": "2",
       "position": {
-        "x": -2,
+        "x": 1,
         "y": 0.8,
-        "z": -1
+        "z": 0
       },
       "rotation": {
-        "y": 63.43494882292201
+        "y": -90.0
       }
     },
     {
-      "id": "12189071",
-      "label": "4",
+      "id": "2249476",
+      "label": "3",
       "position": {
-        "x": 0,
+        "x": 0.0,
         "y": 0.8,
-        "z": -2
+        "z": -2.0
       },
       "rotation": {
-        "y": 0.0
+        "y": -0.0
+      }
+    },
+    {
+      "id": "6998031",
+      "label": "4",
+      "position": {
+        "x": -3.0,
+        "y": 0.8,
+        "z": -2.0
+      },
+      "rotation": {
+        "y": 56.309932474020215
       }
     }
   ],
@@ -179,33 +187,32 @@
       "file": "agent_facing_north.png",
       "cam_id": "agent",
       "pos": {
-        "x": 0,
+        "x": -2,
         "y": 0.8,
-        "z": 0
+        "z": 2
       },
       "direction": "north",
-      "object_ratios": [
-        {
-          "object_id": 9028283,
-          "model": "5ft_wood_shelving",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
+      "object_ratios": []
     },
     {
       "file": "agent_facing_east.png",
       "cam_id": "agent",
       "pos": {
-        "x": 0,
+        "x": -2,
         "y": 0.8,
-        "z": 0
+        "z": 2
       },
       "direction": "east",
       "object_ratios": [
         {
-          "object_id": 13451938,
-          "model": "lapalma_stil_chair",
+          "object_id": 4378063,
+          "model": "wood_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 9510126,
+          "model": "5ft_wood_shelving",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
@@ -215,15 +222,21 @@
       "file": "agent_facing_south.png",
       "cam_id": "agent",
       "pos": {
-        "x": 0,
+        "x": -2,
         "y": 0.8,
-        "z": 0
+        "z": 2
       },
       "direction": "south",
       "object_ratios": [
         {
-          "object_id": 12189071,
-          "model": "vase_01",
+          "object_id": 2249476,
+          "model": "white_club_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 6998031,
+          "model": "ligne_roset_armchair",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
@@ -233,160 +246,159 @@
       "file": "agent_facing_west.png",
       "cam_id": "agent",
       "pos": {
-        "x": 0,
+        "x": -2,
+        "y": 0.8,
+        "z": 2
+      },
+      "direction": "west",
+      "object_ratios": []
+    },
+    {
+      "file": "4378063_facing_north.png",
+      "cam_id": "4378063",
+      "pos": {
+        "x": 0.0,
+        "y": 0.8,
+        "z": 3.0
+      },
+      "direction": "north",
+      "object_ratios": []
+    },
+    {
+      "file": "4378063_facing_east.png",
+      "cam_id": "4378063",
+      "pos": {
+        "x": 0.0,
+        "y": 0.8,
+        "z": 3.0
+      },
+      "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "4378063_facing_south.png",
+      "cam_id": "4378063",
+      "pos": {
+        "x": 0.0,
+        "y": 0.8,
+        "z": 3.0
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 9510126,
+          "model": "5ft_wood_shelving",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 2249476,
+          "model": "white_club_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 6998031,
+          "model": "ligne_roset_armchair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "4378063_facing_west.png",
+      "cam_id": "4378063",
+      "pos": {
+        "x": 0.0,
+        "y": 0.8,
+        "z": 3.0
+      },
+      "direction": "west",
+      "object_ratios": []
+    },
+    {
+      "file": "9510126_facing_north.png",
+      "cam_id": "9510126",
+      "pos": {
+        "x": 1,
+        "y": 0.8,
+        "z": 0
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 4378063,
+          "model": "wood_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "9510126_facing_east.png",
+      "cam_id": "9510126",
+      "pos": {
+        "x": 1,
+        "y": 0.8,
+        "z": 0
+      },
+      "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "9510126_facing_south.png",
+      "cam_id": "9510126",
+      "pos": {
+        "x": 1,
+        "y": 0.8,
+        "z": 0
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 2249476,
+          "model": "white_club_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "9510126_facing_west.png",
+      "cam_id": "9510126",
+      "pos": {
+        "x": 1,
         "y": 0.8,
         "z": 0
       },
       "direction": "west",
       "object_ratios": [
         {
-          "object_id": 919964,
-          "model": "white_club_chair",
+          "object_id": 6998031,
+          "model": "ligne_roset_armchair",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "13451938_facing_north.png",
-      "cam_id": "13451938",
+      "file": "2249476_facing_north.png",
+      "cam_id": "2249476",
       "pos": {
-        "x": 2,
+        "x": 0.0,
         "y": 0.8,
-        "z": 1
+        "z": -2.0
       },
       "direction": "north",
-      "object_ratios": []
-    },
-    {
-      "file": "13451938_facing_east.png",
-      "cam_id": "13451938",
-      "pos": {
-        "x": 2,
-        "y": 0.8,
-        "z": 1
-      },
-      "direction": "east",
-      "object_ratios": []
-    },
-    {
-      "file": "13451938_facing_south.png",
-      "cam_id": "13451938",
-      "pos": {
-        "x": 2,
-        "y": 0.8,
-        "z": 1
-      },
-      "direction": "south",
       "object_ratios": [
         {
-          "object_id": 12189071,
-          "model": "vase_01",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
-    },
-    {
-      "file": "13451938_facing_west.png",
-      "cam_id": "13451938",
-      "pos": {
-        "x": 2,
-        "y": 0.8,
-        "z": 1
-      },
-      "direction": "west",
-      "object_ratios": [
-        {
-          "object_id": 9028283,
-          "model": "5ft_wood_shelving",
+          "object_id": 4378063,
+          "model": "wood_chair",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         },
         {
-          "object_id": 919964,
-          "model": "white_club_chair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
-    },
-    {
-      "file": "9028283_facing_north.png",
-      "cam_id": "9028283",
-      "pos": {
-        "x": 0.0,
-        "y": 0.8,
-        "z": 2.0
-      },
-      "direction": "north",
-      "object_ratios": []
-    },
-    {
-      "file": "9028283_facing_east.png",
-      "cam_id": "9028283",
-      "pos": {
-        "x": 0.0,
-        "y": 0.8,
-        "z": 2.0
-      },
-      "direction": "east",
-      "object_ratios": [
-        {
-          "object_id": 13451938,
-          "model": "lapalma_stil_chair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
-    },
-    {
-      "file": "9028283_facing_south.png",
-      "cam_id": "9028283",
-      "pos": {
-        "x": 0.0,
-        "y": 0.8,
-        "z": 2.0
-      },
-      "direction": "south",
-      "object_ratios": [
-        {
-          "object_id": 919964,
-          "model": "white_club_chair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 12189071,
-          "model": "vase_01",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
-    },
-    {
-      "file": "9028283_facing_west.png",
-      "cam_id": "9028283",
-      "pos": {
-        "x": 0.0,
-        "y": 0.8,
-        "z": 2.0
-      },
-      "direction": "west",
-      "object_ratios": []
-    },
-    {
-      "file": "919964_facing_north.png",
-      "cam_id": "919964",
-      "pos": {
-        "x": -2,
-        "y": 0.8,
-        "z": -1
-      },
-      "direction": "north",
-      "object_ratios": [
-        {
-          "object_id": 9028283,
+          "object_id": 9510126,
           "model": "5ft_wood_shelving",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
@@ -394,114 +406,108 @@
       ]
     },
     {
-      "file": "919964_facing_east.png",
-      "cam_id": "919964",
+      "file": "2249476_facing_east.png",
+      "cam_id": "2249476",
       "pos": {
-        "x": -2,
+        "x": 0.0,
         "y": 0.8,
-        "z": -1
+        "z": -2.0
       },
       "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "2249476_facing_south.png",
+      "cam_id": "2249476",
+      "pos": {
+        "x": 0.0,
+        "y": 0.8,
+        "z": -2.0
+      },
+      "direction": "south",
+      "object_ratios": []
+    },
+    {
+      "file": "2249476_facing_west.png",
+      "cam_id": "2249476",
+      "pos": {
+        "x": 0.0,
+        "y": 0.8,
+        "z": -2.0
+      },
+      "direction": "west",
       "object_ratios": [
         {
-          "object_id": 13451938,
-          "model": "lapalma_stil_chair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 12189071,
-          "model": "vase_01",
+          "object_id": 6998031,
+          "model": "ligne_roset_armchair",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "919964_facing_south.png",
-      "cam_id": "919964",
+      "file": "6998031_facing_north.png",
+      "cam_id": "6998031",
       "pos": {
-        "x": -2,
+        "x": -3.0,
         "y": 0.8,
-        "z": -1
-      },
-      "direction": "south",
-      "object_ratios": []
-    },
-    {
-      "file": "919964_facing_west.png",
-      "cam_id": "919964",
-      "pos": {
-        "x": -2,
-        "y": 0.8,
-        "z": -1
-      },
-      "direction": "west",
-      "object_ratios": []
-    },
-    {
-      "file": "12189071_facing_north.png",
-      "cam_id": "12189071",
-      "pos": {
-        "x": 0,
-        "y": 0.8,
-        "z": -2
+        "z": -2.0
       },
       "direction": "north",
       "object_ratios": [
         {
-          "object_id": 13451938,
-          "model": "lapalma_stil_chair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 9028283,
-          "model": "5ft_wood_shelving",
+          "object_id": 4378063,
+          "model": "wood_chair",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "12189071_facing_east.png",
-      "cam_id": "12189071",
+      "file": "6998031_facing_east.png",
+      "cam_id": "6998031",
       "pos": {
-        "x": 0,
+        "x": -3.0,
         "y": 0.8,
-        "z": -2
+        "z": -2.0
       },
       "direction": "east",
-      "object_ratios": []
-    },
-    {
-      "file": "12189071_facing_south.png",
-      "cam_id": "12189071",
-      "pos": {
-        "x": 0,
-        "y": 0.8,
-        "z": -2
-      },
-      "direction": "south",
-      "object_ratios": []
-    },
-    {
-      "file": "12189071_facing_west.png",
-      "cam_id": "12189071",
-      "pos": {
-        "x": 0,
-        "y": 0.8,
-        "z": -2
-      },
-      "direction": "west",
       "object_ratios": [
         {
-          "object_id": 919964,
+          "object_id": 9510126,
+          "model": "5ft_wood_shelving",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 2249476,
           "model": "white_club_chair",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]
+    },
+    {
+      "file": "6998031_facing_south.png",
+      "cam_id": "6998031",
+      "pos": {
+        "x": -3.0,
+        "y": 0.8,
+        "z": -2.0
+      },
+      "direction": "south",
+      "object_ratios": []
+    },
+    {
+      "file": "6998031_facing_west.png",
+      "cam_id": "6998031",
+      "pos": {
+        "x": -3.0,
+        "y": 0.8,
+        "z": -2.0
+      },
+      "direction": "west",
+      "object_ratios": []
     }
   ]
 }

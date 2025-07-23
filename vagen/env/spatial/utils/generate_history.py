@@ -215,7 +215,7 @@ if __name__ == "__main__":
     rng1 = seeding.np_random(2)[0]
     room = initialize_room_from_json(image_handler.json_data)
     print(room)
-    room.plot(render_mode='img')
+    # room.plot(render_mode='img')
 
     explorer = AutoExplore(room, rng1, image_handler)
     exploration_obs = explorer.gen_exp_history()
@@ -227,13 +227,13 @@ if __name__ == "__main__":
         images = exploration_obs['multi_modal_data']['<image>']
         print(f"\nImages collected: {len(images)}")
         
-        # Save images to local directory
-        output_dir = "saved_images"
-        os.makedirs(output_dir, exist_ok=True)
+        # # Save images to local directory
+        # output_dir = "saved_images"
+        # os.makedirs(output_dir, exist_ok=True)
         
-        for i, image in enumerate(images):
-            image_path = os.path.join(output_dir, f"exploration_image_{i:03d}.png")
-            image.save(image_path)
-            print(f"Saved image {i+1} to {image_path}")
+        # for i, image in enumerate(images):
+        #     image_path = os.path.join(output_dir, f"exploration_image_{i:03d}.png")
+        #     image.save(image_path)
+        #     print(f"Saved image {i+1} to {image_path}")
     else:
         print("\nNo images collected")

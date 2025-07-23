@@ -7,94 +7,17 @@
     512,
     512
   ],
-  "seed": 2025,
+  "seed": 470,
   "min_distance": 0.5,
   "objects": [
     {
-      "object_id": 6411407,
-      "model": "cabinet_24_wood_beach_honey",
-      "name": "wooden cabinet",
-      "pos": {
-        "x": 1,
-        "y": 0,
-        "z": -2
-      },
-      "rot": {
-        "x": 0,
-        "y": 270,
-        "z": 0
-      },
-      "size": [
-        0.6073107,
-        0.6424497
-      ],
-      "attributes": {
-        "scale": 1.0,
-        "has_orientation": false
-      }
-    },
-    {
-      "object_id": 8866180,
-      "model": "ligne_roset_armchair",
-      "name": "black chair",
-      "pos": {
-        "x": 3.0,
-        "y": 0,
-        "z": -2.0
-      },
-      "rot": {
-        "x": 0,
-        "y": 90,
-        "z": 0
-      },
-      "size": [
-        0.8185906,
-        1.4368143
-      ],
-      "attributes": {
-        "scale": 1.0,
-        "has_orientation": true,
-        "color": {
-          "name": "black",
-          "r": 0.0,
-          "g": 0.0,
-          "b": 0.0,
-          "a": 1.0
-        },
-        "orientation": "east"
-      }
-    },
-    {
-      "object_id": 3078743,
-      "model": "fridge_large",
-      "name": "fridge",
-      "pos": {
-        "x": -3.0,
-        "y": 0,
-        "z": -1.0
-      },
-      "rot": {
-        "x": 0,
-        "y": 180,
-        "z": 0
-      },
-      "size": [
-        0.72946528,
-        0.62507816
-      ],
-      "attributes": {
-        "scale": 0.8,
-        "has_orientation": false
-      }
-    },
-    {
-      "object_id": 12512843,
+      "object_id": 7060169,
       "model": "cabinet_36_white_wood",
       "name": "white cabinet",
       "pos": {
         "x": 0.0,
         "y": 0,
-        "z": 3.0
+        "z": -3.0
       },
       "rot": {
         "x": 0,
@@ -116,6 +39,91 @@
           "a": 1.0
         }
       }
+    },
+    {
+      "object_id": 3599450,
+      "model": "cabinet_24_wood_beach_honey",
+      "name": "wooden cabinet",
+      "pos": {
+        "x": -3.0,
+        "y": 0,
+        "z": -1.0
+      },
+      "rot": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "size": [
+        0.6073107,
+        0.6424497
+      ],
+      "attributes": {
+        "scale": 1.0,
+        "has_orientation": false
+      }
+    },
+    {
+      "object_id": 8646999,
+      "model": "ligne_roset_armchair",
+      "name": "black chair",
+      "pos": {
+        "x": -3.0,
+        "y": 0,
+        "z": 3.0
+      },
+      "rot": {
+        "x": 0,
+        "y": 270,
+        "z": 0
+      },
+      "size": [
+        0.8185906,
+        1.4368143
+      ],
+      "attributes": {
+        "scale": 1.0,
+        "has_orientation": true,
+        "color": {
+          "name": "black",
+          "r": 0.0,
+          "g": 0.0,
+          "b": 0.0,
+          "a": 1.0
+        },
+        "orientation": "west"
+      }
+    },
+    {
+      "object_id": 9132713,
+      "model": "white_club_chair",
+      "name": "red chair",
+      "pos": {
+        "x": 2,
+        "y": 0,
+        "z": 1
+      },
+      "rot": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "size": [
+        0.7982815,
+        0.9681153
+      ],
+      "attributes": {
+        "scale": 1.0,
+        "has_orientation": true,
+        "color": {
+          "name": "red",
+          "r": 1.0,
+          "g": 0.0,
+          "b": 0.0,
+          "a": 1.0
+        },
+        "orientation": "north"
+      }
     }
   ],
   "cameras": [
@@ -125,39 +133,27 @@
       "position": {
         "x": 0,
         "y": 0.8,
-        "z": 1
-      },
-      "rotation": {
-        "y": 180.0
-      }
-    },
-    {
-      "id": "6411407",
-      "label": "1",
-      "position": {
-        "x": 1,
-        "y": 0.8,
         "z": -2
       },
       "rotation": {
-        "y": -26.56505117707799
+        "y": 0.0
       }
     },
     {
-      "id": "8866180",
-      "label": "2",
+      "id": "7060169",
+      "label": "1",
       "position": {
-        "x": 3.0,
+        "x": 0.0,
         "y": 0.8,
-        "z": -2.0
+        "z": -3.0
       },
       "rotation": {
-        "y": -56.309932474020215
+        "y": -0.0
       }
     },
     {
-      "id": "3078743",
-      "label": "3",
+      "id": "3599450",
+      "label": "2",
       "position": {
         "x": -3.0,
         "y": 0.8,
@@ -168,15 +164,27 @@
       }
     },
     {
-      "id": "12512843",
-      "label": "4",
+      "id": "8646999",
+      "label": "3",
       "position": {
-        "x": 0.0,
+        "x": -3.0,
         "y": 0.8,
         "z": 3.0
       },
       "rotation": {
-        "y": -180.0
+        "y": 135.0
+      }
+    },
+    {
+      "id": "9132713",
+      "label": "4",
+      "position": {
+        "x": 2,
+        "y": 0.8,
+        "z": 1
+      },
+      "rotation": {
+        "y": -116.56505117707799
       }
     }
   ],
@@ -187,13 +195,19 @@
       "pos": {
         "x": 0,
         "y": 0.8,
-        "z": 1
+        "z": -2
       },
       "direction": "north",
       "object_ratios": [
         {
-          "object_id": 12512843,
-          "model": "cabinet_36_white_wood",
+          "object_id": 8646999,
+          "model": "ligne_roset_armchair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 9132713,
+          "model": "white_club_chair",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
@@ -205,17 +219,10 @@
       "pos": {
         "x": 0,
         "y": 0.8,
-        "z": 1
+        "z": -2
       },
       "direction": "east",
-      "object_ratios": [
-        {
-          "object_id": 8866180,
-          "model": "ligne_roset_armchair",
-          "visibility_ratio": 0.4999999999999997,
-          "occlusion_ratio": 1.0
-        }
-      ]
+      "object_ratios": []
     },
     {
       "file": "agent_facing_south.png",
@@ -223,20 +230,14 @@
       "pos": {
         "x": 0,
         "y": 0.8,
-        "z": 1
+        "z": -2
       },
       "direction": "south",
       "object_ratios": [
         {
-          "object_id": 6411407,
-          "model": "cabinet_24_wood_beach_honey",
+          "object_id": 7060169,
+          "model": "cabinet_36_white_wood",
           "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 8866180,
-          "model": "ligne_roset_armchair",
-          "visibility_ratio": 0.5000000000000003,
           "occlusion_ratio": 1.0
         }
       ]
@@ -247,273 +248,273 @@
       "pos": {
         "x": 0,
         "y": 0.8,
+        "z": -2
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 3599450,
+          "model": "cabinet_24_wood_beach_honey",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "7060169_facing_north.png",
+      "cam_id": "7060169",
+      "pos": {
+        "x": 0.0,
+        "y": 0.8,
+        "z": -3.0
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 8646999,
+          "model": "ligne_roset_armchair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 9132713,
+          "model": "white_club_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "7060169_facing_east.png",
+      "cam_id": "7060169",
+      "pos": {
+        "x": 0.0,
+        "y": 0.8,
+        "z": -3.0
+      },
+      "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "7060169_facing_south.png",
+      "cam_id": "7060169",
+      "pos": {
+        "x": 0.0,
+        "y": 0.8,
+        "z": -3.0
+      },
+      "direction": "south",
+      "object_ratios": []
+    },
+    {
+      "file": "7060169_facing_west.png",
+      "cam_id": "7060169",
+      "pos": {
+        "x": 0.0,
+        "y": 0.8,
+        "z": -3.0
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 3599450,
+          "model": "cabinet_24_wood_beach_honey",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "3599450_facing_north.png",
+      "cam_id": "3599450",
+      "pos": {
+        "x": -3.0,
+        "y": 0.8,
+        "z": -1.0
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 8646999,
+          "model": "ligne_roset_armchair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "3599450_facing_east.png",
+      "cam_id": "3599450",
+      "pos": {
+        "x": -3.0,
+        "y": 0.8,
+        "z": -1.0
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 7060169,
+          "model": "cabinet_36_white_wood",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 9132713,
+          "model": "white_club_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "3599450_facing_south.png",
+      "cam_id": "3599450",
+      "pos": {
+        "x": -3.0,
+        "y": 0.8,
+        "z": -1.0
+      },
+      "direction": "south",
+      "object_ratios": []
+    },
+    {
+      "file": "3599450_facing_west.png",
+      "cam_id": "3599450",
+      "pos": {
+        "x": -3.0,
+        "y": 0.8,
+        "z": -1.0
+      },
+      "direction": "west",
+      "object_ratios": []
+    },
+    {
+      "file": "8646999_facing_north.png",
+      "cam_id": "8646999",
+      "pos": {
+        "x": -3.0,
+        "y": 0.8,
+        "z": 3.0
+      },
+      "direction": "north",
+      "object_ratios": []
+    },
+    {
+      "file": "8646999_facing_east.png",
+      "cam_id": "8646999",
+      "pos": {
+        "x": -3.0,
+        "y": 0.8,
+        "z": 3.0
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 9132713,
+          "model": "white_club_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "8646999_facing_south.png",
+      "cam_id": "8646999",
+      "pos": {
+        "x": -3.0,
+        "y": 0.8,
+        "z": 3.0
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 7060169,
+          "model": "cabinet_36_white_wood",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 3599450,
+          "model": "cabinet_24_wood_beach_honey",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "8646999_facing_west.png",
+      "cam_id": "8646999",
+      "pos": {
+        "x": -3.0,
+        "y": 0.8,
+        "z": 3.0
+      },
+      "direction": "west",
+      "object_ratios": []
+    },
+    {
+      "file": "9132713_facing_north.png",
+      "cam_id": "9132713",
+      "pos": {
+        "x": 2,
+        "y": 0.8,
+        "z": 1
+      },
+      "direction": "north",
+      "object_ratios": []
+    },
+    {
+      "file": "9132713_facing_east.png",
+      "cam_id": "9132713",
+      "pos": {
+        "x": 2,
+        "y": 0.8,
+        "z": 1
+      },
+      "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "9132713_facing_south.png",
+      "cam_id": "9132713",
+      "pos": {
+        "x": 2,
+        "y": 0.8,
+        "z": 1
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 7060169,
+          "model": "cabinet_36_white_wood",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "9132713_facing_west.png",
+      "cam_id": "9132713",
+      "pos": {
+        "x": 2,
+        "y": 0.8,
         "z": 1
       },
       "direction": "west",
       "object_ratios": [
         {
-          "object_id": 3078743,
-          "model": "fridge_large",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
-    },
-    {
-      "file": "6411407_facing_north.png",
-      "cam_id": "6411407",
-      "pos": {
-        "x": 1,
-        "y": 0.8,
-        "z": -2
-      },
-      "direction": "north",
-      "object_ratios": [
-        {
-          "object_id": 12512843,
-          "model": "cabinet_36_white_wood",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
-    },
-    {
-      "file": "6411407_facing_east.png",
-      "cam_id": "6411407",
-      "pos": {
-        "x": 1,
-        "y": 0.8,
-        "z": -2
-      },
-      "direction": "east",
-      "object_ratios": [
-        {
-          "object_id": 8866180,
-          "model": "ligne_roset_armchair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
-    },
-    {
-      "file": "6411407_facing_south.png",
-      "cam_id": "6411407",
-      "pos": {
-        "x": 1,
-        "y": 0.8,
-        "z": -2
-      },
-      "direction": "south",
-      "object_ratios": []
-    },
-    {
-      "file": "6411407_facing_west.png",
-      "cam_id": "6411407",
-      "pos": {
-        "x": 1,
-        "y": 0.8,
-        "z": -2
-      },
-      "direction": "west",
-      "object_ratios": [
-        {
-          "object_id": 3078743,
-          "model": "fridge_large",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
-    },
-    {
-      "file": "8866180_facing_north.png",
-      "cam_id": "8866180",
-      "pos": {
-        "x": 3.0,
-        "y": 0.8,
-        "z": -2.0
-      },
-      "direction": "north",
-      "object_ratios": [
-        {
-          "object_id": 12512843,
-          "model": "cabinet_36_white_wood",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
-    },
-    {
-      "file": "8866180_facing_east.png",
-      "cam_id": "8866180",
-      "pos": {
-        "x": 3.0,
-        "y": 0.8,
-        "z": -2.0
-      },
-      "direction": "east",
-      "object_ratios": []
-    },
-    {
-      "file": "8866180_facing_south.png",
-      "cam_id": "8866180",
-      "pos": {
-        "x": 3.0,
-        "y": 0.8,
-        "z": -2.0
-      },
-      "direction": "south",
-      "object_ratios": []
-    },
-    {
-      "file": "8866180_facing_west.png",
-      "cam_id": "8866180",
-      "pos": {
-        "x": 3.0,
-        "y": 0.8,
-        "z": -2.0
-      },
-      "direction": "west",
-      "object_ratios": [
-        {
-          "object_id": 6411407,
+          "object_id": 3599450,
           "model": "cabinet_24_wood_beach_honey",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         },
         {
-          "object_id": 3078743,
-          "model": "fridge_large",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
-    },
-    {
-      "file": "3078743_facing_north.png",
-      "cam_id": "3078743",
-      "pos": {
-        "x": -3.0,
-        "y": 0.8,
-        "z": -1.0
-      },
-      "direction": "north",
-      "object_ratios": [
-        {
-          "object_id": 12512843,
-          "model": "cabinet_36_white_wood",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
-    },
-    {
-      "file": "3078743_facing_east.png",
-      "cam_id": "3078743",
-      "pos": {
-        "x": -3.0,
-        "y": 0.8,
-        "z": -1.0
-      },
-      "direction": "east",
-      "object_ratios": [
-        {
-          "object_id": 6411407,
-          "model": "cabinet_24_wood_beach_honey",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 8866180,
+          "object_id": 8646999,
           "model": "ligne_roset_armchair",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]
-    },
-    {
-      "file": "3078743_facing_south.png",
-      "cam_id": "3078743",
-      "pos": {
-        "x": -3.0,
-        "y": 0.8,
-        "z": -1.0
-      },
-      "direction": "south",
-      "object_ratios": []
-    },
-    {
-      "file": "3078743_facing_west.png",
-      "cam_id": "3078743",
-      "pos": {
-        "x": -3.0,
-        "y": 0.8,
-        "z": -1.0
-      },
-      "direction": "west",
-      "object_ratios": []
-    },
-    {
-      "file": "12512843_facing_north.png",
-      "cam_id": "12512843",
-      "pos": {
-        "x": 0.0,
-        "y": 0.8,
-        "z": 3.0
-      },
-      "direction": "north",
-      "object_ratios": []
-    },
-    {
-      "file": "12512843_facing_east.png",
-      "cam_id": "12512843",
-      "pos": {
-        "x": 0.0,
-        "y": 0.8,
-        "z": 3.0
-      },
-      "direction": "east",
-      "object_ratios": []
-    },
-    {
-      "file": "12512843_facing_south.png",
-      "cam_id": "12512843",
-      "pos": {
-        "x": 0.0,
-        "y": 0.8,
-        "z": 3.0
-      },
-      "direction": "south",
-      "object_ratios": [
-        {
-          "object_id": 6411407,
-          "model": "cabinet_24_wood_beach_honey",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 8866180,
-          "model": "ligne_roset_armchair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 3078743,
-          "model": "fridge_large",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
-    },
-    {
-      "file": "12512843_facing_west.png",
-      "cam_id": "12512843",
-      "pos": {
-        "x": 0.0,
-        "y": 0.8,
-        "z": 3.0
-      },
-      "direction": "west",
-      "object_ratios": []
     }
   ]
 }

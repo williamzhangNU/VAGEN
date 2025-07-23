@@ -116,6 +116,13 @@ cd VAGEN/vagen/env/spatial
 python env.py  # Run tests
 ```
 
+## Inference
+1. run `python vagen/server/server.py`
+2. run `bash scripts/SpatialGym/run.sh`
+
+- If you want to modify config, use `scripts/SpatialGym/model_config.yaml` and refer to `vagen/env/spatial/env_config.py`
+- if you want to modify model for evaluation, use `scripts/SpatialGym/model_config.yaml`, these models will be evaluated like a list
+
 ## Key Features
 
 - Text and visual observations

@@ -28,16 +28,17 @@ class SpatialGymConfig(BaseEnvConfig):
     max_actions_per_step: int = field(default=1, init=False)    
     prompt_format: str = field(default="free_think", init=False)
     action_sep: str = field(default="|", init=False)
-    image_size: Tuple[int, int] = field(default=(224, 224), init=False)
+    image_size: Tuple[int, int] = field(default=(300, 300), init=False)
     
     # Environment specific configuration
     # Room configuration
+    field_of_view: int = field(default=90, init=False)
     base_dir: str = os.path.join(os.path.dirname(__file__), "room_data/")
     # Exploration configuration
     exp_type: str = 'passive'
     perspective: str = 'ego'
+    with_topdown: bool = False
     max_exp_steps: int = 100
-    field_of_view: int = 90
     
     # Evaluation configuration
     eval_tasks: List[Dict[str, Any]] = field(default_factory=lambda: [{"task_type": "rot", "task_kwargs": {"turn_direction": "counterclockwise"}}])

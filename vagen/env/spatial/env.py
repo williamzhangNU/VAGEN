@@ -57,35 +57,39 @@ class SpatialGym(gym.Env):
 
     def _generate_initial_observation(self) -> str:
         """Generate initial observation based on exploration type."""
-        room_desc = self.initial_room.get_room_description()
+        room_desc = self.initial_room.get_room_description() + (f"You observe the room from the topdown view: {self.config.image_placeholder}" if self.config.with_topdown else "")
+        images = [self.image_handler.get_image('topdown')] if self.config.with_topdown else []
         
         if self.config.exp_type == 'passive':
-            auto_explore = AutoExplore(self.initial_room, self.np_random, self.image_handler)
-            exp_history_obs = auto_explore.gen_exp_history()
-            exp_history = f"## Exploration History\n{exp_history_obs['obs_str']}"
-            eval_question = self.evaluation_manager.get_current_question(self.initial_room.copy())
-            assert eval_question, "No question found after exploration phase"
+            exp_history = ""
+            if not self.config.with_topdown:
+                exp_history_obs = AutoExplore(self.initial_room, self.np_random, self.image_handler).gen_exp_history()
+                exp_history = f"## Exploration History\n{exp_history_obs['obs_str']}"
+                images.extend(exp_history_obs['multi_modal_data'][self.config.image_placeholder])
+
             obs = PASSIVE_INSTRUCTION.format(
                 room_info=room_desc,
                 exp_history=exp_history,
             )
 
+            eval_question = self.evaluation_manager.get_current_question(self.initial_room.copy())
+            assert eval_question, "No question found after exploration phase"
             obs += EVALUATION_INSTRUCTION.format(eval_question=f"## Evaluation Question\n{eval_question}")
             
-            # Include multi_modal_data from exploration history if available
             result_obs = self._create_obs(obs, include_visual=False)
-            if 'multi_modal_data' in exp_history_obs:
-                result_obs['multi_modal_data'] = exp_history_obs['multi_modal_data']
+            if images:
+                result_obs['multi_modal_data'] = {self.config.image_placeholder: images}
             return result_obs
 
-        else:
-            exp_instructions = f"## Action Instructions\n{ActionSequence.get_usage_instructions()}\n\nYou have a maximum of {self.config.max_exp_steps} exploration steps."
-            obs = ACTIVE_INSTRUCTION.format(
-                room_info=room_desc,
-                exp_instructions=exp_instructions
-            )
+        exp_instructions = f"## Action Instructions\n{ActionSequence.get_usage_instructions()}\n\nYou have a maximum of {self.config.max_exp_steps} exploration steps."
+        obs = ACTIVE_INSTRUCTION.format(
+            room_info=room_desc,
+            exp_instructions=exp_instructions
+        )
+        result_obs = self._create_obs(obs, include_visual=False)
+        result_obs['multi_modal_data'] = {self.config.image_placeholder: images}
+        return result_obs
 
-        return self._create_obs(obs + "\n" + f"You observe: {self.config.image_placeholder}", include_visual=True)
 
     def _create_obs(self, obs_str: str, include_visual: bool = False) -> dict:
         obs = {'obs_str': obs_str + "\n" + FORMAT_PROMPT}
@@ -107,7 +111,7 @@ class SpatialGym(gym.Env):
         
         # 1. Find position: which object is at same location as agent (0,0)
         position_name = 'agent'  # default (if at agent_anchor, original position)
-        for obj in room.objects:
+        for obj in [obj for obj in self.exploration_manager.exploration_room.objects if obj.name != 'agent_anchor']:
             if np.allclose(obj.pos, agent.pos):  # same position as agent
                 position_name = obj.name
                 break

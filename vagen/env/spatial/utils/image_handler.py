@@ -31,8 +31,8 @@ class ImageHandler:
     
     def _load_data(self, base_dir: str, seed: int = None) -> tuple:
         """Load JSON data from selected subdirectory."""
-        subdirs = [d for d in os.listdir(base_dir) if os.path.isdir(os.path.join(base_dir, d))]
-        data_idx = (seed % len(subdirs)) if seed else np.random.randint(0, len(subdirs))
+        subdirs = sorted([d for d in os.listdir(base_dir) if os.path.isdir(os.path.join(base_dir, d))])
+        data_idx = (seed % len(subdirs)) if seed is not None else np.random.randint(0, len(subdirs))
         image_dir = os.path.join(base_dir, subdirs[data_idx])
         
         with open(os.path.join(image_dir, "meta_data.json"), 'r') as f:
@@ -53,15 +53,15 @@ class ImageHandler:
                     image_map[key] = Image.open(path).resize(self.image_size, Image.LANCZOS)
                 else:
                     image_map[key] = path
-        
+        image_map['topdown'] = Image.open(os.path.join(self.image_dir, 'top_down_original.png'))
         return image_map
     
-    def get_image(self, name: str, direction: str) -> Image.Image:
+    def get_image(self, name: str = 'agent', direction: str = 'north') -> Image.Image:
         """
         Get image for given camera ID and direction.
         
         Args:
-            name: Name of the object ('agent' or object_name as string)
+            name: Name of the object ('agent' or object_name or 'topdown' as string)
             direction: Cardinal direction ('north', 'south', 'east', 'west')
             
         Returns:
@@ -70,7 +70,7 @@ class ImageHandler:
         Raises:
             KeyError: If image not found
         """
-        key = f"{self.name_2_cam_id[name]}_facing_{direction}"
+        key = f"{self.name_2_cam_id[name]}_facing_{direction}" if name != 'topdown' else 'topdown'
         
         if key not in self._image_map:
             raise KeyError(f"Image not found for name '{name}' facing '{direction}'")

@@ -5,7 +5,7 @@ server_max_workers: 48
 
 # Inference parameters
 batch_size: 32
-max_steps: 3
+max_steps: 12
 split: "test"
 debug: false
 

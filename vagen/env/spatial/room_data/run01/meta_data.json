@@ -7,17 +7,87 @@
     512,
     512
   ],
-  "seed": 1991,
+  "seed": 2001,
   "min_distance": 0.5,
   "objects": [
     {
-      "object_id": 11411236,
+      "object_id": 8277896,
+      "model": "white_lamp",
+      "name": "white lamp",
+      "pos": {
+        "x": 0.0,
+        "y": 0,
+        "z": -3.0
+      },
+      "rot": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "size": [
+        0.5249988,
+        1.08171015
+      ],
+      "attributes": {
+        "scale": 1.5,
+        "has_orientation": false
+      }
+    },
+    {
+      "object_id": 5064869,
+      "model": "fridge_large",
+      "name": "fridge",
+      "pos": {
+        "x": -2.0,
+        "y": 0,
+        "z": -2.0
+      },
+      "rot": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "size": [
+        0.72946528,
+        0.62507816
+      ],
+      "attributes": {
+        "scale": 0.8,
+        "has_orientation": false
+      }
+    },
+    {
+      "object_id": 9039984,
+      "model": "wood_chair",
+      "name": "wooden chair",
+      "pos": {
+        "x": 0,
+        "y": 0,
+        "z": -1
+      },
+      "rot": {
+        "x": 0,
+        "y": 180,
+        "z": 0
+      },
+      "size": [
+        0.4298932,
+        0.47789539999999997
+      ],
+      "attributes": {
+        "scale": 1.0,
+        "has_orientation": true,
+        "orientation": "south"
+      }
+    },
+    {
+      "object_id": 9005909,
       "model": "5ft_wood_shelving",
       "name": "shelf",
       "pos": {
-        "x": -3.0,
+        "x": 3.0,
         "y": 0,
-        "z": 1.0
+        "z": -2.0
       },
       "rot": {
         "x": 0,
@@ -32,75 +102,6 @@
         "scale": 1.0,
         "has_orientation": false
       }
-    },
-    {
-      "object_id": 15712044,
-      "model": "white_lamp",
-      "name": "white lamp",
-      "pos": {
-        "x": -2.0,
-        "y": 0,
-        "z": -1.0
-      },
-      "rot": {
-        "x": 0,
-        "y": 0,
-        "z": 0
-      },
-      "size": [
-        0.5249988,
-        1.08171015
-      ],
-      "attributes": {
-        "scale": 1.5,
-        "has_orientation": false
-      }
-    },
-    {
-      "object_id": 16467699,
-      "model": "fridge_large",
-      "name": "fridge",
-      "pos": {
-        "x": 0,
-        "y": 0,
-        "z": -1
-      },
-      "rot": {
-        "x": 0,
-        "y": 180,
-        "z": 0
-      },
-      "size": [
-        0.72946528,
-        0.62507816
-      ],
-      "attributes": {
-        "scale": 0.8,
-        "has_orientation": false
-      }
-    },
-    {
-      "object_id": 11641156,
-      "model": "basket_18inx18inx12iin",
-      "name": "basket",
-      "pos": {
-        "x": 2,
-        "y": 0,
-        "z": -1
-      },
-      "rot": {
-        "x": 0,
-        "y": 270,
-        "z": 0
-      },
-      "size": [
-        0.914,
-        0.914
-      ],
-      "attributes": {
-        "scale": 2.0,
-        "has_orientation": false
-      }
     }
   ],
   "cameras": [
@@ -108,40 +109,40 @@
       "id": "agent",
       "label": "A",
       "position": {
-        "x": -2,
+        "x": 0,
         "y": 0.8,
-        "z": -3
+        "z": -2
       },
       "rotation": {
-        "y": 33.690067525979785
+        "y": 0.0
       }
     },
     {
-      "id": "11411236",
+      "id": "8277896",
       "label": "1",
       "position": {
-        "x": -3.0,
+        "x": 0.0,
         "y": 0.8,
-        "z": 1.0
+        "z": -3.0
       },
       "rotation": {
-        "y": 108.43494882292202
+        "y": -0.0
       }
     },
     {
-      "id": "15712044",
+      "id": "5064869",
       "label": "2",
       "position": {
         "x": -2.0,
         "y": 0.8,
-        "z": -1.0
+        "z": -2.0
       },
       "rotation": {
-        "y": 63.43494882292201
+        "y": 45.0
       }
     },
     {
-      "id": "16467699",
+      "id": "9039984",
       "label": "3",
       "position": {
         "x": 0,
@@ -153,15 +154,15 @@
       }
     },
     {
-      "id": "11641156",
+      "id": "9005909",
       "label": "4",
       "position": {
-        "x": 2,
+        "x": 3.0,
         "y": 0.8,
-        "z": -1
+        "z": -2.0
       },
       "rotation": {
-        "y": -63.43494882292201
+        "y": -56.309932474020215
       }
     }
   ],
@@ -170,28 +171,16 @@
       "file": "agent_facing_north.png",
       "cam_id": "agent",
       "pos": {
-        "x": -2,
+        "x": 0,
         "y": 0.8,
-        "z": -3
+        "z": -2
       },
       "direction": "north",
       "object_ratios": [
         {
-          "object_id": 11411236,
-          "model": "5ft_wood_shelving",
+          "object_id": 9039984,
+          "model": "wood_chair",
           "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 15712044,
-          "model": "white_lamp",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 16467699,
-          "model": "fridge_large",
-          "visibility_ratio": 0.4999999999999997,
           "occlusion_ratio": 1.0
         }
       ]
@@ -200,21 +189,15 @@
       "file": "agent_facing_east.png",
       "cam_id": "agent",
       "pos": {
-        "x": -2,
+        "x": 0,
         "y": 0.8,
-        "z": -3
+        "z": -2
       },
       "direction": "east",
       "object_ratios": [
         {
-          "object_id": 16467699,
-          "model": "fridge_large",
-          "visibility_ratio": 0.4999999999999996,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 11641156,
-          "model": "basket_18inx18inx12iin",
+          "object_id": 9005909,
+          "model": "5ft_wood_shelving",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
@@ -224,100 +207,68 @@
       "file": "agent_facing_south.png",
       "cam_id": "agent",
       "pos": {
-        "x": -2,
+        "x": 0,
         "y": 0.8,
-        "z": -3
+        "z": -2
       },
       "direction": "south",
-      "object_ratios": []
+      "object_ratios": [
+        {
+          "object_id": 8277896,
+          "model": "white_lamp",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
     },
     {
       "file": "agent_facing_west.png",
       "cam_id": "agent",
       "pos": {
-        "x": -2,
+        "x": 0,
         "y": 0.8,
-        "z": -3
+        "z": -2
       },
       "direction": "west",
-      "object_ratios": []
+      "object_ratios": [
+        {
+          "object_id": 5064869,
+          "model": "fridge_large",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
     },
     {
-      "file": "11411236_facing_north.png",
-      "cam_id": "11411236",
+      "file": "8277896_facing_north.png",
+      "cam_id": "8277896",
       "pos": {
-        "x": -3.0,
+        "x": 0.0,
         "y": 0.8,
-        "z": 1.0
+        "z": -3.0
       },
       "direction": "north",
-      "object_ratios": []
+      "object_ratios": [
+        {
+          "object_id": 9039984,
+          "model": "wood_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
     },
     {
-      "file": "11411236_facing_east.png",
-      "cam_id": "11411236",
+      "file": "8277896_facing_east.png",
+      "cam_id": "8277896",
       "pos": {
-        "x": -3.0,
+        "x": 0.0,
         "y": 0.8,
-        "z": 1.0
+        "z": -3.0
       },
       "direction": "east",
       "object_ratios": [
         {
-          "object_id": 16467699,
-          "model": "fridge_large",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 11641156,
-          "model": "basket_18inx18inx12iin",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
-    },
-    {
-      "file": "11411236_facing_south.png",
-      "cam_id": "11411236",
-      "pos": {
-        "x": -3.0,
-        "y": 0.8,
-        "z": 1.0
-      },
-      "direction": "south",
-      "object_ratios": [
-        {
-          "object_id": 15712044,
-          "model": "white_lamp",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
-    },
-    {
-      "file": "11411236_facing_west.png",
-      "cam_id": "11411236",
-      "pos": {
-        "x": -3.0,
-        "y": 0.8,
-        "z": 1.0
-      },
-      "direction": "west",
-      "object_ratios": []
-    },
-    {
-      "file": "15712044_facing_north.png",
-      "cam_id": "15712044",
-      "pos": {
-        "x": -2.0,
-        "y": 0.8,
-        "z": -1.0
-      },
-      "direction": "north",
-      "object_ratios": [
-        {
-          "object_id": 11411236,
+          "object_id": 9005909,
           "model": "5ft_wood_shelving",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
@@ -325,54 +276,100 @@
       ]
     },
     {
-      "file": "15712044_facing_east.png",
-      "cam_id": "15712044",
+      "file": "8277896_facing_south.png",
+      "cam_id": "8277896",
       "pos": {
-        "x": -2.0,
+        "x": 0.0,
         "y": 0.8,
-        "z": -1.0
+        "z": -3.0
       },
-      "direction": "east",
+      "direction": "south",
+      "object_ratios": []
+    },
+    {
+      "file": "8277896_facing_west.png",
+      "cam_id": "8277896",
+      "pos": {
+        "x": 0.0,
+        "y": 0.8,
+        "z": -3.0
+      },
+      "direction": "west",
       "object_ratios": [
         {
-          "object_id": 16467699,
+          "object_id": 5064869,
           "model": "fridge_large",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 11641156,
-          "model": "basket_18inx18inx12iin",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "15712044_facing_south.png",
-      "cam_id": "15712044",
+      "file": "5064869_facing_north.png",
+      "cam_id": "5064869",
       "pos": {
         "x": -2.0,
         "y": 0.8,
-        "z": -1.0
+        "z": -2.0
+      },
+      "direction": "north",
+      "object_ratios": []
+    },
+    {
+      "file": "5064869_facing_east.png",
+      "cam_id": "5064869",
+      "pos": {
+        "x": -2.0,
+        "y": 0.8,
+        "z": -2.0
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 8277896,
+          "model": "white_lamp",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 9039984,
+          "model": "wood_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 9005909,
+          "model": "5ft_wood_shelving",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "5064869_facing_south.png",
+      "cam_id": "5064869",
+      "pos": {
+        "x": -2.0,
+        "y": 0.8,
+        "z": -2.0
       },
       "direction": "south",
       "object_ratios": []
     },
     {
-      "file": "15712044_facing_west.png",
-      "cam_id": "15712044",
+      "file": "5064869_facing_west.png",
+      "cam_id": "5064869",
       "pos": {
         "x": -2.0,
         "y": 0.8,
-        "z": -1.0
+        "z": -2.0
       },
       "direction": "west",
       "object_ratios": []
     },
     {
-      "file": "16467699_facing_north.png",
-      "cam_id": "16467699",
+      "file": "9039984_facing_north.png",
+      "cam_id": "9039984",
       "pos": {
         "x": 0,
         "y": 0.8,
@@ -382,8 +379,8 @@
       "object_ratios": []
     },
     {
-      "file": "16467699_facing_east.png",
-      "cam_id": "16467699",
+      "file": "9039984_facing_east.png",
+      "cam_id": "9039984",
       "pos": {
         "x": 0,
         "y": 0.8,
@@ -392,27 +389,34 @@
       "direction": "east",
       "object_ratios": [
         {
-          "object_id": 11641156,
-          "model": "basket_18inx18inx12iin",
+          "object_id": 9005909,
+          "model": "5ft_wood_shelving",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "16467699_facing_south.png",
-      "cam_id": "16467699",
+      "file": "9039984_facing_south.png",
+      "cam_id": "9039984",
       "pos": {
         "x": 0,
         "y": 0.8,
         "z": -1
       },
       "direction": "south",
-      "object_ratios": []
+      "object_ratios": [
+        {
+          "object_id": 8277896,
+          "model": "white_lamp",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
     },
     {
-      "file": "16467699_facing_west.png",
-      "cam_id": "16467699",
+      "file": "9039984_facing_west.png",
+      "cam_id": "9039984",
       "pos": {
         "x": 0,
         "y": 0.8,
@@ -421,77 +425,71 @@
       "direction": "west",
       "object_ratios": [
         {
-          "object_id": 11411236,
-          "model": "5ft_wood_shelving",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 15712044,
-          "model": "white_lamp",
+          "object_id": 5064869,
+          "model": "fridge_large",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "11641156_facing_north.png",
-      "cam_id": "11641156",
+      "file": "9005909_facing_north.png",
+      "cam_id": "9005909",
       "pos": {
-        "x": 2,
+        "x": 3.0,
         "y": 0.8,
-        "z": -1
+        "z": -2.0
       },
       "direction": "north",
       "object_ratios": []
     },
     {
-      "file": "11641156_facing_east.png",
-      "cam_id": "11641156",
+      "file": "9005909_facing_east.png",
+      "cam_id": "9005909",
       "pos": {
-        "x": 2,
+        "x": 3.0,
         "y": 0.8,
-        "z": -1
+        "z": -2.0
       },
       "direction": "east",
       "object_ratios": []
     },
     {
-      "file": "11641156_facing_south.png",
-      "cam_id": "11641156",
+      "file": "9005909_facing_south.png",
+      "cam_id": "9005909",
       "pos": {
-        "x": 2,
+        "x": 3.0,
         "y": 0.8,
-        "z": -1
+        "z": -2.0
       },
       "direction": "south",
       "object_ratios": []
     },
     {
-      "file": "11641156_facing_west.png",
-      "cam_id": "11641156",
+      "file": "9005909_facing_west.png",
+      "cam_id": "9005909",
       "pos": {
-        "x": 2,
+        "x": 3.0,
         "y": 0.8,
-        "z": -1
+        "z": -2.0
       },
       "direction": "west",
       "object_ratios": [
         {
-          "object_id": 11411236,
-          "model": "5ft_wood_shelving",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 15712044,
+          "object_id": 8277896,
           "model": "white_lamp",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         },
         {
-          "object_id": 16467699,
+          "object_id": 5064869,
           "model": "fridge_large",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 9039984,
+          "model": "wood_chair",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
