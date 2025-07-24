@@ -53,7 +53,7 @@ class ImageHandler:
                     image_map[key] = Image.open(path).resize(self.image_size, Image.LANCZOS)
                 else:
                     image_map[key] = path
-        image_map['topdown'] = Image.open(os.path.join(self.image_dir, 'top_down_original.png'))
+        image_map['topdown'] = Image.open(os.path.join(self.image_dir, 'top_down_annotated.png'))
         return image_map
     
     def get_image(self, name: str = 'agent', direction: str = 'north') -> Image.Image:

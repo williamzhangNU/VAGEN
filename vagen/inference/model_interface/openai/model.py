@@ -153,15 +153,19 @@ class OpenAIModelInterface(BaseModelInterface):
     def _single_api_call(self, messages: List[Dict], **kwargs) -> Dict[str, Any]:
         """Make a single API call to OpenAI."""
         try:
-            response = self.client.chat.completions.create(
-                model=self.config.model_name,
-                messages=messages,
-                max_tokens=kwargs.get("max_tokens", self.config.max_tokens),
-                temperature=kwargs.get("temperature", self.config.temperature),
-                presence_penalty=kwargs.get("presence_penalty", self.config.presence_penalty),
-                frequency_penalty=kwargs.get("frequency_penalty", self.config.frequency_penalty),
-                seed=kwargs.get("seed", self.config.seed)
-            )
+            msg_kwargs = {
+                "model": self.config.model_name,
+                "messages": messages,
+                "temperature": kwargs.get("temperature", self.config.temperature),
+                "presence_penalty": kwargs.get("presence_penalty", self.config.presence_penalty),
+                "frequency_penalty": kwargs.get("frequency_penalty", self.config.frequency_penalty),
+                "seed": kwargs.get("seed", self.config.seed),
+            }
+            if self.config.model_name.startswith("o"):
+                msg_kwargs["max_completion_tokens"] = kwargs.get("max_completion_tokens", self.config.max_completion_tokens)
+            else:
+                msg_kwargs["max_tokens"] = kwargs.get("max_tokens", self.config.max_tokens)
+            response = self.client.chat.completions.create(**msg_kwargs)
             
             # Extract text response
             response_text = response.choices[0].message.content

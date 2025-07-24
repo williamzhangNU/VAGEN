@@ -1,27 +1,58 @@
 {
   "room_size": [
-    8,
-    8
+    6,
+    6
   ],
   "screen_size": [
     512,
     512
   ],
   "seed": 582,
-  "min_distance": 0.5,
+  "min_distance": 0.3,
   "objects": [
     {
       "object_id": 8814400,
-      "model": "red_lamp",
-      "name": "red lamp",
+      "model": "wood_chair",
+      "name": "yellow chair",
       "pos": {
-        "x": 2.0,
+        "x": 0.0,
         "y": 0,
-        "z": 0.0
+        "z": 2.0
       },
       "rot": {
         "x": 0,
         "y": 90,
+        "z": 0
+      },
+      "size": [
+        0.4298932,
+        0.47789539999999997
+      ],
+      "attributes": {
+        "scale": 1.0,
+        "has_orientation": true,
+        "color": {
+          "name": "yellow",
+          "r": 1.0,
+          "g": 1.0,
+          "b": 0.0,
+          "a": 1.0
+        },
+        "orientation": "east"
+      }
+    },
+    {
+      "object_id": 4975892,
+      "model": "white_lamp",
+      "name": "white lamp",
+      "pos": {
+        "x": -1,
+        "y": 0,
+        "z": 0
+      },
+      "rot": {
+        "x": 0,
+        "y": 270,
         "z": 0
       },
       "size": [
@@ -34,17 +65,17 @@
       }
     },
     {
-      "object_id": 5085105,
+      "object_id": 2291425,
       "model": "white_club_chair",
-      "name": "red chair",
+      "name": "green chair",
       "pos": {
-        "x": -1,
+        "x": 1,
         "y": 0,
-        "z": -2
+        "z": -1
       },
       "rot": {
         "x": 0,
-        "y": 90,
+        "y": 270,
         "z": 0
       },
       "size": [
@@ -55,59 +86,13 @@
         "scale": 1.0,
         "has_orientation": true,
         "color": {
-          "name": "red",
-          "r": 1.0,
-          "g": 0.0,
+          "name": "green",
+          "r": 0.0,
+          "g": 1.0,
           "b": 0.0,
           "a": 1.0
         },
-        "orientation": "east"
-      }
-    },
-    {
-      "object_id": 2740150,
-      "model": "kettle",
-      "name": "kettle",
-      "pos": {
-        "x": 0,
-        "y": 0,
-        "z": 1
-      },
-      "rot": {
-        "x": 0,
-        "y": 180,
-        "z": 0
-      },
-      "size": [
-        0.381692628,
-        0.26722544400000003
-      ],
-      "attributes": {
-        "scale": 1.8,
-        "has_orientation": false
-      }
-    },
-    {
-      "object_id": 2066096,
-      "model": "5ft_wood_shelving",
-      "name": "shelf",
-      "pos": {
-        "x": -2,
-        "y": 0,
-        "z": 1
-      },
-      "rot": {
-        "x": 0,
-        "y": 180,
-        "z": 0
-      },
-      "size": [
-        0.3857705,
-        0.9451682
-      ],
-      "attributes": {
-        "scale": 1.0,
-        "has_orientation": false
+        "orientation": "west"
       }
     }
   ],
@@ -116,7 +101,31 @@
       "id": "agent",
       "label": "A",
       "position": {
-        "x": -2,
+        "x": 1,
+        "y": 0.8,
+        "z": 0
+      },
+      "rotation": {
+        "y": -90.0
+      }
+    },
+    {
+      "id": "8814400",
+      "label": "1",
+      "position": {
+        "x": 0.0,
+        "y": 0.8,
+        "z": 2.0
+      },
+      "rotation": {
+        "y": -180.0
+      }
+    },
+    {
+      "id": "4975892",
+      "label": "2",
+      "position": {
+        "x": -1,
         "y": 0.8,
         "z": 0
       },
@@ -125,51 +134,15 @@
       }
     },
     {
-      "id": "8814400",
-      "label": "1",
-      "position": {
-        "x": 2.0,
-        "y": 0.8,
-        "z": 0.0
-      },
-      "rotation": {
-        "y": -90.0
-      }
-    },
-    {
-      "id": "5085105",
-      "label": "2",
-      "position": {
-        "x": -1,
-        "y": 0.8,
-        "z": -2
-      },
-      "rotation": {
-        "y": 26.56505117707799
-      }
-    },
-    {
-      "id": "2740150",
+      "id": "2291425",
       "label": "3",
       "position": {
-        "x": 0,
+        "x": 1,
         "y": 0.8,
-        "z": 1
+        "z": -1
       },
       "rotation": {
-        "y": 180.0
-      }
-    },
-    {
-      "id": "2066096",
-      "label": "4",
-      "position": {
-        "x": -2,
-        "y": 0.8,
-        "z": 1
-      },
-      "rotation": {
-        "y": 116.56505117707799
+        "y": -45.0
       }
     }
   ],
@@ -178,15 +151,15 @@
       "file": "agent_facing_north.png",
       "cam_id": "agent",
       "pos": {
-        "x": -2,
+        "x": 1,
         "y": 0.8,
         "z": 0
       },
       "direction": "north",
       "object_ratios": [
         {
-          "object_id": 2066096,
-          "model": "5ft_wood_shelving",
+          "object_id": 8814400,
+          "model": "wood_chair",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
@@ -196,38 +169,25 @@
       "file": "agent_facing_east.png",
       "cam_id": "agent",
       "pos": {
-        "x": -2,
+        "x": 1,
         "y": 0.8,
         "z": 0
       },
       "direction": "east",
-      "object_ratios": [
-        {
-          "object_id": 8814400,
-          "model": "red_lamp",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 2740150,
-          "model": "kettle",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
+      "object_ratios": []
     },
     {
       "file": "agent_facing_south.png",
       "cam_id": "agent",
       "pos": {
-        "x": -2,
+        "x": 1,
         "y": 0.8,
         "z": 0
       },
       "direction": "south",
       "object_ratios": [
         {
-          "object_id": 5085105,
+          "object_id": 2291425,
           "model": "white_club_chair",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
@@ -238,20 +198,27 @@
       "file": "agent_facing_west.png",
       "cam_id": "agent",
       "pos": {
-        "x": -2,
+        "x": 1,
         "y": 0.8,
         "z": 0
       },
       "direction": "west",
-      "object_ratios": []
+      "object_ratios": [
+        {
+          "object_id": 4975892,
+          "model": "white_lamp",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
     },
     {
       "file": "8814400_facing_north.png",
       "cam_id": "8814400",
       "pos": {
-        "x": 2.0,
+        "x": 0.0,
         "y": 0.8,
-        "z": 0.0
+        "z": 2.0
       },
       "direction": "north",
       "object_ratios": []
@@ -260,9 +227,9 @@
       "file": "8814400_facing_east.png",
       "cam_id": "8814400",
       "pos": {
-        "x": 2.0,
+        "x": 0.0,
         "y": 0.8,
-        "z": 0.0
+        "z": 2.0
       },
       "direction": "east",
       "object_ratios": []
@@ -271,148 +238,67 @@
       "file": "8814400_facing_south.png",
       "cam_id": "8814400",
       "pos": {
-        "x": 2.0,
+        "x": 0.0,
         "y": 0.8,
-        "z": 0.0
+        "z": 2.0
       },
       "direction": "south",
-      "object_ratios": []
+      "object_ratios": [
+        {
+          "object_id": 4975892,
+          "model": "white_lamp",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 2291425,
+          "model": "white_club_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
     },
     {
       "file": "8814400_facing_west.png",
       "cam_id": "8814400",
       "pos": {
-        "x": 2.0,
+        "x": 0.0,
         "y": 0.8,
-        "z": 0.0
-      },
-      "direction": "west",
-      "object_ratios": [
-        {
-          "object_id": 5085105,
-          "model": "white_club_chair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 2740150,
-          "model": "kettle",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 2066096,
-          "model": "5ft_wood_shelving",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
-    },
-    {
-      "file": "5085105_facing_north.png",
-      "cam_id": "5085105",
-      "pos": {
-        "x": -1,
-        "y": 0.8,
-        "z": -2
-      },
-      "direction": "north",
-      "object_ratios": [
-        {
-          "object_id": 2740150,
-          "model": "kettle",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 2066096,
-          "model": "5ft_wood_shelving",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
-    },
-    {
-      "file": "5085105_facing_east.png",
-      "cam_id": "5085105",
-      "pos": {
-        "x": -1,
-        "y": 0.8,
-        "z": -2
-      },
-      "direction": "east",
-      "object_ratios": [
-        {
-          "object_id": 8814400,
-          "model": "red_lamp",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
-    },
-    {
-      "file": "5085105_facing_south.png",
-      "cam_id": "5085105",
-      "pos": {
-        "x": -1,
-        "y": 0.8,
-        "z": -2
-      },
-      "direction": "south",
-      "object_ratios": []
-    },
-    {
-      "file": "5085105_facing_west.png",
-      "cam_id": "5085105",
-      "pos": {
-        "x": -1,
-        "y": 0.8,
-        "z": -2
+        "z": 2.0
       },
       "direction": "west",
       "object_ratios": []
     },
     {
-      "file": "2740150_facing_north.png",
-      "cam_id": "2740150",
+      "file": "4975892_facing_north.png",
+      "cam_id": "4975892",
       "pos": {
-        "x": 0,
+        "x": -1,
         "y": 0.8,
-        "z": 1
+        "z": 0
       },
       "direction": "north",
-      "object_ratios": []
-    },
-    {
-      "file": "2740150_facing_east.png",
-      "cam_id": "2740150",
-      "pos": {
-        "x": 0,
-        "y": 0.8,
-        "z": 1
-      },
-      "direction": "east",
       "object_ratios": [
         {
           "object_id": 8814400,
-          "model": "red_lamp",
+          "model": "wood_chair",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "2740150_facing_south.png",
-      "cam_id": "2740150",
+      "file": "4975892_facing_east.png",
+      "cam_id": "4975892",
       "pos": {
-        "x": 0,
+        "x": -1,
         "y": 0.8,
-        "z": 1
+        "z": 0
       },
-      "direction": "south",
+      "direction": "east",
       "object_ratios": [
         {
-          "object_id": 5085105,
+          "object_id": 2291425,
           "model": "white_club_chair",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
@@ -420,86 +306,87 @@
       ]
     },
     {
-      "file": "2740150_facing_west.png",
-      "cam_id": "2740150",
+      "file": "4975892_facing_south.png",
+      "cam_id": "4975892",
       "pos": {
-        "x": 0,
+        "x": -1,
         "y": 0.8,
-        "z": 1
+        "z": 0
       },
-      "direction": "west",
-      "object_ratios": [
-        {
-          "object_id": 2066096,
-          "model": "5ft_wood_shelving",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
-    },
-    {
-      "file": "2066096_facing_north.png",
-      "cam_id": "2066096",
-      "pos": {
-        "x": -2,
-        "y": 0.8,
-        "z": 1
-      },
-      "direction": "north",
+      "direction": "south",
       "object_ratios": []
     },
     {
-      "file": "2066096_facing_east.png",
-      "cam_id": "2066096",
+      "file": "4975892_facing_west.png",
+      "cam_id": "4975892",
       "pos": {
-        "x": -2,
+        "x": -1,
         "y": 0.8,
-        "z": 1
+        "z": 0
       },
-      "direction": "east",
+      "direction": "west",
+      "object_ratios": []
+    },
+    {
+      "file": "2291425_facing_north.png",
+      "cam_id": "2291425",
+      "pos": {
+        "x": 1,
+        "y": 0.8,
+        "z": -1
+      },
+      "direction": "north",
       "object_ratios": [
         {
           "object_id": 8814400,
-          "model": "red_lamp",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 2740150,
-          "model": "kettle",
+          "model": "wood_chair",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "2066096_facing_south.png",
-      "cam_id": "2066096",
+      "file": "2291425_facing_east.png",
+      "cam_id": "2291425",
       "pos": {
-        "x": -2,
+        "x": 1,
         "y": 0.8,
-        "z": 1
+        "z": -1
+      },
+      "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "2291425_facing_south.png",
+      "cam_id": "2291425",
+      "pos": {
+        "x": 1,
+        "y": 0.8,
+        "z": -1
       },
       "direction": "south",
+      "object_ratios": []
+    },
+    {
+      "file": "2291425_facing_west.png",
+      "cam_id": "2291425",
+      "pos": {
+        "x": 1,
+        "y": 0.8,
+        "z": -1
+      },
+      "direction": "west",
       "object_ratios": [
         {
-          "object_id": 5085105,
-          "model": "white_club_chair",
+          "object_id": 4975892,
+          "model": "white_lamp",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]
-    },
-    {
-      "file": "2066096_facing_west.png",
-      "cam_id": "2066096",
-      "pos": {
-        "x": -2,
-        "y": 0.8,
-        "z": 1
-      },
-      "direction": "west",
-      "object_ratios": []
     }
-  ]
+  ],
+  "agent": {
+    "direction": "north"
+  }
 }

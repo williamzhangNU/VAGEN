@@ -47,11 +47,13 @@ class AutoExplore:
         agent = self.exp_manager.exploration_room.agent
         
         # Find position: which object is at same location as agent
-        position_name = 'agent'  # default
-        for obj in [obj for obj in self.exp_manager.exploration_room.objects if obj.name != 'agent_anchor']:
+        position_name = None
+        for obj in self.exp_manager.exploration_room.objects:
             if np.allclose(obj.pos, agent.pos):
                 position_name = obj.name
                 break
+        assert position_name is not None, "Agent position not found"
+        position_name = 'agent' if position_name == 'agent_anchor' else position_name
         
         # Get direction from agent_anchor
         agent_anchor_ori = tuple(self.exp_manager.agent_anchor.ori)

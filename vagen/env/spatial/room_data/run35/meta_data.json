@@ -1,23 +1,23 @@
 {
   "room_size": [
-    8,
-    8
+    6,
+    6
   ],
   "screen_size": [
     512,
     512
   ],
   "seed": 470,
-  "min_distance": 0.5,
+  "min_distance": 0.3,
   "objects": [
     {
-      "object_id": 7060169,
-      "model": "cabinet_36_white_wood",
-      "name": "white cabinet",
+      "object_id": 9871759,
+      "model": "wood_chair",
+      "name": "blue chair",
       "pos": {
-        "x": 0.0,
+        "x": 1.0,
         "y": 0,
-        "z": -3.0
+        "z": 0.0
       },
       "rot": {
         "x": 0,
@@ -25,52 +25,30 @@
         "z": 0
       },
       "size": [
-        0.9098790999999999,
-        0.6424497
+        0.4298932,
+        0.47789539999999997
       ],
       "attributes": {
         "scale": 1.0,
-        "has_orientation": false,
+        "has_orientation": true,
         "color": {
-          "name": "white",
-          "r": 1.0,
-          "g": 1.0,
+          "name": "blue",
+          "r": 0.0,
+          "g": 0.0,
           "b": 1.0,
           "a": 1.0
-        }
+        },
+        "orientation": "east"
       }
     },
     {
-      "object_id": 3599450,
-      "model": "cabinet_24_wood_beach_honey",
-      "name": "wooden cabinet",
+      "object_id": 5299583,
+      "model": "wood_chair",
+      "name": "yellow chair",
       "pos": {
-        "x": -3.0,
+        "x": -2.0,
         "y": 0,
-        "z": -1.0
-      },
-      "rot": {
-        "x": 0,
-        "y": 90,
-        "z": 0
-      },
-      "size": [
-        0.6073107,
-        0.6424497
-      ],
-      "attributes": {
-        "scale": 1.0,
-        "has_orientation": false
-      }
-    },
-    {
-      "object_id": 8646999,
-      "model": "ligne_roset_armchair",
-      "name": "black chair",
-      "pos": {
-        "x": -3.0,
-        "y": 0,
-        "z": 3.0
+        "z": 2.0
       },
       "rot": {
         "x": 0,
@@ -78,16 +56,16 @@
         "z": 0
       },
       "size": [
-        0.8185906,
-        1.4368143
+        0.4298932,
+        0.47789539999999997
       ],
       "attributes": {
         "scale": 1.0,
         "has_orientation": true,
         "color": {
-          "name": "black",
-          "r": 0.0,
-          "g": 0.0,
+          "name": "yellow",
+          "r": 1.0,
+          "g": 1.0,
           "b": 0.0,
           "a": 1.0
         },
@@ -95,13 +73,13 @@
       }
     },
     {
-      "object_id": 9132713,
+      "object_id": 8580877,
       "model": "white_club_chair",
       "name": "red chair",
       "pos": {
-        "x": 2,
+        "x": -1,
         "y": 0,
-        "z": 1
+        "z": 0
       },
       "rot": {
         "x": 0,
@@ -131,60 +109,48 @@
       "id": "agent",
       "label": "A",
       "position": {
-        "x": 0,
+        "x": 1,
         "y": 0.8,
-        "z": -2
+        "z": 1
       },
       "rotation": {
-        "y": 0.0
+        "y": -135.0
       }
     },
     {
-      "id": "7060169",
+      "id": "9871759",
       "label": "1",
       "position": {
-        "x": 0.0,
+        "x": 1.0,
         "y": 0.8,
-        "z": -3.0
+        "z": 0.0
       },
       "rotation": {
-        "y": -0.0
+        "y": -90.0
       }
     },
     {
-      "id": "3599450",
+      "id": "5299583",
       "label": "2",
       "position": {
-        "x": -3.0,
+        "x": -2.0,
         "y": 0.8,
-        "z": -1.0
-      },
-      "rotation": {
-        "y": 71.56505117707799
-      }
-    },
-    {
-      "id": "8646999",
-      "label": "3",
-      "position": {
-        "x": -3.0,
-        "y": 0.8,
-        "z": 3.0
+        "z": 2.0
       },
       "rotation": {
         "y": 135.0
       }
     },
     {
-      "id": "9132713",
-      "label": "4",
+      "id": "8580877",
+      "label": "3",
       "position": {
-        "x": 2,
+        "x": -1,
         "y": 0.8,
-        "z": 1
+        "z": 0
       },
       "rotation": {
-        "y": -116.56505117707799
+        "y": 90.0
       }
     }
   ],
@@ -193,33 +159,20 @@
       "file": "agent_facing_north.png",
       "cam_id": "agent",
       "pos": {
-        "x": 0,
+        "x": 1,
         "y": 0.8,
-        "z": -2
+        "z": 1
       },
       "direction": "north",
-      "object_ratios": [
-        {
-          "object_id": 8646999,
-          "model": "ligne_roset_armchair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 9132713,
-          "model": "white_club_chair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
+      "object_ratios": []
     },
     {
       "file": "agent_facing_east.png",
       "cam_id": "agent",
       "pos": {
-        "x": 0,
+        "x": 1,
         "y": 0.8,
-        "z": -2
+        "z": 1
       },
       "direction": "east",
       "object_ratios": []
@@ -228,15 +181,15 @@
       "file": "agent_facing_south.png",
       "cam_id": "agent",
       "pos": {
-        "x": 0,
+        "x": 1,
         "y": 0.8,
-        "z": -2
+        "z": 1
       },
       "direction": "south",
       "object_ratios": [
         {
-          "object_id": 7060169,
-          "model": "cabinet_36_white_wood",
+          "object_id": 9871759,
+          "model": "wood_chair",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
@@ -246,38 +199,20 @@
       "file": "agent_facing_west.png",
       "cam_id": "agent",
       "pos": {
-        "x": 0,
+        "x": 1,
         "y": 0.8,
-        "z": -2
+        "z": 1
       },
       "direction": "west",
       "object_ratios": [
         {
-          "object_id": 3599450,
-          "model": "cabinet_24_wood_beach_honey",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
-    },
-    {
-      "file": "7060169_facing_north.png",
-      "cam_id": "7060169",
-      "pos": {
-        "x": 0.0,
-        "y": 0.8,
-        "z": -3.0
-      },
-      "direction": "north",
-      "object_ratios": [
-        {
-          "object_id": 8646999,
-          "model": "ligne_roset_armchair",
+          "object_id": 5299583,
+          "model": "wood_chair",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         },
         {
-          "object_id": 9132713,
+          "object_id": 8580877,
           "model": "white_club_chair",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
@@ -285,81 +220,56 @@
       ]
     },
     {
-      "file": "7060169_facing_east.png",
-      "cam_id": "7060169",
+      "file": "9871759_facing_north.png",
+      "cam_id": "9871759",
       "pos": {
-        "x": 0.0,
+        "x": 1.0,
         "y": 0.8,
-        "z": -3.0
+        "z": 0.0
+      },
+      "direction": "north",
+      "object_ratios": []
+    },
+    {
+      "file": "9871759_facing_east.png",
+      "cam_id": "9871759",
+      "pos": {
+        "x": 1.0,
+        "y": 0.8,
+        "z": 0.0
       },
       "direction": "east",
       "object_ratios": []
     },
     {
-      "file": "7060169_facing_south.png",
-      "cam_id": "7060169",
+      "file": "9871759_facing_south.png",
+      "cam_id": "9871759",
       "pos": {
-        "x": 0.0,
+        "x": 1.0,
         "y": 0.8,
-        "z": -3.0
+        "z": 0.0
       },
       "direction": "south",
       "object_ratios": []
     },
     {
-      "file": "7060169_facing_west.png",
-      "cam_id": "7060169",
+      "file": "9871759_facing_west.png",
+      "cam_id": "9871759",
       "pos": {
-        "x": 0.0,
+        "x": 1.0,
         "y": 0.8,
-        "z": -3.0
+        "z": 0.0
       },
       "direction": "west",
       "object_ratios": [
         {
-          "object_id": 3599450,
-          "model": "cabinet_24_wood_beach_honey",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
-    },
-    {
-      "file": "3599450_facing_north.png",
-      "cam_id": "3599450",
-      "pos": {
-        "x": -3.0,
-        "y": 0.8,
-        "z": -1.0
-      },
-      "direction": "north",
-      "object_ratios": [
-        {
-          "object_id": 8646999,
-          "model": "ligne_roset_armchair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
-    },
-    {
-      "file": "3599450_facing_east.png",
-      "cam_id": "3599450",
-      "pos": {
-        "x": -3.0,
-        "y": 0.8,
-        "z": -1.0
-      },
-      "direction": "east",
-      "object_ratios": [
-        {
-          "object_id": 7060169,
-          "model": "cabinet_36_white_wood",
+          "object_id": 5299583,
+          "model": "wood_chair",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         },
         {
-          "object_id": 9132713,
+          "object_id": 8580877,
           "model": "white_club_chair",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
@@ -367,50 +277,46 @@
       ]
     },
     {
-      "file": "3599450_facing_south.png",
-      "cam_id": "3599450",
+      "file": "5299583_facing_north.png",
+      "cam_id": "5299583",
       "pos": {
-        "x": -3.0,
+        "x": -2.0,
         "y": 0.8,
-        "z": -1.0
-      },
-      "direction": "south",
-      "object_ratios": []
-    },
-    {
-      "file": "3599450_facing_west.png",
-      "cam_id": "3599450",
-      "pos": {
-        "x": -3.0,
-        "y": 0.8,
-        "z": -1.0
-      },
-      "direction": "west",
-      "object_ratios": []
-    },
-    {
-      "file": "8646999_facing_north.png",
-      "cam_id": "8646999",
-      "pos": {
-        "x": -3.0,
-        "y": 0.8,
-        "z": 3.0
+        "z": 2.0
       },
       "direction": "north",
       "object_ratios": []
     },
     {
-      "file": "8646999_facing_east.png",
-      "cam_id": "8646999",
+      "file": "5299583_facing_east.png",
+      "cam_id": "5299583",
       "pos": {
-        "x": -3.0,
+        "x": -2.0,
         "y": 0.8,
-        "z": 3.0
+        "z": 2.0
       },
       "direction": "east",
       "object_ratios": [
         {
-          "object_id": 9132713,
+          "object_id": 9871759,
+          "model": "wood_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "5299583_facing_south.png",
+      "cam_id": "5299583",
+      "pos": {
+        "x": -2.0,
+        "y": 0.8,
+        "z": 2.0
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 8580877,
           "model": "white_club_chair",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
@@ -418,103 +324,76 @@
       ]
     },
     {
-      "file": "8646999_facing_south.png",
-      "cam_id": "8646999",
+      "file": "5299583_facing_west.png",
+      "cam_id": "5299583",
       "pos": {
-        "x": -3.0,
+        "x": -2.0,
         "y": 0.8,
-        "z": 3.0
-      },
-      "direction": "south",
-      "object_ratios": [
-        {
-          "object_id": 7060169,
-          "model": "cabinet_36_white_wood",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 3599450,
-          "model": "cabinet_24_wood_beach_honey",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
-    },
-    {
-      "file": "8646999_facing_west.png",
-      "cam_id": "8646999",
-      "pos": {
-        "x": -3.0,
-        "y": 0.8,
-        "z": 3.0
+        "z": 2.0
       },
       "direction": "west",
       "object_ratios": []
     },
     {
-      "file": "9132713_facing_north.png",
-      "cam_id": "9132713",
+      "file": "8580877_facing_north.png",
+      "cam_id": "8580877",
       "pos": {
-        "x": 2,
+        "x": -1,
         "y": 0.8,
-        "z": 1
+        "z": 0
       },
       "direction": "north",
-      "object_ratios": []
+      "object_ratios": [
+        {
+          "object_id": 5299583,
+          "model": "wood_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
     },
     {
-      "file": "9132713_facing_east.png",
-      "cam_id": "9132713",
+      "file": "8580877_facing_east.png",
+      "cam_id": "8580877",
       "pos": {
-        "x": 2,
+        "x": -1,
         "y": 0.8,
-        "z": 1
+        "z": 0
       },
       "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 9871759,
+          "model": "wood_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "8580877_facing_south.png",
+      "cam_id": "8580877",
+      "pos": {
+        "x": -1,
+        "y": 0.8,
+        "z": 0
+      },
+      "direction": "south",
       "object_ratios": []
     },
     {
-      "file": "9132713_facing_south.png",
-      "cam_id": "9132713",
+      "file": "8580877_facing_west.png",
+      "cam_id": "8580877",
       "pos": {
-        "x": 2,
+        "x": -1,
         "y": 0.8,
-        "z": 1
-      },
-      "direction": "south",
-      "object_ratios": [
-        {
-          "object_id": 7060169,
-          "model": "cabinet_36_white_wood",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
-    },
-    {
-      "file": "9132713_facing_west.png",
-      "cam_id": "9132713",
-      "pos": {
-        "x": 2,
-        "y": 0.8,
-        "z": 1
+        "z": 0
       },
       "direction": "west",
-      "object_ratios": [
-        {
-          "object_id": 3599450,
-          "model": "cabinet_24_wood_beach_honey",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 8646999,
-          "model": "ligne_roset_armchair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
+      "object_ratios": []
     }
-  ]
+  ],
+  "agent": {
+    "direction": "north"
+  }
 }

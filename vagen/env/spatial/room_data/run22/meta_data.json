@@ -1,27 +1,58 @@
 {
   "room_size": [
-    8,
-    8
+    6,
+    6
   ],
   "screen_size": [
     512,
     512
   ],
-  "seed": 8022,
-  "min_distance": 0.5,
+  "seed": 444,
+  "min_distance": 0.3,
   "objects": [
     {
-      "object_id": 8497875,
-      "model": "lapalma_stil_chair",
-      "name": "pink chair",
+      "object_id": 6246912,
+      "model": "white_club_chair",
+      "name": "red chair",
       "pos": {
-        "x": 2.0,
+        "x": -2.0,
         "y": 0,
-        "z": -1.0
+        "z": 1.0
       },
       "rot": {
         "x": 0,
+        "y": 180,
+        "z": 0
+      },
+      "size": [
+        0.7982815,
+        0.9681153
+      ],
+      "attributes": {
+        "scale": 1.0,
+        "has_orientation": true,
+        "color": {
+          "name": "red",
+          "r": 1.0,
+          "g": 0.0,
+          "b": 0.0,
+          "a": 1.0
+        },
+        "orientation": "south"
+      }
+    },
+    {
+      "object_id": 5984578,
+      "model": "lapalma_stil_chair",
+      "name": "pink chair",
+      "pos": {
+        "x": 1,
         "y": 0,
+        "z": 1
+      },
+      "rot": {
+        "x": 0,
+        "y": 180,
         "z": 0
       },
       "size": [
@@ -38,40 +69,17 @@
           "b": 1.0,
           "a": 1.0
         },
-        "orientation": "north"
+        "orientation": "south"
       }
     },
     {
-      "object_id": 2912633,
-      "model": "cabinet_24_wood_beach_honey",
-      "name": "wooden cabinet",
+      "object_id": 3961345,
+      "model": "wood_chair",
+      "name": "yellow chair",
       "pos": {
-        "x": -1.0,
+        "x": 1,
         "y": 0,
-        "z": 0.0
-      },
-      "rot": {
-        "x": 0,
-        "y": 0,
-        "z": 0
-      },
-      "size": [
-        0.6073107,
-        0.6424497
-      ],
-      "attributes": {
-        "scale": 1.0,
-        "has_orientation": false
-      }
-    },
-    {
-      "object_id": 7586166,
-      "model": "5ft_wood_shelving",
-      "name": "shelf",
-      "pos": {
-        "x": 0.0,
-        "y": 0,
-        "z": 3.0
+        "z": -1
       },
       "rot": {
         "x": 0,
@@ -79,35 +87,20 @@
         "z": 0
       },
       "size": [
-        0.3857705,
-        0.9451682
+        0.4298932,
+        0.47789539999999997
       ],
       "attributes": {
         "scale": 1.0,
-        "has_orientation": false
-      }
-    },
-    {
-      "object_id": 7174102,
-      "model": "dining_room_table",
-      "name": "wooden table",
-      "pos": {
-        "x": 3.0,
-        "y": 0,
-        "z": 2.0
-      },
-      "rot": {
-        "x": 0,
-        "y": 90,
-        "z": 0
-      },
-      "size": [
-        1.0922,
-        1.0922
-      ],
-      "attributes": {
-        "scale": 1.0,
-        "has_orientation": false
+        "has_orientation": true,
+        "color": {
+          "name": "yellow",
+          "r": 1.0,
+          "g": 1.0,
+          "b": 0.0,
+          "a": 1.0
+        },
+        "orientation": "south"
       }
     }
   ],
@@ -116,60 +109,48 @@
       "id": "agent",
       "label": "A",
       "position": {
-        "x": -2,
+        "x": 2,
         "y": 0.8,
-        "z": 2
-      },
-      "rotation": {
-        "y": 135.0
-      }
-    },
-    {
-      "id": "8497875",
-      "label": "1",
-      "position": {
-        "x": 2.0,
-        "y": 0.8,
-        "z": -1.0
+        "z": -1
       },
       "rotation": {
         "y": -63.43494882292201
       }
     },
     {
-      "id": "2912633",
+      "id": "6246912",
+      "label": "1",
+      "position": {
+        "x": -2.0,
+        "y": 0.8,
+        "z": 1.0
+      },
+      "rotation": {
+        "y": 116.56505117707799
+      }
+    },
+    {
+      "id": "5984578",
       "label": "2",
       "position": {
-        "x": -1.0,
+        "x": 1,
         "y": 0.8,
-        "z": 0.0
+        "z": 1
       },
       "rotation": {
-        "y": 90.0
+        "y": -135.0
       }
     },
     {
-      "id": "7586166",
+      "id": "3961345",
       "label": "3",
       "position": {
-        "x": 0.0,
+        "x": 1,
         "y": 0.8,
-        "z": 3.0
+        "z": -1
       },
       "rotation": {
-        "y": -180.0
-      }
-    },
-    {
-      "id": "7174102",
-      "label": "4",
-      "position": {
-        "x": 3.0,
-        "y": 0.8,
-        "z": 2.0
-      },
-      "rotation": {
-        "y": -123.69006752597979
+        "y": -45.0
       }
     }
   ],
@@ -178,298 +159,193 @@
       "file": "agent_facing_north.png",
       "cam_id": "agent",
       "pos": {
-        "x": -2,
+        "x": 2,
         "y": 0.8,
-        "z": 2
+        "z": -1
       },
       "direction": "north",
-      "object_ratios": []
+      "object_ratios": [
+        {
+          "object_id": 5984578,
+          "model": "lapalma_stil_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
     },
     {
       "file": "agent_facing_east.png",
       "cam_id": "agent",
       "pos": {
-        "x": -2,
+        "x": 2,
         "y": 0.8,
-        "z": 2
+        "z": -1
       },
       "direction": "east",
-      "object_ratios": [
-        {
-          "object_id": 8497875,
-          "model": "lapalma_stil_chair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 7586166,
-          "model": "5ft_wood_shelving",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 7174102,
-          "model": "dining_room_table",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
+      "object_ratios": []
     },
     {
       "file": "agent_facing_south.png",
       "cam_id": "agent",
       "pos": {
-        "x": -2,
+        "x": 2,
         "y": 0.8,
-        "z": 2
+        "z": -1
       },
       "direction": "south",
-      "object_ratios": [
-        {
-          "object_id": 2912633,
-          "model": "cabinet_24_wood_beach_honey",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
+      "object_ratios": []
     },
     {
       "file": "agent_facing_west.png",
       "cam_id": "agent",
       "pos": {
-        "x": -2,
+        "x": 2,
         "y": 0.8,
-        "z": 2
+        "z": -1
       },
       "direction": "west",
-      "object_ratios": []
-    },
-    {
-      "file": "8497875_facing_north.png",
-      "cam_id": "8497875",
-      "pos": {
-        "x": 2.0,
-        "y": 0.8,
-        "z": -1.0
-      },
-      "direction": "north",
       "object_ratios": [
         {
-          "object_id": 7586166,
-          "model": "5ft_wood_shelving",
+          "object_id": 6246912,
+          "model": "white_club_chair",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         },
         {
-          "object_id": 7174102,
-          "model": "dining_room_table",
+          "object_id": 3961345,
+          "model": "wood_chair",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "8497875_facing_east.png",
-      "cam_id": "8497875",
+      "file": "6246912_facing_north.png",
+      "cam_id": "6246912",
       "pos": {
-        "x": 2.0,
+        "x": -2.0,
         "y": 0.8,
-        "z": -1.0
-      },
-      "direction": "east",
-      "object_ratios": []
-    },
-    {
-      "file": "8497875_facing_south.png",
-      "cam_id": "8497875",
-      "pos": {
-        "x": 2.0,
-        "y": 0.8,
-        "z": -1.0
-      },
-      "direction": "south",
-      "object_ratios": []
-    },
-    {
-      "file": "8497875_facing_west.png",
-      "cam_id": "8497875",
-      "pos": {
-        "x": 2.0,
-        "y": 0.8,
-        "z": -1.0
-      },
-      "direction": "west",
-      "object_ratios": [
-        {
-          "object_id": 2912633,
-          "model": "cabinet_24_wood_beach_honey",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
-    },
-    {
-      "file": "2912633_facing_north.png",
-      "cam_id": "2912633",
-      "pos": {
-        "x": -1.0,
-        "y": 0.8,
-        "z": 0.0
+        "z": 1.0
       },
       "direction": "north",
-      "object_ratios": [
-        {
-          "object_id": 7586166,
-          "model": "5ft_wood_shelving",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
+      "object_ratios": []
     },
     {
-      "file": "2912633_facing_east.png",
-      "cam_id": "2912633",
+      "file": "6246912_facing_east.png",
+      "cam_id": "6246912",
       "pos": {
-        "x": -1.0,
+        "x": -2.0,
         "y": 0.8,
-        "z": 0.0
+        "z": 1.0
       },
       "direction": "east",
       "object_ratios": [
         {
-          "object_id": 8497875,
+          "object_id": 5984578,
           "model": "lapalma_stil_chair",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         },
         {
-          "object_id": 7174102,
-          "model": "dining_room_table",
+          "object_id": 3961345,
+          "model": "wood_chair",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "2912633_facing_south.png",
-      "cam_id": "2912633",
+      "file": "6246912_facing_south.png",
+      "cam_id": "6246912",
       "pos": {
-        "x": -1.0,
+        "x": -2.0,
         "y": 0.8,
-        "z": 0.0
+        "z": 1.0
       },
       "direction": "south",
       "object_ratios": []
     },
     {
-      "file": "2912633_facing_west.png",
-      "cam_id": "2912633",
+      "file": "6246912_facing_west.png",
+      "cam_id": "6246912",
       "pos": {
-        "x": -1.0,
+        "x": -2.0,
         "y": 0.8,
-        "z": 0.0
+        "z": 1.0
       },
       "direction": "west",
       "object_ratios": []
     },
     {
-      "file": "7586166_facing_north.png",
-      "cam_id": "7586166",
+      "file": "5984578_facing_north.png",
+      "cam_id": "5984578",
       "pos": {
-        "x": 0.0,
+        "x": 1,
         "y": 0.8,
-        "z": 3.0
+        "z": 1
       },
       "direction": "north",
       "object_ratios": []
     },
     {
-      "file": "7586166_facing_east.png",
-      "cam_id": "7586166",
+      "file": "5984578_facing_east.png",
+      "cam_id": "5984578",
       "pos": {
-        "x": 0.0,
+        "x": 1,
         "y": 0.8,
-        "z": 3.0
+        "z": 1
       },
       "direction": "east",
-      "object_ratios": [
-        {
-          "object_id": 7174102,
-          "model": "dining_room_table",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
+      "object_ratios": []
     },
     {
-      "file": "7586166_facing_south.png",
-      "cam_id": "7586166",
+      "file": "5984578_facing_south.png",
+      "cam_id": "5984578",
       "pos": {
-        "x": 0.0,
+        "x": 1,
         "y": 0.8,
-        "z": 3.0
+        "z": 1
       },
       "direction": "south",
       "object_ratios": [
         {
-          "object_id": 8497875,
-          "model": "lapalma_stil_chair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 2912633,
-          "model": "cabinet_24_wood_beach_honey",
+          "object_id": 3961345,
+          "model": "wood_chair",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "7586166_facing_west.png",
-      "cam_id": "7586166",
+      "file": "5984578_facing_west.png",
+      "cam_id": "5984578",
       "pos": {
-        "x": 0.0,
+        "x": 1,
         "y": 0.8,
-        "z": 3.0
+        "z": 1
       },
       "direction": "west",
-      "object_ratios": []
-    },
-    {
-      "file": "7174102_facing_north.png",
-      "cam_id": "7174102",
-      "pos": {
-        "x": 3.0,
-        "y": 0.8,
-        "z": 2.0
-      },
-      "direction": "north",
-      "object_ratios": []
-    },
-    {
-      "file": "7174102_facing_east.png",
-      "cam_id": "7174102",
-      "pos": {
-        "x": 3.0,
-        "y": 0.8,
-        "z": 2.0
-      },
-      "direction": "east",
-      "object_ratios": []
-    },
-    {
-      "file": "7174102_facing_south.png",
-      "cam_id": "7174102",
-      "pos": {
-        "x": 3.0,
-        "y": 0.8,
-        "z": 2.0
-      },
-      "direction": "south",
       "object_ratios": [
         {
-          "object_id": 8497875,
+          "object_id": 6246912,
+          "model": "white_club_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "3961345_facing_north.png",
+      "cam_id": "3961345",
+      "pos": {
+        "x": 1,
+        "y": 0.8,
+        "z": -1
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 5984578,
           "model": "lapalma_stil_chair",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
@@ -477,28 +353,47 @@
       ]
     },
     {
-      "file": "7174102_facing_west.png",
-      "cam_id": "7174102",
+      "file": "3961345_facing_east.png",
+      "cam_id": "3961345",
       "pos": {
-        "x": 3.0,
+        "x": 1,
         "y": 0.8,
-        "z": 2.0
+        "z": -1
+      },
+      "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "3961345_facing_south.png",
+      "cam_id": "3961345",
+      "pos": {
+        "x": 1,
+        "y": 0.8,
+        "z": -1
+      },
+      "direction": "south",
+      "object_ratios": []
+    },
+    {
+      "file": "3961345_facing_west.png",
+      "cam_id": "3961345",
+      "pos": {
+        "x": 1,
+        "y": 0.8,
+        "z": -1
       },
       "direction": "west",
       "object_ratios": [
         {
-          "object_id": 2912633,
-          "model": "cabinet_24_wood_beach_honey",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 7586166,
-          "model": "5ft_wood_shelving",
+          "object_id": 6246912,
+          "model": "white_club_chair",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]
     }
-  ]
+  ],
+  "agent": {
+    "direction": "north"
+  }
 }

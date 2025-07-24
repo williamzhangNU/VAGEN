@@ -19,6 +19,7 @@ class OpenAIModelConfig(BaseModelConfig):
     
     # Generation parameters (inherited from base)
     # max_tokens, temperature already defined in base
+    max_completion_tokens: Optional[int] = None # for o-series models
     presence_penalty: float = 0.0
     frequency_penalty: float = 0.0
     
@@ -36,6 +37,8 @@ class OpenAIModelConfig(BaseModelConfig):
             "description": "OpenAI API for GPT models",
             "supports_multimodal": True,
             "supported_models": [
+                "o4-mini",
+                "o3-mini",
                 "gpt-4.1-nano",
                 "gpt-4.1-mini",
                 "gpt-4.1",

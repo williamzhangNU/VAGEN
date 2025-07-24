@@ -2,54 +2,54 @@
   "name": "room_setting",
   "objects": [
     {
-      "name": "kettle",
+      "name": "green chair",
       "pos": [
-        -3.0,
-        2.0
-      ],
-      "ori": [
-        1,
-        0
-      ]
-    },
-    {
-      "name": "yellow chair",
-      "pos": [
-        -2.0,
-        -3.0
-      ],
-      "ori": [
-        1,
-        0
-      ]
-    },
-    {
-      "name": "black chair",
-      "pos": [
-        3.0,
-        -2.0
-      ],
-      "ori": [
-        -1,
-        0
-      ]
-    },
-    {
-      "name": "wooden table",
-      "pos": [
-        3.0,
-        0.0
+        2.0,
+        -1.0
       ],
       "ori": [
         0,
-        1
+        -1
+      ]
+    },
+    {
+      "name": "wooden cabinet",
+      "pos": [
+        -1,
+        0
+      ],
+      "ori": [
+        0,
+        -1
+      ]
+    },
+    {
+      "name": "white chair",
+      "pos": [
+        0.0,
+        -2.0
+      ],
+      "ori": [
+        0,
+        -1
       ]
     },
     {
       "name": "cam_1",
       "pos": [
-        -3.0,
-        2.0
+        2.0,
+        -1.0
+      ],
+      "ori": [
+        0,
+        -1
+      ]
+    },
+    {
+      "name": "cam_2",
+      "pos": [
+        -1,
+        0
       ],
       "ori": [
         0,
@@ -57,111 +57,89 @@
       ]
     },
     {
-      "name": "cam_2",
+      "name": "cam_3",
       "pos": [
-        -2.0,
-        -3.0
+        0.0,
+        -2.0
       ],
       "ori": [
         1,
         0
-      ]
-    },
-    {
-      "name": "cam_3",
-      "pos": [
-        3.0,
-        -2.0
-      ],
-      "ori": [
-        0,
-        -1
-      ]
-    },
-    {
-      "name": "cam_4",
-      "pos": [
-        3.0,
-        0.0
-      ],
-      "ori": [
-        0,
-        -1
       ]
     }
   ],
   "agent": {
     "name": "agent",
     "pos": [
-      -2,
-      -1
+      2,
+      -2
     ],
     "ori": [
-      0,
-      1
+      1,
+      0
     ]
   },
   "all_objects": [
     {
       "name": "agent",
       "pos": [
-        -2,
-        -1
+        2,
+        -2
+      ],
+      "ori": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "green chair",
+      "pos": [
+        2.0,
+        -1.0
       ],
       "ori": [
         0,
-        1
+        -1
       ]
     },
     {
-      "name": "kettle",
+      "name": "wooden cabinet",
       "pos": [
-        -3.0,
-        2.0
+        -1,
+        0
       ],
       "ori": [
-        1,
-        0
+        0,
+        -1
       ]
     },
     {
-      "name": "yellow chair",
+      "name": "white chair",
       "pos": [
-        -2.0,
-        -3.0
-      ],
-      "ori": [
-        1,
-        0
-      ]
-    },
-    {
-      "name": "black chair",
-      "pos": [
-        3.0,
+        0.0,
         -2.0
       ],
       "ori": [
-        -1,
-        0
-      ]
-    },
-    {
-      "name": "wooden table",
-      "pos": [
-        3.0,
-        0.0
-      ],
-      "ori": [
         0,
-        1
+        -1
       ]
     },
     {
       "name": "cam_1",
       "pos": [
-        -3.0,
-        2.0
+        2.0,
+        -1.0
+      ],
+      "ori": [
+        0,
+        -1
+      ]
+    },
+    {
+      "name": "cam_2",
+      "pos": [
+        -1,
+        0
       ],
       "ori": [
         0,
@@ -169,36 +147,14 @@
       ]
     },
     {
-      "name": "cam_2",
+      "name": "cam_3",
       "pos": [
-        -2.0,
-        -3.0
+        0.0,
+        -2.0
       ],
       "ori": [
         1,
         0
-      ]
-    },
-    {
-      "name": "cam_3",
-      "pos": [
-        3.0,
-        -2.0
-      ],
-      "ori": [
-        0,
-        -1
-      ]
-    },
-    {
-      "name": "cam_4",
-      "pos": [
-        3.0,
-        0.0
-      ],
-      "ori": [
-        0,
-        -1
       ]
     }
   ]

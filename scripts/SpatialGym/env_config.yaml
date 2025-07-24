@@ -6,5 +6,7 @@ env1:
     with_topdown: false
     eval_tasks:
       - task_type: all_pairs
-  train_size: 10
-  test_size: 10
+        task_kwargs:
+          num_pairs: 1
+  train_size: 25
+  test_size: 25

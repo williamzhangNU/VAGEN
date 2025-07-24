@@ -1,50 +1,58 @@
 {
   "room_size": [
-    8,
-    8
+    6,
+    6
   ],
   "screen_size": [
     512,
     512
   ],
   "seed": 510,
-  "min_distance": 0.5,
+  "min_distance": 0.3,
   "objects": [
     {
-      "object_id": 2367247,
-      "model": "red_lamp",
-      "name": "red lamp",
+      "object_id": 6202484,
+      "model": "wood_chair",
+      "name": "blue chair",
       "pos": {
-        "x": 0.0,
+        "x": 0,
         "y": 0,
-        "z": -3.0
+        "z": 0
       },
       "rot": {
         "x": 0,
-        "y": 270,
+        "y": 0,
         "z": 0
       },
       "size": [
-        0.5249988,
-        1.08171015
+        0.4298932,
+        0.47789539999999997
       ],
       "attributes": {
-        "scale": 1.5,
-        "has_orientation": false
+        "scale": 1.0,
+        "has_orientation": true,
+        "color": {
+          "name": "blue",
+          "r": 0.0,
+          "g": 0.0,
+          "b": 1.0,
+          "a": 1.0
+        },
+        "orientation": "north"
       }
     },
     {
-      "object_id": 4734026,
+      "object_id": 5882032,
       "model": "fridge_large",
       "name": "fridge",
       "pos": {
-        "x": 1,
+        "x": 1.0,
         "y": 0,
-        "z": 2
+        "z": 2.0
       },
       "rot": {
         "x": 0,
-        "y": 180,
+        "y": 0,
         "z": 0
       },
       "size": [
@@ -57,13 +65,13 @@
       }
     },
     {
-      "object_id": 5489810,
-      "model": "white_club_chair",
-      "name": "white chair",
+      "object_id": 4734026,
+      "model": "lapalma_stil_chair",
+      "name": "pink chair",
       "pos": {
-        "x": 2,
+        "x": 1.0,
         "y": 0,
-        "z": 0
+        "z": -2.0
       },
       "rot": {
         "x": 0,
@@ -71,36 +79,20 @@
         "z": 0
       },
       "size": [
-        0.7982815,
-        0.9681153
+        0.4800618,
+        0.5100285
       ],
       "attributes": {
         "scale": 1.0,
         "has_orientation": true,
+        "color": {
+          "name": "pink",
+          "r": 1.0,
+          "g": 0.0,
+          "b": 1.0,
+          "a": 1.0
+        },
         "orientation": "south"
-      }
-    },
-    {
-      "object_id": 4449889,
-      "model": "dining_room_table",
-      "name": "wooden table",
-      "pos": {
-        "x": -3.0,
-        "y": 0,
-        "z": 2.0
-      },
-      "rot": {
-        "x": 0,
-        "y": 90,
-        "z": 0
-      },
-      "size": [
-        1.0922,
-        1.0922
-      ],
-      "attributes": {
-        "scale": 1.0,
-        "has_orientation": false
       }
     }
   ],
@@ -109,42 +101,6 @@
       "id": "agent",
       "label": "A",
       "position": {
-        "x": 1,
-        "y": 0.8,
-        "z": 0
-      },
-      "rotation": {
-        "y": -90.0
-      }
-    },
-    {
-      "id": "2367247",
-      "label": "1",
-      "position": {
-        "x": 0.0,
-        "y": 0.8,
-        "z": -3.0
-      },
-      "rotation": {
-        "y": -0.0
-      }
-    },
-    {
-      "id": "4734026",
-      "label": "2",
-      "position": {
-        "x": 1,
-        "y": 0.8,
-        "z": 2
-      },
-      "rotation": {
-        "y": -153.434948822922
-      }
-    },
-    {
-      "id": "5489810",
-      "label": "3",
-      "position": {
         "x": 2,
         "y": 0.8,
         "z": 0
@@ -154,15 +110,39 @@
       }
     },
     {
-      "id": "4449889",
-      "label": "4",
+      "id": "6202484",
+      "label": "1",
       "position": {
-        "x": -3.0,
+        "x": 0,
+        "y": 0.8,
+        "z": 0
+      },
+      "rotation": {
+        "y": 0.0
+      }
+    },
+    {
+      "id": "5882032",
+      "label": "2",
+      "position": {
+        "x": 1.0,
         "y": 0.8,
         "z": 2.0
       },
       "rotation": {
-        "y": 123.69006752597979
+        "y": -153.434948822922
+      }
+    },
+    {
+      "id": "4734026",
+      "label": "3",
+      "position": {
+        "x": 1.0,
+        "y": 0.8,
+        "z": -2.0
+      },
+      "rotation": {
+        "y": -26.56505117707799
       }
     }
   ],
@@ -171,14 +151,14 @@
       "file": "agent_facing_north.png",
       "cam_id": "agent",
       "pos": {
-        "x": 1,
+        "x": 2,
         "y": 0.8,
         "z": 0
       },
       "direction": "north",
       "object_ratios": [
         {
-          "object_id": 4734026,
+          "object_id": 5882032,
           "model": "fridge_large",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
@@ -189,33 +169,26 @@
       "file": "agent_facing_east.png",
       "cam_id": "agent",
       "pos": {
-        "x": 1,
+        "x": 2,
         "y": 0.8,
         "z": 0
       },
       "direction": "east",
-      "object_ratios": [
-        {
-          "object_id": 5489810,
-          "model": "white_club_chair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
+      "object_ratios": []
     },
     {
       "file": "agent_facing_south.png",
       "cam_id": "agent",
       "pos": {
-        "x": 1,
+        "x": 2,
         "y": 0.8,
         "z": 0
       },
       "direction": "south",
       "object_ratios": [
         {
-          "object_id": 2367247,
-          "model": "red_lamp",
+          "object_id": 4734026,
+          "model": "lapalma_stil_chair",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
@@ -225,79 +198,131 @@
       "file": "agent_facing_west.png",
       "cam_id": "agent",
       "pos": {
-        "x": 1,
+        "x": 2,
         "y": 0.8,
         "z": 0
       },
       "direction": "west",
       "object_ratios": [
         {
-          "object_id": 4449889,
-          "model": "dining_room_table",
+          "object_id": 6202484,
+          "model": "wood_chair",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "2367247_facing_north.png",
-      "cam_id": "2367247",
+      "file": "6202484_facing_north.png",
+      "cam_id": "6202484",
       "pos": {
-        "x": 0.0,
+        "x": 0,
         "y": 0.8,
-        "z": -3.0
+        "z": 0
       },
       "direction": "north",
       "object_ratios": [
         {
-          "object_id": 4734026,
+          "object_id": 5882032,
           "model": "fridge_large",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 5489810,
-          "model": "white_club_chair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 4449889,
-          "model": "dining_room_table",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 1.0
         }
       ]
     },
     {
-      "file": "2367247_facing_east.png",
-      "cam_id": "2367247",
+      "file": "6202484_facing_east.png",
+      "cam_id": "6202484",
       "pos": {
-        "x": 0.0,
+        "x": 0,
         "y": 0.8,
-        "z": -3.0
+        "z": 0
       },
       "direction": "east",
       "object_ratios": []
     },
     {
-      "file": "2367247_facing_south.png",
-      "cam_id": "2367247",
+      "file": "6202484_facing_south.png",
+      "cam_id": "6202484",
       "pos": {
-        "x": 0.0,
+        "x": 0,
         "y": 0.8,
-        "z": -3.0
+        "z": 0
       },
       "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 4734026,
+          "model": "lapalma_stil_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "6202484_facing_west.png",
+      "cam_id": "6202484",
+      "pos": {
+        "x": 0,
+        "y": 0.8,
+        "z": 0
+      },
+      "direction": "west",
       "object_ratios": []
     },
     {
-      "file": "2367247_facing_west.png",
-      "cam_id": "2367247",
+      "file": "5882032_facing_north.png",
+      "cam_id": "5882032",
       "pos": {
-        "x": 0.0,
+        "x": 1.0,
         "y": 0.8,
-        "z": -3.0
+        "z": 2.0
+      },
+      "direction": "north",
+      "object_ratios": []
+    },
+    {
+      "file": "5882032_facing_east.png",
+      "cam_id": "5882032",
+      "pos": {
+        "x": 1.0,
+        "y": 0.8,
+        "z": 2.0
+      },
+      "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "5882032_facing_south.png",
+      "cam_id": "5882032",
+      "pos": {
+        "x": 1.0,
+        "y": 0.8,
+        "z": 2.0
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 6202484,
+          "model": "wood_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 4734026,
+          "model": "lapalma_stil_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "5882032_facing_west.png",
+      "cam_id": "5882032",
+      "pos": {
+        "x": 1.0,
+        "y": 0.8,
+        "z": 2.0
       },
       "direction": "west",
       "object_ratios": []
@@ -306,20 +331,33 @@
       "file": "4734026_facing_north.png",
       "cam_id": "4734026",
       "pos": {
-        "x": 1,
+        "x": 1.0,
         "y": 0.8,
-        "z": 2
+        "z": -2.0
       },
       "direction": "north",
-      "object_ratios": []
+      "object_ratios": [
+        {
+          "object_id": 6202484,
+          "model": "wood_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        },
+        {
+          "object_id": 5882032,
+          "model": "fridge_large",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 1.0
+        }
+      ]
     },
     {
       "file": "4734026_facing_east.png",
       "cam_id": "4734026",
       "pos": {
-        "x": 1,
+        "x": 1.0,
         "y": 0.8,
-        "z": 2
+        "z": -2.0
       },
       "direction": "east",
       "object_ratios": []
@@ -328,172 +366,26 @@
       "file": "4734026_facing_south.png",
       "cam_id": "4734026",
       "pos": {
-        "x": 1,
+        "x": 1.0,
         "y": 0.8,
-        "z": 2
+        "z": -2.0
       },
       "direction": "south",
-      "object_ratios": [
-        {
-          "object_id": 2367247,
-          "model": "red_lamp",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 5489810,
-          "model": "white_club_chair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
+      "object_ratios": []
     },
     {
       "file": "4734026_facing_west.png",
       "cam_id": "4734026",
       "pos": {
-        "x": 1,
+        "x": 1.0,
         "y": 0.8,
-        "z": 2
-      },
-      "direction": "west",
-      "object_ratios": [
-        {
-          "object_id": 4449889,
-          "model": "dining_room_table",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
-    },
-    {
-      "file": "5489810_facing_north.png",
-      "cam_id": "5489810",
-      "pos": {
-        "x": 2,
-        "y": 0.8,
-        "z": 0
-      },
-      "direction": "north",
-      "object_ratios": [
-        {
-          "object_id": 4734026,
-          "model": "fridge_large",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
-    },
-    {
-      "file": "5489810_facing_east.png",
-      "cam_id": "5489810",
-      "pos": {
-        "x": 2,
-        "y": 0.8,
-        "z": 0
-      },
-      "direction": "east",
-      "object_ratios": []
-    },
-    {
-      "file": "5489810_facing_south.png",
-      "cam_id": "5489810",
-      "pos": {
-        "x": 2,
-        "y": 0.8,
-        "z": 0
-      },
-      "direction": "south",
-      "object_ratios": [
-        {
-          "object_id": 2367247,
-          "model": "red_lamp",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
-    },
-    {
-      "file": "5489810_facing_west.png",
-      "cam_id": "5489810",
-      "pos": {
-        "x": 2,
-        "y": 0.8,
-        "z": 0
-      },
-      "direction": "west",
-      "object_ratios": [
-        {
-          "object_id": 4449889,
-          "model": "dining_room_table",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
-    },
-    {
-      "file": "4449889_facing_north.png",
-      "cam_id": "4449889",
-      "pos": {
-        "x": -3.0,
-        "y": 0.8,
-        "z": 2.0
-      },
-      "direction": "north",
-      "object_ratios": []
-    },
-    {
-      "file": "4449889_facing_east.png",
-      "cam_id": "4449889",
-      "pos": {
-        "x": -3.0,
-        "y": 0.8,
-        "z": 2.0
-      },
-      "direction": "east",
-      "object_ratios": [
-        {
-          "object_id": 4734026,
-          "model": "fridge_large",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        },
-        {
-          "object_id": 5489810,
-          "model": "white_club_chair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
-    },
-    {
-      "file": "4449889_facing_south.png",
-      "cam_id": "4449889",
-      "pos": {
-        "x": -3.0,
-        "y": 0.8,
-        "z": 2.0
-      },
-      "direction": "south",
-      "object_ratios": [
-        {
-          "object_id": 2367247,
-          "model": "red_lamp",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 1.0
-        }
-      ]
-    },
-    {
-      "file": "4449889_facing_west.png",
-      "cam_id": "4449889",
-      "pos": {
-        "x": -3.0,
-        "y": 0.8,
-        "z": 2.0
+        "z": -2.0
       },
       "direction": "west",
       "object_ratios": []
     }
-  ]
+  ],
+  "agent": {
+    "direction": "north"
+  }
 }

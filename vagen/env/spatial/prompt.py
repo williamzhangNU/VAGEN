@@ -30,7 +30,7 @@ Suppose you are facing north, then:
 ## Important Notes:
 - Focus on **directional relationships** between objects, not exact distances
 - Pay careful attention to the precise positions of objects in your field of view (left-front, **center-front**, right-front) to accurately determine spatial relationships.
-- In each image, a red line indicates the agent's center front direction.
+- In each image, a red dashed line indicates the agent's center front direction.
 
 After exploration, you return to starting position to answer questions.
 
@@ -64,7 +64,7 @@ Suppose you are facing north, then:
 ## Note
 - Track spatial relationships between EACH pair of objects during the tour
 - Pay careful attention to the precise positions of objects in your field of view (left-front, **center-front**, right-front) to accurately determine spatial relationships.
-- In each image, a red line indicates the agent's center front direction.
+- In each image, a red dashed line indicates the agent's center front direction.
 
 ## Room Layout
 {room_info}
@@ -87,4 +87,9 @@ Please respond with a valid answer to the question.
 
 FORMAT_PROMPT = """\
 Always output: <think> [Your thoughts] </think> <answer> [your answer] </answer> with no extra text.
+"""
+
+TOPDOWN_PROMPT = """\
+You observe the room from the topdown view: {placeholder}, \
+where the blue dot indicates the agent's position and the red arrow indicates the agent's facing direction.
 """

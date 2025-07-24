@@ -23,7 +23,8 @@ from vagen.env.spatial.prompt import (
     ACTIVE_INSTRUCTION, 
     PASSIVE_INSTRUCTION, 
     EVALUATION_INSTRUCTION,
-    FORMAT_PROMPT
+    FORMAT_PROMPT,
+    TOPDOWN_PROMPT
 )
 
 class SpatialGym(gym.Env):
@@ -57,7 +58,7 @@ class SpatialGym(gym.Env):
 
     def _generate_initial_observation(self) -> str:
         """Generate initial observation based on exploration type."""
-        room_desc = self.initial_room.get_room_description() + (f"You observe the room from the topdown view: {self.config.image_placeholder}" if self.config.with_topdown else "")
+        room_desc = self.initial_room.get_room_description() + (TOPDOWN_PROMPT.format(placeholder=self.config.image_placeholder) if self.config.with_topdown else "")
         images = [self.image_handler.get_image('topdown')] if self.config.with_topdown else []
         
         if self.config.exp_type == 'passive':
@@ -110,11 +111,13 @@ class SpatialGym(gym.Env):
         assert np.array_equal(agent.ori, np.array([0, 1])), f"Agent orientation is not (0,1), got {agent.ori}"
         
         # 1. Find position: which object is at same location as agent (0,0)
-        position_name = 'agent'  # default (if at agent_anchor, original position)
-        for obj in [obj for obj in self.exploration_manager.exploration_room.objects if obj.name != 'agent_anchor']:
-            if np.allclose(obj.pos, agent.pos):  # same position as agent
+        position_name = None
+        for obj in self.exp_manager.exploration_room.objects:
+            if np.allclose(obj.pos, agent.pos):
                 position_name = obj.name
                 break
+        assert position_name is not None, "Agent position not found"
+        position_name = 'agent' if position_name == 'agent_anchor' else position_name
                 
         # 2. Find direction: agent_anchor always faces north
         agent_anchor_ori = tuple(self.exploration_manager.agent_anchor.ori)
@@ -174,7 +177,7 @@ class SpatialGym(gym.Env):
         1. Deal with evaluation tasks that needs image observation
         """
         obs_str = ""
-        reward = -0.1 # per step penalty
+        reward = 0 # per step penalty
         include_visual = False
 
         result = parse_freethink(llm_raw_response, action_sep="|", max_actions=1)
@@ -195,14 +198,14 @@ class SpatialGym(gym.Env):
             action_sequence = ActionSequence.parse(action)        
             if not action_sequence:
                 obs_str += "Invalid action\n"
-                reward += -0.5 # format penalty
+                reward += 0 # format penalty
             else:
                 info['metrics']['action_is_valid'] = True
                 info['metrics']['action_is_effective'] = True # TODO check if effective
                 self.n_valid_queries += 1 if not action_sequence.final_action.is_term() else 0
         else:
             obs_str += "Invalid input format\n"
-            reward += -0.5 # format penalty
+            reward += 0 # format penalty
 
         self.remaining_exp_steps -= 1 # NOTE invalid action also counts as a step
         if self.remaining_exp_steps < 0 or (action_sequence and action_sequence.final_action.is_term()):
@@ -225,7 +228,7 @@ class SpatialGym(gym.Env):
                 # Track redundant queries
                 if exp_info.get('redundant', False):
                     self.n_redundant_queries += 1
-                    reward += -1 # redundant observe penalty
+                    reward += 0 # redundant observe penalty
                 
                 # Convert action results to text observation
                 obs_str += action_results_to_text(action_results, self.config.image_placeholder)
@@ -252,7 +255,7 @@ class SpatialGym(gym.Env):
         if not result['actions']:
             # TODO change each task only has one chance
             obs_str += "Invalid input format, please answer the question\n"
-            reward += -0.5 # format penalty
+            reward += 0 # format penalty
             return self._create_obs(obs_str), reward, False, info
 
         action = result['actions'][0]
