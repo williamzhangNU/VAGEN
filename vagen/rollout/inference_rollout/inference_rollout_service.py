@@ -21,7 +21,7 @@ class InferenceRolloutService(BaseRollout):
     def __init__(self,
                  config: Dict,
                  model_interface,
-                 base_url: str = "http://localhost:5000",
+                 base_url: str = "http://localhost:8000",
                  timeout: int = 600,
                  max_workers: int = 10,
                  split: str = "test",
@@ -406,6 +406,7 @@ class InferenceRolloutService(BaseRollout):
                 "output_str": output_str,
                 "image_data": image_data,
                 "metrics": convert_numpy_types(metrics),
+                "all_turn_metrics": all_turn_metrics
             })
         
         return results

@@ -4,7 +4,7 @@ import logging
 from typing import List, Dict, Any
 from PIL import Image
 
-from vllm import LLM, SamplingParams
+#from vllm import LLM, SamplingParams
 
 from vagen.inference.model_interface.base_model import BaseModelInterface
 from .model_config import VLLMModelConfig

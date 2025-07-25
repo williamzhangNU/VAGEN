@@ -112,7 +112,7 @@ class SpatialGym(gym.Env):
         
         # 1. Find position: which object is at same location as agent (0,0)
         position_name = None
-        for obj in self.exp_manager.exploration_room.objects:
+        for obj in self.exploration_manager.exploration_room.objects:
             if np.allclose(obj.pos, agent.pos):
                 position_name = obj.name
                 break
