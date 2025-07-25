@@ -13,6 +13,7 @@ from collections import defaultdict
 from vagen.inference.model_interface.factory_model import ModelFactory
 from vagen.rollout.inference_rollout.inference_rollout_service import InferenceRolloutService
 from vagen.inference.utils.logging import log_results_to_wandb
+from vagen.inference.utils.visualization import visualize_html
 
 logger = logging.getLogger(__name__)
 
@@ -116,7 +117,9 @@ def main():
             service.reset(env_configs)
             service.run(max_steps=inference_config.get('max_steps', 10))
             results = service.recording_to_log()
-            
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            filepath = os.path.join(current_dir, "dashboard.html")
+            html_path = visualize_html(results, filepath)
             # Log results to wandb (using the combined logging function)
             if inference_config.get('use_wandb', True):
                 log_results_to_wandb(results, inference_config)
