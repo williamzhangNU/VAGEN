@@ -3,9 +3,9 @@ env1:
   env_config: 
     exp_type: passive
     max_exp_steps: 1
-    with_topdown: false
+    with_topdown: true
     eval_tasks:
-      - task_type: all_pairs
+      - task_type: pov
         task_kwargs:
           num_pairs: 1
   train_size: 25

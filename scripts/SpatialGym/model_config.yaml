@@ -9,25 +9,25 @@ models:
   #   max_retries: 3
   #   timeout: 60
 
-  gpt4.1-mini:
-    provider: openai
-    model_name: gpt-4.1-mini
-    max_tokens: 1024
-    temperature: 0.0
-    presence_penalty: 0.0
-    frequency_penalty: 0.0
-    max_retries: 3
-    timeout: 60
-
-  # o4-mini:
+  # gpt4.1-mini:
   #   provider: openai
-  #   model_name: o4-mini
-  #   max_completion_tokens: 8192
-  #   temperature: 1.0
+  #   model_name: gpt-4.1-mini
+  #   max_tokens: 1024
+  #   temperature: 0.0
   #   presence_penalty: 0.0
   #   frequency_penalty: 0.0
   #   max_retries: 3
   #   timeout: 60
+
+  o4-mini:
+    provider: openai
+    model_name: o4-mini
+    max_completion_tokens: 8192
+    temperature: 1.0
+    presence_penalty: 0.0
+    frequency_penalty: 0.0
+    max_retries: 3
+    timeout: 60
 
   # gpt4o:
   #   provider: openai
