@@ -44,20 +44,21 @@ class AutoExplore:
 
     def _get_current_position_direction(self) -> Tuple[str, str]:
         """Get current agent position and direction."""
-        agent = self.exp_manager.exploration_room.agent
+        room = self.exp_manager.exploration_room
+        agent = room.agent
         
         # Find position: which object is at same location as agent
-        position_name = None
-        for obj in self.exp_manager.exploration_room.objects:
-            if np.allclose(obj.pos, agent.pos):
-                position_name = obj.name
-                break
+        position_name = None if not np.allclose(room.initial_pos.pos, agent.pos) else 'agent'
+        if position_name is None:
+            for obj in room.objects:
+                if np.allclose(obj.pos, agent.pos):
+                    position_name = obj.name
+                    break
         assert position_name is not None, "Agent position not found"
-        position_name = 'agent' if position_name == 'agent_anchor' else position_name
         
-        # Get direction from agent_anchor
-        agent_anchor_ori = tuple(self.exp_manager.agent_anchor.ori)
-        direction_name = {(0, 1): 'north', (1, 0): 'west', (0, -1): 'south', (-1, 0): 'east'}[agent_anchor_ori]
+        # Get direction from initial_pos
+        initial_ori = tuple(room.initial_pos.ori)
+        direction_name = {(0, 1): 'north', (1, 0): 'west', (0, -1): 'south', (-1, 0): 'east'}[initial_ori]
         
         return position_name, direction_name
 
