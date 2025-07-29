@@ -13,8 +13,9 @@ from vagen.env.spatial.Base.tos_base import (
     EvaluationManager,
     ActionSequence,
     ExplorationManager,
-    BaseAction
+    BaseAction,
 )
+from vagen.env.spatial.Base.tos_base.utils.room_utils import set_initial_pos_as_origin
 from vagen.env.spatial.utils.initialize_room import initialize_room_from_json
 from vagen.env.spatial.utils.generate_history import AutoExplore
 from vagen.env.spatial.utils.action_utils import action_results_to_text
@@ -39,7 +40,7 @@ class SpatialGym(gym.Env):
         # Room state management
         self.initial_room = None
         self.final_room = None
-        
+        self.room_states = None
         # Managers
         self.exploration_manager = None
         self.evaluation_manager = None
@@ -144,7 +145,7 @@ class SpatialGym(gym.Env):
 
         # Generate initial room
         self.initial_room = initialize_room_from_json(self.json_data)
-
+        self.room_states = []
         # Initialize episode state
         self.remaining_exp_steps = self.config.max_exp_steps
         self.n_valid_queries = 0
@@ -203,9 +204,13 @@ class SpatialGym(gym.Env):
                 info['metrics']['action_is_valid'] = True
                 info['metrics']['action_is_effective'] = True # TODO check if effective
                 self.n_valid_queries += 1 if not action_sequence.final_action.is_term() else 0
+            
         else:
             obs_str += "Invalid input format\n"
             reward += 0 # format penalty
+            self.exploration_manager.metrics_log.append({})
+            self.exploration_manager.metrics_log.append({})
+
 
         self.remaining_exp_steps -= 1 # NOTE invalid action also counts as a step
         if self.remaining_exp_steps < 0 or (action_sequence and action_sequence.final_action.is_term()):
@@ -233,7 +238,7 @@ class SpatialGym(gym.Env):
                 # Convert action results to text observation
                 obs_str += action_results_to_text(action_results, self.config.image_placeholder)
             obs_str += f"\nYou have a maximum of {self.remaining_exp_steps} exploration steps left."
-        
+            self.room_states.append(set_initial_pos_as_origin(self.exploration_manager.exploration_room).to_dict())
         return self._create_obs(obs_str, include_visual=include_visual), reward, False, {}
     
     def _step_evaluation(self, llm_raw_response: str):

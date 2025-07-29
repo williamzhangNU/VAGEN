@@ -5,9 +5,15 @@ from itertools import zip_longest
 from pathlib import Path
 from PIL import Image
 import io, base64
+from itertools import zip_longest
+from typing import List, Dict, Any
 from vagen.env.spatial.Base.tos_base.core.room import Room
 THINK_RE = re.compile(r"<think>(.*?)</think>", re.DOTALL|re.IGNORECASE)
 ANS_RE   = re.compile(r"<answer>(.*?)</answer>", re.DOTALL|re.IGNORECASE)
+
+def dict_to_html(d: Dict):
+	return "".join(f"<div><strong>{escape(str(k))}:</strong> {escape(str(v))}</div>" for k,v in d.items())
+
 def plot_initial_room(entry, out_dir, base, idx):
 	room = Room.from_dict(entry)
 	img_name = f"{base}_turn{idx+1}.png"
@@ -56,6 +62,16 @@ def parse_conversation(output_str: str):
 		})
 	return turns
 
+def squash_exp_logs(exp_log: List[Dict]) -> List[Dict]:
+	merged = []
+	it = iter(exp_log)
+	for first in it:
+		try:
+			second = next(it)
+			merged.append({**first, **second})
+		except StopIteration:
+			merged.append(first)
+	return merged
 
 def visualize_html(entries, output_html):
 	"""
@@ -67,6 +83,7 @@ def visualize_html(entries, output_html):
 	  - 'config_id': str
 	  - 'output_str': str with User/Assistant blocks
 	  - 'image_data': list of PIL Image objects
+	  - 'per_turn_metrics': exploration metrics per turn and evaluation answers per turn
 	  - 'metrics': dict of final metrics
 
 	output_html: path to output HTML file.
@@ -122,6 +139,15 @@ window.addEventListener('load',()=>{{show(0)}});
 		for si, rec in enumerate(entries):
 			turns = parse_conversation(rec["output_str"])
 			imgs  = list(rec.get("image_data", []))
+			exp_log = squash_exp_logs(rec["per_turn_metrics"]["exploration_metrics_log"][0])
+			exp_log.insert(0,{})
+			exp_iter = iter(exp_log)
+			eval_answers = rec["per_turn_metrics"]["evaluation_metrics_log"]
+			# attach eval answers to last turns
+			for i, ans in enumerate(eval_answers):
+				turn_idx = len(turns) - len(eval_answers) + i
+				if 0 <= turn_idx < len(turns):
+					turns[turn_idx]["eval_answer"] = ans
 			# save images to disk and collect filenames
 			saved = []
 			for idx, im in enumerate(imgs):
@@ -145,10 +171,11 @@ window.addEventListener('load',()=>{{show(0)}});
 				f.write(f"<img src='{img_name}' class='room'>\n")
 			img_ptr = 0
 
-			for t_idx, turn in enumerate(turns):
+			for t_idx, (turn, em) in enumerate(zip_longest(turns, exp_log, fillvalue={})):
 				f.write("<div class='turn'>\n")
 				f.write(f"<h3>Turn {t_idx+1}</h3>\n")
 				# user panel
+
 				f.write(f"<div class='panel user'><strong>User</strong><br>{escape(turn['user'])}</div>\n")
 				# inline images
 				for _ in range(turn['n_images']):
@@ -168,6 +195,13 @@ window.addEventListener('load',()=>{{show(0)}});
 				# answer panel
 				if turn['answer']:
 					f.write(f"<div class='panel answer'><strong>Agent Answer</strong><br>{escape(turn['answer'])}</div>\n")
+				if "eval_answer" in turn:
+					eva = ", ".join(turn["eval_answer"])
+					f.write(f"<div class='block evaluation'><strong>Evaluation Answer</strong><br>{escape(eva)}</div>\n")
+
+				f.write("<div class='metrics'><strong>Turn Metrics</strong>")
+				f.write(dict_to_html(em) or "<div>(none)</div>")
+				f.write("</div>\n")
 				f.write("</div>\n")
 			# final metrics
 			f.write("<div class='metrics'><strong>Final Metrics:</strong><br>\n")

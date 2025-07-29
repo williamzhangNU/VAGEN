@@ -133,6 +133,7 @@ class InferenceRolloutService(BaseRollout):
                 "last_obs": obs,
                 "last_info": info,
                 "rewards": [],
+                "per_turn_metrics": [],
                 "metrics": {
                     "turn_metrics": defaultdict(list),
                     "traj_metrics": defaultdict(list)  # Changed to defaultdict to accumulate all metrics
@@ -312,7 +313,10 @@ class InferenceRolloutService(BaseRollout):
         
         # Get final rewards for all environments (no longer used)
         # reward_results = self.env_client.compute_reward_batch(list(self.envs.keys()))
-        
+        # Get per turn metrics for all environments
+        metrics_logs = self.env_client.get_metrics_log_batch(list(self.envs.keys()))
+        # Get the sequence of room states for all environments
+        room_states = self.env_client.get_room_states_batch(list(self.envs.keys()))
         for env_id in self.envs:
             # Get environment configuration ID
             config_id = self.envs[env_id].config_id()
@@ -350,6 +354,7 @@ class InferenceRolloutService(BaseRollout):
                     output_str += f"Assistant: {content}\n\n"
             # Get completion status
             done = self.env_states[env_id]["done"]
+            # Get initial room
             env = self.env_states[env_id]["env_info"]
             # ======= Key Modifications =======
             # Accumulate rewards from each step
@@ -369,7 +374,8 @@ class InferenceRolloutService(BaseRollout):
             
             print(f"[SCORE DEBUG] env_id={env_id}, steps={accumulated_rewards}, grounding={total_grounding_reward}, worldmodeling={total_worldmodeling_reward}, total={total_score}")
             # ======= End of Modifications =======
-            
+            # collect per_turn_metrics
+
             # Collect metrics
             metrics = {
                 "score": convert_numpy_types(total_score),  # Use our calculated total score
@@ -406,6 +412,8 @@ class InferenceRolloutService(BaseRollout):
                 "config_id": config_id,
                 "output_str": output_str,
                 "image_data": image_data,
+                "per_turn_metrics": metrics_logs[env_id],
+                "room_states": room_states[env_id],
                 "metrics": convert_numpy_types(metrics),
             })
         

@@ -166,6 +166,14 @@ class BatchEnvClient:
         response = self._make_request("batch/metrics", "POST", {'env_ids': env_ids})
         results = response.get("metrics_log", {})
         return results
+    
+    def get_room_states_batch(self, env_ids: List[str]) -> Dict[str, Any]:
+        """
+        Ask the server for sequence of room states in each env
+        """
+        response = self._make_request("batch/room", "POST", {'env_ids': env_ids})
+        results = response.get("rooms", {})
+        return results
     def compute_reward_batch(self, env_ids: List[str]) -> Dict[str, float]:
         """
         Compute rewards for multiple environments in batch.
