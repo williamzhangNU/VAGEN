@@ -3,7 +3,7 @@ env1:
   env_config: 
     exp_type: active
     max_exp_steps: 3
-    with_topdown: false
+    with_topdown: true
     eval_tasks:
       - task_type: rot
         task_kwargs:

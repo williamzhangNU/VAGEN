@@ -111,19 +111,19 @@ class SpatialGym(gym.Env):
         assert np.array_equal(agent.ori, np.array([0, 1])), f"Agent orientation is not (0,1), got {agent.ori}"
         
         # 1. Find position: which object is at same location as agent (0,0)
-        position_name = None
-        for obj in self.exploration_manager.exploration_room.objects:
-            if np.allclose(obj.pos, agent.pos):
-                position_name = obj.name
-                break
+        position_name = None if not np.allclose(room.initial_pos.pos, agent.pos) else 'agent'
+        if position_name is None:
+            for obj in room.objects:
+                if np.allclose(obj.pos, agent.pos):
+                    position_name = obj.name
+                    break
         assert position_name is not None, "Agent position not found"
-        position_name = 'agent' if position_name == 'agent_anchor' else position_name
                 
-        # 2. Find direction: agent_anchor always faces north
-        agent_anchor_ori = tuple(self.exploration_manager.agent_anchor.ori)
+        # 2. Find direction: initial_pos always faces north
+        initial_ori = tuple(room.initial_pos.ori)
         
         # Map orientation difference to direction
-        direction_name = {(0, 1): 'north', (1, 0): 'west', (0, -1): 'south', (-1, 0): 'east'}[agent_anchor_ori]
+        direction_name = {(0, 1): 'north', (1, 0): 'west', (0, -1): 'south', (-1, 0): 'east'}[initial_ori]
         
         self.current_position = position_name
         self.current_direction = direction_name
