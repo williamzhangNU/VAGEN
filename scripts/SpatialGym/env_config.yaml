@@ -2,11 +2,11 @@ env1:
   env_name: spatial
   env_config: 
     exp_type: active
-    max_exp_steps: 1
+    max_exp_steps: 3
     with_topdown: false
     eval_tasks:
-      - task_type: all_pairs
+      - task_type: rot
         task_kwargs:
           num_pairs: 1
-  train_size: 3
-  test_size: 3
+  train_size: 2
+  test_size: 2

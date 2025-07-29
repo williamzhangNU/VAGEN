@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Dashboard</title>
+<style>
+  body{font-family:Arial,sans-serif;margin:0;padding:0;background:#fafafa}
+  #nav{position:fixed;top:0;width:100%;background:#333;color:#fff;
+	   text-align:center;padding:10px;z-index:1000}
+  #nav button,#nav input{margin:0 6px;padding:6px;border:none;border-radius:4px}
+  .sample{display:none;padding:80px 24px;max-width:800px;margin:auto}
+  .sample.active{display:block}
+  .panel{border-radius:4px;padding:12px;margin:12px 0;}
+  .user{background:#e8f4ff;border-left:6px solid #4299e1}
+  .think{background:#fff7e6;border-left:6px solid #ed8936;font-style:italic}
+  .answer{background:#e6ffed;border-left:6px solid #38a169}
+  .metrics{background:#fff;padding:12px;border:1px solid #ddd}
+  img.turn-img{max-width:200px;margin:8px 4px;border:1px solid #ccc}
+</style>
+<script>
+let pg=0;
+function show(n){pg=Math.max(0,Math.min(2-1,n));
+  document.querySelectorAll('.sample').forEach((s,i)=>s.classList.toggle('active',i===pg));
+  document.getElementById('ctr').innerText=(pg+1)+' / 2';
+}
+function nextP(){show(pg+1)}function prevP(){show(pg-1)}
+function gotoP(){let v=parseInt(document.getElementById('goto').value)||1;show(v-1)}
+window.addEventListener('keydown',e=>{if(e.key=='ArrowRight')nextP();if(e.key=='ArrowLeft')prevP()});
+window.addEventListener('load',()=>{show(0)});
+</script>
+</head><body>
+<div id="nav">
+  <button onclick="prevP()">Prev</button>
+  <button onclick="nextP()">Next</button>
+  <input id="goto" type="number" min="1" max="2" value="1">
+  <button onclick="gotoP()">Go</button>
+  <span id="ctr"></span>
+</div>
+<h1 style="padding-top:60px;text-align:center;">Inference Dashboard</h1>
+<section class='sample'>
+<h2>Sample 1: test_0</h2>
+<div class='metrics'><strong>Config:</strong> SpatialGymConfig(mode=vision,format=free_think,eval_tasks=rot)</div>
+<img src='dashboard_turn1.png' class='room'>
+<div class='turn'>
+<h3>Turn 1</h3>
+<div class='panel user'><strong>User</strong><br># Spatial Exploration Task
+
+Your goal: Learn ALL spatial relationships between EACH pair of objects in the room.
+
+## Direction Format:
+Spatial relationships are described using (&lt;horizontal&gt;, &lt;vertical&gt;) format:
+- **horizontal**: left, right, same
+- **vertical**: front, back, same
+- &quot;same&quot; means objects are aligned in that dimension (e.g., (front, same) means center front)
+
+## Face direction
+There are EXACTLY four facing directions: north, south, east, west. No other directions exist.
+Suppose you are facing north, then:
+- **forward**: north (same direction as you)
+- **backward**: south (opposite direction as you)
+- **right**: east (90° clockwise)
+- **left**: west (90° counterclockwise)
+
+## Critical Requirements:
+1. **Complete Coverage**: 
+   - Explore until you know where every object is relative to every other object. Only stop when you have all spatial relationships.
+   - Only know relationships between object and yourself is NOT enough.
+2. **Be Efficient** (Avoid redundant observations):
+   - Focus on areas where you expect to eliminate some unknown relationships
+   - If you know all objects are in one general direction but lack specific details, focus your exploration there 
+      - (e.g., if all objects are to your left but you don&#x27;t know which are in front vs. back, explore the left side systematically)
+3. **Stop When Done**: End exploration as soon as you have all spatial relationships
+
+## Important Notes:
+- Focus on **directional relationships** between objects, not exact distances
+- Pay careful attention to the precise positions of objects in your field of view (left-front, **center-front**, right-front) to accurately determine spatial relationships.
+- In each image, a red dashed line indicates the agent&#x27;s center front direction.
+
+After exploration, you return to starting position to answer questions.
+
+## Room Layout
+Imagine yourself as agent in a room.
+You are facing north.
+Objects in the room: green chair, blue chair, basket
+
+
+## Action Instructions
+You can move in the room and turn around to observe the room.
+
+Available Actions:
+Movement Actions:
+- Move(object_name): Move to the same position as the object. You can ONLY move to object within your field of view. You can ONLY move to objects by name, not directions or others. Invalid examples: Move(left), Move(forward), Move(back)
+- Rotate(degrees): Rotate by specified degrees, only valid degrees are 0, 90, 180, 270.
+- Return(): Return to the starting anchor position
+
+Final Actions:
+- Observe(): Observe spatial relationships of all objects in the field of view relative to your current position. You can only observe objects that are within your field of view.
+- Term(): Terminate the exploration phase
+
+Answer with following format:
+Movement: [&lt;movement_action1&gt;, &lt;movement_action2&gt;, ...]; Final: &lt;final_action&gt;
+
+Format Notes:
+- Use movement actions in Movement, and final action in Final.
+- If no movement is needed, use [] in Movement.
+- Actions in Movement will be executed in order.
+- Separated these two lines by a semicolon.
+
+Examples:
+Valid Example:
+Movement: [Move(table), Rotate(90)]; Final: Observe()
+
+Valid Example (no movement):
+Movement: []; Final: Observe()
+
+Invalid Example (wrong order):
+Final: Observe(); Movement: []
+
+
+
+Rules:
+- Term() must be alone (no movement actions)
+- You have a field of view for observation: 90 degrees.
+
+
+You have a maximum of 3 exploration steps.
+
+Always output: &lt;think&gt; [Your thoughts] &lt;/think&gt; &lt;answer&gt; [your answer] &lt;/answer&gt; with no extra text.</div>
+<div class='panel think'><strong>Agent Think</strong><br>I start facing north. I will first observe to see which objects are in my field of view and their relative positions. Then I will move to an object I can see to get a different perspective and observe again to learn more spatial relationships.</div>
+<div class='panel answer'><strong>Agent Answer</strong><br>Movement: []; Final: Observe()</div>
+</div>
+<div class='turn'>
+<h3>Turn 2</h3>
+<div class='panel user'><strong>User</strong><br>You observe: 
+You have a maximum of 2 exploration steps left.
+Always output: &lt;think&gt; [Your thoughts] &lt;/think&gt; &lt;answer&gt; [your answer] &lt;/answer&gt; with no extra text.</div>
+<img src='dashboard_test_0_img0.png' class='turn-img'>
+<div class='panel think'><strong>Agent Think</strong><br>I only see the basket directly in front of me. I do not see the green chair or blue chair from this position facing north. I need to rotate to try to see the chairs and learn their relative positions. I will rotate 90 degrees to the right (east) to check if the chairs are there.</div>
+<div class='panel answer'><strong>Agent Answer</strong><br>Movement: [Rotate(90)]; Final: Observe()</div>
+</div>
+<div class='turn'>
+<h3>Turn 3</h3>
+<div class='panel user'><strong>User</strong><br>You rotated clockwise 90°. You observe: 
+You have a maximum of 1 exploration steps left.
+Always output: &lt;think&gt; [Your thoughts] &lt;/think&gt; &lt;answer&gt; [your answer] &lt;/answer&gt; with no extra text.</div>
+<img src='dashboard_test_0_img1.png' class='turn-img'>
+<div class='panel think'><strong>Agent Think</strong><br>I see nothing in this direction (east). Since I only saw the basket when facing north and nothing when facing east, the chairs must be either to the west or south. I will rotate 180 degrees from current east facing to face west to check for the chairs.</div>
+<div class='panel answer'><strong>Agent Answer</strong><br>Movement: [Rotate(180)]; Final: Observe()</div>
+</div>
+<div class='turn'>
+<h3>Turn 4</h3>
+<div class='panel user'><strong>User</strong><br>You rotated clockwise 180°. You observe: 
+You have a maximum of 0 exploration steps left.
+Always output: &lt;think&gt; [Your thoughts] &lt;/think&gt; &lt;answer&gt; [your answer] &lt;/answer&gt; with no extra text.</div>
+<img src='dashboard_test_0_img2.png' class='turn-img'>
+<div class='panel think'><strong>Agent Think</strong><br>I see the blue chair directly in front of me facing west. From previous observations, the basket is north in front of the starting position, and the blue chair is west in front of the starting position. I have not seen the green chair yet, so it must be either south or somewhere not visible from these angles. Since I have no exploration steps left, I must conclude the spatial relationships based on what I know. The basket is (right, same) relative to the blue chair because basket is north and blue chair is west. The green chair&#x27;s position relative to others is unknown, so I cannot fully complete all pairwise relationships. However, I have exhausted all exploration steps. I will return to the starting position to answer questions.</div>
+<div class='panel answer'><strong>Agent Answer</strong><br>Movement: [Return()]; Final: Term()</div>
+</div>
+<div class='turn'>
+<h3>Turn 5</h3>
+<div class='panel user'><strong>User</strong><br>Invalid action
+Exploration phase ended
+You return to your starting position and orientation.
+## Evaluation Question
+You will perform a full 360-degree rotation by continuously turning clockwise in place.
+As you rotate, imagine a narrow spotlight beam projecting straight ahead from your current viewpoint.
+This beam represents your direct line of sight and sweeps across the environment as you turn.
+
+**CRITICAL: Objects are only visible when you turn to face them directly.**
+- An object is &#x27;directly in front&#x27; when the beam points straight at it
+Your task is to identify sequence of objects that becomes visible as your beam points directly at it during the full rotation.
+
+Instructions:
+- Do **not** include any object at your current position
+- Assume a smooth, continuous 360° rotation that will point directly at every possible angle
+
+Answer Format:
+List all visible objects, separated by commas: &lt;obj1&gt;, &lt;obj2&gt;, ...
+
+Example:
+table, bookshelf, sofa
+
+Always output: &lt;think&gt; [Your thoughts] &lt;/think&gt; &lt;answer&gt; [your answer] &lt;/answer&gt; with no extra text.</div>
+<div class='panel think'><strong>Agent Think</strong><br>From the exploration, I know the basket is directly north of the starting position, the blue chair is directly west, and the green chair was not seen but must be somewhere else, likely south. As I rotate clockwise starting facing north, I will first see the basket, then the green chair (likely south), then the blue chair (west). The order of visibility during a 360-degree clockwise rotation is basket, green chair, blue chair.</div>
+<div class='panel answer'><strong>Agent Answer</strong><br>basket, green chair, blue chair</div>
+</div>
+<div class='metrics'><strong>Final Metrics:</strong><br>
+score: 1<br>
+done: 1.0<br>
+step: 5<br>
+</div>
+</section>
+<section class='sample'>
+<h2>Sample 2: test_1</h2>
+<div class='metrics'><strong>Config:</strong> SpatialGymConfig(mode=vision,format=free_think,eval_tasks=rot)</div>
+<img src='dashboard_turn2.png' class='room'>
+<div class='turn'>
+<h3>Turn 1</h3>
+<div class='panel user'><strong>User</strong><br># Spatial Exploration Task
+
+Your goal: Learn ALL spatial relationships between EACH pair of objects in the room.
+
+## Direction Format:
+Spatial relationships are described using (&lt;horizontal&gt;, &lt;vertical&gt;) format:
+- **horizontal**: left, right, same
+- **vertical**: front, back, same
+- &quot;same&quot; means objects are aligned in that dimension (e.g., (front, same) means center front)
+
+## Face direction
+There are EXACTLY four facing directions: north, south, east, west. No other directions exist.
+Suppose you are facing north, then:
+- **forward**: north (same direction as you)
+- **backward**: south (opposite direction as you)
+- **right**: east (90° clockwise)
+- **left**: west (90° counterclockwise)
+
+## Critical Requirements:
+1. **Complete Coverage**: 
+   - Explore until you know where every object is relative to every other object. Only stop when you have all spatial relationships.
+   - Only know relationships between object and yourself is NOT enough.
+2. **Be Efficient** (Avoid redundant observations):
+   - Focus on areas where you expect to eliminate some unknown relationships
+   - If you know all objects are in one general direction but lack specific details, focus your exploration there 
+      - (e.g., if all objects are to your left but you don&#x27;t know which are in front vs. back, explore the left side systematically)
+3. **Stop When Done**: End exploration as soon as you have all spatial relationships
+
+## Important Notes:
+- Focus on **directional relationships** between objects, not exact distances
+- Pay careful attention to the precise positions of objects in your field of view (left-front, **center-front**, right-front) to accurately determine spatial relationships.
+- In each image, a red dashed line indicates the agent&#x27;s center front direction.
+
+After exploration, you return to starting position to answer questions.
+
+## Room Layout
+Imagine yourself as agent in a room.
+You are facing north.
+Objects in the room: white chair, kettle, blue chair
+
+
+## Action Instructions
+You can move in the room and turn around to observe the room.
+
+Available Actions:
+Movement Actions:
+- Move(object_name): Move to the same position as the object. You can ONLY move to object within your field of view. You can ONLY move to objects by name, not directions or others. Invalid examples: Move(left), Move(forward), Move(back)
+- Rotate(degrees): Rotate by specified degrees, only valid degrees are 0, 90, 180, 270.
+- Return(): Return to the starting anchor position
+
+Final Actions:
+- Observe(): Observe spatial relationships of all objects in the field of view relative to your current position. You can only observe objects that are within your field of view.
+- Term(): Terminate the exploration phase
+
+Answer with following format:
+Movement: [&lt;movement_action1&gt;, &lt;movement_action2&gt;, ...]; Final: &lt;final_action&gt;
+
+Format Notes:
+- Use movement actions in Movement, and final action in Final.
+- If no movement is needed, use [] in Movement.
+- Actions in Movement will be executed in order.
+- Separated these two lines by a semicolon.
+
+Examples:
+Valid Example:
+Movement: [Move(table), Rotate(90)]; Final: Observe()
+
+Valid Example (no movement):
+Movement: []; Final: Observe()
+
+Invalid Example (wrong order):
+Final: Observe(); Movement: []
+
+
+
+Rules:
+- Term() must be alone (no movement actions)
+- You have a field of view for observation: 90 degrees.
+
+
+You have a maximum of 3 exploration steps.
+
+Always output: &lt;think&gt; [Your thoughts] &lt;/think&gt; &lt;answer&gt; [your answer] &lt;/answer&gt; with no extra text.</div>
+<div class='panel think'><strong>Agent Think</strong><br>I start facing north and can observe objects in front of me within a 90-degree field of view. I will first observe to see which objects are visible and their relative positions. Then I will move to one of the objects to get a different perspective and observe again to learn spatial relationships between all pairs. Finally, I will return to the start and observe once more if needed to complete all relationships.</div>
+<div class='panel answer'><strong>Agent Answer</strong><br>Movement: []; Final: Observe()</div>
+</div>
+<div class='turn'>
+<h3>Turn 2</h3>
+<div class='panel user'><strong>User</strong><br>You observe: 
+You have a maximum of 2 exploration steps left.
+Always output: &lt;think&gt; [Your thoughts] &lt;/think&gt; &lt;answer&gt; [your answer] &lt;/answer&gt; with no extra text.</div>
+<img src='dashboard_test_1_img0.png' class='turn-img'>
+<div class='panel think'><strong>Agent Think</strong><br>No objects are visible in front of me facing north. I will rotate 90 degrees to the right (east) to check if objects are visible there.</div>
+<div class='panel answer'><strong>Agent Answer</strong><br>Movement: [Rotate(90)]; Final: Observe()</div>
+</div>
+<div class='turn'>
+<h3>Turn 3</h3>
+<div class='panel user'><strong>User</strong><br>You rotated clockwise 90°. You observe: 
+You have a maximum of 1 exploration steps left.
+Always output: &lt;think&gt; [Your thoughts] &lt;/think&gt; &lt;answer&gt; [your answer] &lt;/answer&gt; with no extra text.</div>
+<img src='dashboard_test_1_img1.png' class='turn-img'>
+<div class='panel think'><strong>Agent Think</strong><br>I see the kettle directly in front of me facing east. I will move to the kettle to get a new viewpoint and observe again to try to see the chairs and learn their spatial relationships relative to the kettle and each other.</div>
+<div class='panel answer'><strong>Agent Answer</strong><br>Movement: [Move(kettle)]; Final: Observe()</div>
+</div>
+<div class='turn'>
+<h3>Turn 4</h3>
+<div class='panel user'><strong>User</strong><br>You moved at kettle. You observe: 
+You have a maximum of 0 exploration steps left.
+Always output: &lt;think&gt; [Your thoughts] &lt;/think&gt; &lt;answer&gt; [your answer] &lt;/answer&gt; with no extra text.</div>
+<img src='dashboard_test_1_img2.png' class='turn-img'>
+<div class='panel think'><strong>Agent Think</strong><br>From the kettle position facing east, no objects are visible in front. I have no more exploration steps left, so I must return to the starting position to finalize observations and answer. I have only seen the kettle to the east from the start and no other objects. I do not have enough information to determine spatial relationships between all objects. However, exploration is complete.</div>
+<div class='panel answer'><strong>Agent Answer</strong><br>Movement: [Return()]; Final: Term()</div>
+</div>
+<div class='turn'>
+<h3>Turn 5</h3>
+<div class='panel user'><strong>User</strong><br>Invalid action
+Exploration phase ended
+You return to your starting position and orientation.
+## Evaluation Question
+You will perform a full 360-degree rotation by continuously turning clockwise in place.
+As you rotate, imagine a narrow spotlight beam projecting straight ahead from your current viewpoint.
+This beam represents your direct line of sight and sweeps across the environment as you turn.
+
+**CRITICAL: Objects are only visible when you turn to face them directly.**
+- An object is &#x27;directly in front&#x27; when the beam points straight at it
+Your task is to identify sequence of objects that becomes visible as your beam points directly at it during the full rotation.
+
+Instructions:
+- Do **not** include any object at your current position
+- Assume a smooth, continuous 360° rotation that will point directly at every possible angle
+
+Answer Format:
+List all visible objects, separated by commas: &lt;obj1&gt;, &lt;obj2&gt;, ...
+
+Example:
+table, bookshelf, sofa
+
+Always output: &lt;think&gt; [Your thoughts] &lt;/think&gt; &lt;answer&gt; [your answer] &lt;/answer&gt; with no extra text.</div>
+<div class='panel think'><strong>Agent Think</strong><br>From the exploration, I know the kettle is directly east of the starting position. The white chair and blue chair were never seen, so they must be located in other directions. Since the kettle is east, and I started facing north with no objects visible, the chairs must be located either north, south, or west. Given the room layout and typical arrangement, it is likely the two chairs are positioned in different directions. As I rotate 360 degrees clockwise starting facing north, I will see objects in the order of their directions: first the white chair, then the blue chair, then the kettle. The exact order depends on their relative positions, but since the kettle is east, it will appear after north and west directions. Without exact data, the best assumption is the chairs are north and west or north and south. The only object I know for sure is the kettle at east. I will list the objects in the order they would appear rotating clockwise: white chair, blue chair, kettle.</div>
+<div class='panel answer'><strong>Agent Answer</strong><br>white chair, blue chair, kettle</div>
+</div>
+<div class='metrics'><strong>Final Metrics:</strong><br>
+score: 0<br>
+done: 1.0<br>
+step: 5<br>
+</div>
+</section>
+</body></html>

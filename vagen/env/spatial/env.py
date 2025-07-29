@@ -302,7 +302,15 @@ class SpatialGym(gym.Env):
         
         assert self.exploration_manager, "Exploration manager not initialized"
         return self.exploration_manager.get_exploration_efficiency()
-    
+    def get_exploration_per_turn_metrics(self):
+        """Get exploration per turn metrics"""
+        if self.config.exp_type == 'passive':
+            return []
+        assert self.exploration_manager, "Exploration manager not initialized"
+        return self.exploration_manager.get_metrics_log()
+    def get_evaluation_per_turn_metrics(self):
+        """Get evaluation per turn metrics"""
+        return self.evaluation_manager.get_eval_metrics_log()
     def get_eval_performance(self):
         """Get evaluation performance metrics."""
         if not self.evaluation_manager:

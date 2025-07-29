@@ -130,7 +130,7 @@ class BatchEnvClient:
         deserialized_results = {}
         for env_id, (observation, info) in results.items():
             deserialized_results[env_id] = (deserialize_observation(observation), info)
-            
+            print(info)
         return deserialized_results
     
     def step_batch(self, ids2actions: Dict[str, str]) -> Dict[str, Tuple[Dict, float, bool, Dict]]:
@@ -152,7 +152,20 @@ class BatchEnvClient:
             deserialized_results[env_id] = deserialize_step_result(serialized_result)
             
         return deserialized_results
-    
+    def get_env_state_batch(self, env_ids: List[str]) -> Dict[str, Any]:
+        """
+        Ask the server for env.get_env_info() for each env_id.
+        """
+        response = self._make_request("batch/state", "POST", {'env_ids': env_ids})
+        results = response.get("states", {})
+        return results
+    def get_metrics_log_batch(self, env_ids: List[str]) -> Dict[str, Any]:
+        """
+        Ask the server for metrics log for exp and eval managers for each env_id.
+        """
+        response = self._make_request("batch/metrics", "POST", {'env_ids': env_ids})
+        results = response.get("metrics_log", {})
+        return results
     def compute_reward_batch(self, env_ids: List[str]) -> Dict[str, float]:
         """
         Compute rewards for multiple environments in batch.

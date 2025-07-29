@@ -95,8 +95,8 @@ def main():
         logger.info(f"Running inference for model: {model_name}")
         
         # Setup wandb for this model
-        if inference_config.get('use_wandb', True):
-            setup_wandb(model_name, args.wandb_path_name, model_cfg, inference_config)
+        #if inference_config.get('use_wandb', True):
+            #setup_wandb(model_name, args.wandb_path_name, model_cfg, inference_config)
         
         try:
             # Create model interface
@@ -106,7 +106,7 @@ def main():
             service = InferenceRolloutService(
                 config=inference_config,
                 model_interface=model_interface,
-                base_url=inference_config.get('server_url', 'http://localhost:5000'),
+                base_url=inference_config.get('server_url', 'http://localhost:8000'),
                 timeout=inference_config.get('server_timeout', 600),
                 max_workers=inference_config.get('server_max_workers', 48),
                 split=inference_config.get('split', 'test'),
@@ -117,6 +117,7 @@ def main():
             service.reset(env_configs)
             service.run(max_steps=inference_config.get('max_steps', 10))
             results = service.recording_to_log()
+            print(results[0])
             current_dir = os.path.dirname(os.path.abspath(__file__))
             filepath = os.path.join(current_dir, "dashboard.html")
             html_path = visualize_html(results, filepath)

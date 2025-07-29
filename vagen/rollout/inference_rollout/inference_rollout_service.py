@@ -6,7 +6,7 @@ from typing import List, Dict, Tuple, Optional, Any
 from collections import defaultdict
 from tqdm import tqdm
 import PIL
-
+from copy import deepcopy
 from vagen.rollout.base_rollout import BaseRollout
 from vagen.server.client import BatchEnvClient
 from vagen.env import REGISTERED_ENV
@@ -92,12 +92,12 @@ class InferenceRolloutService(BaseRollout):
         # Prepare environment configurations
         ids2configs = {}
         ids2seeds = {}
-        
+        env_ids = {}
         for i, cfg in enumerate(env_configs):
             env_id = f"{self.split}_{i}"
             ids2configs[env_id] = cfg
             ids2seeds[env_id] = cfg.get("seed", 42)
-            
+            env_ids[env_id] = env_id
             # Store configuration for reference
             self.envs[env_id] = REGISTERED_ENV[cfg["env_name"]]["config_cls"](**cfg["env_config"])
         
@@ -110,7 +110,8 @@ class InferenceRolloutService(BaseRollout):
         
         # Get system prompts
         self.system_prompts = self.env_client.get_system_prompts_batch(list(self.envs.keys()))
-        
+        # Get env info
+        env_states = self.env_client.get_env_state_batch(env_ids)
         # Initialize recordings and state tracking
         for env_id, (obs, info) in reset_results.items():
             # Initialize recording with system prompt and first observation
@@ -118,7 +119,7 @@ class InferenceRolloutService(BaseRollout):
                 {"role": "system", "content": self.system_prompts[env_id]},
                 {"role": "user", "content": obs["obs_str"]}
             ]
-            
+
             # Track multi-modal data if present
             if "multi_modal_data" in obs:
                 # Store multimodal data with the message
@@ -126,6 +127,7 @@ class InferenceRolloutService(BaseRollout):
             
             # Initialize environment state
             self.env_states[env_id] = {
+                "env_info": env_states[env_id],
                 "step": 0,
                 "done": False,
                 "last_obs": obs,
@@ -135,6 +137,7 @@ class InferenceRolloutService(BaseRollout):
                     "turn_metrics": defaultdict(list),
                     "traj_metrics": defaultdict(list)  # Changed to defaultdict to accumulate all metrics
                 }
+
             }
         
         if self.debug:
@@ -229,7 +232,6 @@ class InferenceRolloutService(BaseRollout):
                     # Track multi-modal data if present
                     if "multi_modal_data" in obs:
                         user_message["multi_modal_data"] = obs["multi_modal_data"]
-                    
                     self.recordings[env_id].append(user_message)
                     next_active_envs.add(env_id)
             
@@ -346,10 +348,9 @@ class InferenceRolloutService(BaseRollout):
                     output_str += f"User: {content}\n\n"
                 elif role == "assistant":
                     output_str += f"Assistant: {content}\n\n"
-            
             # Get completion status
             done = self.env_states[env_id]["done"]
-            
+            env = self.env_states[env_id]["env_info"]
             # ======= Key Modifications =======
             # Accumulate rewards from each step
             accumulated_rewards = sum(self.env_states[env_id]["rewards"])
@@ -398,15 +399,14 @@ class InferenceRolloutService(BaseRollout):
                     metrics[f"history_{k}"] = convert_numpy_types(v)
                 else:
                     metrics[k] = convert_numpy_types(v)
-            
             # Add to results
             results.append({
                 "env_id": env_id,
+                "env_info": env['initial_room'],
                 "config_id": config_id,
                 "output_str": output_str,
                 "image_data": image_data,
                 "metrics": convert_numpy_types(metrics),
-                "all_turn_metrics": all_turn_metrics
             })
         
         return results
