@@ -3,17 +3,21 @@ import numpy as np
 import re
 import os
 import json
-from typing import Optional, Dict, Any, Tuple
+from typing import Optional, Dict, Any, Tuple, List
 from PIL import Image
-
+from dataclasses import dataclass, field
 from vagen.env.spatial.env_config import SpatialGymConfig
 from vagen.env.utils.parse_utils import parse_freethink
 
 from vagen.env.spatial.Base.tos_base import (
     EvaluationManager,
+    EvaluationTurnLog,
+    Room,
     ActionSequence,
     ExplorationManager,
-    BaseAction,
+    ExplorationTurnLog,
+    generate_room,
+    BaseAction
 )
 from vagen.env.spatial.Base.tos_base.utils.room_utils import set_initial_pos_as_origin
 from vagen.env.spatial.utils.initialize_room import initialize_room_from_json
@@ -28,6 +32,32 @@ from vagen.env.spatial.prompt import (
     TOPDOWN_PROMPT
 )
 
+
+@dataclass
+class EnvTurnLog:
+    """Log data for a single environment turn."""
+    turn_number: int
+    user_message: str = ""  # Environment observation
+    assistant_raw_message: str = ""  # Raw assistant input
+    assistant_parsed_message: str = ""  # Parsed assistant action
+    is_exploration_phase: bool = False
+    exploration_log: Optional["ExplorationTurnLog"] = None
+    evaluation_log: Optional["EvaluationTurnLog"] = None
+    room_state: Optional["Room"] = None
+    info: Dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self):
+        return {
+            "turn_number": self.turn_number,
+            "user_message": self.user_message,
+            "assistant_raw_message": self.assistant_raw_message,
+            "assistant_parsed_message": self.assistant_parsed_message,
+            "is_exploration_phase": self.is_exploration_phase,
+            "exploration_log": self.exploration_log.to_dict() if self.exploration_log else {},
+            "evaluation_log": self.evaluation_log.to_dict() if self.evaluation_log else {},
+            "room_state": self.room_state.to_dict() if self.room_state else {},
+            "info": self.info
+        }
 class SpatialGym(gym.Env):
 
     def __init__(self, config: SpatialGymConfig):
@@ -49,6 +79,9 @@ class SpatialGym(gym.Env):
         self.n_valid_queries = None
         self.n_redundant_queries = None
 
+        # Turn logging
+        self.turn_logs: List[EnvTurnLog] = []
+        self.current_turn_number = 0
 
     def _init_data(self, seed: int = None):
         """Initialize data and image handler."""
@@ -150,7 +183,9 @@ class SpatialGym(gym.Env):
         self.remaining_exp_steps = self.config.max_exp_steps
         self.n_valid_queries = 0
         self.n_redundant_queries = 0
-        
+        # Reset turn tracking
+        self.turn_logs = []
+        self.current_turn_number = 0
         # Set exploration phase
         self.is_exploration_phase = self.config.exp_type != 'passive'
         
@@ -166,10 +201,27 @@ class SpatialGym(gym.Env):
 
     def step(self, llm_raw_response: str):
         """Process agent actions in the spatial gym environment."""
+        self.current_turn_number += 1
+        exp_log, eval_log = None, None
+        current_room = self.exploration_manager.exploration_room.copy() if self.exploration_manager else self.initial_room.copy()
         if self.is_exploration_phase:
-            return self._step_exploration(llm_raw_response)
+            obs, reward, done, step_info = self._step_exploration(llm_raw_response)
+            exp_log = self.exploration_manager.turn_logs[-1] if self.exploration_manager and self.exploration_manager.turn_logs else None
         else:
-            return self._step_evaluation(llm_raw_response)
+            obs, reward, done, step_info = self._step_evaluation(llm_raw_response)
+            eval_log = self.evaluation_manager.turn_logs[-1] if self.evaluation_manager.turn_logs else None
+        
+        turn_log = EnvTurnLog(
+            turn_number=self.current_turn_number,
+            is_exploration_phase=self.is_exploration_phase,
+            room_state=current_room.to_dict(),
+            exploration_log=exp_log,
+            evaluation_log=eval_log,
+            info={"reward": reward, "is_done": done, **step_info}
+        )
+        self.turn_logs.append(turn_log)
+        
+        return obs, reward, done, step_info
 
     def _step_exploration(self, llm_raw_response: str):
         """
@@ -180,7 +232,6 @@ class SpatialGym(gym.Env):
         obs_str = ""
         reward = 0 # per step penalty
         include_visual = False
-
         result = parse_freethink(llm_raw_response, action_sep="|", max_actions=1)
         info = {
             "metrics": {
@@ -208,9 +259,6 @@ class SpatialGym(gym.Env):
         else:
             obs_str += "Invalid input format\n"
             reward += 0 # format penalty
-            self.exploration_manager.metrics_log.append({})
-            self.exploration_manager.metrics_log.append({})
-
 
         self.remaining_exp_steps -= 1 # NOTE invalid action also counts as a step
         if self.remaining_exp_steps < 0 or (action_sequence and action_sequence.final_action.is_term()):

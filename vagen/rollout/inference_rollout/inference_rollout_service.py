@@ -314,9 +314,8 @@ class InferenceRolloutService(BaseRollout):
         # Get final rewards for all environments (no longer used)
         # reward_results = self.env_client.compute_reward_batch(list(self.envs.keys()))
         # Get per turn metrics for all environments
-        metrics_logs = self.env_client.get_metrics_log_batch(list(self.envs.keys()))
-        # Get the sequence of room states for all environments
-        room_states = self.env_client.get_room_states_batch(list(self.envs.keys()))
+        turn_logs = self.env_client.get_turn_logs_batch(list(self.envs.keys()))
+
         for env_id in self.envs:
             # Get environment configuration ID
             config_id = self.envs[env_id].config_id()
@@ -412,8 +411,7 @@ class InferenceRolloutService(BaseRollout):
                 "config_id": config_id,
                 "output_str": output_str,
                 "image_data": image_data,
-                "per_turn_metrics": metrics_logs[env_id],
-                "room_states": room_states[env_id],
+                "turn_log": turn_logs[env_id],
                 "metrics": convert_numpy_types(metrics),
             })
         

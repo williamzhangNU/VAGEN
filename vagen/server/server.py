@@ -139,31 +139,18 @@ class BatchEnvServer:
 				env_infos[env_id] = env_info
 			return jsonify({"states": env_infos}), 200
 		
-		@self.app.route('/batch/room', methods=['POST'])
-		def room_batch():
-			"""Return the sequence of room states in each env"""
-			data = request.json
-			env_ids = data['env_ids']
-			env_rooms = {}
-			for env_id in env_ids:
-				service, _ = self._get_service_for_env(env_id)
-				env = service.environments[env_id]
-				room_states = env.room_states
-				env_rooms[env_id] = room_states
-			return jsonify({"rooms": env_rooms}), 200
-		@self.app.route('/batch/metrics', methods=['POST'])
+		@self.app.route('/batch/turns', methods=['POST'])
 		def metrics_batch():
-			"""Return the metrics_logs in each env"""
+			"""Return the turn_log in each env"""
 			data = request.json
 			env_ids = data['env_ids']
 			env_logs = {}
 			for env_id in env_ids:
 				service, _ = self._get_service_for_env(env_id)
 				env = service.environments[env_id]
-				exploration_metrics_log =  env.get_exploration_per_turn_metrics(),
-				evaluation_metrics_log = env.get_evaluation_per_turn_metrics()
-				env_logs[env_id] = {"exploration_metrics_log": exploration_metrics_log, "evaluation_metrics_log": evaluation_metrics_log}
-			return jsonify({"metrics_log": env_logs}), 200
+				turn_log =  env.turn_logs
+				env_logs[env_id] = turn_log
+			return jsonify({"turn_logs": env_logs}), 200
 		@self.app.route('/reset/<env_id>', methods=['POST'])
 		def reset_environment(env_id):
 			"""Reset single environment endpoint"""
