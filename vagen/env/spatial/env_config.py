@@ -31,6 +31,7 @@ class SpatialGymConfig(BaseEnvConfig):
     image_size: Tuple[int, int] = field(default=(300, 300), init=False)
     
     # Environment specific configuration
+    name: str = 'unnamed_env'
     # Room configuration
     field_of_view: int = field(default=90, init=False)
     base_dir: str = os.path.join(os.path.dirname(__file__), "room_data/")
@@ -119,6 +120,7 @@ class SpatialGymConfig(BaseEnvConfig):
             'max_exp_steps': self.max_exp_steps,
             'render_mode': self.render_mode,
             'image_size': self.image_size,
+            'name': self.name,
         }
         
         # Common config (inherited from BaseEnvConfig)
@@ -130,8 +132,8 @@ class SpatialGymConfig(BaseEnvConfig):
         }
         
         return {
-            'specific_config': specific_config,
-            'common_config': common_config
+            **specific_config,
+            **common_config
         }
     
 

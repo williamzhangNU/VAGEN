@@ -3,7 +3,9 @@ import numpy as np
 import re
 import os
 import json
-from typing import Optional, Dict, Any, Tuple
+import copy
+from dataclasses import dataclass, field
+from typing import Optional, Dict, Any, Tuple, List
 from PIL import Image
 
 from vagen.env.spatial.env_config import SpatialGymConfig
@@ -13,12 +15,16 @@ from vagen.env.spatial.Base.tos_base import (
     EvaluationManager,
     ActionSequence,
     ExplorationManager,
-    BaseAction
+    BaseAction,
+    Room,
+    ExplorationTurnLog,
+    EvaluationTurnLog
 )
 from vagen.env.spatial.utils.initialize_room import initialize_room_from_json
 from vagen.env.spatial.utils.generate_history import AutoExplore
 from vagen.env.spatial.utils.action_utils import action_results_to_text
 from vagen.env.spatial.utils.image_handler import ImageHandler
+from vagen.env.spatial.utils.text_utils import extract_think_and_answer
 from vagen.env.spatial.prompt import (
     ACTIVE_INSTRUCTION, 
     PASSIVE_INSTRUCTION, 
@@ -26,6 +32,32 @@ from vagen.env.spatial.prompt import (
     FORMAT_PROMPT,
     TOPDOWN_PROMPT
 )
+
+@dataclass
+class EnvTurnLog:
+    """Log data for a single environment turn."""
+    turn_number: int
+    user_message: str = ""  # Environment observation
+    assistant_raw_message: str = ""  # Raw assistant input
+    assistant_parsed_message: str = ""  # Parsed assistant action
+    is_exploration_phase: bool = False
+    exploration_log: Optional["ExplorationTurnLog"] = None
+    evaluation_log: Optional["EvaluationTurnLog"] = None
+    room_state: Optional["Room"] = None
+    info: Dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self):
+        return {
+            "turn_number": self.turn_number,
+            "user_message": self.user_message,
+            "assistant_raw_message": self.assistant_raw_message,
+            "assistant_parsed_message": self.assistant_parsed_message,
+            "is_exploration_phase": self.is_exploration_phase,
+            "exploration_log": self.exploration_log.to_dict() if self.exploration_log else {},
+            "evaluation_log": self.evaluation_log.to_dict() if self.evaluation_log else {},
+            "room_state": self.room_state.to_dict() if self.room_state else {},
+            "info": self.info
+        }
 
 class SpatialGym(gym.Env):
 
@@ -47,6 +79,10 @@ class SpatialGym(gym.Env):
         # Exploration metrics
         self.n_valid_queries = None
         self.n_redundant_queries = None
+
+        # Turn log
+        self.turn_logs: List[EnvTurnLog] = None
+        self.current_turn_number = None
 
 
     def _init_data(self, seed: int = None):
@@ -149,6 +185,10 @@ class SpatialGym(gym.Env):
         self.remaining_exp_steps = self.config.max_exp_steps
         self.n_valid_queries = 0
         self.n_redundant_queries = 0
+
+        # Initialize turn logs
+        self.turn_logs = []
+        self.current_turn_number = 0
         
         # Set exploration phase
         self.is_exploration_phase = self.config.exp_type != 'passive'
@@ -159,16 +199,51 @@ class SpatialGym(gym.Env):
         # Initialize managers
         if self.config.exp_type == 'active':
             self.exploration_manager = ExplorationManager(self.initial_room)
-        self.evaluation_manager = EvaluationManager(self.config.eval_tasks, self.np_random)
-        return self._generate_initial_observation(), {}
+        self.evaluation_manager = EvaluationManager(self.config.eval_tasks, self.np_random, self.initial_room)
+        obs = self._generate_initial_observation()
+        self.render_cache = obs
+        return obs, {}
 
 
-    def step(self, llm_raw_response: str):
+    def step(self, action: str):
         """Process agent actions in the spatial gym environment."""
+        self.current_turn_number += 1
+        exp_log, eval_log = None, None
+        
+        # Log turn at start with current state
+        current_obs = self.render_cache['obs_str'] if hasattr(self, 'render_cache') else ""
+        
+        # Execute action
         if self.is_exploration_phase:
-            return self._step_exploration(llm_raw_response)
+            obs, reward, done, step_info = self._step_exploration(action)
+            exp_log = self.exploration_manager.turn_logs[-1] if self.exploration_manager and self.exploration_manager.turn_logs else None
         else:
-            return self._step_evaluation(llm_raw_response)
+            obs, reward, done, step_info = self._step_evaluation(action)
+            eval_log = self.evaluation_manager.turn_logs[-1] if self.evaluation_manager.turn_logs else None
+
+        self.render_cache = obs
+
+
+        # Get room state from turn logs
+        room_state = None
+        if exp_log and exp_log.room_state:
+            room_state = exp_log.room_state
+        elif eval_log and eval_log.room_state:
+            room_state = eval_log.room_state
+
+        turn_log = EnvTurnLog(
+            turn_number=self.current_turn_number,
+            user_message=current_obs,
+            assistant_parsed_message=action,
+            is_exploration_phase=self.is_exploration_phase,
+            room_state=room_state,
+            exploration_log=exp_log,
+            evaluation_log=eval_log,
+            info={"reward": reward, "is_done": done, **step_info}
+        )
+        self.turn_logs.append(turn_log)
+        
+        return obs, reward, done, step_info
 
     def _step_exploration(self, llm_raw_response: str):
         """
@@ -282,7 +357,90 @@ class SpatialGym(gym.Env):
 
     # =================== Analysis ===================
     
-    def get_env_info(self):
+    def get_exp_summary(self):
+        """Get exploration efficiency metrics."""
+        return self.exploration_manager.get_exp_summary() if self.exploration_manager else ExplorationManager.DEFAULT_EXP_SUMMARY
+    
+    def get_eval_summary(self):
+        """Get evaluation performance metrics."""
+        return self.evaluation_manager.get_eval_summary() if self.evaluation_manager else EvaluationManager.DEFAULT_EVAL_SUMMARY.copy()
+    
+    def get_env_summary(self) -> Dict[str, Any]:
+        """Aggregate environment metrics from all turns."""
+
+        return {
+            'env_info': self._get_env_info(),
+            'env_turn_logs': [turn_log.to_dict() for turn_log in self.turn_logs],
+            'summary': {
+                'total_turns': len(self.turn_logs),
+                'exp_summary': self.get_exp_summary(),
+                'eval_summary': self.get_eval_summary()
+            }
+        }
+    
+    @staticmethod
+    def aggregate_env_data(env_results: List[Dict]) -> Dict:
+        """
+        Group environments by config name and calculate aggregate metrics.
+        
+        Args:
+            env_results: List of env result dictionaries with env_summary and messages
+        
+        Returns: TODO
+        """
+        from collections import defaultdict
+        
+        # Group environments by config name
+        config_groups = defaultdict(list)
+        for env_summary in env_results:
+            config_name = env_summary['env_info']['config']['name']
+            
+            # Extract messages and assign to turn logs
+            messages = env_summary.get('messages', [])
+            turn_logs = env_summary.get('env_turn_logs', [])
+            SpatialGym._assign_raw_messages(messages, turn_logs)
+            
+            config_groups[config_name].append(env_summary)
+        
+        # Initialize result structure
+        result = {
+            "config_groups": {},
+            "exp_summary": {"overall_performance": {}, "group_performance": {}},
+            "eval_summary": {"overall_performance": {}, "group_performance": {}}
+        }
+        
+        # Collect all metrics for overall calculation
+        all_exp_data, all_eval_data = [], []
+        
+        for config_name, env_data_list in config_groups.items():
+            # Store environment data
+            result["config_groups"][config_name] = {"env_data": env_data_list}
+            
+            # Extract metrics for this group
+            exp_summaries = [d['summary']['exp_summary'] for d in env_data_list]
+            eval_summaries = [d['summary']['eval_summary'] for d in env_data_list]
+            
+            # Calculate group performance using manager methods
+            result["exp_summary"]["group_performance"][config_name] = ExplorationManager.aggregate_group_performance(exp_summaries)
+            result["eval_summary"]["group_performance"][config_name] = EvaluationManager.aggregate_group_performance(eval_summaries)
+            
+            # Collect for overall calculation
+            all_exp_data.extend(exp_summaries)
+            all_eval_data.extend(eval_summaries)
+        
+        # Calculate overall performance using manager methods
+        if all_exp_data:
+            result["exp_summary"]["overall_performance"] = ExplorationManager.aggregate_group_performance(all_exp_data)
+        
+        if all_eval_data:
+            result["eval_summary"]["overall_performance"] = EvaluationManager.aggregate_group_performance(all_eval_data)
+        
+        return result
+    
+
+
+
+    def _get_env_info(self):
         """Get environment state information."""
         return {
             "config": self.config.to_dict(),
@@ -290,31 +448,38 @@ class SpatialGym(gym.Env):
             "final_room": self.final_room.to_dict() if self.final_room else None,
         }
 
-    def get_exp_efficiency(self):
-        """Get exploration efficiency metrics."""
-        if self.config.exp_type == 'passive':
-            return {
-                "coverage": 0,
-                "redundancy": self.n_redundant_queries / self.n_valid_queries if self.n_valid_queries > 0 else 0,
-                "n_valid_queries": self.n_valid_queries,
-                "n_redundant_queries": self.n_redundant_queries,
-            }
+    @staticmethod
+    def _assign_raw_messages(message: List[Dict], turn_logs: List[Dict]):
+        """Assign raw assistant messages to turn logs."""
+        # Extract assistant messages from conversation
+        assistant_messages = [msg['content'] for msg in message if msg.get("role") == "assistant"]
         
-        assert self.exploration_manager, "Exploration manager not initialized"
-        return self.exploration_manager.get_exploration_efficiency()
-    
-    def get_eval_performance(self):
-        """Get evaluation performance metrics."""
-        if not self.evaluation_manager:
-            return {
-                "accuracy": 0.0,
-                "accuracy_completed": 0.0,
-                "task_results": [],
-                "completed_tasks": 0,
-                "unanswered_tasks": 0
-            }
+        # Check if number of assistant messages matches turn logs
+        if len(assistant_messages) != len(turn_logs):
+            raise ValueError(f"Mismatch: {len(assistant_messages)} assistant messages vs {len(turn_logs)} turns")
         
-        return self.evaluation_manager.get_evaluation_summary()
+        # Assign raw messages to turn logs
+        for turn_log, raw_msg in zip(turn_logs, assistant_messages):
+            think_content, _ = extract_think_and_answer(raw_msg)
+            turn_log['assistant_raw_message'] = raw_msg
+            turn_log['assistant_think_message'] = think_content
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 if __name__ == "__main__":
     

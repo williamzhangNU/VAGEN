@@ -126,6 +126,21 @@ class BatchEnvServer:
             self._close_batch(env_ids)
             return jsonify({"status": "success"}), 200
         
+        # for spatial env
+        @self.app.route('/batch/summary', methods=['POST'])
+        def get_results_batch():
+            """Return the turn_log in each env"""
+            data = request.json
+            env_ids = data['env_ids']
+            env_summaries = {}
+            for env_id in env_ids:
+                service, _ = self._get_service_for_env(env_id)
+                env = service.environments[env_id]
+                env_summary = env.get_env_summary()
+                env_summaries[env_id] = env_summary
+            return jsonify({"env_summaries": env_summaries}), 200
+        
+        
         @self.app.route('/reset/<env_id>', methods=['POST'])
         def reset_environment(env_id):
             """Reset single environment endpoint"""

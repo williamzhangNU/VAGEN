@@ -153,6 +153,16 @@ class BatchEnvClient:
             
         return deserialized_results
     
+    # for spatial env
+    def get_env_summaries_batch(self, env_ids: List[str]) -> Dict[str, Any]:
+        """
+        Ask the server for env summary for for each env_id.
+        """
+        response = self._make_request("batch/summary", "POST", {'env_ids': env_ids})
+        env_summaries = response.get("env_summaries", {})
+        return env_summaries
+    
+
     def compute_reward_batch(self, env_ids: List[str]) -> Dict[str, float]:
         """
         Compute rewards for multiple environments in batch.

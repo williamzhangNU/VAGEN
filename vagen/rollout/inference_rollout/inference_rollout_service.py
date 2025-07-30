@@ -5,6 +5,7 @@ import time
 from typing import List, Dict, Tuple, Optional, Any
 from collections import defaultdict
 from tqdm import tqdm
+import copy
 import PIL
 
 from vagen.rollout.base_rollout import BaseRollout
@@ -310,7 +311,10 @@ class InferenceRolloutService(BaseRollout):
         
         # Get final rewards for all environments (no longer used)
         # reward_results = self.env_client.compute_reward_batch(list(self.envs.keys()))
-        
+
+        # for spatial env
+        env_summaries = self.env_client.get_env_summaries_batch(list(self.envs.keys())) # env_id -> env_summary (dict)
+
         for env_id in self.envs:
             # Get environment configuration ID
             config_id = self.envs[env_id].config_id()
@@ -400,12 +404,15 @@ class InferenceRolloutService(BaseRollout):
                     metrics[k] = convert_numpy_types(v)
             
             # Add to results
+            # for spatial env
             results.append({
                 "env_id": env_id,
                 "config_id": config_id,
                 "output_str": output_str,
                 "image_data": image_data,
                 "metrics": convert_numpy_types(metrics),
+                "env_summary": copy.deepcopy(env_summaries[env_id]),
+                "messages": copy.deepcopy(self.recordings[env_id])
             })
         
         return results

@@ -10,10 +10,10 @@ split: "test"
 debug: false
 
 # Output configuration
-output_dir: "inference_outputs"
+output_dir: "results/inference_outputs"
 
 # WandB configuration
-use_wandb: true
+use_wandb: false
 wandb_project: "vagen-debug"
 val_generations_to_log_to_wandb: 10 
 

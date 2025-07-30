@@ -1,6 +1,8 @@
 import os
 import sys
+import copy
 import argparse
+import json
 import logging
 import yaml
 import wandb
@@ -13,6 +15,8 @@ from collections import defaultdict
 from vagen.inference.model_interface.factory_model import ModelFactory
 from vagen.rollout.inference_rollout.inference_rollout_service import InferenceRolloutService
 from vagen.inference.utils.logging import log_results_to_wandb
+from vagen.env.spatial.env import SpatialGym
+from vagen.env.spatial.utils.save_results import save_results_to_disk
 
 logger = logging.getLogger(__name__)
 
@@ -116,6 +120,9 @@ def main():
             service.reset(env_configs)
             service.run(max_steps=inference_config.get('max_steps', 10))
             results = service.recording_to_log()
+
+            # save results to json and visualize (for spatial env)
+            save_results_to_disk([result['env_summary'] for result in results], [result['messages'] for result in results], inference_config.get('output_dir', 'results/inference_outputs'), model_name=model_name)
             
             # Log results to wandb (using the combined logging function)
             if inference_config.get('use_wandb', True):
