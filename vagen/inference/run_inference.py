@@ -16,7 +16,6 @@ from vagen.inference.model_interface.factory_model import ModelFactory
 from vagen.rollout.inference_rollout.inference_rollout_service import InferenceRolloutService
 from vagen.inference.utils.logging import log_results_to_wandb
 from vagen.env.spatial.env import SpatialGym
-from vagen.env.spatial.utils.save_results import save_results_to_disk
 from vagen.env.spatial.utils.env_logger import SpatialEnvLogger
 
 logger = logging.getLogger(__name__)

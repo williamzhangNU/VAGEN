@@ -54,6 +54,7 @@ class ImageHandler:
                 else:
                     image_map[key] = path
         image_map['topdown'] = Image.open(os.path.join(self.image_dir, 'top_down_annotated.png'))
+        image_map['oblique'] = Image.open(os.path.join(self.image_dir, 'oblique_view.png'))
         return image_map
     
     def get_image(self, name: str = 'agent', direction: str = 'north') -> Image.Image:

@@ -21,10 +21,8 @@ from vagen.env.spatial.Base.tos_base import (
     EvaluationTurnLog
 )
 from vagen.env.spatial.utils.initialize_room import initialize_room_from_json
-from vagen.env.spatial.utils.generate_history import AutoExplore
 from vagen.env.spatial.utils.action_utils import action_results_to_text
 from vagen.env.spatial.utils.image_handler import ImageHandler
-from vagen.env.spatial.utils.text_utils import extract_think_and_answer
 from vagen.env.spatial.prompts import Prompter
 
 
@@ -82,7 +80,7 @@ class SpatialGym(gym.Env):
         self.current_turn_number = None
         
         # Initialize prompter
-        self.prompter = Prompter(config)
+        self.prompter = None
 
 
     def _init_data(self, seed: int = None):
@@ -94,11 +92,7 @@ class SpatialGym(gym.Env):
 
     def _generate_initial_observation(self) -> str:
         """Generate initial observation based on exploration type."""
-        obs = self.prompter.get_initial_observation_prompt(
-            room=self.initial_room,
-            np_random=self.np_random,
-            image_handler=self.image_handler
-        )
+        obs = self.prompter.get_initial_observation_prompt(room=self.initial_room)
         if self.config.exp_type == 'passive':
             eval_question = self.evaluation_manager.get_current_question()
             assert eval_question, "No question found after exploration phase"
@@ -181,6 +175,9 @@ class SpatialGym(gym.Env):
         self.exploration_manager = ExplorationManager(self.initial_room) if self.config.exp_type == 'active' else None
         self.evaluation_manager = EvaluationManager(self.config.eval_tasks, self.np_random, self.initial_room) if len(self.config.eval_tasks) > 0 else None
         
+        # Initialize prompter
+        self.prompter = Prompter(self.config, self.image_handler, self.np_random)
+
         obs = self._generate_initial_observation()
         self.render_cache = obs
         return obs, {}

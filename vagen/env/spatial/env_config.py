@@ -39,6 +39,7 @@ class SpatialGymConfig(BaseEnvConfig):
     exp_type: str = 'passive'
     perspective: str = 'ego'
     prompt_with_topdown: bool = False
+    prompt_with_oblique: bool = False
     prompt_with_cogmap: bool = False
     max_exp_steps: int = 100
     
@@ -96,17 +97,18 @@ class SpatialGymConfig(BaseEnvConfig):
 
     def _validate_task_kwargs(self, task_type: str, kwargs: Dict[str, Any]):
         """Validate task-specific parameters."""
-        if task_type == 'dir':
-            movement = kwargs.get('movement', 'static')
-            valid_movements = ['static', 'object_move', 'agent_move', 'agent_turn']
-            if movement not in valid_movements:
-                raise ValueError(f"dir task movement must be one of {valid_movements}")
+        # if task_type == 'dir':
+        #     movement = kwargs.get('movement', 'static')
+        #     valid_movements = ['static', 'object_move', 'agent_move', 'agent_turn']
+        #     if movement not in valid_movements:
+        #         raise ValueError(f"dir task movement must be one of {valid_movements}")
         
-        elif task_type == 'rot':
-            turn_direction = kwargs.get('turn_direction', 'clockwise')
-            valid_directions = ['clockwise', 'counterclockwise']
-            if turn_direction not in valid_directions:
-                raise ValueError(f"rot task turn_direction must be one of {valid_directions}")
+        # elif task_type == 'rot':
+        #     turn_direction = kwargs.get('turn_direction', 'clockwise')
+        #     valid_directions = ['clockwise', 'counterclockwise']
+        #     if turn_direction not in valid_directions:
+        #         raise ValueError(f"rot task turn_direction must be one of {valid_directions}")
+        return
 
     def get_room_config(self) -> Dict[str, Any]:
         """Get configuration for room generation."""
@@ -122,6 +124,7 @@ class SpatialGymConfig(BaseEnvConfig):
             'image_size': self.image_size,
             'name': self.name,
             'prompt_with_topdown': self.prompt_with_topdown,
+            'prompt_with_oblique': self.prompt_with_oblique,
             'prompt_with_cogmap': self.prompt_with_cogmap,
             'field_of_view': self.field_of_view,
         }

@@ -1,11 +1,11 @@
 env1:
   env_name: spatial
   env_config: 
-    name: passive_pov
+    name: passive_rot
     exp_type: passive
     max_exp_steps: 1
     prompt_with_topdown: true
     eval_tasks:
-      - task_type: pov
+      - task_type: rot
   train_size: 5
   test_size: 5

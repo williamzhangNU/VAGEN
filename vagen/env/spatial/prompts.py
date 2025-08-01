@@ -149,18 +149,35 @@ Always output: <think> [Your thoughts] </think> <answer> [your answer] </answer>
     _TOPDOWN_PROMPT = """\
 You observe the room from the topdown view: {placeholder}, \
 where the blue dot indicates the agent's position and the red arrow indicates the agent's facing direction.
+{object_info}
 """
 
-    def __init__(self, config):
-        self.config = config
+    _OBLIQUE_PROMPT = """\
+You observe the room from an elevated 45-degree angle view: {placeholder}, \
+where the blue dot indicates the agent's position and the red arrow indicates the agent's facing direction.
+"""
 
-    def get_initial_observation_prompt(self, room: Room, np_random: np.random.RandomState = None, image_handler = None) -> dict:
+
+    def __init__(self, config, image_handler, np_random):
+        self.config = config
+        self.image_handler = image_handler
+        self.np_random = np_random
+
+    def _get_topdown_prompt(self, prompt_template: str, room: Room) -> str:
+        obj_info = "Each object in the room is labeled with a numerical marker for easy identification."
+        for idx, obj in enumerate(room.objects):
+            obj_info += f"\nObject {idx + 1}: {obj.name}"
+        return prompt_template.format(placeholder=self.config.image_placeholder, object_info=obj_info)
+
+    def get_initial_observation_prompt(self, room: Room) -> dict:
         """
         Generates the initial observation prompt based on the exploration type.
         """
         room_desc = room.get_room_description()
-        if self.config.prompt_with_topdown and image_handler:
-            room_desc += self._TOPDOWN_PROMPT.format(placeholder=self.config.image_placeholder)
+        if self.config.prompt_with_topdown:
+            room_desc += self._get_topdown_prompt(self._TOPDOWN_PROMPT, room)
+        if self.config.prompt_with_oblique:
+            room_desc += self._get_topdown_prompt(self._OBLIQUE_PROMPT, room)
             
         if self.config.exp_type == 'active':
             exp_instructions = f"## Action Instructions\n{ActionSequence.get_usage_instructions()}\n\nYou have a maximum of {self.config.max_exp_steps} exploration steps."
@@ -169,18 +186,20 @@ where the blue dot indicates the agent's position and the red arrow indicates th
                 exp_instructions=exp_instructions
             )
             result = {'obs_str': obs_str + "\n" + self.FORMAT_PROMPT}
-            if self.config.prompt_with_topdown and image_handler:
-                result['multi_modal_data'] = {self.config.image_placeholder: [image_handler.get_image('topdown')]}
+            if self.config.prompt_with_topdown:
+                result['multi_modal_data'] = {self.config.image_placeholder: [self.image_handler.get_image('topdown')]}
             return result
         else:
             exp_history = ""
             images = []
-            if not self.config.prompt_with_topdown and np_random and image_handler:
-                exp_history_obs = AutoExplore(room, np_random, image_handler).gen_exp_history()
+            if not self.config.prompt_with_topdown and not self.config.prompt_with_oblique:
+                exp_history_obs = AutoExplore(room, self.np_random, self.image_handler).gen_exp_history()
                 exp_history = f"## Exploration History\n{exp_history_obs['obs_str']}"
                 images.extend(exp_history_obs['multi_modal_data'][self.config.image_placeholder])
-            elif self.config.prompt_with_topdown and image_handler:
-                images = [image_handler.get_image('topdown')]
+            elif self.config.prompt_with_topdown:
+                images.append(self.image_handler.get_image('topdown'))
+            elif self.config.prompt_with_oblique:
+                images.append(self.image_handler.get_image('oblique'))
                 
             obs_str = self._PASSIVE_INSTRUCTION.format(
                 room_info=room_desc,
