@@ -25,13 +25,8 @@ from vagen.env.spatial.utils.generate_history import AutoExplore
 from vagen.env.spatial.utils.action_utils import action_results_to_text
 from vagen.env.spatial.utils.image_handler import ImageHandler
 from vagen.env.spatial.utils.text_utils import extract_think_and_answer
-from vagen.env.spatial.prompt import (
-    ACTIVE_INSTRUCTION, 
-    PASSIVE_INSTRUCTION, 
-    EVALUATION_INSTRUCTION,
-    FORMAT_PROMPT,
-    TOPDOWN_PROMPT
-)
+from vagen.env.spatial.prompts import Prompter
+
 
 @dataclass
 class EnvTurnLog:
@@ -39,6 +34,7 @@ class EnvTurnLog:
     turn_number: int
     user_message: str = ""  # Environment observation
     assistant_raw_message: str = ""  # Raw assistant input
+    assistant_think_message: str = ""  # Think part of assistant message
     assistant_parsed_message: str = ""  # Parsed assistant action
     is_exploration_phase: bool = False
     exploration_log: Optional["ExplorationTurnLog"] = None
@@ -51,6 +47,7 @@ class EnvTurnLog:
             "turn_number": self.turn_number,
             "user_message": self.user_message,
             "assistant_raw_message": self.assistant_raw_message,
+            "assistant_think_message": self.assistant_think_message,
             "assistant_parsed_message": self.assistant_parsed_message,
             "is_exploration_phase": self.is_exploration_phase,
             "exploration_log": self.exploration_log.to_dict() if self.exploration_log else {},
@@ -83,6 +80,9 @@ class SpatialGym(gym.Env):
         # Turn log
         self.turn_logs: List[EnvTurnLog] = None
         self.current_turn_number = None
+        
+        # Initialize prompter
+        self.prompter = Prompter(config)
 
 
     def _init_data(self, seed: int = None):
@@ -94,42 +94,23 @@ class SpatialGym(gym.Env):
 
     def _generate_initial_observation(self) -> str:
         """Generate initial observation based on exploration type."""
-        room_desc = self.initial_room.get_room_description() + (TOPDOWN_PROMPT.format(placeholder=self.config.image_placeholder) if self.config.with_topdown else "")
-        images = [self.image_handler.get_image('topdown')] if self.config.with_topdown else []
-        
-        if self.config.exp_type == 'passive':
-            exp_history = ""
-            if not self.config.with_topdown:
-                exp_history_obs = AutoExplore(self.initial_room, self.np_random, self.image_handler).gen_exp_history()
-                exp_history = f"## Exploration History\n{exp_history_obs['obs_str']}"
-                images.extend(exp_history_obs['multi_modal_data'][self.config.image_placeholder])
-
-            obs = PASSIVE_INSTRUCTION.format(
-                room_info=room_desc,
-                exp_history=exp_history,
-            )
-
-            eval_question = self.evaluation_manager.get_current_question(self.initial_room.copy())
-            assert eval_question, "No question found after exploration phase"
-            obs += EVALUATION_INSTRUCTION.format(eval_question=f"## Evaluation Question\n{eval_question}")
-            
-            result_obs = self._create_obs(obs, include_visual=False)
-            if images:
-                result_obs['multi_modal_data'] = {self.config.image_placeholder: images}
-            return result_obs
-
-        exp_instructions = f"## Action Instructions\n{ActionSequence.get_usage_instructions()}\n\nYou have a maximum of {self.config.max_exp_steps} exploration steps."
-        obs = ACTIVE_INSTRUCTION.format(
-            room_info=room_desc,
-            exp_instructions=exp_instructions
+        obs = self.prompter.get_initial_observation_prompt(
+            room=self.initial_room,
+            np_random=self.np_random,
+            image_handler=self.image_handler
         )
-        result_obs = self._create_obs(obs, include_visual=False)
-        result_obs['multi_modal_data'] = {self.config.image_placeholder: images}
-        return result_obs
+        if self.config.exp_type == 'passive':
+            eval_question = self.evaluation_manager.get_current_question()
+            assert eval_question, "No question found after exploration phase"
+            eval_prompt = self.prompter.get_evaluation_prompt(f"## Evaluation Question\n{eval_question}")
+            obs['obs_str'] += eval_prompt
+            return obs
+            
+        return obs
 
 
     def _create_obs(self, obs_str: str, include_visual: bool = False) -> dict:
-        obs = {'obs_str': obs_str + "\n" + FORMAT_PROMPT}
+        obs = {'obs_str': obs_str + "\n" + self.prompter.FORMAT_PROMPT}
         if include_visual:
             img = self.image_handler.get_image(self.current_position, self.current_direction)
             obs['multi_modal_data'] = {self.config.image_placeholder: [img]}
@@ -197,9 +178,9 @@ class SpatialGym(gym.Env):
         BaseAction.set_field_of_view(self.config.field_of_view)
         
         # Initialize managers
-        if self.config.exp_type == 'active':
-            self.exploration_manager = ExplorationManager(self.initial_room)
-        self.evaluation_manager = EvaluationManager(self.config.eval_tasks, self.np_random, self.initial_room)
+        self.exploration_manager = ExplorationManager(self.initial_room) if self.config.exp_type == 'active' else None
+        self.evaluation_manager = EvaluationManager(self.config.eval_tasks, self.np_random, self.initial_room) if len(self.config.eval_tasks) > 0 else None
+        
         obs = self._generate_initial_observation()
         self.render_cache = obs
         return obs, {}
@@ -291,9 +272,9 @@ class SpatialGym(gym.Env):
             self.final_room = self.exploration_manager.finish_exploration()
             
             # Transition to evaluation, NOTE question is generated based on the initial room
-            eval_question = self.evaluation_manager.get_current_question(self.initial_room.copy())
+            eval_question = self.evaluation_manager.get_current_question()
             assert eval_question, "No question found after exploration phase"
-            obs_str += EVALUATION_INSTRUCTION.format(eval_question=f"## Evaluation Question\n{eval_question}")
+            obs_str += self.prompter.get_evaluation_prompt(f"## Evaluation Question\n{eval_question}")
         else:
             # Execute exploration action, TODO give better reward to efficient exploration
             if action_sequence:
@@ -341,7 +322,7 @@ class SpatialGym(gym.Env):
         
         # Check for next task
         if self.evaluation_manager.next_task():
-            next_question = self.evaluation_manager.get_current_question(self.initial_room.copy())
+            next_question = self.evaluation_manager.get_current_question()
             assert next_question, "No question found after evaluation phase"
             return self._create_obs(next_question), reward, False, {}
         
@@ -377,68 +358,6 @@ class SpatialGym(gym.Env):
                 'eval_summary': self.get_eval_summary()
             }
         }
-    
-    @staticmethod
-    def aggregate_env_data(env_results: List[Dict]) -> Dict:
-        """
-        Group environments by config name and calculate aggregate metrics.
-        
-        Args:
-            env_results: List of env result dictionaries with env_summary and messages
-        
-        Returns: TODO
-        """
-        from collections import defaultdict
-        
-        # Group environments by config name
-        config_groups = defaultdict(list)
-        for env_summary in env_results:
-            config_name = env_summary['env_info']['config']['name']
-            
-            # Extract messages and assign to turn logs
-            messages = env_summary.get('messages', [])
-            turn_logs = env_summary.get('env_turn_logs', [])
-            SpatialGym._assign_raw_messages(messages, turn_logs)
-            
-            config_groups[config_name].append(env_summary)
-        
-        # Initialize result structure
-        result = {
-            "config_groups": {},
-            "exp_summary": {"overall_performance": {}, "group_performance": {}},
-            "eval_summary": {"overall_performance": {}, "group_performance": {}}
-        }
-        
-        # Collect all metrics for overall calculation
-        all_exp_data, all_eval_data = [], []
-        
-        for config_name, env_data_list in config_groups.items():
-            # Store environment data
-            result["config_groups"][config_name] = {"env_data": env_data_list}
-            
-            # Extract metrics for this group
-            exp_summaries = [d['summary']['exp_summary'] for d in env_data_list]
-            eval_summaries = [d['summary']['eval_summary'] for d in env_data_list]
-            
-            # Calculate group performance using manager methods
-            result["exp_summary"]["group_performance"][config_name] = ExplorationManager.aggregate_group_performance(exp_summaries)
-            result["eval_summary"]["group_performance"][config_name] = EvaluationManager.aggregate_group_performance(eval_summaries)
-            
-            # Collect for overall calculation
-            all_exp_data.extend(exp_summaries)
-            all_eval_data.extend(eval_summaries)
-        
-        # Calculate overall performance using manager methods
-        if all_exp_data:
-            result["exp_summary"]["overall_performance"] = ExplorationManager.aggregate_group_performance(all_exp_data)
-        
-        if all_eval_data:
-            result["eval_summary"]["overall_performance"] = EvaluationManager.aggregate_group_performance(all_eval_data)
-        
-        return result
-    
-
-
 
     def _get_env_info(self):
         """Get environment state information."""
@@ -447,29 +366,6 @@ class SpatialGym(gym.Env):
             "initial_room": self.initial_room.to_dict(),
             "final_room": self.final_room.to_dict() if self.final_room else None,
         }
-
-    @staticmethod
-    def _assign_raw_messages(message: List[Dict], turn_logs: List[Dict]):
-        """Assign raw assistant messages to turn logs."""
-        # Extract assistant messages from conversation
-        assistant_messages = [msg['content'] for msg in message if msg.get("role") == "assistant"]
-        
-        # Check if number of assistant messages matches turn logs
-        if len(assistant_messages) != len(turn_logs):
-            raise ValueError(f"Mismatch: {len(assistant_messages)} assistant messages vs {len(turn_logs)} turns")
-        
-        # Assign raw messages to turn logs
-        for turn_log, raw_msg in zip(turn_logs, assistant_messages):
-            think_content, _ = extract_think_and_answer(raw_msg)
-            turn_log['assistant_raw_message'] = raw_msg
-            turn_log['assistant_think_message'] = think_content
-
-
-
-
-
-
-
 
 
 
@@ -489,7 +385,7 @@ if __name__ == "__main__":
         
         config = SpatialGymConfig(
             exp_type='passive',
-            eval_tasks=[{"task_type": "all_pairs", "task_kwargs": {"num_pairs": 2}}],
+            eval_tasks=[{"task_type": "dir", "task_kwargs": {}}],
             max_exp_steps=1
         )
         
@@ -505,7 +401,7 @@ if __name__ == "__main__":
         # Test evaluation step
         answer = "left"
         obs, reward, done, info = env.step(answer)
-        assert reward in [-0.5, 0, 1]  # Binary reward or format penalty
+        assert reward in [0, 1]  # Binary reward
         
         print("✓ Passive mode test passed\n")
 
@@ -616,11 +512,11 @@ if __name__ == "__main__":
         env.reset(seed=42)
         
         # Initial metrics
-        exp_metrics = env.get_exp_efficiency()
-        eval_metrics = env.get_eval_performance()
+        exp_metrics = env.get_exp_summary()
+        eval_metrics = env.get_eval_summary()
         
-        assert 'coverage' in exp_metrics
-        assert 'accuracy' in eval_metrics
+        assert isinstance(exp_metrics, dict)
+        assert isinstance(eval_metrics, dict)
         
         # After some exploration
         env.step("Movement: []\nFinal: Observe()")
@@ -648,7 +544,7 @@ if __name__ == "__main__":
         
         for invalid_input in invalid_inputs:
             obs, reward, done, info = env.step(invalid_input)
-            assert reward < 0  # Penalty for invalid input
+            assert reward == 0  # No reward for invalid input
             assert 'Invalid' in obs['obs_str']
         
         print("✓ Error handling test passed\n")

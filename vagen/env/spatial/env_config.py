@@ -38,7 +38,8 @@ class SpatialGymConfig(BaseEnvConfig):
     # Exploration configuration
     exp_type: str = 'passive'
     perspective: str = 'ego'
-    with_topdown: bool = False
+    prompt_with_topdown: bool = False
+    prompt_with_cogmap: bool = False
     max_exp_steps: int = 100
     
     # Evaluation configuration
@@ -118,9 +119,11 @@ class SpatialGymConfig(BaseEnvConfig):
             'exp_type': self.exp_type,
             'eval_tasks': self.eval_tasks,
             'max_exp_steps': self.max_exp_steps,
-            'render_mode': self.render_mode,
             'image_size': self.image_size,
             'name': self.name,
+            'prompt_with_topdown': self.prompt_with_topdown,
+            'prompt_with_cogmap': self.prompt_with_cogmap,
+            'field_of_view': self.field_of_view,
         }
         
         # Common config (inherited from BaseEnvConfig)

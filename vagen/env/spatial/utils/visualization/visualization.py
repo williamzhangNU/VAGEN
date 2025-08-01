@@ -67,10 +67,10 @@ class VisualizationHelper:
 class HTMLGenerator:
     """Handles HTML generation for the visualization"""
     
-    def __init__(self, data: Dict, output_html: str, plot_rooms: bool = True):
+    def __init__(self, data: Dict, output_html: str, save_images: bool = True):
         self.data = data
         self.output_html = output_html
-        self.plot_rooms = plot_rooms
+        self.save_images = save_images
         self.out_dir = os.path.dirname(output_html)
         self.base = Path(output_html).stem
         
@@ -185,7 +185,7 @@ class HTMLGenerator:
         f.write(f"<h2>{escape(gname)} — Sample {sidx+1}</h2>\n")
 
         # Display initial room image if available
-        if self.plot_rooms and entry.get("initial_room_image"):
+        if self.save_images and entry.get("initial_room_image"):
             img_name = entry["initial_room_image"]
             f.write(f"<img src='{img_name}' class='room' alt='Initial room state'>\n")
 
@@ -234,8 +234,16 @@ class HTMLGenerator:
             # Display evaluation information if available
             if not env_log['is_exploration_phase'] and env_log['evaluation_log']:
                 eval_log = env_log['evaluation_log']
-                eval_info = f"Correct: {eval_log['is_correct']}"
-                f.write(f"<div class='block evaluation'><strong>✅ Evaluation</strong><br>{eval_info}</div>\n")
+                f.write("<div class='block evaluation'><strong>✅ Evaluation</strong>")
+                
+                details = {
+                    **eval_log["evaluation_data"],
+                    **eval_log.get("evaluation_info", {}),
+                    "Correct": eval_log.get("is_correct")
+                }
+                
+                f.write(VisualizationHelper.dict_to_html(details))
+                f.write("</div>\n")
 
             # Display turn metrics from env log
             metrics = {}
@@ -258,12 +266,12 @@ class HTMLGenerator:
             
             # Right side: room and message images
             f.write("<div class='turn-right'>\n")
-            if self.plot_rooms and env_log.get('room_image'):
+            if self.save_images and env_log.get('room_image'):
                 img_name = env_log['room_image']
                 f.write(f"<img src='{img_name}' class='room-plot' alt='Room state at turn {t_idx+1}'>\n")
             
             # Display message images
-            if 'message_images' in env_log:
+            if self.save_images and 'message_images' in env_log:
                 for key, images in env_log['message_images'].items():
                     if 'image' in key.lower() and images:
                         for img_idx, img_path in enumerate(images):
@@ -274,9 +282,9 @@ class HTMLGenerator:
             f.write("</div>\n")  # End turn-split
 
         # Final metrics
-        env_summary = entry.get("env_summary", {})
+        summary = entry.get("summary", {})
         f.write("<div class='metrics'><strong>📊 Sample Final Metrics</strong>")
-        f.write(VisualizationHelper.dict_to_html(env_summary))
+        f.write(VisualizationHelper.dict_to_html(summary))
         f.write("</div>\n")
 
         f.write("</section>\n")
@@ -307,10 +315,10 @@ class HTMLGenerator:
 class Visualization:
     """Main visualization class for JSON data"""
     
-    def __init__(self, json_path: str, output_html: str, plot_rooms: bool = True):
+    def __init__(self, json_path: str, output_html: str, save_images: bool = True):
         self.json_path = json_path
         self.output_html = output_html
-        self.plot_rooms = plot_rooms
+        self.save_images = save_images
 
     def load_data(self) -> Dict:
         """Load JSON data from file"""
@@ -320,12 +328,12 @@ class Visualization:
     def visualize(self) -> str:
         """Main method to generate visualization"""
         data = self.load_data()
-        generator = HTMLGenerator(data, self.output_html, self.plot_rooms)
+        generator = HTMLGenerator(data, self.output_html, self.save_images)
         return generator.generate_html()
 
 
-def visualize_json(json_path: str, output_html: str, plot_rooms: bool = True) -> str:
-    viz = Visualization(json_path, output_html, plot_rooms)
+def visualize_json(json_path: str, output_html: str, save_images: bool = True) -> str:
+    viz = Visualization(json_path, output_html, save_images)
     return viz.visualize()
 
 

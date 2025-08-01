@@ -46,7 +46,7 @@ class OpenAIModelInterface(BaseModelInterface):
         for messages in formatted_requests:
             future = self.executor.submit(
                 self._single_api_call,
-                messages,
+                messages,c
                 **kwargs
             )
             futures.append(future)

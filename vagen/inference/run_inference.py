@@ -17,6 +17,7 @@ from vagen.rollout.inference_rollout.inference_rollout_service import InferenceR
 from vagen.inference.utils.logging import log_results_to_wandb
 from vagen.env.spatial.env import SpatialGym
 from vagen.env.spatial.utils.save_results import save_results_to_disk
+from vagen.env.spatial.utils.env_logger import SpatialEnvLogger
 
 logger = logging.getLogger(__name__)
 
@@ -122,7 +123,14 @@ def main():
             results = service.recording_to_log()
 
             # save results to json and visualize (for spatial env)
-            save_results_to_disk([result['env_summary'] for result in results], [result['messages'] for result in results], inference_config.get('output_dir', 'results/inference_outputs'), model_name=model_name)
+            # save_results_to_disk([result['env_summary'] for result in results], [result['messages'] for result in results], inference_config.get('output_dir', 'results/inference_outputs'), model_name=model_name)
+            SpatialEnvLogger.log_each_env_info(
+                [result['env_summary'] for result in results], 
+                [result['messages'] for result in results], 
+                output_dir=os.path.join(inference_config.get('output_dir', 'results/inference_outputs'), model_name),
+                save_images=True,
+                model_name=model_name
+            )
             
             # Log results to wandb (using the combined logging function)
             if inference_config.get('use_wandb', True):

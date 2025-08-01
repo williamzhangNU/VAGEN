@@ -10,7 +10,7 @@ split: "test"
 debug: false
 
 # Output configuration
-output_dir: "results/inference_outputs"
+output_dir: "results/gpt-4.1-mini/pov"
 
 # WandB configuration
 use_wandb: false
