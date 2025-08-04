@@ -208,16 +208,18 @@ class HTMLGenerator:
             
             # Display user message (environment observation)
             if env_log['user_message']:
-                u_short = escape(env_log['user_message'][:200]).replace("\n", "<br>")
+                u_short = escape(env_log['user_message'][:300]).replace("\n", "<br>")
                 u_full = escape(env_log['user_message']).replace("\n", "<br>")
                 obs_id = f"obs_{page_idx}_{t_idx}"
                 f.write(f"<div class='block user expandable' onclick='expandObservation(\"{obs_id}\")'><strong>👤 Environment Observation <span class='expand-hint'>(click to expand)</span></strong><br>{u_short}...</div>\n")
                 f.write(f"<div id='{obs_id}' class='observation-full' style='display:none'>{u_full}</div>\n")
+                # u_full = escape(env_log['user_message']).replace("\n", "<br>")
+                # f.write(f"<div class='block user'><strong>👤 Environment Observation</strong><br>{u_full}</div>\n")
             
-            think_content, answer_content = VisualizationHelper.extract_think_and_answer(env_log['assistant_raw_message'])
+            think_content, answer_content = env_log['assistant_think_message'], env_log['assistant_parsed_message']
             # Display think content
             if think_content:
-                if len(think_content) > 300:  # Make expandable if long
+                if False: # len(think_content) > 300:  # Make expandable if long
                     think_short = escape(think_content[:300]).replace("\n", "<br>")
                     think_full = escape(think_content).replace("\n", "<br>")
                     think_id = f"think_{page_idx}_{t_idx}"
