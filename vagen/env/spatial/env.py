@@ -18,7 +18,9 @@ from vagen.env.spatial.Base.tos_base import (
     BaseAction,
     Room,
     ExplorationTurnLog,
-    EvaluationTurnLog
+    EvaluationTurnLog,
+    CognitiveMapManager,
+    CognitiveMapTurnLog
 )
 from vagen.env.spatial.utils.initialize_room import initialize_room_from_json
 from vagen.env.spatial.utils.action_utils import action_results_to_text
@@ -37,6 +39,7 @@ class EnvTurnLog:
     is_exploration_phase: bool = False
     exploration_log: Optional["ExplorationTurnLog"] = None
     evaluation_log: Optional["EvaluationTurnLog"] = None
+    cogmap_log: Optional["CognitiveMapTurnLog"] = None
     room_state: Optional["Room"] = None
     info: Dict[str, Any] = field(default_factory=dict)
 
@@ -50,6 +53,7 @@ class EnvTurnLog:
             "is_exploration_phase": self.is_exploration_phase,
             "exploration_log": self.exploration_log.to_dict() if self.exploration_log else {},
             "evaluation_log": self.evaluation_log.to_dict() if self.evaluation_log else {},
+            "cogmap_log": self.cogmap_log.to_dict() if self.cogmap_log else {},
             "room_state": self.room_state.to_dict() if self.room_state else {},
             "info": self.info
         }
@@ -59,6 +63,8 @@ class SpatialGym(gym.Env):
     def __init__(self, config: SpatialGymConfig):
         super().__init__()
         self.config = config
+        self.prompter = None
+
         self.is_exploration_phase = None
         self.remaining_exp_steps = None
         self.render_cache = None
@@ -70,17 +76,12 @@ class SpatialGym(gym.Env):
         # Managers
         self.exploration_manager = None
         self.evaluation_manager = None
+        self.cognitive_map_manager = None
 
-        # Exploration metrics
-        self.n_valid_queries = None
-        self.n_redundant_queries = None
-
-        # Turn log
+        # Turn logging
         self.turn_logs: List[EnvTurnLog] = None
         self.current_turn_number = None
         
-        # Initialize prompter
-        self.prompter = None
 
 
     def _init_data(self, seed: int = None):
@@ -92,15 +93,11 @@ class SpatialGym(gym.Env):
 
     def _generate_initial_observation(self) -> str:
         """Generate initial observation based on exploration type."""
-        obs = self.prompter.get_initial_observation_prompt(room=self.initial_room)
-        if self.config.exp_type == 'passive':
-            eval_question = self.evaluation_manager.get_current_question()
-            assert eval_question, "No question found after exploration phase"
-            eval_prompt = self.prompter.get_evaluation_prompt(f"## Evaluation Question\n{eval_question}")
-            obs['obs_str'] += eval_prompt
-            return obs
-            
-        return obs
+        return self.prompter.get_initial_observation_prompt(
+            room=self.initial_room, 
+            eval_manager=self.evaluation_manager,
+            cogmap_manager=self.cognitive_map_manager
+        )
 
 
     def _create_obs(self, obs_str: str, include_visual: bool = False) -> dict:
@@ -149,6 +146,8 @@ class SpatialGym(gym.Env):
     def reset(self, seed: int = None):
         super().reset(seed=seed)
 
+        self.prompter = Prompter(self.config, self.image_handler, self.np_random)
+
         self._init_data(seed=seed)
         self.current_position = 'agent'
         self.current_direction = 'north'
@@ -158,8 +157,6 @@ class SpatialGym(gym.Env):
 
         # Initialize episode state
         self.remaining_exp_steps = self.config.max_exp_steps
-        self.n_valid_queries = 0
-        self.n_redundant_queries = 0
 
         # Initialize turn logs
         self.turn_logs = []
@@ -174,36 +171,50 @@ class SpatialGym(gym.Env):
         # Initialize managers
         self.exploration_manager = ExplorationManager(self.initial_room) if self.config.exp_type == 'active' else None
         self.evaluation_manager = EvaluationManager(self.config.eval_tasks, self.np_random, self.initial_room) if len(self.config.eval_tasks) > 0 else None
-        
-        # Initialize prompter
-        self.prompter = Prompter(self.config, self.image_handler, self.np_random)
+        self.cognitive_map_manager = CognitiveMapManager(self.initial_room) if self.config.exp_type == 'active' else None
 
         obs = self._generate_initial_observation()
         self.render_cache = obs
         return obs, {}
 
 
-    def step(self, action: str):
+    def step(self, llm_raw_response: str):
         """Process agent actions in the spatial gym environment."""
         self.current_turn_number += 1
-        exp_log, eval_log = None, None
+        exp_log, eval_log, cogmap_log = None, None, None
+        result = parse_freethink(llm_raw_response, action_sep="|", max_actions=1)
+        room_state_last_turn = next((turn_log.room_state for turn_log in self.turn_logs[::-1] if turn_log.room_state), self.initial_room)
         
-        # Log turn at start with current state
-        current_obs = self.render_cache['obs_str'] if hasattr(self, 'render_cache') else ""
-        
-        # Execute action
-        if self.is_exploration_phase:
-            obs, reward, done, step_info = self._step_exploration(action)
-            exp_log = self.exploration_manager.turn_logs[-1] if self.exploration_manager and self.exploration_manager.turn_logs else None
-        else:
-            obs, reward, done, step_info = self._step_evaluation(action)
-            eval_log = self.evaluation_manager.turn_logs[-1] if self.evaluation_manager.turn_logs else None
 
+        info = {
+            "metrics": {
+                'success': bool(result['actions']),
+                'action_is_effective': bool(result['actions']),
+                'action_is_valid': bool(result['actions']),
+            },
+            "llm_raw_response": llm_raw_response,
+            "llm_response": result['llm_response'],
+        }
+        if result['actions'] and result['think_content']:
+            # think
+            if self.cognitive_map_manager:
+                self.cognitive_map_manager.evaluate_cognitive_map(result['think_content'], room_state_last_turn)
+                cogmap_log = self.cognitive_map_manager.turn_logs[-1]
+            # action
+            if self.is_exploration_phase:
+                obs, reward, done, info, exp_log = self._step_exploration(result, info)
+            else:
+                obs, reward, done, info, eval_log = self._step_evaluation(result, info)
+        else:
+            obs = self._create_obs('Invalid input format', include_visual=False)
+            reward = -0.5 # invalid input penalty
+            done = False
+
+        obs['obs_str'] += self.prompter.COGMAP_REQUIRED_INSTRUCTION if self.config.prompt_with_cogmap else ""
         self.render_cache = obs
 
-
         # Get room state from turn logs
-        room_state = None
+        room_state = room_state_last_turn
         if exp_log and exp_log.room_state:
             room_state = exp_log.room_state
         elif eval_log and eval_log.room_state:
@@ -211,120 +222,75 @@ class SpatialGym(gym.Env):
 
         turn_log = EnvTurnLog(
             turn_number=self.current_turn_number,
-            user_message=current_obs,
-            assistant_parsed_message=action,
+            user_message=self.render_cache.get('obs_str', ''),
+            assistant_raw_message=llm_raw_response,
+            assistant_think_message=result['think_content'],
+            assistant_parsed_message=result['action_content'],
             is_exploration_phase=self.is_exploration_phase,
-            room_state=room_state,
             exploration_log=exp_log,
             evaluation_log=eval_log,
-            info={"reward": reward, "is_done": done, **step_info}
+            cogmap_log=cogmap_log,
+            room_state=room_state,
+            info={"reward": reward, "is_done": done, **info}
         )
         self.turn_logs.append(turn_log)
-        
-        return obs, reward, done, step_info
+        return obs, reward, done, info
 
-    def _step_exploration(self, llm_raw_response: str):
+    def _step_exploration(self, result: Dict[str, Any], info: Dict[str, Any]):
         """
-        Handle exploration phase step.
-        TODO:
-        1. Deal with evaluation tasks that needs image observation
+        Handle exploration phase step with parsed result and shared info.
         """
         obs_str = ""
-        reward = 0 # per step penalty
+        reward = -0.1 # per step penalty
         include_visual = False
+        self.remaining_exp_steps -= 1
+        exp_log = None
 
-        result = parse_freethink(llm_raw_response, action_sep="|", max_actions=1)
-        info = {
-            "metrics": {
-                'success': False,              # Did LLM complete the task?
-                'action_is_effective': False,  # Did action change game state meaningfully?
-                'action_is_valid': False,      # Was action format correct?
-                },
-            "llm_raw_response": llm_raw_response,  # Original LLM response
-            "llm_response": result['llm_response'],     # Parsed action structure
-        }
-
-        # Parse and validate action
-        action_sequence = None
-        if result['actions']:
-            action = result['actions'][0]
-            action_sequence = ActionSequence.parse(action)        
-            if not action_sequence:
-                obs_str += "Invalid action\n"
-                reward += 0 # format penalty
-            else:
-                info['metrics']['action_is_valid'] = True
-                info['metrics']['action_is_effective'] = True # TODO check if effective
-                self.n_valid_queries += 1 if not action_sequence.final_action.is_term() else 0
+        action = result['actions'][0]
+        action_sequence = ActionSequence.parse(action)
+        if not action_sequence:
+            obs_str += "Invalid action\n"
+            reward += -0.5 # invalid action penalty
+            info['metrics']['action_is_valid'] = False
+            info['metrics']['action_is_effective'] = False  # TODO check actual effect
         else:
-            obs_str += "Invalid input format\n"
-            reward += 0 # format penalty
+            # execute action
+            exp_info, action_results = self.exploration_manager.execute_action_sequence(action_sequence)
+            reward += -1 if exp_info.get('redundant', False) else 0 # redundant observe penalty
+            obs_str += action_results_to_text(action_results, self.config.image_placeholder)
+            exp_log = self.exploration_manager.turn_logs[-1]
 
-        self.remaining_exp_steps -= 1 # NOTE invalid action also counts as a step
+            include_visual = True
+            self._update_agent_state()
+
+        # End exploration phase
         if self.remaining_exp_steps < 0 or (action_sequence and action_sequence.final_action.is_term()):
-            # End exploration phase
-            # NOTE (Optional) show image for original position
             self.is_exploration_phase = False
             obs_str += "Exploration phase ended\n"
             self.final_room = self.exploration_manager.finish_exploration()
-            
-            # Transition to evaluation, NOTE question is generated based on the initial room
-            eval_question = self.evaluation_manager.get_current_question()
-            assert eval_question, "No question found after exploration phase"
-            obs_str += self.prompter.get_evaluation_prompt(f"## Evaluation Question\n{eval_question}")
+            obs_str += self.prompter.get_evaluation_prompt(self.evaluation_manager)
         else:
-            # Execute exploration action, TODO give better reward to efficient exploration
-            if action_sequence:
-                include_visual = True
-                exp_info, action_results = self.exploration_manager.execute_action_sequence(action_sequence)
-                self._update_agent_state()
-                # Track redundant queries
-                if exp_info.get('redundant', False):
-                    self.n_redundant_queries += 1
-                    reward += 0 # redundant observe penalty
-                
-                # Convert action results to text observation
-                obs_str += action_results_to_text(action_results, self.config.image_placeholder)
             obs_str += f"\nYou have a maximum of {self.remaining_exp_steps} exploration steps left."
-        
-        return self._create_obs(obs_str, include_visual=include_visual), reward, False, {}
-    
-    def _step_evaluation(self, llm_raw_response: str):
-        """Handle evaluation phase step."""
-        # TODO: different reward for different tasks
 
-        obs_str = ""
-        reward = 0
-        result = parse_freethink(llm_raw_response, action_sep="|", max_actions=1)
-        info = {
-            "metrics": {
-                'success': False,              # Did LLM complete the task?
-                'action_is_effective': False,  # Did action change game state meaningfully?
-                'action_is_valid': False,      # Was action format correct?
-                },
-            "llm_raw_response": llm_raw_response,  # Original LLM response
-            "llm_response": result['llm_response'],     # Parsed action structure
-        }
-        if not result['actions']:
-            # TODO change each task only has one chance
-            obs_str += "Invalid input format, please answer the question\n"
-            reward += 0 # format penalty
-            return self._create_obs(obs_str), reward, False, info
+        return self._create_obs(obs_str, include_visual=include_visual), reward, False, info, exp_log
+
+    def _step_evaluation(self, result: Dict[str, Any], info: Dict[str, Any]):
+        """Handle evaluation phase step with parsed result and shared info."""
 
         action = result['actions'][0]
 
-        # Evaluate answer
-        correct, info = self.evaluation_manager.evaluate_answer(action) # TODO parse here
+        correct, _ = self.evaluation_manager.evaluate_answer(action)
+        eval_log = self.evaluation_manager.turn_logs[-1]
         reward = 1 if correct else 0
-        
-        # Check for next task
+        info['metrics']['success'] = correct
+
         if self.evaluation_manager.next_task():
             next_question = self.evaluation_manager.get_current_question()
             assert next_question, "No question found after evaluation phase"
-            return self._create_obs(next_question), reward, False, {}
-        
-        # All tasks completed
-        return self._create_obs("Task finished"), reward, True, {}
+            return self._create_obs(next_question), reward, False, info, eval_log
+
+        return self._create_obs("Task finished"), reward, False, info, eval_log
+
 
     def close(self):
         return
@@ -343,6 +309,10 @@ class SpatialGym(gym.Env):
         """Get evaluation performance metrics."""
         return self.evaluation_manager.get_eval_summary() if self.evaluation_manager else EvaluationManager.DEFAULT_EVAL_SUMMARY.copy()
     
+    def get_cogmap_summary(self):
+        """Get cognitive map summary."""
+        return self.cognitive_map_manager.get_cogmap_summary() if self.cognitive_map_manager else CognitiveMapManager.DEFAULT_COGMAP_SUMMARY.copy()
+    
     def get_env_summary(self) -> Dict[str, Any]:
         """Aggregate environment metrics from all turns."""
 
@@ -352,7 +322,8 @@ class SpatialGym(gym.Env):
             'summary': {
                 'total_turns': len(self.turn_logs),
                 'exp_summary': self.get_exp_summary(),
-                'eval_summary': self.get_eval_summary()
+                'eval_summary': self.get_eval_summary(),
+                'cogmap_summary': self.get_cogmap_summary()
             }
         }
 

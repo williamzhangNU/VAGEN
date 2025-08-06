@@ -9,7 +9,7 @@ from omegaconf import DictConfig, ListConfig, OmegaConf
 from vagen.env.spatial.utils.visualization import visualize_json
 from vagen.env.spatial.Base.tos_base.core.room import Room
 from vagen.env.spatial.Base.tos_base.utils.room_utils import set_initial_pos_as_origin
-from vagen.env.spatial.Base.tos_base import ExplorationManager, EvaluationManager
+from vagen.env.spatial.Base.tos_base import ExplorationManager, EvaluationManager, CognitiveMapManager
 
 
 class SpatialEnvLogger:
@@ -26,20 +26,6 @@ class SpatialEnvLogger:
             return [SpatialEnvLogger._convert_omegaconf_to_python(item) for item in obj]
         else:
             return obj
-
-    @staticmethod
-    def _extract_think_and_answer(text: str) -> Tuple[str, str]:
-        """Extract think and answer content from text using regex patterns"""
-        think_pattern = r'<think>(.*?)</think>'
-        answer_pattern = r'<answer>(.*?)</answer>'
-        
-        think_match = re.search(think_pattern, text, re.DOTALL)
-        answer_match = re.search(answer_pattern, text, re.DOTALL)
-        
-        think_content = think_match.group(1).strip() if think_match else ""
-        answer_content = answer_match.group(1).strip() if answer_match else text
-        
-        return think_content, answer_content
 
     @staticmethod
     def _plot_room(room_dict: Dict, out_dir: str, config_name: str, sample_idx: int, turn_idx: int) -> Optional[str]:
@@ -80,11 +66,6 @@ class SpatialEnvLogger:
         if len(assistant_messages) != len(turn_logs):
             print(f"Mismatch: {len(assistant_messages)} assistant messages vs {len(turn_logs)} turns")
             return False
-        
-        for turn_log, raw_msg in zip(turn_logs, assistant_messages):
-            think_content, _ = SpatialEnvLogger._extract_think_and_answer(raw_msg)
-            turn_log['assistant_raw_message'] = raw_msg
-            turn_log['assistant_think_message'] = think_content
         
         return True
 
@@ -152,30 +133,36 @@ class SpatialEnvLogger:
         result = {
             "config_groups": dict(config_groups),
             "exp_summary": {"overall_performance": {}, "group_performance": {}},
-            "eval_summary": {"overall_performance": {}, "group_performance": {}}
+            "eval_summary": {"overall_performance": {}, "group_performance": {}},
+            "cogmap_summary": {"overall_performance": {}, "group_performance": {}}
         }
         
         # Calculate performance metrics
-        all_exp_data, all_eval_data = [], []
+        all_exp_data, all_eval_data, all_cogmap_data = [], [], []
         
         for config_name, env_data_list in config_groups.items():
             result["config_groups"][config_name] = {"env_data": env_data_list}
             
             exp_summaries = [d['summary']['exp_summary'] for d in env_data_list]
             eval_summaries = [d['summary']['eval_summary'] for d in env_data_list]
-            
+            cogmap_summaries = [d['summary']['cogmap_summary'] for d in env_data_list]
+
             result["exp_summary"]["group_performance"][config_name] = ExplorationManager.aggregate_group_performance(exp_summaries)
             result["eval_summary"]["group_performance"][config_name] = EvaluationManager.aggregate_group_performance(eval_summaries)
+            result["cogmap_summary"]["group_performance"][config_name] = CognitiveMapManager.aggregate_group_performance(cogmap_summaries)
             
             all_exp_data.extend(exp_summaries)
             all_eval_data.extend(eval_summaries)
-        
+            all_cogmap_data.extend(cogmap_summaries)
+
         # Calculate overall performance
         if all_exp_data:
             result["exp_summary"]["overall_performance"] = ExplorationManager.aggregate_group_performance(all_exp_data)
         if all_eval_data:
             result["eval_summary"]["overall_performance"] = EvaluationManager.aggregate_group_performance(all_eval_data)
-        
+        if all_cogmap_data:
+            result["cogmap_summary"]["overall_performance"] = CognitiveMapManager.aggregate_group_performance(all_cogmap_data)
+
         return result
 
     @staticmethod

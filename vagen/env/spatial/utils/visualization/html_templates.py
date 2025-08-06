@@ -470,6 +470,12 @@ body {
     color: #6a1b9a;
 }
 
+.block.cogmap {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    border-left-color: #2196f3;
+    color: #0d47a1;
+}
+
 .metrics {
     margin-top: 15px;
     font-size: 13px;

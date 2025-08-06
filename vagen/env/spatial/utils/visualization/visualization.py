@@ -6,6 +6,7 @@ from pathlib import Path
 from html import escape
 from itertools import zip_longest
 from typing import List, Dict, Optional
+import copy
 
 from .html_templates import HTML_TEMPLATE, CSS_STYLES, JAVASCRIPT_CODE
 
@@ -83,6 +84,7 @@ class HTMLGenerator:
         # Extract summary data
         self.exp_summary = data.get("exp_summary", {})
         self.eval_summary = data.get("eval_summary", {})
+        self.cogmap_summary = data.get("cogmap_summary", {})
         
         # Calculate statistics
         self.samples_per_group = {
@@ -146,6 +148,14 @@ class HTMLGenerator:
                 f.write("<div class='group-metrics'>")
                 f.write("<strong>Evaluation:</strong>")
                 f.write(VisualizationHelper.dict_to_html(eval_group))
+                f.write("</div>\n")
+
+            # Group cognitive map performance
+            if self.cogmap_summary.get("group_performance", {}).get(gname):
+                cogmap_group = self.cogmap_summary["group_performance"][gname]
+                f.write("<div class='group-metrics'>")
+                f.write("<strong>Cognitive Map:</strong>")
+                f.write(VisualizationHelper.dict_to_html(cogmap_group))
                 f.write("</div>\n")
             
             f.write("</div>\n")
@@ -246,6 +256,18 @@ class HTMLGenerator:
                 
                 f.write(VisualizationHelper.dict_to_html(details))
                 f.write("</div>\n")
+            
+            # Display cognitive map information if available
+            if env_log['cogmap_log']:
+                cogmap_log = env_log['cogmap_log']
+                f.write("<div class='block cogmap'><strong>🧠 Cognitive Map</strong>")
+                
+                details = copy.deepcopy(cogmap_log)
+                details.pop('pred_room_state')
+                f.write(VisualizationHelper.dict_to_html(details))
+                f.write("</div>\n")
+
+
 
             # Display turn metrics from env log
             metrics = {}
@@ -268,9 +290,16 @@ class HTMLGenerator:
             
             # Right side: room and message images
             f.write("<div class='turn-right'>\n")
-            if self.save_images and env_log.get('room_image'):
-                img_name = env_log['room_image']
-                f.write(f"<img src='{img_name}' class='room-plot' alt='Room state at turn {t_idx+1}'>\n")
+            if self.show_images:
+                # previous image (initial if first turn)
+                prev_img = (env_turn_logs[t_idx-1].get('room_image') if t_idx > 0 else entry.get('initial_room_image'))
+                if prev_img:
+                    f.write(f"<figure><img src='{prev_img}' class='room-plot' alt='Previous state'><figcaption>State before Turn {t_idx+1}</figcaption></figure>\n")
+                # current image
+                curr_img = env_log.get('room_image')
+                if curr_img:
+                    f.write(f"<figure><img src='{curr_img}' class='room-plot' alt='Current state'><figcaption>State at Turn {t_idx+1}</figcaption></figure>\n")
+            f.write("</div>\n")
             
             # Display message images
             if self.save_images and 'message_images' in env_log:

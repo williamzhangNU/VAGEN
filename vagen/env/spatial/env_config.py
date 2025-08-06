@@ -38,13 +38,15 @@ class SpatialGymConfig(BaseEnvConfig):
     # Exploration configuration
     exp_type: str = 'passive'
     perspective: str = 'ego'
-    prompt_with_topdown: bool = False
-    prompt_with_oblique: bool = False
-    prompt_with_cogmap: bool = False
     max_exp_steps: int = 100
     
     # Evaluation configuration
     eval_tasks: List[Dict[str, Any]] = field(default_factory=lambda: [{"task_type": "rot", "task_kwargs": {"turn_direction": "counterclockwise"}}])
+
+    # Prompt configuration
+    prompt_with_topdown: bool = False
+    prompt_with_oblique: bool = False
+    prompt_with_cogmap: bool = False
 
     def config_id(self) -> str:
         eval_task_str = ", ".join([f"{task['task_type']}" for task in self.eval_tasks])
