@@ -100,12 +100,9 @@ class SpatialGym(gym.Env):
         )
 
 
-    def _create_obs(self, obs_str: str, include_visual: bool = False) -> dict:
-        obs = {'obs_str': obs_str + "\n" + self.prompter.FORMAT_PROMPT}
-        if include_visual:
-            img = self.image_handler.get_image(self.current_position, self.current_direction)
-            obs['multi_modal_data'] = {self.config.image_placeholder: [img]}
-        return obs
+    def _get_multi_modal_data(self) -> List[Image.Image]:
+        img = self.image_handler.get_image(self.current_position, self.current_direction)
+        return [img]
     
     def _update_agent_state(self) -> Tuple[str, str]:
         """Update current position and direction of agent."""
@@ -146,8 +143,6 @@ class SpatialGym(gym.Env):
     def reset(self, seed: int = None):
         super().reset(seed=seed)
 
-        self.prompter = Prompter(self.config, self.image_handler, self.np_random)
-
         self._init_data(seed=seed)
         self.current_position = 'agent'
         self.current_direction = 'north'
@@ -172,6 +167,7 @@ class SpatialGym(gym.Env):
         self.exploration_manager = ExplorationManager(self.initial_room) if self.config.exp_type == 'active' else None
         self.evaluation_manager = EvaluationManager(self.config.eval_tasks, self.np_random, self.initial_room) if len(self.config.eval_tasks) > 0 else None
         self.cognitive_map_manager = CognitiveMapManager(self.initial_room) if self.config.exp_type == 'active' else None
+        self.prompter = Prompter(self.config, self.image_handler, self.np_random)
 
         obs = self._generate_initial_observation()
         self.render_cache = obs
@@ -184,7 +180,7 @@ class SpatialGym(gym.Env):
         exp_log, eval_log, cogmap_log = None, None, None
         result = parse_freethink(llm_raw_response, action_sep="|", max_actions=1)
         room_state_last_turn = next((turn_log.room_state for turn_log in self.turn_logs[::-1] if turn_log.room_state), self.initial_room)
-        
+        current_obs = self.render_cache
 
         info = {
             "metrics": {
@@ -195,6 +191,8 @@ class SpatialGym(gym.Env):
             "llm_raw_response": llm_raw_response,
             "llm_response": result['llm_response'],
         }
+
+        # step the environment
         if result['actions'] and result['think_content']:
             # think
             if self.cognitive_map_manager:
@@ -202,15 +200,20 @@ class SpatialGym(gym.Env):
                 cogmap_log = self.cognitive_map_manager.turn_logs[-1]
             # action
             if self.is_exploration_phase:
-                obs, reward, done, info, exp_log = self._step_exploration(result, info)
+                obs, reward, done, _, exp_log = self._step_exploration(result, info)
             else:
-                obs, reward, done, info, eval_log = self._step_evaluation(result, info)
+                obs, reward, done, _, eval_log = self._step_evaluation(result, info)
         else:
-            obs = self._create_obs('Invalid input format', include_visual=False)
+            obs = {'obs_str': 'Invalid input format'}
             reward = -0.5 # invalid input penalty
             done = False
 
-        obs['obs_str'] += self.prompter.COGMAP_REQUIRED_INSTRUCTION if self.config.prompt_with_cogmap else ""
+        # post-process the observation
+        if self.is_exploration_phase:
+            obs['obs_str'] += '\n' + self.prompter.COGMAP_EXP_REQUIRED_INSTRUCTION if self.config.prompt_config['cogmap'] else ""
+        else:
+            obs['obs_str'] += '\n' + self.prompter.COGMAP_EVAL_REQUIRED_INSTRUCTION if self.config.prompt_config['cogmap'] else ""
+        obs['obs_str'] += "\n" + self.prompter.FORMAT_PROMPT
         self.render_cache = obs
 
         # Get room state from turn logs
@@ -222,7 +225,7 @@ class SpatialGym(gym.Env):
 
         turn_log = EnvTurnLog(
             turn_number=self.current_turn_number,
-            user_message=self.render_cache.get('obs_str', ''),
+            user_message=current_obs['obs_str'],
             assistant_raw_message=llm_raw_response,
             assistant_think_message=result['think_content'],
             assistant_parsed_message=result['action_content'],
@@ -231,7 +234,7 @@ class SpatialGym(gym.Env):
             evaluation_log=eval_log,
             cogmap_log=cogmap_log,
             room_state=room_state,
-            info={"reward": reward, "is_done": done, **info}
+            info={"reward": reward, "is_done": done, **{k: v for k, v in info.items() if 'response' not in k}}
         )
         self.turn_logs.append(turn_log)
         return obs, reward, done, info
@@ -272,7 +275,8 @@ class SpatialGym(gym.Env):
         else:
             obs_str += f"\nYou have a maximum of {self.remaining_exp_steps} exploration steps left."
 
-        return self._create_obs(obs_str, include_visual=include_visual), reward, False, info, exp_log
+        obs = {'multi_modal_data': self._get_multi_modal_data()} if include_visual else {}
+        return {**obs, 'obs_str': obs_str}, reward, False, info, exp_log
 
     def _step_evaluation(self, result: Dict[str, Any], info: Dict[str, Any]):
         """Handle evaluation phase step with parsed result and shared info."""
@@ -287,9 +291,9 @@ class SpatialGym(gym.Env):
         if self.evaluation_manager.next_task():
             next_question = self.evaluation_manager.get_current_question()
             assert next_question, "No question found after evaluation phase"
-            return self._create_obs(next_question), reward, False, info, eval_log
+            return {'obs_str': next_question}, reward, False, info, eval_log
 
-        return self._create_obs("Task finished"), reward, False, info, eval_log
+        return {'obs_str': "Task finished"}, reward, True, info, eval_log
 
 
     def close(self):

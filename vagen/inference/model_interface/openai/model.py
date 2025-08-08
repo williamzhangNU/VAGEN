@@ -161,7 +161,7 @@ class OpenAIModelInterface(BaseModelInterface):
                 "frequency_penalty": kwargs.get("frequency_penalty", self.config.frequency_penalty),
                 "seed": kwargs.get("seed", self.config.seed),
             }
-            if self.config.model_name.startswith("o"):
+            if self.config.model_name.startswith("o") or 'gpt-5' in self.config.model_name:
                 msg_kwargs["max_completion_tokens"] = kwargs.get("max_completion_tokens", self.config.max_completion_tokens)
             else:
                 msg_kwargs["max_tokens"] = kwargs.get("max_tokens", self.config.max_tokens)

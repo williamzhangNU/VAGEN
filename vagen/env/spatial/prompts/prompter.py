@@ -1,6 +1,6 @@
 import numpy as np
 from vagen.env.spatial.Base.tos_base import EvaluationManager, CognitiveMapManager, ActionSequence, Room
-from vagen.env.spatial.Base.tos_base.managers.cognitive_map_manager import get_cognitive_map_instruction, COGMAP_REQUIRED_INSTRUCTION
+from vagen.env.spatial.Base.tos_base.managers.cognitive_map_manager import COGMAP_EXP_REQUIRED_INSTRUCTION, COGMAP_EVAL_REQUIRED_INSTRUCTION
 from vagen.env.spatial.utils.generate_history import AutoExplore
 from .prompts import *
 
@@ -8,11 +8,13 @@ class Prompter:
     """A class to generate prompts for the SpatialGym environment."""
     ACTIVE_INSTRUCTION = ACTIVE_INSTRUCTION
     ACTIVE_INSTRUCTION_SHORTER = ACTIVE_INSTRUCTION_SHORTER
+    PASSIVE_INSTRUCTION = PASSIVE_INSTRUCTION
     EVALUATION_INSTRUCTION = EVALUATION_INSTRUCTION
     FORMAT_PROMPT = FORMAT_PROMPT
     TOPDOWN_PROMPT = TOPDOWN_PROMPT
     OBLIQUE_PROMPT = OBLIQUE_PROMPT
-    COGMAP_REQUIRED_INSTRUCTION = COGMAP_REQUIRED_INSTRUCTION
+    COGMAP_EXP_REQUIRED_INSTRUCTION = COGMAP_EXP_REQUIRED_INSTRUCTION
+    COGMAP_EVAL_REQUIRED_INSTRUCTION = COGMAP_EVAL_REQUIRED_INSTRUCTION
 
     def __init__(self, config, image_handler, np_random):
         self.config = config
@@ -35,49 +37,53 @@ class Prompter:
         Generates the initial observation prompt based on the exploration type.
         """
         room_desc = room.get_room_description()
-        if self.config.prompt_with_topdown:
+        result = {}
+        if self.config.prompt_config['topdown']:
             room_desc += self._get_topdown_prompt(TOPDOWN_PROMPT, room)
-        if self.config.prompt_with_oblique:
+        if self.config.prompt_config['oblique']:
             room_desc += self._get_topdown_prompt(OBLIQUE_PROMPT, room)
+        cogmap_instruction = cogmap_manager.get_cognitive_map_instruction() if cogmap_manager else ""
             
         if self.config.exp_type == 'active':
-            exp_instructions = ""
-            if cogmap_manager:
-                cogmap_instruction = cogmap_manager.get_cognitive_map_instruction()
-                exp_instructions += f"\n{cogmap_instruction}"
-            exp_instructions += f"## Action Instructions\n{ActionSequence.get_usage_instructions()}\n\nYou have a maximum of {self.config.max_exp_steps} exploration steps."
-            obs_str = self.ACTIVE_INSTRUCTION.format(
+            exp_instructions = ActionSequence.get_usage_instructions() + f"\n\nYou have a maximum of {self.config.max_exp_steps} exploration steps."
+            if self.config.prompt_config['type'] == 'default':
+                active_instruction = self.ACTIVE_INSTRUCTION
+            elif self.config.prompt_config['type'] == 'shorter':
+                active_instruction = self.ACTIVE_INSTRUCTION_SHORTER
+            obs_str = active_instruction.format(
                 room_info=room_desc,
-                exp_instructions=exp_instructions
+                exp_instructions=exp_instructions,
+                cogmap_instruction=cogmap_instruction
             )
-            result = {'obs_str': obs_str + "\n" + self.FORMAT_PROMPT}
-            if self.config.prompt_with_topdown:
+            obs_str += '\n' + self.COGMAP_EXP_REQUIRED_INSTRUCTION if self.config.prompt_config['cogmap'] else ""
+
+            if self.config.prompt_config['topdown']:
                 result['multi_modal_data'] = {self.config.image_placeholder: [self.image_handler.get_image('topdown')]}
-            return result
         
         else:
-            exp_history = ""
             images = []
-            if not self.config.prompt_with_topdown and not self.config.prompt_with_oblique:
+            if not self.config.prompt_config['topdown'] and not self.config.prompt_config['oblique']:
                 exp_history_obs = AutoExplore(room, self.np_random, self.image_handler).gen_exp_history()
-                exp_history = f"## Exploration History\n{exp_history_obs['obs_str']}"
+                exp_history_str = "## Exploration History\n" + exp_history_obs['obs_str']
                 images.extend(exp_history_obs['multi_modal_data'][self.config.image_placeholder])
-            elif self.config.prompt_with_topdown:
+            elif self.config.prompt_config['topdown']:
                 images.append(self.image_handler.get_image('topdown'))
-            elif self.config.prompt_with_oblique:
+            elif self.config.prompt_config['oblique']:
                 images.append(self.image_handler.get_image('oblique'))
                 
-            obs_str = self._PASSIVE_INSTRUCTION.format(
+            obs_str = self.PASSIVE_INSTRUCTION.format(
                 room_info=room_desc,
-                exp_history=exp_history
+                exp_history=exp_history_str,
+                cogmap_instruction=cogmap_instruction
             )
-            if eval_manager:
-                obs_str += f"\n{self.get_evaluation_prompt(eval_manager)}"
+            obs_str += f"\n{self.get_evaluation_prompt(eval_manager)}"
+            obs_str += '\n' + self.COGMAP_EVAL_REQUIRED_INSTRUCTION if self.config.prompt_config['cogmap'] else ""
 
-            result = {'obs_str': obs_str + "\n" + self.FORMAT_PROMPT}
             if images:
                 result['multi_modal_data'] = {self.config.image_placeholder: images}
-            return result
+
+        result['obs_str'] = obs_str + "\n" + self.FORMAT_PROMPT
+        return result
         
             
 

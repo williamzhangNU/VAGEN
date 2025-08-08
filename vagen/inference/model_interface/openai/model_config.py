@@ -37,6 +37,7 @@ class OpenAIModelConfig(BaseModelConfig):
             "description": "OpenAI API for GPT models",
             "supports_multimodal": True,
             "supported_models": [
+                "gpt-5-mini",
                 "o4-mini",
                 "o3-mini",
                 "gpt-4.1-nano",

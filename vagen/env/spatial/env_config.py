@@ -44,9 +44,7 @@ class SpatialGymConfig(BaseEnvConfig):
     eval_tasks: List[Dict[str, Any]] = field(default_factory=lambda: [{"task_type": "rot", "task_kwargs": {"turn_direction": "counterclockwise"}}])
 
     # Prompt configuration
-    prompt_with_topdown: bool = False
-    prompt_with_oblique: bool = False
-    prompt_with_cogmap: bool = False
+    prompt_config: Dict[str, Any] = field(default_factory=lambda: {"topdown": False, "oblique": False, "cogmap": False, "type": "default"})
 
     def config_id(self) -> str:
         eval_task_str = ", ".join([f"{task['task_type']}" for task in self.eval_tasks])
@@ -125,9 +123,7 @@ class SpatialGymConfig(BaseEnvConfig):
             'max_exp_steps': self.max_exp_steps,
             'image_size': self.image_size,
             'name': self.name,
-            'prompt_with_topdown': self.prompt_with_topdown,
-            'prompt_with_oblique': self.prompt_with_oblique,
-            'prompt_with_cogmap': self.prompt_with_cogmap,
+            'prompt_config': self.prompt_config,
             'field_of_view': self.field_of_view,
         }
         

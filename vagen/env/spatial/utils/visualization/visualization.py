@@ -68,10 +68,10 @@ class VisualizationHelper:
 class HTMLGenerator:
     """Handles HTML generation for the visualization"""
     
-    def __init__(self, data: Dict, output_html: str, save_images: bool = True):
+    def __init__(self, data: Dict, output_html: str, show_images: bool = True):
         self.data = data
         self.output_html = output_html
-        self.save_images = save_images
+        self.show_images = show_images
         self.out_dir = os.path.dirname(output_html)
         self.base = Path(output_html).stem
         
@@ -195,7 +195,7 @@ class HTMLGenerator:
         f.write(f"<h2>{escape(gname)} — Sample {sidx+1}</h2>\n")
 
         # Display initial room image if available
-        if self.save_images and entry.get("initial_room_image"):
+        if self.show_images and entry.get("initial_room_image"):
             img_name = entry["initial_room_image"]
             f.write(f"<img src='{img_name}' class='room' alt='Initial room state'>\n")
 
@@ -299,15 +299,16 @@ class HTMLGenerator:
                 curr_img = env_log.get('room_image')
                 if curr_img:
                     f.write(f"<figure><img src='{curr_img}' class='room-plot' alt='Current state'><figcaption>State at Turn {t_idx+1}</figcaption></figure>\n")
-            f.write("</div>\n")
+            # f.write("</div>\n")
             
             # Display message images
-            if self.save_images and 'message_images' in env_log:
+            if self.show_images and 'message_images' in env_log:
                 for key, images in env_log['message_images'].items():
                     if 'image' in key.lower() and images:
                         for img_idx, img_path in enumerate(images):
                             if isinstance(img_path, str):  # It's a path
-                                f.write(f"<img src='{img_path}' class='message-image' alt='Environment image {img_idx+1}'>\n")
+                                # f.write(f"<img src='{img_path}' class='message-image' alt='Environment image {img_idx+1}'>\n")
+                                f.write(f"<figure><img src='{img_path}' class='room-plot' alt='Environment image {img_idx+1}'><figcaption>Observation {img_idx+1}</figcaption></figure>\n")
             f.write("</div>\n")  # End turn-right
             
             f.write("</div>\n")  # End turn-split
@@ -346,10 +347,10 @@ class HTMLGenerator:
 class Visualization:
     """Main visualization class for JSON data"""
     
-    def __init__(self, json_path: str, output_html: str, save_images: bool = True):
+    def __init__(self, json_path: str, output_html: str, show_images: bool = True):
         self.json_path = json_path
         self.output_html = output_html
-        self.save_images = save_images
+        self.show_images = show_images
 
     def load_data(self) -> Dict:
         """Load JSON data from file"""
@@ -359,12 +360,12 @@ class Visualization:
     def visualize(self) -> str:
         """Main method to generate visualization"""
         data = self.load_data()
-        generator = HTMLGenerator(data, self.output_html, self.save_images)
+        generator = HTMLGenerator(data, self.output_html, self.show_images)
         return generator.generate_html()
 
 
-def visualize_json(json_path: str, output_html: str, save_images: bool = True) -> str:
-    viz = Visualization(json_path, output_html, save_images)
+def visualize_json(json_path: str, output_html: str, show_images: bool = True) -> str:
+    viz = Visualization(json_path, output_html, show_images)
     return viz.visualize()
 
 
