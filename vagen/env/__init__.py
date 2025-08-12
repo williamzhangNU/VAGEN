@@ -73,3 +73,14 @@ try:
 except ImportError:
     pass
 
+try:
+    from .mental_rotation import MentalRotationEnv, MentalRotationEnvConfig, MentalRotationService, MentalRotationServiceConfig
+    REGISTERED_ENV["mental-rotation"] = {
+        "env_cls": MentalRotationEnv,
+        "config_cls": MentalRotationEnvConfig,
+        "service_cls": MentalRotationService,
+        "service_config_cls": MentalRotationServiceConfig
+    }
+except ImportError:
+    pass
+
