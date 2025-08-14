@@ -6,14 +6,20 @@ import genesis as gs
 class MentalRotationEnvConfig(BaseEnvConfig):
     env_name: str = "mental-rotation"
     render_mode: str = "vision" 
-    max_steps: int = 5
     image_placeholder: str = "<image>"
     target_image_placeholder: str = "<target_image>"
     max_actions_per_step: int = 1
     prompt_format: str = "no_think"  # TODO
 
-    resolution: int = 224 # TODO
+    n_parallel_envs: int = 1
+    parallel_env_spacing: float = 10.0
+
+    max_steps: int = 5
+    rotate_granularity: int = 90
+
+    resolution: tuple[int, int] = (1280, 960)
     device: str = "cpu" # "cpu" or "cuda"
+    fov: int = 30
 
     renderer: gs.renderers.RendererOptions = field(default_factory=gs.renderers.Rasterizer)
     options: str = "fast"
@@ -23,8 +29,6 @@ class MentalRotationEnvConfig(BaseEnvConfig):
 
     def config_id(self) -> str:
         id_fields = [
-            "max_steps",
-            "prompt_format",
             "device",
         ]
         id_str = ",".join(

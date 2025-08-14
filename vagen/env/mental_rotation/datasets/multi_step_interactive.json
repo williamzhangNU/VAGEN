@@ -1,0 +1,160 @@
+{
+    "tasks": [
+        {
+            "object": "airplane.glb",
+            "initial_orientation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "target_orientation": {
+                "w": 0.7071,
+                "x": 0.7071,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 0.1,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the airplane to match the target orientation. The target shows the airplane rotated 90 degrees around the X-axis."
+        },
+        {
+            "object": "airplane.glb",
+            "initial_orientation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "target_orientation": {
+                "w": 0.7071,
+                "x": 0.0,
+                "y": 0.7071,
+                "z": 0.0
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 0.1,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the airplane to match the target orientation. The target shows the airplane rotated 90 degrees around the Y-axis."
+        },
+        {
+            "object": "airplane.glb",
+            "initial_orientation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "target_orientation": {
+                "w": 0.5,
+                "x": 0.5,
+                "y": 0.5,
+                "z": 0.5
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 0.1,
+            "camera_pos": {
+                "x": 4.0,
+                "y": -3.0,
+                "z": 3.0
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "instruction": "Rotate the airplane to match the target orientation. This requires a complex rotation involving all three axes."
+        },
+        {
+            "object": "airplane.glb",
+            "initial_orientation": {
+                "w": 0.7071,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.7071
+            },
+            "target_orientation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background": "plane",
+            "background_scale": 2.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 45.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "object_scale": 0.15,
+            "camera_pos": {
+                "x": 6.0,
+                "y": -1.5,
+                "z": 2.0
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 1.0
+            },
+            "instruction": "Return the airplane to its neutral orientation. The airplane is currently rotated 90 degrees around the Z-axis."
+        }
+    ]
+}

@@ -1,0 +1,10 @@
+mental_rotation:
+  env_name: mental-rotation
+  env_config:
+    render_mode: vision
+    max_steps: 5
+    rotate_granularity: 90
+    resolution: [1280, 960]
+    device: cpu
+  train_size: 10
+  test_size: 5

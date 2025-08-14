@@ -33,5 +33,6 @@ sokoban:
   use_state_reward: ${use_state_reward}
 mental-rotation:
   max_workers: 48
+  devices: [0]
   use_state_reward: ${use_state_reward}
 
