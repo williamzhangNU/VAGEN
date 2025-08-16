@@ -318,7 +318,7 @@ class MentalRotationEnv(BaseEnv):
                 rigid_options=options_map[self.config.options]["rigid_options"],
                 viewer_options=options_map[self.config.options]["viewer_options"],
                 vis_options=options_map[self.config.options]["vis_options"],
-                renderer=self.config.renderer,
+                renderer=gs.renderers.Rasterizer(),
             )
 
             # Setup scene from dataset

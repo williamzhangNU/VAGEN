@@ -21,7 +21,6 @@ class MentalRotationEnvConfig(BaseEnvConfig):
     device: str = "cpu" # "cpu" or "cuda"
     fov: int = 30
 
-    renderer: gs.renderers.RendererOptions = field(default_factory=gs.renderers.Rasterizer)
     options: str = "fast"
 
     format_reward: float = 0.2

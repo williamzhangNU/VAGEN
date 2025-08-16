@@ -119,7 +119,8 @@ class MentalRotationService(BaseService):
                         
                         scene_key_to_env_configs = {}
                         for env_id, config in env_ids_to_config.items():
-                            scene_key = _get_scene_key_from_config(0, config)
+                            seed = config.get('seed', 0)  # Get actual seed from config
+                            scene_key = _get_scene_key_from_config(seed, config)
                             if scene_key not in scene_key_to_env_configs:
                                 scene_key_to_env_configs[scene_key] = []
                             scene_key_to_env_configs[scene_key].append((env_id, config))
@@ -381,7 +382,7 @@ class MentalRotationService(BaseService):
         if not self.processes:
             self._start_worker_processes()
         
-        def _get_scene_key_from_config(config):
+        def _get_scene_key_from_config(seed, config):
             import json
             import os
             
@@ -393,20 +394,23 @@ class MentalRotationService(BaseService):
             if not tasks:
                 raise ValueError("No tasks found in dataset")
             
-            # Use first task as representative (scene key will be determined by actual seeds in reset)
-            task_data = tasks[0]
+            # Use actual seed to determine scene key
+            task_idx = seed % len(tasks)
+            task_data = tasks[task_idx]
             return (task_data["background"], task_data["object"])
         
         # First, group by scene key - same scene environments must share device and process
         scene_key_to_envs = {}
         for env_id, cfg in ids2configs.items():
-            scene_key = _get_scene_key_from_config(cfg)
+            seed = cfg.get('seed', 0)  # Get actual seed from config
+            scene_key = _get_scene_key_from_config(seed, cfg)
             scene_key_to_envs.setdefault(scene_key, []).append((env_id, cfg))
         
         # Assign device to each scene group (all environments in same scene use same device)
         for scene_key, env_list in scene_key_to_envs.items():
             # Select device with least load for this scene group
             selected_device = min(self.device_status, key=lambda x: len(self.device_status[x]))
+            print(f"[DEBUG] Scene key {scene_key} assigned to device {selected_device} (current loads: {[(d, len(envs)) for d, envs in self.device_status.items()]})")
             
             # Set same device for all environments in this scene group
             for env_id, cfg in env_list:
@@ -626,7 +630,7 @@ if __name__ == "__main__":
     print(f"[TEST] Created test directory: {test_dir}")
     
     config = MentalRotationServiceConfig(
-        devices=[0],  # Use GPU 0, can be [0, 1] for multi-GPU or [] for CPU
+        devices=[0, 1],
         max_workers=2,
         timeout=60
     )
@@ -638,11 +642,12 @@ if __name__ == "__main__":
         env_id_1, env_id_2, env_id_3 = "mr_same_1", "mr_same_2", "mr_different"
         ids2configs = {
             env_id_1: {
-                "env_name": "mental-rotation",
+                "env_name": "mental-rotation", 
                 "env_config": {
-                    "render_mode": "vision", 
+                    "render_mode": "vision",
                     "max_steps": 5,
                 },
+                "seed": 0,  # Add seed to config
             },
             env_id_2: {
                 "env_name": "mental-rotation", 
@@ -650,6 +655,7 @@ if __name__ == "__main__":
                     "render_mode": "vision",
                     "max_steps": 5,
                 },
+                "seed": 1,  # Add seed to config
             },
             env_id_3: {
                 "env_name": "mental-rotation", 
@@ -657,6 +663,7 @@ if __name__ == "__main__":
                     "render_mode": "vision",
                     "max_steps": 5,
                 },
+                "seed": 2,  # Add seed to config
             },
         }
         

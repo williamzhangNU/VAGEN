@@ -1,0 +1,12 @@
+mental_rotation:
+  env_name: mental-rotation
+  env_config:
+    render_mode: vision
+    max_steps: 5
+    rotate_granularity: 90
+    device: cpu
+    # Note: resolution field removed to avoid numpy array serialization issues
+    # It will use the default (1280, 960) from MentalRotationEnvConfig
+    # Only include basic serializable fields to avoid JSON serialization issues
+  train_size: 100
+  test_size: 20

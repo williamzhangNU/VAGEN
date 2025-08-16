@@ -79,7 +79,7 @@
             "instruction": "Rotate the airplane to match the target orientation. The target shows the airplane rotated 90 degrees around the Y-axis."
         },
         {
-            "object": "airplane.glb",
+            "object": "gun.glb",
             "initial_orientation": {
                 "w": 1.0,
                 "x": 0.0,
@@ -115,10 +115,10 @@
                 "y": 0.0,
                 "z": 0.0
             },
-            "instruction": "Rotate the airplane to match the target orientation. This requires a complex rotation involving all three axes."
+            "instruction": "Rotate the car to match the target orientation. This requires a complex rotation involving all three axes."
         },
         {
-            "object": "airplane.glb",
+            "object": "gun.glb",
             "initial_orientation": {
                 "w": 0.7071,
                 "x": 0.0,
@@ -154,7 +154,7 @@
                 "y": 0.0,
                 "z": 1.0
             },
-            "instruction": "Return the airplane to its neutral orientation. The airplane is currently rotated 90 degrees around the Z-axis."
+            "instruction": "Return the car to its neutral orientation. The car is currently rotated 90 degrees around the Z-axis."
         }
     ]
 }

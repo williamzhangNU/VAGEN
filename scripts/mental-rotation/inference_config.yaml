@@ -1,0 +1,21 @@
+# Server configuration
+server_url: "http://localhost:5000"
+server_timeout: 600
+server_max_workers: 4
+
+# Inference parameters
+batch_size: 4
+max_steps: 12
+split: "test"
+debug: false
+
+# Output configuration
+output_dir: "results/mental-rotation"
+
+# WandB configuration
+use_wandb: false
+wandb_project: "vagen-debug"
+val_generations_to_log_to_wandb: 10 
+
+# Display settings
+show_progress: true
