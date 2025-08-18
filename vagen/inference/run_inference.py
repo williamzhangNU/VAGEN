@@ -9,13 +9,13 @@ import numpy as np
 from datetime import datetime
 from typing import Dict, List, Any
 from collections import defaultdict
-
+import dotenv
 from vagen.inference.model_interface.factory_model import ModelFactory
 from vagen.rollout.inference_rollout.inference_rollout_service import InferenceRolloutService
 from vagen.inference.utils.logging import log_results_to_wandb
 
 logger = logging.getLogger(__name__)
-
+dotenv.load_dotenv() 
 def parse_args():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description="Run inference with models")

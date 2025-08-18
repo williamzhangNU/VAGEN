@@ -22,7 +22,7 @@ svg:
   use_state_reward: ${use_state_reward}
 navigation:
   max_workers: 48
-  devices: [0,1,2,3]
+  devices: [0]
   use_state_reward: ${use_state_reward}
 primitive_skill:
   max_workers: 48

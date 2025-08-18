@@ -1,0 +1,6 @@
+navigation:
+  env_name: rearrangement
+  env_config:
+    render_mode: vision
+  train_size: 4
+  test_size: 4

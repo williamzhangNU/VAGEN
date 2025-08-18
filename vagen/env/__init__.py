@@ -29,6 +29,17 @@ except ImportError:
     pass
 
 try:
+    from .rearrangement import RearrangementEnv, RearrangementEnvConfig, RearrangementServiceConfig, RearrangementService
+    REGISTERED_ENV["rearrangement"] = {
+        "env_cls": RearrangementEnv,
+        "config_cls": RearrangementEnvConfig,
+        "service_cls": RearrangementService,
+        "service_config_cls": RearrangementServiceConfig
+    }
+except ImportError:
+    pass
+
+try:
     from .svg import SVGEnv, SvgEnvConfig, SVGService, SVGServiceConfig
     REGISTERED_ENV["svg"] = {
         "env_cls": SVGEnv,
@@ -69,6 +80,17 @@ try:
         "config_cls": BlackjackEnvConfig,
         "service_cls": BlackjackService,
         "service_config_cls": BlackjackServiceConfig
+    }
+except ImportError:
+    pass
+
+try:
+    from .rearrangement import RearrangementEnv, RearrangementEnvConfig, RearrangementService, RearrangementServiceConfig
+    REGISTERED_ENV["rearrangement"] = {
+        "env_cls": RearrangementEnv,
+        "config_cls": RearrangementEnvConfig,
+        "service_cls": RearrangementService,
+        "service_config_cls": RearrangementServiceConfig
     }
 except ImportError:
     pass

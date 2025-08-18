@@ -25,6 +25,9 @@ mkdir -p benchmark_results
 
 # Run benchmark
 echo "Running service benchmark"
-python -m vagen.env.verify_service --config "$SCRIPT_DIR/benchmark_config.yaml"
-
-echo "Benchmark complete. Results saved to benchmark_results directory."
+# python -m vagen.env.verify_service --config "$SCRIPT_DIR/benchmark_config.yaml"
+python -m debugpy --listen 127.0.0.1:5678 -m vagen.inference.run_inference \
+    --inference_config_path="$SCRIPT_DIR/inference_config.yaml" \
+    --model_config_path="$SCRIPT_DIR/model_config.yaml" \
+    --val_files_path="data/navigation-vision-benchmark/test.parquet" \
+    --wandb_path_name="navigation"

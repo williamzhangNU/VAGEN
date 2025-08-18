@@ -16,7 +16,7 @@ class OpenAIModelConfig(BaseModelConfig):
     model_name: str = "gpt-4o"
     max_retries: int = 3
     timeout: int = 60
-    
+    max_completion_tokens: Optional[int] = None # for o-series models
     # Generation parameters (inherited from base)
     # max_tokens, temperature already defined in base
     presence_penalty: float = 0.0
@@ -36,6 +36,12 @@ class OpenAIModelConfig(BaseModelConfig):
             "description": "OpenAI API for GPT models",
             "supports_multimodal": True,
             "supported_models": [
+                "gpt-5-mini",
+                "o4-mini",
+                "o3-mini",
+                "gpt-4.1-nano",
+                "gpt-4.1-mini",
+                "gpt-4.1",
                 "gpt-4o",
                 "gpt-4o-mini",
                 "gpt-4-turbo", 
