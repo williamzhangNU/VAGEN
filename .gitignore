@@ -7,7 +7,7 @@
 **/*.tar.gz
 **/playground
 **/wandb
-
+.env
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

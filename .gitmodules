@@ -1,3 +1,3 @@
 [submodule "vagen/env/spatial/Base"]
 	path = vagen/env/spatial/Base
-	url = git@github.com:williamzhangNU/ToS_Base.git
+	url = https://github.com/williamzhangNU/ToS_Base.git

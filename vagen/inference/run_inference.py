@@ -8,10 +8,10 @@ import yaml
 import wandb
 import pandas as pd
 import numpy as np
+import dotenv
 from datetime import datetime
 from typing import Dict, List, Any
 from collections import defaultdict
-
 from vagen.inference.model_interface.factory_model import ModelFactory
 from vagen.rollout.inference_rollout.inference_rollout_service import InferenceRolloutService
 from vagen.inference.utils.logging import log_results_to_wandb
@@ -19,7 +19,7 @@ from vagen.env.spatial.env import SpatialGym
 from vagen.env.spatial.utils.env_logger import SpatialEnvLogger
 
 logger = logging.getLogger(__name__)
-
+dotenv.load_dotenv() 
 def parse_args():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description="Run inference with models")

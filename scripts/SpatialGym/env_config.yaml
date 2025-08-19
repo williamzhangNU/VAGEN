@@ -1,11 +1,36 @@
+# env1:
+#   env_name: spatial
+#   env_config: 
+#     name: passive_rot
+#     exp_type: passive
+#     max_exp_steps: 1
+#     prompt_config: {'topdown': false, 'oblique': false, 'cogmap': false, 'type': 'default'}
+#     eval_tasks:
+#       - task_type: rot
+#   train_size: 25
+#   test_size: 25
+
+# env1:
+#   env_name: spatial
+#   env_config: 
+#     name: passive_loc
+#     exp_type: passive
+#     max_exp_steps: 1
+#     prompt_config: {'topdown': false, 'oblique': false, 'cogmap': false, 'type': 'default'}
+#     eval_tasks: [{"task_type": loc, "task_kwargs": {}}]
+#   train_size: 25
+#   test_size: 25
+
 env1:
   env_name: spatial
   env_config: 
-    name: passive_rot
+    name: passive_false_belief
     exp_type: passive
     max_exp_steps: 1
     prompt_config: {'topdown': false, 'oblique': false, 'cogmap': false, 'type': 'default'}
     eval_tasks:
-      - task_type: rot
+      - task_type: false_belief
+        task_kwargs:
+          action_type: rotation
   train_size: 25
-  test_size: 25
+  test_size: 25 
