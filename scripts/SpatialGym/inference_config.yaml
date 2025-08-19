@@ -10,7 +10,7 @@ split: "test"
 debug: false
 
 # Output configuration
-output_dir: "results/gpt-5-mini/false_belief"
+output_dir: "results/gpt-5-mini/rot"
 
 # WandB configuration
 use_wandb: false

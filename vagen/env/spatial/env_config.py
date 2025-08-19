@@ -6,7 +6,7 @@ import json
 import numpy as np
 
 from vagen.env.base.base_env_config import BaseEnvConfig
-from vagen.env.spatial.Base.tos_base.evaluation.tasks import EvalTaskType
+from vagen.env.spatial.Base.tos_base.evaluation.task_types import EvalTaskType
 
 
 @dataclass
@@ -32,19 +32,26 @@ class SpatialGymConfig(BaseEnvConfig):
     
     # Environment specific configuration
     name: str = 'unnamed_env'
-    # Room configuration
+
+    # Room configuration (minimal additions from RAGEN)
+    room_size: List[int] = field(default_factory=lambda: [10, 10])
+    n_objects: int = 3
+    level: int = 0
+    main: int = 6
+
+    # Field of view and base directory
     field_of_view: int = field(default=90, init=False)
     base_dir: str = os.path.join(os.path.dirname(__file__), "room_data/")
     # Exploration configuration
     exp_type: str = 'passive'
     perspective: str = 'ego'
+    observation_mode: str = "full"  # New from RAGEN
     max_exp_steps: int = 100
     
     # Evaluation configuration
     eval_tasks: List[Dict[str, Any]] = field(default_factory=lambda: [{"task_type": "rot", "task_kwargs": {"turn_direction": "counterclockwise"}}])
 
-    # Prompt configuration
-    prompt_config: Dict[str, Any] = field(default_factory=lambda: {"topdown": False, "oblique": False, "cogmap": False, "type": "default"})
+    prompt_config: Dict[str, Any] = field(default_factory=lambda: {"topdown": False, "oblique": False, "cogmap": False, "type": "shorter"})
 
     def config_id(self) -> str:
         eval_task_str = ", ".join([f"{task['task_type']}" for task in self.eval_tasks])
@@ -55,6 +62,8 @@ class SpatialGymConfig(BaseEnvConfig):
 
     def __post_init__(self):
         """Validate configuration parameters."""
+        # Validate room size (new from RAGEN)
+        assert self.room_size[0] > 0 and self.room_size[1] > 0, "room_size must be positive"
         self._validate_exp_type()
         self._validate_field_of_view()
         self._validate_eval_tasks()
@@ -92,7 +101,7 @@ class SpatialGymConfig(BaseEnvConfig):
                 raise ValueError(f"task_type '{task_type}' must be one of {valid_eval_tasks}")
             
             # Validate task-specific parameters
-            task_kwargs = task.get('task_kwargs', {})
+            task_kwargs = task['task_kwargs'] if 'task_kwargs' in task else {}
             self._validate_task_kwargs(task_type, task_kwargs)
 
     def _validate_task_kwargs(self, task_type: str, kwargs: Dict[str, Any]):
@@ -111,18 +120,29 @@ class SpatialGymConfig(BaseEnvConfig):
         return
 
     def get_room_config(self) -> Dict[str, Any]:
-        """Get configuration for room generation."""
-        return {}
+        """Get configuration for room generation (updated from RAGEN)."""
+        return {
+            'room_size': self.room_size,
+            'n_objects': self.n_objects,
+            'level': self.level,
+            'main': self.main,
+        }
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert configuration to dictionary."""
         # Specific config (spatial-specific parameters)
         specific_config = {
+            'name': self.name,
+            'room_size': self.room_size,  # New from RAGEN
+            'n_objects': self.n_objects,  # New from RAGEN
+            'level': self.level,  # New from RAGEN
+            'main': self.main,  # New from RAGEN
             'exp_type': self.exp_type,
+            'perspective': self.perspective,  # VAGEN specific
+            'observation_mode': self.observation_mode,  # New from RAGEN
             'eval_tasks': self.eval_tasks,
             'max_exp_steps': self.max_exp_steps,
             'image_size': self.image_size,
-            'name': self.name,
             'prompt_config': self.prompt_config,
             'field_of_view': self.field_of_view,
         }

@@ -140,13 +140,13 @@ if __name__ == "__main__":
     # Optionally load the dataset and print examples
     train_dataset = load_dataset('parquet', data_files={"train": train_path}, split="train")
     test_dataset = load_dataset('parquet', data_files={"test": test_path}, split="test")
-    for i in range(2):
+    for i in range(1):
         print(train_dataset[i])
         env_name = train_dataset[i]["extra_info"]["env_name"]
         env_config_cls = REGISTERED_ENV[env_name]["config_cls"]
         env_config= env_config_cls(**train_dataset[i]["extra_info"]["env_config"])
         print(env_config.config_id())
-    for i in range(2):
+    for i in range(1):
         print(train_dataset[i])
         env_name = test_dataset[i]["extra_info"]["env_name"]
         env_config_cls = REGISTERED_ENV[env_name]["config_cls"]

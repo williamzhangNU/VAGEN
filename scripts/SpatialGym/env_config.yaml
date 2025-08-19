@@ -1,14 +1,18 @@
-# env1:
-#   env_name: spatial
-#   env_config: 
-#     name: passive_rot
-#     exp_type: passive
-#     max_exp_steps: 1
-#     prompt_config: {'topdown': false, 'oblique': false, 'cogmap': false, 'type': 'default'}
-#     eval_tasks:
-#       - task_type: rot
-#   train_size: 25
-#   test_size: 25
+env1:
+  env_name: spatial
+  env_config: 
+    name: passive_rot
+    exp_type: passive
+    n_objects: 8
+    level: 3
+    main: 5
+    room_size: [20, 20]
+    max_exp_steps: 1
+    prompt_config: {'topdown': false, 'oblique': false, 'cogmap': false, 'type': 'default'}
+    eval_tasks:
+      - task_type: rot
+  train_size: 25
+  test_size: 1
 
 # env1:
 #   env_name: spatial
@@ -21,16 +25,16 @@
 #   train_size: 25
 #   test_size: 25
 
-env1:
-  env_name: spatial
-  env_config: 
-    name: passive_false_belief
-    exp_type: passive
-    max_exp_steps: 1
-    prompt_config: {'topdown': false, 'oblique': false, 'cogmap': false, 'type': 'default'}
-    eval_tasks:
-      - task_type: false_belief
-        task_kwargs:
-          action_type: rotation
-  train_size: 25
-  test_size: 25 
+# env1:
+#   env_name: spatial
+#   env_config: 
+#     name: passive_false_belief
+#     exp_type: passive
+#     max_exp_steps: 1
+#     prompt_config: {'topdown': false, 'oblique': false, 'cogmap': false, 'type': 'default'}
+#     eval_tasks:
+#       - task_type: false_belief
+#         task_kwargs:
+#           action_type: rotation
+#   train_size: 25
+#   test_size: 25 
