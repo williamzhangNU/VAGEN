@@ -4,9 +4,9 @@ mental_rotation:
     render_mode: vision
     max_steps: 5
     rotate_granularity: 90
-    device: cpu
+    device: cuda
     # Note: resolution field removed to avoid numpy array serialization issues
     # It will use the default (1280, 960) from MentalRotationEnvConfig
     # Only include basic serializable fields to avoid JSON serialization issues
   train_size: 100
-  test_size: 20
+  test_size: 2

@@ -86,36 +86,49 @@ class OpenAIModelInterface(BaseModelInterface):
             }
             
             # Handle multimodal content
-            if "multi_modal_data" in message and "<image>" in content:
-                # Extract images from multi_modal_data
-                images = []
-                for key, values in message["multi_modal_data"].items():
-                    if key == "<image>" or "image" in key.lower():
-                        images.extend(values)
+            if "multi_modal_data" in message:
+                # Find all image placeholders in content
+                image_tags = re.findall(r'<[^>]*image[^>]*>', content)
                 
-                # Split content by <image> placeholders
-                parts = content.split("<image>")
-                
-                # Build content array alternating text and images
-                for i, part in enumerate(parts):
-                    # Add text part if not empty
-                    if part.strip():
+                if image_tags:
+                    # Replace each image tag with its corresponding image
+                    current_content = content
+                    
+                    for tag in image_tags:
+                        if tag in message["multi_modal_data"]:
+                            images = message["multi_modal_data"][tag]
+                            # Split content by this tag
+                            parts = current_content.split(tag, 1)  # Split only first occurrence
+                            
+                            # Add text before image
+                            if parts[0].strip():
+                                openai_msg["content"].append({
+                                    "type": "text",
+                                    "text": parts[0]
+                                })
+                            
+                            # Add image
+                            if images:
+                                image_data = self._process_image_for_openai(images[0])
+                                openai_msg["content"].append({
+                                    "type": "image_url",
+                                    "image_url": {
+                                        "url": f"data:image/jpeg;base64,{image_data}"
+                                    }
+                                })
+                            
+                            # Update current_content to remaining part
+                            current_content = parts[1] if len(parts) > 1 else ""
+                    
+                    # Add any remaining text
+                    if current_content.strip():
                         openai_msg["content"].append({
                             "type": "text",
-                            "text": part
+                            "text": current_content
                         })
-                    
-                    # Add image if available (except for last part)
-                    if i < len(parts) - 1 and i < len(images):
-                        image_data = self._process_image_for_openai(images[i])
-                        openai_msg["content"].append({
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{image_data}"
-                            }
-                        })
-            else:
-                # Text-only message
+            
+            # Text-only message (for messages without multi_modal_data or without image tags)
+            if not openai_msg["content"]:  # Only add if no content was added above
                 openai_msg["content"].append({
                     "type": "text",
                     "text": content

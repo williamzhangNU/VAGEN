@@ -1,7 +1,7 @@
 {
     "tasks": [
         {
-            "object": "airplane.glb",
+            "object": "aligned_airplane.glb",
             "initial_orientation": {
                 "w": 1.0,
                 "x": 0.0,
@@ -26,7 +26,7 @@
                 "y": 0.0,
                 "z": -1.0
             },
-            "object_scale": 0.1,
+            "object_scale": 1.0,
             "camera_pos": {
                 "x": 5.0,
                 "y": -2.0,
@@ -40,7 +40,7 @@
             "instruction": "Rotate the airplane to match the target orientation. The target shows the airplane rotated 90 degrees around the X-axis."
         },
         {
-            "object": "airplane.glb",
+            "object": "aligned_airplane.glb",
             "initial_orientation": {
                 "w": 1.0,
                 "x": 0.0,
@@ -65,7 +65,7 @@
                 "y": 0.0,
                 "z": -1.0
             },
-            "object_scale": 0.1,
+            "object_scale": 1.0,
             "camera_pos": {
                 "x": 5.0,
                 "y": -2.0,
@@ -79,7 +79,7 @@
             "instruction": "Rotate the airplane to match the target orientation. The target shows the airplane rotated 90 degrees around the Y-axis."
         },
         {
-            "object": "gun.glb",
+            "object": "aligned_glove.glb",
             "initial_orientation": {
                 "w": 1.0,
                 "x": 0.0,
@@ -104,7 +104,7 @@
                 "y": 0.0,
                 "z": -1.0
             },
-            "object_scale": 0.1,
+            "object_scale": 1.0,
             "camera_pos": {
                 "x": 4.0,
                 "y": -3.0,
@@ -118,7 +118,7 @@
             "instruction": "Rotate the car to match the target orientation. This requires a complex rotation involving all three axes."
         },
         {
-            "object": "gun.glb",
+            "object": "aligned_teapot.glb",
             "initial_orientation": {
                 "w": 0.7071,
                 "x": 0.0,
@@ -141,9 +141,9 @@
             "background_pos": {
                 "x": 0.0,
                 "y": 0.0,
-                "z": 0.0
+                "z": -1.0
             },
-            "object_scale": 0.15,
+            "object_scale": 1.0,
             "camera_pos": {
                 "x": 6.0,
                 "y": -1.5,

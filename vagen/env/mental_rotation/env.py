@@ -54,6 +54,9 @@ class MentalRotationEnv(BaseEnv):
         
         self.dataset = self._load_dataset()
 
+        self.axes_path = os.path.join(os.path.dirname(__file__), "datasets", "assets", "axes.glb")
+        self.axes_scale = 1.3
+
     def _generate_valid_actions(self) -> List[str]:
         actions = []
         axes = ['x', 'y', 'z']
@@ -171,7 +174,6 @@ class MentalRotationEnv(BaseEnv):
         Args:
             task_configs: List of task configurations, one per environment
         """
-        # Check that all environments use the same background and object for parallel processing
         first_task = task_configs[0]
         first_key = (first_task["background"], first_task["object"])
         
@@ -181,7 +183,7 @@ class MentalRotationEnv(BaseEnv):
                 raise ValueError(f"All parallel environments must use the same background and object. "
                                f"Found {first_key} and {key}")
         
-        # Setup background and object
+        self._setup_axes()
         self._setup_background(first_task)
         self._setup_object(first_task)
     
@@ -228,6 +230,15 @@ class MentalRotationEnv(BaseEnv):
                 pos=(0.0, 0.0, 0.0),
                 euler=(0.0, 0.0, 0.0),
                 scale=obj_scale
+            ),
+        )
+
+    def _setup_axes(self):
+        self.axes = self.scene.add_entity(
+            gs.morphs.Mesh(
+                file=self.axes_path,
+                fixed=True,
+                scale=self.axes_scale
             ),
         )
 
@@ -408,6 +419,9 @@ class MentalRotationEnv(BaseEnv):
                 reward += self.config.format_reward
             else:
                 metrics["turn_metrics"]["action_is_valid"] = False
+
+            print(f"action: {action}, action_is_valid: {metrics['turn_metrics']['action_is_valid']}, action_is_effective: {metrics['turn_metrics']['action_is_effective']}")
+            print(f"current_orientations: {self._current_orientations[idx]}, target_orientations: {self._target_orientations[idx]}")
 
             self._step_counts[idx] += 1
             if quat_equal(self._current_orientations[idx], self._target_orientations[idx]):

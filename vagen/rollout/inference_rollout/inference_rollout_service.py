@@ -2,6 +2,7 @@
 
 import os
 import time
+import json
 from typing import List, Dict, Tuple, Optional, Any
 from collections import defaultdict
 from tqdm import tqdm
@@ -45,6 +46,9 @@ class InferenceRolloutService(BaseRollout):
         self.max_workers = max_workers
         self.split = split
         self.debug = debug
+        
+        # Debug saving setup
+        self.debug_save_dir = config.get("debug_save_dir", None)
         
         # Initialize environment client
         self.env_client = BatchEnvClient(
@@ -174,6 +178,8 @@ class InferenceRolloutService(BaseRollout):
             for env_id in active_envs:
                 # Get conversation history for this environment
                 env_messages[env_id] = self.recordings[env_id]
+
+            print(f"[DEBUG] env_messages: {env_messages}")
             
             # Generate responses using model interface
             start_time = time.time()
@@ -408,6 +414,10 @@ class InferenceRolloutService(BaseRollout):
                 "metrics": convert_numpy_types(metrics),
             })
         
+        # Save debug information if enabled
+        if self.debug_save_dir:
+            self._save_debug_info(results)
+        
         return results
     
     def close(self) -> None:
@@ -423,6 +433,120 @@ class InferenceRolloutService(BaseRollout):
         self.env_states = {}
         self.recordings = {}
         self.system_prompts = {}
+    
+    def _save_debug_info(self, results: List[Dict]) -> None:
+        """Save detailed debug information for each environment."""
+        import os
+        
+        # Create debug directory
+        os.makedirs(self.debug_save_dir, exist_ok=True)
+        print(f"Saving debug information to {self.debug_save_dir}")
+        
+        for result in results:
+            env_id = result["env_id"]
+            
+            # Clean recordings - remove image objects for JSON serialization
+            clean_recordings = []
+            for msg in self.recordings.get(env_id, []):
+                clean_msg = msg.copy()
+                if "multi_modal_data" in clean_msg:
+                    # Replace image objects with placeholders
+                    clean_multi_modal = {}
+                    for key, values in clean_msg["multi_modal_data"].items():
+                        if key == "<image>":
+                            clean_multi_modal[key] = [f"<CURRENT_IMAGE_SAVED_SEPARATELY_{i}>" for i in range(len(values))]
+                        elif key == "<target_image>":
+                            clean_multi_modal[key] = [f"<TARGET_IMAGE_SAVED_SEPARATELY_{i}>" for i in range(len(values))]
+                        elif "image" in key.lower():
+                            clean_multi_modal[key] = [f"<IMAGE_SAVED_SEPARATELY_{i}>" for i in range(len(values))]
+                        else:
+                            clean_multi_modal[key] = values
+                    clean_msg["multi_modal_data"] = clean_multi_modal
+                clean_recordings.append(clean_msg)
+            
+            # Clean env_states - remove image objects
+            env_states = self.env_states.get(env_id, {})
+            clean_env_states = {}
+            for key, value in env_states.items():
+                if key == "last_obs" and isinstance(value, dict):
+                    clean_obs = {}
+                    for obs_key, obs_value in value.items():
+                        if obs_key == "multi_modal_data" and isinstance(obs_value, dict):
+                            clean_multi_modal = {}
+                            for mm_key, mm_values in obs_value.items():
+                                if mm_key == "<image>":
+                                    clean_multi_modal[mm_key] = [f"<CURRENT_IMAGE_IN_ENV_STATES_{i}>" for i in range(len(mm_values)) if hasattr(mm_values, '__len__')]
+                                elif mm_key == "<target_image>":
+                                    clean_multi_modal[mm_key] = [f"<TARGET_IMAGE_IN_ENV_STATES_{i}>" for i in range(len(mm_values)) if hasattr(mm_values, '__len__')]
+                                elif "image" in mm_key.lower():
+                                    clean_multi_modal[mm_key] = [f"<IMAGE_IN_ENV_STATES_{i}>" for i in range(len(mm_values)) if hasattr(mm_values, '__len__')]
+                                else:
+                                    clean_multi_modal[mm_key] = mm_values
+                            clean_obs[obs_key] = clean_multi_modal
+                        else:
+                            clean_obs[obs_key] = obs_value
+                    clean_env_states[key] = clean_obs
+                else:
+                    clean_env_states[key] = value
+            
+            # Create debug data structure (without image objects)
+            debug_data = {
+                "env_id": env_id,
+                "config_id": result["config_id"],
+                "recordings": clean_recordings,
+                "env_states": clean_env_states,
+                "final_metrics": result["metrics"],
+                "output_str": result["output_str"]
+            }
+
+            print(f"[DEBUG] debug_data: {debug_data}")
+
+            
+            # Save JSON file
+            json_path = os.path.join(self.debug_save_dir, f"{env_id}.json")
+            with open(json_path, 'w', encoding='utf-8') as f:
+                json.dump(debug_data, f, indent=2, ensure_ascii=False)
+            
+            # Save images if present - with better naming to distinguish current vs target
+            if result["image_data"]:
+                print(f"[DEBUG] len(result['image_data']): {len(result['image_data'])}")
+                image_dir = os.path.join(self.debug_save_dir, f"{env_id}_images")
+                os.makedirs(image_dir, exist_ok=True)
+                
+                # Track image indices for current and target images
+                current_img_idx = 0
+                target_img_idx = 0
+                
+                # Go through recordings to identify image types
+                for msg in self.recordings.get(env_id, []):
+                    print(f"[DEBUG] msg: {msg}")
+                    if "multi_modal_data" in msg:
+                        for key, values in msg["multi_modal_data"].items():
+                            if key == "<image>":
+                                # Current object images
+                                for value in values:
+                                    if isinstance(value, PIL.Image.Image) and current_img_idx < len(result["image_data"]):
+                                        img_path = os.path.join(image_dir, f"current_step_{current_img_idx}.png")
+                                        result["image_data"][2 * current_img_idx].save(img_path)
+                                        current_img_idx += 1
+                            elif key == "<target_image>":
+                                # Target object images
+                                for value in values:
+                                    if isinstance(value, PIL.Image.Image) and (current_img_idx + target_img_idx) < len(result["image_data"]):
+                                        img_path = os.path.join(image_dir, f"target_step_{target_img_idx}.png")
+                                        print(f"[DEBUG] len(result['image_data']): {len(result['image_data'])}, current_img_idx: {current_img_idx}, target_img_idx: {target_img_idx}")
+                                        result["image_data"][2 * (current_img_idx-1) + 1].save(img_path)
+                                        target_img_idx += 1
+                
+                # Save any remaining images with generic names (fallback)
+                total_saved = current_img_idx + target_img_idx
+                for i in range(total_saved, len(result["image_data"])):
+                    img = result["image_data"][i]
+                    if isinstance(img, PIL.Image.Image):
+                        img_path = os.path.join(image_dir, f"unknown_step_{i}.png")
+                        img.save(img_path)
+        
+        print(f"Debug information saved for {len(results)} environments")
         
         if self.debug:
             print("Closed all environments and cleaned up resources")
