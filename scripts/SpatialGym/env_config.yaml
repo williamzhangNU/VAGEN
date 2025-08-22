@@ -3,10 +3,10 @@ env1:
   env_config: 
     name: passive_rot
     exp_type: passive
-    n_objects: 8
-    level: 3
+    n_objects: 4
+    level: 2
     main: 5
-    room_size: [20, 20]
+    room_size: [15, 15]
     max_exp_steps: 1
     prompt_config: {'topdown': false, 'oblique': false, 'cogmap': false, 'type': 'default'}
     eval_tasks:

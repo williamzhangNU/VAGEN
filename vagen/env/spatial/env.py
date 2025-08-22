@@ -21,6 +21,7 @@ from vagen.env.spatial.Base.tos_base import (
 from vagen.env.spatial.Base.tos_base.managers.agent_proxy import get_agent_proxy
 from vagen.env.spatial.prompts import Prompter
 from vagen.env.spatial.Base.tos_base.utils.action_utils import action_results_to_text
+from vagen.env.spatial.utils.initialize_room import initialize_room_from_json
 from vagen.env.utils.parse_utils import parse_freethink
 from vagen.env.spatial.utils.image_handler import ImageHandler
 
@@ -120,10 +121,28 @@ class SpatialGym(gym.Env):
         self.json_data = self.image_handler.json_data
         self.prompter = Prompter(self.config, self.image_handler, self.np_random)
         # Generate initial room
-        self.initial_room, self.agent = RoomGenerator.generate_room(
-            **self.config.get_room_config(),
-            np_random=self.np_random,
-        )
+        # self.initial_room, self.agent = RoomGenerator.generate_room(
+        #     **self.config.get_room_config(),
+        #     np_random=self.np_random,
+        # )
+        mask = np.array([
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+            [-1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, -1],
+            [-1,  0,  1,  1,  1,  1,  1,  0,  2,  2,  2,  2,  2,  2,  0, -1],
+            [-1,  0,  1,  1,  1,  1,  1,  0,  2,  2,  2,  2,  2,  2,  0, -1],
+            [-1,  0,  1,  1,  1,  1,  1, 101, 2,  2,  2,  2,  2,  2,  0, -1],
+            [-1,  0,  1,  1,  1,  1,  1,  0,  2,  2,  2,  2,  2,  2,  0, -1],
+            [-1,  0,  1,  1,  1,  1,  1,  0,  2,  2,  2,  2,  2,  2,  0, -1],
+            [-1,  0,  0,  0, 100, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0, -1],
+            [-1,  0,  3,  3,  3,  3,  3,  0,  -1, -1, -1, -1, -1, -1, -1, -1],
+            [-1,  0,  3,  3,  3,  3,  3,  0,  -1, -1, -1, -1, -1, -1, -1, -1],
+            [-1,  0,  3,  3,  3,  3,  3,  0,  -1, -1, -1, -1, -1, -1, -1, -1],
+            [-1,  0,  3,  3,  3,  3,  3,  0,  -1, -1, -1, -1, -1, -1, -1, -1],
+            [-1,  0,  3,  3,  3,  3,  3,  0,  -1, -1, -1, -1, -1, -1, -1, -1],
+            [-1,  0,  0,  0,  0,  0,  0,  0,  -1, -1, -1, -1, -1, -1, -1, -1],
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+        ])
+        self.initial_room, self.agent = initialize_room_from_json(self.json_data, mask)
         self.initial_agent = self.agent.copy()
 
         # Initialize episode state

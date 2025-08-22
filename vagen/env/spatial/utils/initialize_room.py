@@ -1,9 +1,9 @@
 import numpy as np
 from typing import Dict, Any
-from vagen.env.spatial.Base.tos_base.utils.room_utils import Room, Object, Agent
+from vagen.env.spatial.Base.tos_base.utils.room_utils import Room, Object, Agent, Gate,RoomGenerator
 
 # for initializing visual-based
-def initialize_room_from_json(json_data: Dict[str, Any]) -> Room:
+def initialize_room_from_json(json_data: Dict[str, Any], mask: np.ndarray) -> Room:
     """
     Initialize a Room from your metadata JSON, which now has:
       - objects: list of {oid, model, pos:{x,y,z}, rot:{x,y,z}, size:[w,h]}
@@ -12,16 +12,18 @@ def initialize_room_from_json(json_data: Dict[str, Any]) -> Room:
     """
     # Rotation to orientation vector mapping
     rotation_map = {0: np.array([0, 1]), 90: np.array([1, 0]), 180: np.array([0, -1]), 270: np.array([-1, 0])}
-    
+    offset = np.array(mask.shape) // 2
     # 1) Parse all objects
     objects = []
     for obj in json_data['objects']:
-        objects.append(Object(
-            name=obj['name'],
-            pos=np.array([obj["pos"]["x"], obj["pos"]["z"]]),
-            ori=rotation_map.get(obj["rot"]["y"]) if obj["attributes"]["has_orientation"] else np.array([1, 0]),
-            has_orientation=obj["attributes"]["has_orientation"]
-        ))
+        if 'door' not in obj['name']:
+            objects.append(Object(
+                name=obj['name'],
+                pos=np.array([obj["pos"]["x"], obj["pos"]["z"]]),
+                ori=rotation_map.get(obj["rot"]["y"]) if obj["attributes"]["has_orientation"] else np.array([1, 0]),
+                has_orientation=obj["attributes"]["has_orientation"]
+            ))
+        
     # 2) Room size metadata
     room_name = json_data.get("name", "room_from_json")
 
@@ -29,5 +31,19 @@ def initialize_room_from_json(json_data: Dict[str, Any]) -> Room:
     agent_pos = [camera['position'] for camera in json_data['cameras'] if camera['id'] == 'agent'][0]
     agent_pos = np.array([agent_pos["x"], agent_pos["z"]])
     for obj in objects:
-        obj.pos -= agent_pos
-    return Room(objects=objects, name=room_name, agent=Agent())
+        x, z = obj.pos[0], obj.pos[1]
+        obj.pos[0] = offset[1] + x
+        obj.pos[1] = offset[0] - z
+    x, z = agent_pos[0], agent_pos[1]
+    agent_pos[0] = offset[1] + x
+    agent_pos[1] = offset[0] - z
+    gates = RoomGenerator._gen_gates_from_mask(mask)
+
+    # Update gate room_ids to match the connected rooms from JSON data
+    door_objects = [obj for obj in json_data['objects'] if 'door' in obj['name']]
+    for gate in gates:
+        for door in door_objects:
+            if set(gate.room_id) == set(door["attributes"]['connected_rooms']):
+                gate.name = door['name']
+
+    return Room(objects=objects, mask=mask, name=room_name, gates=gates), Agent(pos=agent_pos,room_id=1,init_room_id=1)
