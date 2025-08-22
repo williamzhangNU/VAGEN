@@ -96,8 +96,14 @@ class SpatialGym(gym.Env):
             proxy.run()
 
             # Get exploration history with images
-            exp_history_data = proxy.to_image(self.prompter.image_handler)
-
+            exp_history_data = {} 
+            obs_str = proxy.to_text(self.config.image_placeholder)
+            images = []
+            for t in proxy.turns:
+                if any(result.action_type == 'observe' for result in t.actions):
+                    images.append(self._get_multi_modal_data(proxy.mgr, t.pos, t.ori))
+            exp_history_data['obs_str'] = obs_str
+            exp_history_data['multi_modal_data'] = {self.config.image_placeholder: images}
             # expose proxy manager so metrics are available via env.get_exp_summary()
             self.exploration_manager = proxy.mgr
 
@@ -194,7 +200,7 @@ class SpatialGym(gym.Env):
             # execute action
             exp_info, action_results = self.exploration_manager.execute_action_sequence(action_sequence)
             reward += -1 if exp_info.get('redundant', False) else 0 # redundant observe penalty
-            obs_str += action_results_to_text(action_results, '<image>')
+            obs_str += action_results_to_text(action_results, self.config.image_placeholder)
             exp_log = self.exploration_manager.turn_logs[-1]
             include_visual = True
 
@@ -206,28 +212,25 @@ class SpatialGym(gym.Env):
         else:
             obs_str += f"\nYou have a maximum of {self.remaining_exp_steps} exploration steps left."
 
-        obs = {'multi_modal_data': self._get_multi_modal_data()} if include_visual else {}
+        obs = {'multi_modal_data': self._get_multi_modal_data(self.exploration_manager, self.exploration_manager.agent.pos, self.exploration_manager.agent.ori)} if include_visual else {}
         return {**obs, 'obs_str': obs_str}, reward, False, info, exp_log
 
-    def _get_multi_modal_data(self):
+    def _get_multi_modal_data(self, room: ExplorationManager, pos: np.ndarray, ori: np.ndarray):
         """Get multi-modal data (images) for current state."""
-        room = self.exploration_manager
-        agent = room.agent
         # Find position: which object is at same location as agent
-        position_name = None if not np.allclose(room.init_pos, agent.pos) else 'agent'
+        position_name = None if not np.allclose(room.init_pos, pos) else 'agent'
         if position_name is None:
             for obj in room.base_room.all_objects:
-                if np.allclose(obj.pos, agent.pos):
+                if np.allclose(obj.pos, pos):
                     position_name = obj.name
                     break
         assert position_name is not None, "Agent position not found"
         
-        direction = {(0, 1): 'north', (1, 0): 'west', (0, -1): 'south', (-1, 0): 'east'}[tuple(agent.ori)]
+        direction = {(0, 1): 'north', (1, 0): 'west', (0, -1): 'south', (-1, 0): 'east'}[tuple(ori)]
         
         img = self.image_handler.get_image(position_name, direction)
         return img
             
-        
 
     def _step_evaluation(self, result: dict, info: dict):
         """Handle evaluation phase step with parsed result and shared info."""
