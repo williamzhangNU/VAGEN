@@ -11,7 +11,7 @@ def initialize_room_from_json(json_data: Dict[str, Any], mask: np.ndarray) -> Ro
       - room_size, screen_size, etc.
     """
     # Rotation to orientation vector mapping
-    rotation_map = {0: np.array([0, 1]), 90: np.array([1, 0]), 180: np.array([0, -1]), 270: np.array([-1, 0])}
+    rotation_map = {0: np.array([-1, 0]), 90: np.array([0, 1]), 180: np.array([1, 0]), 270: np.array([0, -1])}
     offset = np.array(mask.shape) // 2
     # 1) Parse all objects
     objects = []
@@ -32,11 +32,11 @@ def initialize_room_from_json(json_data: Dict[str, Any], mask: np.ndarray) -> Ro
     agent_pos = np.array([agent_pos["x"], agent_pos["z"]])
     for obj in objects:
         x, z = obj.pos[0], obj.pos[1]
-        obj.pos[0] = offset[1] + x
-        obj.pos[1] = offset[0] - z
+        obj.pos[0] = offset[0] - z
+        obj.pos[1] = offset[1] + x
     x, z = agent_pos[0], agent_pos[1]
-    agent_pos[0] = offset[1] + x
-    agent_pos[1] = offset[0] - z
+    agent_pos[0] = offset[0] - z
+    agent_pos[1] = offset[1] + x
     gates = RoomGenerator._gen_gates_from_mask(mask)
 
     # Update gate room_ids to match the connected rooms from JSON data
@@ -46,4 +46,4 @@ def initialize_room_from_json(json_data: Dict[str, Any], mask: np.ndarray) -> Ro
             if set(gate.room_id) == set(door["attributes"]['connected_rooms']):
                 gate.name = door['name']
 
-    return Room(objects=objects, mask=mask, name=room_name, gates=gates), Agent(pos=agent_pos,room_id=1,init_room_id=1)
+    return Room(objects=objects, mask=mask, name=room_name, gates=gates), Agent(pos=agent_pos,ori=np.array([-1, 0]),room_id=1,init_room_id=1)
