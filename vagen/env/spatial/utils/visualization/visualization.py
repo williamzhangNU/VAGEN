@@ -274,9 +274,10 @@ class HTMLGenerator:
             if env_log['is_exploration_phase'] and env_log['exploration_log']:
                 exp_log = env_log['exploration_log']
                 metrics.update({
-                    "coverage": exp_log['coverage'],
-                    "redundancy": exp_log['redundancy'],
-                    "is_redundant": exp_log['is_redundant']
+                    "node_coverage": exp_log.get('node_coverage'),
+                    "edge_coverage": exp_log.get('edge_coverage'),
+                    "step": exp_log.get('step'),
+                    "action_counts": exp_log.get('action_counts'),
                 })
             
             # Add info from env log

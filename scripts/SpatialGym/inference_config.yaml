@@ -5,12 +5,12 @@ server_max_workers: 48
 
 # Inference parameters
 batch_size: 32
-max_steps: 12
+max_steps: 20
 split: "test"
 debug: false
 
 # Output configuration
-output_dir: "results/gpt-5-mini/rot"
+output_dir: "results/pass_rot"
 
 # WandB configuration
 use_wandb: false

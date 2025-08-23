@@ -90,15 +90,12 @@ class SpatialGym(gym.Env):
     def _generate_initial_observation(self) -> str:
         """Generate initial observation based on exploration type."""
         exp_history_data = {}
+        images = []
         if self.config.exp_type == 'passive' and not self.config.prompt_config['topdown']:
             strategy = getattr(self.config, 'passive_agent_strategy', 'oracle')
             proxy = get_agent_proxy(strategy, self.initial_room, self.agent)
             proxy.run()
-
-            # Get exploration history with images
-            exp_history_data = {} 
             obs_str = proxy.to_text(self.config.image_placeholder)
-            images = []
             for t in proxy.turns:
                 if any(result.action_type == 'observe' for result in t.actions):
                     images.append(self._get_multi_modal_data(proxy.mgr, t.pos, t.ori))
@@ -106,6 +103,9 @@ class SpatialGym(gym.Env):
             exp_history_data['multi_modal_data'] = {self.config.image_placeholder: images}
             # expose proxy manager so metrics are available via env.get_exp_summary()
             self.exploration_manager = proxy.mgr
+        elif self.config.exp_type == 'active':
+            images.append(self._get_multi_modal_data(self.exploration_manager, self.agent.pos, self.agent.ori))
+            exp_history_data['multi_modal_data'] = {self.config.image_placeholder: images}
 
         return self.prompter.get_initial_observation_prompt(
             room=self.initial_room,
@@ -132,21 +132,22 @@ class SpatialGym(gym.Env):
         #     np_random=self.np_random,
         # )
         mask = np.array([
-            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
-            [-1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, -1],
-            [-1,  0,  1,  1,  1,  1,  1,  0,  2,  2,  2,  2,  2,  2,  0, -1],
-            [-1,  0,  1,  1,  1,  1,  1,  0,  2,  2,  2,  2,  2,  2,  0, -1],
-            [-1,  0,  1,  1,  1,  1,  1, 101, 2,  2,  2,  2,  2,  2,  0, -1],
-            [-1,  0,  1,  1,  1,  1,  1,  0,  2,  2,  2,  2,  2,  2,  0, -1],
-            [-1,  0,  1,  1,  1,  1,  1,  0,  2,  2,  2,  2,  2,  2,  0, -1],
-            [-1,  0,  0,  0, 100, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0, -1],
-            [-1,  0,  3,  3,  3,  3,  3,  0,  -1, -1, -1, -1, -1, -1, -1, -1],
-            [-1,  0,  3,  3,  3,  3,  3,  0,  -1, -1, -1, -1, -1, -1, -1, -1],
-            [-1,  0,  3,  3,  3,  3,  3,  0,  -1, -1, -1, -1, -1, -1, -1, -1],
-            [-1,  0,  3,  3,  3,  3,  3,  0,  -1, -1, -1, -1, -1, -1, -1, -1],
-            [-1,  0,  3,  3,  3,  3,  3,  0,  -1, -1, -1, -1, -1, -1, -1, -1],
-            [-1,  0,  0,  0,  0,  0,  0,  0,  -1, -1, -1, -1, -1, -1, -1, -1],
-            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [ -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, -1,  -1],
+            [ -1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,  0,  -1],
+            [ -1,   0,   3,   3,   3,   3,   3,   0,   1,   1,   1,   1,   1,  0,  -1],
+            [ -1,   0,   3,   3,   3,   3,   3,   0,   1,   1,   1,   1,   1,  0,  -1],
+            [ -1,   0,   3,   3,   3,   3,   3, 101,   1,   1,   1,   1,   1,  0,  -1],
+            [ -1,   0,   3,   3,   3,   3,   3,   0,   1,   1,   1,   1,   1,  0,  -1],
+            [ -1,   0,   3,   3,   3,   3,   3,   0,   1,   1,   1,   1,   1,  0,  -1],
+            [ -1,   0,   0,   0,   0,   0,   0,   0,   0,   0, 100,   0,   0,  0,  -1],
+            [ -1,  -1,  -1,  -1,  -1,  -1,  -1,   0,   2,   2,   2,   2,   2,  0,  -1],
+            [ -1,  -1,  -1,  -1,  -1,  -1,  -1,   0,   2,   2,   2,   2,   2,  0,  -1],
+            [ -1,  -1,  -1,  -1,  -1,  -1,  -1,   0,   2,   2,   2,   2,   2,  0,  -1],
+            [ -1,  -1,  -1,  -1,  -1,  -1,  -1,   0,   2,   2,   2,   2,   2,  0,  -1],
+            [ -1,  -1,  -1,  -1,  -1,  -1,  -1,   0,   2,   2,   2,   2,   2,  0,  -1],
+            [ -1,  -1,  -1,  -1,  -1,  -1,  -1,   0,   2,   2,   2,   2,   2,  0,  -1],
+            [ -1,  -1,  -1,  -1,  -1,  -1,  -1,   0,   0,   0,   0,   0,   0,  0,  -1],
+            [ -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, -1,  -1]
         ])
         self.initial_room, self.agent = initialize_room_from_json(self.json_data, mask)
         self.initial_agent = self.agent.copy()
@@ -205,14 +206,18 @@ class SpatialGym(gym.Env):
             include_visual = True
 
         # End exploration phase
-        if self.remaining_exp_steps < 0 or (action_sequence and action_sequence.final_action.is_term()):
+        should_term = False
+        if action_sequence:
+            final_act = getattr(action_sequence, 'final_action', None)
+            should_term = bool(final_act and final_act.is_term())
+        if self.remaining_exp_steps < 0 or should_term:
             self.is_exploration_phase = False
             obs_str += "Exploration phase ended\n"
             obs_str += self.prompter.get_evaluation_prompt(self.evaluation_manager)
         else:
             obs_str += f"\nYou have a maximum of {self.remaining_exp_steps} exploration steps left."
 
-        obs = {'multi_modal_data': self._get_multi_modal_data(self.exploration_manager, self.exploration_manager.agent.pos, self.exploration_manager.agent.ori)} if include_visual else {}
+        obs = {'multi_modal_data': {self.config.image_placeholder: [self._get_multi_modal_data(self.exploration_manager, self.exploration_manager.agent.pos, self.exploration_manager.agent.ori)]}} if include_visual else {}
         return {**obs, 'obs_str': obs_str}, reward, False, info, exp_log
 
     def _get_multi_modal_data(self, room: ExplorationManager, pos: np.ndarray, ori: np.ndarray):

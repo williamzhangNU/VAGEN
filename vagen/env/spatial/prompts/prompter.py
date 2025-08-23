@@ -46,20 +46,16 @@ class Prompter:
     def get_initial_observation_prompt(
             self,
             room: Room,
+            agent: Agent,
             eval_manager: Optional[EvaluationManager] = None,
             cogmap_manager: Optional[CognitiveMapManager] = None,
+            exp_history = None,
             **kwargs
         ) -> dict:
         """
         Generates the initial observation prompt based on the exploration type.
         """
-        # Get agent from kwargs to maintain backward compatibility
-        agent = kwargs['agent'] if 'agent' in kwargs else None
-        if agent:
-            room_desc = get_room_description(room, agent, with_topdown=self.config.prompt_config['topdown'])
-        else:
-            # Fallback to original room description method
-            room_desc = room.get_room_description()
+        room_desc = get_room_description(room, agent, with_topdown=self.config.prompt_config['topdown'])
 
         result = {}
 
@@ -71,13 +67,10 @@ class Prompter:
 
         cogmap_instruction = cogmap_manager.get_cognitive_map_instruction() if cogmap_manager else ""
 
+        images = exp_history['multi_modal_data'][self.config.image_placeholder] if exp_history else []
         if self.config.exp_type == 'active':
             exp_instructions = ActionSequence.get_usage_instructions() + f"\n\nYou have a maximum of {self.config.max_exp_steps} exploration steps."
-            # Use appropriate instruction type based on config
-            if self.config.prompt_config['type'] == 'shorter':
-                active_instruction = getattr(self, 'ACTIVE_INSTRUCTION_SHORTER', self.ACTIVE_INSTRUCTION)
-            else:
-                active_instruction = self.ACTIVE_INSTRUCTION
+            active_instruction = self.ACTIVE_INSTRUCTION
             obs_str = active_instruction.format(
                 room_info=room_desc,
                 exp_instructions=exp_instructions,
@@ -87,13 +80,12 @@ class Prompter:
 
             # Add topdown image if enabled
             if self.config.prompt_config['topdown'] and self.image_handler:
-                result['multi_modal_data'] = {self.config.image_placeholder: [self.image_handler.get_image('topdown')]}
+                images.append(self.image_handler.get_image('topdown'))
+                result['multi_modal_data'] = {self.config.image_placeholder: images}
         else:
-            images = []
             if not self.config.prompt_config['topdown'] and not self.config.prompt_config['oblique']:
                 # Use exploration history from kwargs
-                exp_history_str = f"## Exploration History\n{kwargs['exp_history']['obs_str']}"
-                images.extend(kwargs['exp_history']['multi_modal_data'][self.config.image_placeholder])
+                exp_history_str = f"## Exploration History\n{exp_history['obs_str']}"
 
             elif self.config.prompt_config['topdown']:
                 images.append(self.image_handler.get_image('topdown'))
