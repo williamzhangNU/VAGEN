@@ -10,6 +10,7 @@ class MentalRotationEnvConfig(BaseEnvConfig):
     target_image_placeholder: str = "<target_image>"
     max_actions_per_step: int = 1
     prompt_format: str = "no_think"  # TODO
+    task_name: str = "multi_step_interactive"
 
     n_parallel_envs: int = 1
     parallel_env_spacing: float = 10.0
@@ -29,6 +30,7 @@ class MentalRotationEnvConfig(BaseEnvConfig):
     def config_id(self) -> str:
         id_fields = [
             "device",
+            "task_name"
         ]
         id_str = ",".join(
             [f"{field.name}={getattr(self, field.name)}" for field in fields(self) if field.name in id_fields]
@@ -46,9 +48,7 @@ viewer_options = gs.options.ViewerOptions(
 )
 
 vis_options = gs.options.VisOptions(
-    show_world_frame = True, # visualize the coordinate frame of `world` at its origin
-    world_frame_size = 1.5, # length of the world frame in meter
-    show_link_frame  = True, # do not visualize coordinate frames of entity links
+    show_world_frame = False,
     show_cameras     = False, # do not visualize mesh and frustum of the cameras added
     # plane_reflection = True, # turn on plane reflection
     ambient_light    = (0.1, 0.1, 0.1), # ambient light setting

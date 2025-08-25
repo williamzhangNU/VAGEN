@@ -1,0 +1,1955 @@
+{
+    "asset_path": "b10_shepard_metzler_normalized",
+    "tasks": [
+        {
+            "object": "shepard_metzler_0.glb",
+            "initial_orientation": {
+                "w": -0.1094,
+                "x": 0.8754,
+                "y": 0.2346,
+                "z": -0.4082
+            },
+            "target_orientation": {
+                "w": -0.5417,
+                "x": -0.6964,
+                "y": 0.1228,
+                "z": 0.4545
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: +270\u00b0 about Z -> +90\u00b0 about Z -> -90\u00b0 about X"
+        },
+        {
+            "object": "shepard_metzler_0.glb",
+            "initial_orientation": {
+                "w": -0.6366,
+                "x": -0.6299,
+                "y": -0.2177,
+                "z": -0.3881
+            },
+            "target_orientation": {
+                "w": -0.8955,
+                "x": 0.0047,
+                "y": -0.4283,
+                "z": -0.1205
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: +90\u00b0 about X -> +90\u00b0 about Y -> -180\u00b0 about X -> +90\u00b0 about Y"
+        },
+        {
+            "object": "shepard_metzler_0.glb",
+            "initial_orientation": {
+                "w": -0.3445,
+                "x": -0.7158,
+                "y": -0.2328,
+                "z": 0.5611
+            },
+            "target_orientation": {
+                "w": 0.6403,
+                "x": 0.3415,
+                "y": 0.6707,
+                "z": -0.1531
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: -90\u00b0 about Y -> +180\u00b0 about Y -> +90\u00b0 about X -> +270\u00b0 about Y"
+        },
+        {
+            "object": "shepard_metzler_0.glb",
+            "initial_orientation": {
+                "w": 0.2988,
+                "x": 0.6409,
+                "y": 0.2988,
+                "z": 0.6409
+            },
+            "target_orientation": {
+                "w": 0.6645,
+                "x": -0.6645,
+                "y": 0.2418,
+                "z": 0.2418
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: -180\u00b0 about Z -> -180\u00b0 about X -> -90\u00b0 about Z"
+        },
+        {
+            "object": "shepard_metzler_0.glb",
+            "initial_orientation": {
+                "w": -0.7409,
+                "x": -0.1619,
+                "y": 0.4421,
+                "z": -0.4789
+            },
+            "target_orientation": {
+                "w": 0.2241,
+                "x": 0.2113,
+                "y": -0.4532,
+                "z": -0.8365
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: -270\u00b0 about Y -> -270\u00b0 about Z -> +90\u00b0 about Z"
+        },
+        {
+            "object": "shepard_metzler_1.glb",
+            "initial_orientation": {
+                "w": 0.4545,
+                "x": 0.5417,
+                "y": -0.4545,
+                "z": -0.5417
+            },
+            "target_orientation": {
+                "w": 0.0616,
+                "x": -0.7044,
+                "y": -0.0616,
+                "z": 0.7044
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: -90\u00b0 about Y -> -270\u00b0 about Z -> +90\u00b0 about Y"
+        },
+        {
+            "object": "shepard_metzler_1.glb",
+            "initial_orientation": {
+                "w": -0.0614,
+                "x": 0.2642,
+                "y": -0.0614,
+                "z": -0.9606
+            },
+            "target_orientation": {
+                "w": -0.2642,
+                "x": -0.0614,
+                "y": 0.9606,
+                "z": -0.0614
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: +270\u00b0 about Y -> +180\u00b0 about Z -> -270\u00b0 about Y"
+        },
+        {
+            "object": "shepard_metzler_1.glb",
+            "initial_orientation": {
+                "w": -0.0808,
+                "x": -0.4638,
+                "y": 0.7852,
+                "z": 0.4022
+            },
+            "target_orientation": {
+                "w": -0.2708,
+                "x": 0.8396,
+                "y": 0.2708,
+                "z": 0.3851
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: +180\u00b0 about Z -> +90\u00b0 about Z -> -270\u00b0 about Z -> -180\u00b0 about Z -> +90\u00b0 about X"
+        },
+        {
+            "object": "shepard_metzler_1.glb",
+            "initial_orientation": {
+                "w": -0.079,
+                "x": 0.9029,
+                "y": -0.0368,
+                "z": 0.421
+            },
+            "target_orientation": {
+                "w": 0.6645,
+                "x": 0.3536,
+                "y": 0.2418,
+                "z": -0.6124
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: -90\u00b0 about Y -> +270\u00b0 about Y -> +90\u00b0 about Z"
+        },
+        {
+            "object": "shepard_metzler_1.glb",
+            "initial_orientation": {
+                "w": -0.1223,
+                "x": 0.6321,
+                "y": 0.7651,
+                "z": 0.0107
+            },
+            "target_orientation": {
+                "w": 0.0941,
+                "x": -0.0941,
+                "y": 0.0789,
+                "z": 0.988
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: +180\u00b0 about X -> +270\u00b0 about Z -> -90\u00b0 about Y -> -270\u00b0 about Y"
+        },
+        {
+            "object": "shepard_metzler_2.glb",
+            "initial_orientation": {
+                "w": 0.173,
+                "x": -0.9811,
+                "y": -0.0151,
+                "z": 0.0858
+            },
+            "target_orientation": {
+                "w": -0.683,
+                "x": -0.0616,
+                "y": 0.183,
+                "z": 0.7044
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: -90\u00b0 about X -> -90\u00b0 about X -> -90\u00b0 about Z"
+        },
+        {
+            "object": "shepard_metzler_2.glb",
+            "initial_orientation": {
+                "w": -0.2711,
+                "x": -0.0091,
+                "y": -0.9119,
+                "z": -0.3079
+            },
+            "target_orientation": {
+                "w": -0.8365,
+                "x": 0.2113,
+                "y": -0.4532,
+                "z": -0.2241
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: +180\u00b0 about Z -> -270\u00b0 about X -> -90\u00b0 about Z -> -270\u00b0 about X"
+        },
+        {
+            "object": "shepard_metzler_2.glb",
+            "initial_orientation": {
+                "w": -0.305,
+                "x": 0.0088,
+                "y": 0.805,
+                "z": -0.5088
+            },
+            "target_orientation": {
+                "w": 0.805,
+                "x": -0.305,
+                "y": 0.0088,
+                "z": 0.5088
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: -90\u00b0 about Y -> -180\u00b0 about Y -> +90\u00b0 about X -> -180\u00b0 about X"
+        },
+        {
+            "object": "shepard_metzler_2.glb",
+            "initial_orientation": {
+                "w": -0.4739,
+                "x": 0.2013,
+                "y": 0.6147,
+                "z": 0.5975
+            },
+            "target_orientation": {
+                "w": -0.4774,
+                "x": -0.1927,
+                "y": 0.0122,
+                "z": 0.8572
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: -180\u00b0 about Z -> +90\u00b0 about Z -> -270\u00b0 about Z -> -270\u00b0 about X"
+        },
+        {
+            "object": "shepard_metzler_2.glb",
+            "initial_orientation": {
+                "w": -0.4356,
+                "x": 0.3062,
+                "y": 0.5303,
+                "z": -0.6597
+            },
+            "target_orientation": {
+                "w": 0.1585,
+                "x": 0.1585,
+                "y": 0.7745,
+                "z": 0.5915
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: +90\u00b0 about Y -> +270\u00b0 about Z -> +180\u00b0 about Y -> +90\u00b0 about X"
+        },
+        {
+            "object": "shepard_metzler_3.glb",
+            "initial_orientation": {
+                "w": -0.1632,
+                "x": 0.0594,
+                "y": -0.9254,
+                "z": 0.3368
+            },
+            "target_orientation": {
+                "w": 0.683,
+                "x": -0.4056,
+                "y": 0.183,
+                "z": -0.5792
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: +90\u00b0 about X -> +180\u00b0 about X -> +90\u00b0 about Z"
+        },
+        {
+            "object": "shepard_metzler_3.glb",
+            "initial_orientation": {
+                "w": -0.8399,
+                "x": -0.3107,
+                "y": -0.3185,
+                "z": 0.3107
+            },
+            "target_orientation": {
+                "w": 0.4394,
+                "x": -0.8192,
+                "y": -0.0,
+                "z": 0.3687
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: -90\u00b0 about Y -> +180\u00b0 about X"
+        },
+        {
+            "object": "shepard_metzler_3.glb",
+            "initial_orientation": {
+                "w": 0.6645,
+                "x": 0.6964,
+                "y": -0.1228,
+                "z": -0.2418
+            },
+            "target_orientation": {
+                "w": 0.1228,
+                "x": -0.2418,
+                "y": 0.6645,
+                "z": -0.6964
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: +270\u00b0 about Y -> +270\u00b0 about Y -> +270\u00b0 about Z -> +90\u00b0 about Z"
+        },
+        {
+            "object": "shepard_metzler_3.glb",
+            "initial_orientation": {
+                "w": -0.8311,
+                "x": -0.4113,
+                "y": -0.3097,
+                "z": 0.2101
+            },
+            "target_orientation": {
+                "w": -0.0718,
+                "x": 0.7363,
+                "y": -0.4391,
+                "z": 0.5098
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: +270\u00b0 about Y -> +90\u00b0 about Z -> +90\u00b0 about X"
+        },
+        {
+            "object": "shepard_metzler_3.glb",
+            "initial_orientation": {
+                "w": 0.7745,
+                "x": 0.3415,
+                "y": -0.4085,
+                "z": -0.3415
+            },
+            "target_orientation": {
+                "w": 0.7891,
+                "x": -0.3062,
+                "y": -0.5303,
+                "z": 0.0474
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: +90\u00b0 about X -> +270\u00b0 about Y -> -270\u00b0 about Y -> -180\u00b0 about X"
+        },
+        {
+            "object": "shepard_metzler_4.glb",
+            "initial_orientation": {
+                "w": 0.8421,
+                "x": -0.5036,
+                "y": 0.1069,
+                "z": -0.1608
+            },
+            "target_orientation": {
+                "w": 0.539,
+                "x": 0.1422,
+                "y": 0.8067,
+                "z": -0.1962
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: -270\u00b0 about X -> +180\u00b0 about Z -> +270\u00b0 about Y -> -180\u00b0 about Z"
+        },
+        {
+            "object": "shepard_metzler_4.glb",
+            "initial_orientation": {
+                "w": 0.3126,
+                "x": 0.6573,
+                "y": -0.3918,
+                "z": -0.5628
+            },
+            "target_orientation": {
+                "w": 0.3994,
+                "x": -0.305,
+                "y": -0.6497,
+                "z": -0.5704
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: +270\u00b0 about X -> +270\u00b0 about Z"
+        },
+        {
+            "object": "shepard_metzler_4.glb",
+            "initial_orientation": {
+                "w": -0.2671,
+                "x": 0.5858,
+                "y": 0.0934,
+                "z": -0.7595
+            },
+            "target_orientation": {
+                "w": -0.5858,
+                "x": -0.2671,
+                "y": 0.7595,
+                "z": 0.0934
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: +180\u00b0 about Z -> +180\u00b0 about Z -> -180\u00b0 about X"
+        },
+        {
+            "object": "shepard_metzler_4.glb",
+            "initial_orientation": {
+                "w": 0.1889,
+                "x": 0.551,
+                "y": -0.6653,
+                "z": -0.467
+            },
+            "target_orientation": {
+                "w": 0.7198,
+                "x": 0.3368,
+                "y": 0.0594,
+                "z": 0.604
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: +180\u00b0 about X -> -270\u00b0 about Y"
+        },
+        {
+            "object": "shepard_metzler_4.glb",
+            "initial_orientation": {
+                "w": -0.7185,
+                "x": 0.3062,
+                "y": 0.4877,
+                "z": -0.3902
+            },
+            "target_orientation": {
+                "w": 0.0594,
+                "x": -0.8529,
+                "y": 0.4924,
+                "z": -0.1632
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: -270\u00b0 about X -> -270\u00b0 about X -> -90\u00b0 about Y"
+        },
+        {
+            "object": "shepard_metzler_5.glb",
+            "initial_orientation": {
+                "w": -0.6409,
+                "x": -0.2988,
+                "y": 0.0616,
+                "z": -0.7044
+            },
+            "target_orientation": {
+                "w": -0.6409,
+                "x": -0.2988,
+                "y": 0.0616,
+                "z": -0.7044
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: +180\u00b0 about Y -> +180\u00b0 about X -> +180\u00b0 about Y -> -180\u00b0 about X"
+        },
+        {
+            "object": "shepard_metzler_5.glb",
+            "initial_orientation": {
+                "w": -0.5305,
+                "x": -0.2239,
+                "y": -0.7317,
+                "z": -0.3647
+            },
+            "target_orientation": {
+                "w": -0.3591,
+                "x": -0.1172,
+                "y": 0.633,
+                "z": -0.6757
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: -90\u00b0 about X -> -270\u00b0 about X -> +90\u00b0 about Z -> -180\u00b0 about X"
+        },
+        {
+            "object": "shepard_metzler_5.glb",
+            "initial_orientation": {
+                "w": 0.6012,
+                "x": -0.2302,
+                "y": -0.1434,
+                "z": -0.7516
+            },
+            "target_orientation": {
+                "w": 0.0614,
+                "x": 0.9566,
+                "y": 0.1063,
+                "z": -0.2642
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: +270\u00b0 about X -> +90\u00b0 about Y -> -90\u00b0 about X"
+        },
+        {
+            "object": "shepard_metzler_5.glb",
+            "initial_orientation": {
+                "w": -0.7158,
+                "x": 0.1318,
+                "y": 0.6451,
+                "z": -0.2328
+            },
+            "target_orientation": {
+                "w": -0.0151,
+                "x": 0.4981,
+                "y": -0.8627,
+                "z": 0.0858
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: +90\u00b0 about X -> +270\u00b0 about Y"
+        },
+        {
+            "object": "shepard_metzler_5.glb",
+            "initial_orientation": {
+                "w": 0.001,
+                "x": -0.4708,
+                "y": -0.7035,
+                "z": -0.5324
+            },
+            "target_orientation": {
+                "w": 0.3758,
+                "x": 0.8303,
+                "y": 0.1645,
+                "z": 0.3772
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: +270\u00b0 about Y -> +90\u00b0 about Y -> -180\u00b0 about Z -> +90\u00b0 about Z"
+        },
+        {
+            "object": "shepard_metzler_6.glb",
+            "initial_orientation": {
+                "w": 0.5125,
+                "x": -0.7839,
+                "y": 0.1283,
+                "z": -0.3261
+            },
+            "target_orientation": {
+                "w": -0.3261,
+                "x": 0.1283,
+                "y": 0.7839,
+                "z": -0.5125
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: -180\u00b0 about X -> +90\u00b0 about X -> +180\u00b0 about Y -> -270\u00b0 about X"
+        },
+        {
+            "object": "shepard_metzler_6.glb",
+            "initial_orientation": {
+                "w": -0.5141,
+                "x": -0.0271,
+                "y": 0.8311,
+                "z": 0.2101
+            },
+            "target_orientation": {
+                "w": -0.0399,
+                "x": 0.2771,
+                "y": -0.7641,
+                "z": 0.5811
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: -270\u00b0 about Z -> -180\u00b0 about X -> -90\u00b0 about Y -> +180\u00b0 about Z"
+        },
+        {
+            "object": "shepard_metzler_6.glb",
+            "initial_orientation": {
+                "w": -0.2988,
+                "x": 0.183,
+                "y": -0.683,
+                "z": 0.6409
+            },
+            "target_orientation": {
+                "w": 0.9029,
+                "x": 0.0368,
+                "y": 0.421,
+                "z": 0.079
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: -180\u00b0 about X -> -90\u00b0 about Y -> -90\u00b0 about Z"
+        },
+        {
+            "object": "shepard_metzler_6.glb",
+            "initial_orientation": {
+                "w": -0.5975,
+                "x": 0.4739,
+                "y": 0.4817,
+                "z": -0.4317
+            },
+            "target_orientation": {
+                "w": -0.5607,
+                "x": -0.5185,
+                "y": 0.3949,
+                "z": -0.5107
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: -90\u00b0 about X -> -180\u00b0 about Y -> +270\u00b0 about Z"
+        },
+        {
+            "object": "shepard_metzler_6.glb",
+            "initial_orientation": {
+                "w": -0.7753,
+                "x": -0.2168,
+                "y": -0.1629,
+                "z": -0.5704
+            },
+            "target_orientation": {
+                "w": 0.5704,
+                "x": 0.1629,
+                "y": -0.2168,
+                "z": -0.7753
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: -270\u00b0 about Y -> -270\u00b0 about Y -> +180\u00b0 about X"
+        },
+        {
+            "object": "shepard_metzler_7.glb",
+            "initial_orientation": {
+                "w": 0.5417,
+                "x": -0.6964,
+                "y": 0.1228,
+                "z": 0.4545
+            },
+            "target_orientation": {
+                "w": -0.4056,
+                "x": -0.7044,
+                "y": -0.0616,
+                "z": -0.5792
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: -90\u00b0 about X -> -90\u00b0 about X -> +90\u00b0 about Z"
+        },
+        {
+            "object": "shepard_metzler_7.glb",
+            "initial_orientation": {
+                "w": -0.0146,
+                "x": -0.6244,
+                "y": 0.2273,
+                "z": 0.7472
+            },
+            "target_orientation": {
+                "w": 0.1823,
+                "x": 0.0595,
+                "y": 0.5794,
+                "z": -0.7921
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: -90\u00b0 about Z -> -270\u00b0 about Z -> -270\u00b0 about Z -> -270\u00b0 about Y"
+        },
+        {
+            "object": "shepard_metzler_7.glb",
+            "initial_orientation": {
+                "w": -0.2607,
+                "x": -0.8899,
+                "y": -0.2607,
+                "z": 0.2685
+            },
+            "target_orientation": {
+                "w": 0.0055,
+                "x": -0.3742,
+                "y": 0.8136,
+                "z": -0.4449
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: -270\u00b0 about Z -> +90\u00b0 about Z -> -90\u00b0 about X"
+        },
+        {
+            "object": "shepard_metzler_7.glb",
+            "initial_orientation": {
+                "w": -0.5611,
+                "x": 0.2328,
+                "y": -0.7158,
+                "z": -0.3445
+            },
+            "target_orientation": {
+                "w": 0.1332,
+                "x": 0.0215,
+                "y": -0.3498,
+                "z": -0.9271
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: +180\u00b0 about X -> +90\u00b0 about Y -> -270\u00b0 about X -> +180\u00b0 about Y"
+        },
+        {
+            "object": "shepard_metzler_7.glb",
+            "initial_orientation": {
+                "w": 0.6597,
+                "x": 0.4356,
+                "y": -0.3062,
+                "z": -0.5303
+            },
+            "target_orientation": {
+                "w": 0.0915,
+                "x": 0.0915,
+                "y": -0.5245,
+                "z": -0.8415
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: +270\u00b0 about Y -> -270\u00b0 about Y -> -90\u00b0 about Z"
+        },
+        {
+            "object": "shepard_metzler_8.glb",
+            "initial_orientation": {
+                "w": -0.8136,
+                "x": 0.3742,
+                "y": -0.0055,
+                "z": 0.4449
+            },
+            "target_orientation": {
+                "w": 0.3107,
+                "x": -0.8399,
+                "y": -0.3107,
+                "z": -0.3185
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: -180\u00b0 about Y -> -90\u00b0 about Z -> +90\u00b0 about Y -> +270\u00b0 about Z"
+        },
+        {
+            "object": "shepard_metzler_8.glb",
+            "initial_orientation": {
+                "w": -0.5597,
+                "x": -0.5217,
+                "y": 0.5811,
+                "z": 0.2771
+            },
+            "target_orientation": {
+                "w": 0.5811,
+                "x": -0.2771,
+                "y": 0.5597,
+                "z": -0.5217
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: -180\u00b0 about Z -> -180\u00b0 about X"
+        },
+        {
+            "object": "shepard_metzler_8.glb",
+            "initial_orientation": {
+                "w": 0.1228,
+                "x": -0.6964,
+                "y": 0.1228,
+                "z": -0.6964
+            },
+            "target_orientation": {
+                "w": -0.0,
+                "x": -0.8192,
+                "y": -0.5736,
+                "z": 0.0
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: -180\u00b0 about X -> -270\u00b0 about Z -> -180\u00b0 about Y -> -90\u00b0 about X"
+        },
+        {
+            "object": "shepard_metzler_8.glb",
+            "initial_orientation": {
+                "w": 0.0534,
+                "x": 0.6736,
+                "y": -0.4138,
+                "z": -0.61
+            },
+            "target_orientation": {
+                "w": 0.8754,
+                "x": 0.212,
+                "y": -0.1485,
+                "z": -0.4082
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: -270\u00b0 about Z -> +270\u00b0 about X"
+        },
+        {
+            "object": "shepard_metzler_8.glb",
+            "initial_orientation": {
+                "w": 0.1209,
+                "x": 0.2801,
+                "y": -0.929,
+                "z": -0.2094
+            },
+            "target_orientation": {
+                "w": 0.4394,
+                "x": -0.7698,
+                "y": 0.2802,
+                "z": 0.3687
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: -270\u00b0 about Z -> +90\u00b0 about X"
+        },
+        {
+            "object": "shepard_metzler_9.glb",
+            "initial_orientation": {
+                "w": 0.4862,
+                "x": -0.6573,
+                "y": 0.3126,
+                "z": -0.4836
+            },
+            "target_orientation": {
+                "w": 0.3126,
+                "x": 0.4836,
+                "y": -0.4862,
+                "z": -0.6573
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: -180\u00b0 about X -> +180\u00b0 about Z"
+        },
+        {
+            "object": "shepard_metzler_9.glb",
+            "initial_orientation": {
+                "w": 0.4096,
+                "x": 0.4967,
+                "y": 0.7094,
+                "z": 0.2868
+            },
+            "target_orientation": {
+                "w": -0.554,
+                "x": -0.212,
+                "y": 0.1485,
+                "z": 0.7912
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: +90\u00b0 about Y -> +180\u00b0 about X"
+        },
+        {
+            "object": "shepard_metzler_9.glb",
+            "initial_orientation": {
+                "w": -0.6964,
+                "x": -0.1228,
+                "y": -0.6964,
+                "z": -0.1228
+            },
+            "target_orientation": {
+                "w": 0.1228,
+                "x": 0.1228,
+                "y": 0.6964,
+                "z": -0.6964
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: +180\u00b0 about Y -> +270\u00b0 about X -> +90\u00b0 about Z"
+        },
+        {
+            "object": "shepard_metzler_9.glb",
+            "initial_orientation": {
+                "w": -0.471,
+                "x": 0.6031,
+                "y": -0.1063,
+                "z": 0.635
+            },
+            "target_orientation": {
+                "w": 0.1983,
+                "x": -0.9077,
+                "y": -0.3304,
+                "z": 0.1664
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: -270\u00b0 about Y -> -270\u00b0 about Z -> +90\u00b0 about Y -> +270\u00b0 about Y"
+        },
+        {
+            "object": "shepard_metzler_9.glb",
+            "initial_orientation": {
+                "w": -0.1228,
+                "x": 0.6124,
+                "y": 0.3536,
+                "z": -0.6964
+            },
+            "target_orientation": {
+                "w": -0.3368,
+                "x": -0.0594,
+                "y": 0.1632,
+                "z": -0.9254
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target is reachable via multiple steps. Multi-step: +180\u00b0 about Z -> +90\u00b0 about Y -> -180\u00b0 about X"
+        }
+    ]
+}

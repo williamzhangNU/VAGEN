@@ -1,0 +1,1955 @@
+{
+    "asset_path": "b10_shepard_metzler_normalized",
+    "tasks": [
+        {
+            "object": "shepard_metzler_0.glb",
+            "initial_orientation": {
+                "w": -0.2273,
+                "x": -0.3936,
+                "y": 0.1156,
+                "z": -0.8832
+            },
+            "target_orientation": {
+                "w": 0.1176,
+                "x": -0.439,
+                "y": 0.7062,
+                "z": -0.5428
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about X."
+        },
+        {
+            "object": "shepard_metzler_0.glb",
+            "initial_orientation": {
+                "w": -0.2289,
+                "x": -0.4488,
+                "y": 0.7108,
+                "z": 0.4909
+            },
+            "target_orientation": {
+                "w": 0.1853,
+                "x": 0.1853,
+                "y": 0.8199,
+                "z": 0.509
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about Z."
+        },
+        {
+            "object": "shepard_metzler_0.glb",
+            "initial_orientation": {
+                "w": -0.3269,
+                "x": -0.4821,
+                "y": -0.7921,
+                "z": 0.1823
+            },
+            "target_orientation": {
+                "w": 0.329,
+                "x": -0.212,
+                "y": -0.7912,
+                "z": 0.4698
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about Y."
+        },
+        {
+            "object": "shepard_metzler_0.glb",
+            "initial_orientation": {
+                "w": -0.4924,
+                "x": 0.5868,
+                "y": -0.4132,
+                "z": 0.4924
+            },
+            "target_orientation": {
+                "w": -0.6403,
+                "x": 0.0668,
+                "y": 0.056,
+                "z": 0.7631
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about Y."
+        },
+        {
+            "object": "shepard_metzler_0.glb",
+            "initial_orientation": {
+                "w": 0.0607,
+                "x": 0.7151,
+                "y": 0.0607,
+                "z": -0.6937
+            },
+            "target_orientation": {
+                "w": -0.0,
+                "x": 0.0151,
+                "y": 0.0858,
+                "z": -0.9962
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about Y."
+        },
+        {
+            "object": "shepard_metzler_1.glb",
+            "initial_orientation": {
+                "w": -0.7015,
+                "x": -0.3949,
+                "y": -0.5607,
+                "z": -0.1937
+            },
+            "target_orientation": {
+                "w": -0.7753,
+                "x": 0.2168,
+                "y": -0.5334,
+                "z": 0.2595
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about X."
+        },
+        {
+            "object": "shepard_metzler_1.glb",
+            "initial_orientation": {
+                "w": 0.1228,
+                "x": 0.6964,
+                "y": 0.1228,
+                "z": 0.6964
+            },
+            "target_orientation": {
+                "w": 0.1736,
+                "x": 0.0,
+                "y": -0.0,
+                "z": 0.9848
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about Y."
+        },
+        {
+            "object": "shepard_metzler_1.glb",
+            "initial_orientation": {
+                "w": -0.4301,
+                "x": 0.5212,
+                "y": -0.6889,
+                "z": 0.2624
+            },
+            "target_orientation": {
+                "w": -0.7912,
+                "x": 0.183,
+                "y": -0.183,
+                "z": 0.554
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about Y."
+        },
+        {
+            "object": "shepard_metzler_1.glb",
+            "initial_orientation": {
+                "w": -0.0751,
+                "x": -0.6541,
+                "y": 0.5135,
+                "z": -0.5503
+            },
+            "target_orientation": {
+                "w": 0.4094,
+                "x": -0.5156,
+                "y": 0.7522,
+                "z": -0.026
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about X."
+        },
+        {
+            "object": "shepard_metzler_1.glb",
+            "initial_orientation": {
+                "w": -0.2328,
+                "x": 0.6451,
+                "y": -0.4636,
+                "z": 0.5611
+            },
+            "target_orientation": {
+                "w": -0.4924,
+                "x": 0.0594,
+                "y": -0.1632,
+                "z": 0.8529
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about Y."
+        },
+        {
+            "object": "shepard_metzler_2.glb",
+            "initial_orientation": {
+                "w": -0.4545,
+                "x": -0.5417,
+                "y": 0.6964,
+                "z": -0.1228
+            },
+            "target_orientation": {
+                "w": -0.4082,
+                "x": 0.1094,
+                "y": 0.8754,
+                "z": 0.2346
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about Z."
+        },
+        {
+            "object": "shepard_metzler_2.glb",
+            "initial_orientation": {
+                "w": -0.3434,
+                "x": -0.8358,
+                "y": 0.4226,
+                "z": -0.0698
+            },
+            "target_orientation": {
+                "w": -0.2922,
+                "x": -0.2922,
+                "y": 0.8899,
+                "z": 0.1935
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about Z."
+        },
+        {
+            "object": "shepard_metzler_2.glb",
+            "initial_orientation": {
+                "w": 0.0626,
+                "x": -0.2336,
+                "y": -0.4588,
+                "z": -0.855
+            },
+            "target_orientation": {
+                "w": 0.6488,
+                "x": 0.1592,
+                "y": -0.4896,
+                "z": -0.5603
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about Z."
+        },
+        {
+            "object": "shepard_metzler_2.glb",
+            "initial_orientation": {
+                "w": -0.7259,
+                "x": 0.3482,
+                "y": -0.0614,
+                "z": 0.59
+            },
+            "target_orientation": {
+                "w": -0.096,
+                "x": 0.2028,
+                "y": -0.2896,
+                "z": 0.9305
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about Z."
+        },
+        {
+            "object": "shepard_metzler_2.glb",
+            "initial_orientation": {
+                "w": -0.555,
+                "x": -0.0216,
+                "y": -0.7903,
+                "z": 0.2588
+            },
+            "target_orientation": {
+                "w": -0.3772,
+                "x": -0.4077,
+                "y": -0.7418,
+                "z": -0.3758
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about X."
+        },
+        {
+            "object": "shepard_metzler_3.glb",
+            "initial_orientation": {
+                "w": -0.6366,
+                "x": -0.3881,
+                "y": -0.5175,
+                "z": -0.42
+            },
+            "target_orientation": {
+                "w": -0.1757,
+                "x": -0.7245,
+                "y": -0.0689,
+                "z": -0.6629
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about X."
+        },
+        {
+            "object": "shepard_metzler_3.glb",
+            "initial_orientation": {
+                "w": -0.5,
+                "x": -0.2988,
+                "y": 0.6409,
+                "z": -0.5
+            },
+            "target_orientation": {
+                "w": 0.0,
+                "x": -0.6645,
+                "y": 0.2418,
+                "z": -0.7071
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about Z."
+        },
+        {
+            "object": "shepard_metzler_3.glb",
+            "initial_orientation": {
+                "w": 0.9072,
+                "x": -0.228,
+                "y": 0.2028,
+                "z": -0.2896
+            },
+            "target_orientation": {
+                "w": 0.8463,
+                "x": -0.3046,
+                "y": -0.0178,
+                "z": 0.4367
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about Z."
+        },
+        {
+            "object": "shepard_metzler_3.glb",
+            "initial_orientation": {
+                "w": 0.0718,
+                "x": 0.4391,
+                "y": -0.3827,
+                "z": -0.8097
+            },
+            "target_orientation": {
+                "w": -0.2597,
+                "x": 0.3613,
+                "y": 0.3019,
+                "z": -0.8431
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about X."
+        },
+        {
+            "object": "shepard_metzler_3.glb",
+            "initial_orientation": {
+                "w": -0.7185,
+                "x": -0.3902,
+                "y": -0.4877,
+                "z": -0.3062
+            },
+            "target_orientation": {
+                "w": -0.8529,
+                "x": -0.0594,
+                "y": 0.1632,
+                "z": -0.4924
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about Y."
+        },
+        {
+            "object": "shepard_metzler_4.glb",
+            "initial_orientation": {
+                "w": -0.6418,
+                "x": -0.172,
+                "y": 0.6204,
+                "z": 0.4166
+            },
+            "target_orientation": {
+                "w": -0.3322,
+                "x": -0.5754,
+                "y": 0.1441,
+                "z": 0.7333
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about X."
+        },
+        {
+            "object": "shepard_metzler_4.glb",
+            "initial_orientation": {
+                "w": -0.1853,
+                "x": 0.1981,
+                "y": 0.8816,
+                "z": 0.3862
+            },
+            "target_orientation": {
+                "w": -0.2711,
+                "x": 0.0091,
+                "y": 0.3503,
+                "z": 0.8965
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about X."
+        },
+        {
+            "object": "shepard_metzler_4.glb",
+            "initial_orientation": {
+                "w": -0.7753,
+                "x": -0.5704,
+                "y": 0.0789,
+                "z": -0.2595
+            },
+            "target_orientation": {
+                "w": -0.1449,
+                "x": -0.9515,
+                "y": 0.2393,
+                "z": -0.1277
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about X."
+        },
+        {
+            "object": "shepard_metzler_4.glb",
+            "initial_orientation": {
+                "w": -0.7453,
+                "x": 0.105,
+                "y": -0.4927,
+                "z": -0.4367
+            },
+            "target_orientation": {
+                "w": -0.4528,
+                "x": 0.6012,
+                "y": -0.6572,
+                "z": 0.0396
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about X."
+        },
+        {
+            "object": "shepard_metzler_4.glb",
+            "initial_orientation": {
+                "w": 0.2321,
+                "x": -0.7839,
+                "y": -0.1283,
+                "z": 0.5614
+            },
+            "target_orientation": {
+                "w": -0.3902,
+                "x": -0.7185,
+                "y": 0.3062,
+                "z": 0.4877
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about X."
+        },
+        {
+            "object": "shepard_metzler_5.glb",
+            "initial_orientation": {
+                "w": 0.4271,
+                "x": 0.3862,
+                "y": -0.6398,
+                "z": -0.509
+            },
+            "target_orientation": {
+                "w": 0.5751,
+                "x": -0.0289,
+                "y": -0.8123,
+                "z": 0.0925
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about X."
+        },
+        {
+            "object": "shepard_metzler_5.glb",
+            "initial_orientation": {
+                "w": -0.9513,
+                "x": 0.1677,
+                "y": 0.0449,
+                "z": 0.2549
+            },
+            "target_orientation": {
+                "w": -0.6409,
+                "x": -0.0616,
+                "y": 0.7044,
+                "z": 0.2988
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about Y."
+        },
+        {
+            "object": "shepard_metzler_5.glb",
+            "initial_orientation": {
+                "w": -0.7409,
+                "x": -0.1619,
+                "y": 0.6465,
+                "z": 0.0827
+            },
+            "target_orientation": {
+                "w": -0.4094,
+                "x": -0.6384,
+                "y": 0.3987,
+                "z": 0.5156
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about X."
+        },
+        {
+            "object": "shepard_metzler_5.glb",
+            "initial_orientation": {
+                "w": -0.2988,
+                "x": -0.6409,
+                "y": 0.2988,
+                "z": 0.6409
+            },
+            "target_orientation": {
+                "w": -0.6645,
+                "x": -0.6645,
+                "y": -0.2418,
+                "z": 0.2418
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about Z."
+        },
+        {
+            "object": "shepard_metzler_5.glb",
+            "initial_orientation": {
+                "w": -0.3686,
+                "x": 0.2182,
+                "y": -0.2742,
+                "z": -0.861
+            },
+            "target_orientation": {
+                "w": -0.4149,
+                "x": -0.1063,
+                "y": 0.4149,
+                "z": -0.8027
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about X."
+        },
+        {
+            "object": "shepard_metzler_6.glb",
+            "initial_orientation": {
+                "w": -0.6964,
+                "x": -0.6964,
+                "y": -0.1228,
+                "z": 0.1228
+            },
+            "target_orientation": {
+                "w": -0.0,
+                "x": -0.9848,
+                "y": -0.1736,
+                "z": 0.0
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about X."
+        },
+        {
+            "object": "shepard_metzler_6.glb",
+            "initial_orientation": {
+                "w": 0.262,
+                "x": 0.604,
+                "y": -0.7198,
+                "z": -0.2198
+            },
+            "target_orientation": {
+                "w": 0.3407,
+                "x": 0.9361,
+                "y": -0.0819,
+                "z": 0.0298
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about Z."
+        },
+        {
+            "object": "shepard_metzler_6.glb",
+            "initial_orientation": {
+                "w": -0.2624,
+                "x": 0.5879,
+                "y": -0.6329,
+                "z": -0.4301
+            },
+            "target_orientation": {
+                "w": 0.262,
+                "x": 0.1116,
+                "y": -0.633,
+                "z": -0.7198
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about Y."
+        },
+        {
+            "object": "shepard_metzler_6.glb",
+            "initial_orientation": {
+                "w": -0.5993,
+                "x": -0.2915,
+                "y": -0.6207,
+                "z": -0.4129
+            },
+            "target_orientation": {
+                "w": -0.8627,
+                "x": 0.0858,
+                "y": -0.0151,
+                "z": -0.4981
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about Y."
+        },
+        {
+            "object": "shepard_metzler_6.glb",
+            "initial_orientation": {
+                "w": -0.6858,
+                "x": 0.0019,
+                "y": -0.7177,
+                "z": 0.1209
+            },
+            "target_orientation": {
+                "w": 0.0226,
+                "x": 0.0868,
+                "y": -0.9924,
+                "z": 0.0842
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about Y."
+        },
+        {
+            "object": "shepard_metzler_7.glb",
+            "initial_orientation": {
+                "w": -0.1449,
+                "x": -0.1277,
+                "y": -0.9437,
+                "z": -0.2685
+            },
+            "target_orientation": {
+                "w": -0.2923,
+                "x": -0.7576,
+                "y": -0.577,
+                "z": -0.0874
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about Z."
+        },
+        {
+            "object": "shepard_metzler_7.glb",
+            "initial_orientation": {
+                "w": -0.3827,
+                "x": -0.8097,
+                "y": 0.2817,
+                "z": -0.3444
+            },
+            "target_orientation": {
+                "w": -0.5141,
+                "x": -0.3733,
+                "y": 0.7717,
+                "z": 0.0271
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about Z."
+        },
+        {
+            "object": "shepard_metzler_7.glb",
+            "initial_orientation": {
+                "w": -0.4056,
+                "x": -0.5792,
+                "y": 0.4056,
+                "z": 0.5792
+            },
+            "target_orientation": {
+                "w": -0.6964,
+                "x": -0.6964,
+                "y": -0.1228,
+                "z": 0.1228
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about Z."
+        },
+        {
+            "object": "shepard_metzler_7.glb",
+            "initial_orientation": {
+                "w": 0.3613,
+                "x": -0.2597,
+                "y": -0.8431,
+                "z": 0.3019
+            },
+            "target_orientation": {
+                "w": 0.042,
+                "x": 0.4125,
+                "y": -0.7798,
+                "z": 0.4689
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about Z."
+        },
+        {
+            "object": "shepard_metzler_7.glb",
+            "initial_orientation": {
+                "w": -0.6889,
+                "x": 0.5212,
+                "y": 0.378,
+                "z": 0.333
+            },
+            "target_orientation": {
+                "w": -0.8556,
+                "x": -0.1186,
+                "y": 0.0318,
+                "z": 0.5028
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about X."
+        },
+        {
+            "object": "shepard_metzler_8.glb",
+            "initial_orientation": {
+                "w": -0.6438,
+                "x": 0.2363,
+                "y": 0.633,
+                "z": -0.3591
+            },
+            "target_orientation": {
+                "w": -0.7091,
+                "x": 0.6147,
+                "y": 0.2805,
+                "z": 0.2013
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about Z."
+        },
+        {
+            "object": "shepard_metzler_8.glb",
+            "initial_orientation": {
+                "w": -0.5789,
+                "x": -0.7363,
+                "y": 0.2084,
+                "z": -0.2817
+            },
+            "target_orientation": {
+                "w": -0.6086,
+                "x": -0.3733,
+                "y": 0.668,
+                "z": 0.2101
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about Z."
+        },
+        {
+            "object": "shepard_metzler_8.glb",
+            "initial_orientation": {
+                "w": 0.0925,
+                "x": 0.8123,
+                "y": 0.5503,
+                "z": -0.1695
+            },
+            "target_orientation": {
+                "w": 0.4545,
+                "x": 0.6943,
+                "y": 0.3237,
+                "z": 0.4545
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about Y."
+        },
+        {
+            "object": "shepard_metzler_8.glb",
+            "initial_orientation": {
+                "w": 0.6003,
+                "x": -0.6465,
+                "y": 0.1619,
+                "z": -0.4421
+            },
+            "target_orientation": {
+                "w": 0.1119,
+                "x": -0.3426,
+                "y": 0.5717,
+                "z": -0.7371
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about Z."
+        },
+        {
+            "object": "shepard_metzler_8.glb",
+            "initial_orientation": {
+                "w": 0.2028,
+                "x": -0.228,
+                "y": -0.9072,
+                "z": 0.2896
+            },
+            "target_orientation": {
+                "w": 0.3482,
+                "x": -0.8027,
+                "y": -0.4803,
+                "z": 0.0614
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about Z."
+        },
+        {
+            "object": "shepard_metzler_9.glb",
+            "initial_orientation": {
+                "w": -0.86,
+                "x": 0.1966,
+                "y": -0.4638,
+                "z": -0.0808
+            },
+            "target_orientation": {
+                "w": -0.7472,
+                "x": -0.4691,
+                "y": -0.2708,
+                "z": -0.3851
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about X."
+        },
+        {
+            "object": "shepard_metzler_9.glb",
+            "initial_orientation": {
+                "w": -0.7044,
+                "x": 0.0616,
+                "y": -0.683,
+                "z": -0.183
+            },
+            "target_orientation": {
+                "w": -0.9811,
+                "x": 0.173,
+                "y": 0.0151,
+                "z": -0.0858
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about Y."
+        },
+        {
+            "object": "shepard_metzler_9.glb",
+            "initial_orientation": {
+                "w": 0.5,
+                "x": -0.5,
+                "y": 0.183,
+                "z": -0.683
+            },
+            "target_orientation": {
+                "w": 0.2241,
+                "x": -0.8365,
+                "y": 0.483,
+                "z": -0.1294
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about Y."
+        },
+        {
+            "object": "shepard_metzler_9.glb",
+            "initial_orientation": {
+                "w": -0.8399,
+                "x": -0.3107,
+                "y": 0.4437,
+                "z": 0.0333
+            },
+            "target_orientation": {
+                "w": -0.5704,
+                "x": 0.0941,
+                "y": 0.5334,
+                "z": 0.6174
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about Z."
+        },
+        {
+            "object": "shepard_metzler_9.glb",
+            "initial_orientation": {
+                "w": 0.0211,
+                "x": -0.6465,
+                "y": -0.7236,
+                "z": 0.2409
+            },
+            "target_orientation": {
+                "w": -0.4967,
+                "x": -0.6275,
+                "y": -0.5265,
+                "z": -0.2868
+            },
+            "background": "plane",
+            "background_scale": 1.0,
+            "background_euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "background_pos": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "object_scale": 1.0,
+            "camera_pos": {
+                "x": 5.0,
+                "y": -2.0,
+                "z": 2.5
+            },
+            "camera_lookat": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "instruction": "Rotate the object to match the target orientation. The target shows a single-step rotation. Single-step: rotate 90\u00b0 about Y."
+        }
+    ]
+}

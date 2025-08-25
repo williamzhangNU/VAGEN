@@ -62,7 +62,7 @@ def quat_to_euler_xyz_scipy(q_wxyz, degrees=True):
 
 def quat_equal(q1: Tuple[float, float, float, float],
                q2: Tuple[float, float, float, float],
-               angle_tol: float = 1e-6) -> bool:
+               angle_tol: float = 1e-2) -> bool:
     a = _quat_normalize(q1)
     b = _quat_normalize(q2)
     dot = abs(a[0]*b[0] + a[1]*b[1] + a[2]*b[2] + a[3]*b[3]) 
@@ -73,20 +73,29 @@ def quat_equal(q1: Tuple[float, float, float, float],
 def euler_equal_xyz_extrinsic(e1: Tuple[float, float, float],
                               e2: Tuple[float, float, float],
                               degrees: bool = True,
-                              angle_tol: float = 1e-6) -> bool:
+                              angle_tol: float = 1e-2) -> bool:
     q1 = euler_xyz_to_quat(*e1, degrees=degrees)
     q2 = euler_xyz_to_quat(*e2, degrees=degrees)
     return quat_equal(q1, q2, angle_tol=angle_tol)
 
 if __name__ == "__main__":
-    rotate_1 = (45, 45, 90)
-
+    init_quat = (-0.2625, 0.7497, -0.5614, 0.2321)
+    rotate_1 = (90, 270, 90)
     quat_1 = euler_xyz_to_quat(rotate_1[0], rotate_1[1], rotate_1[2], degrees=True)
 
-    print("quat_1: ", quat_1)
+    rotate_2_y = (0, -90, 0)
+    quat_2_y = euler_xyz_to_quat(rotate_2_y[0], rotate_2_y[1], rotate_2_y[2], degrees=True)
 
-    rev_quat_1 = quat_to_euler_xyz_scipy(quat_1, degrees=True)
+    rotate_2_z = (0, 0, 90)
+    quat_2_z = euler_xyz_to_quat(rotate_2_z[0], rotate_2_z[1], rotate_2_z[2], degrees=True)
 
-    print("rev_quat_1: ", rev_quat_1)
-
-    assert euler_equal_xyz_extrinsic(rotate_1, rev_quat_1, degrees=True)
+    rotate_2_x = (90, 0, 0)
+    quat_2_x = euler_xyz_to_quat(rotate_2_x[0], rotate_2_x[1], rotate_2_x[2], degrees=True)
+    
+    quat_2 = quat_multiply(quat_2_z, quat_2_y)
+    quat_2 = quat_multiply(quat_2_x, quat_2)
+    
+    print("quat_1_rot: ", quat_1)
+    print("quat_1_target: ", quat_multiply(quat_1, init_quat))
+    print("quat_2_rot: ", quat_2)
+    print("quat_2_target: ", quat_multiply(quat_2, init_quat))

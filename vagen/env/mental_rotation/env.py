@@ -51,8 +51,9 @@ class MentalRotationEnv(BaseEnv):
 
         self.scene = None
         self.target_images = {}  # env_idx -> target image
-        
-        self.dataset = self._load_dataset()
+
+        self.task_name = self.config.task_name
+        self.dataset = self._load_dataset(self.task_name)
 
         self.axes_path = os.path.join(os.path.dirname(__file__), "datasets", "assets", "axes.glb")
         self.axes_scale = 1.3
@@ -68,11 +69,20 @@ class MentalRotationEnv(BaseEnv):
         
         return actions
 
-    def _load_dataset(self) -> List[Dict]:
+    def _load_dataset(self, task_name: str) -> List[Dict]:
         """Load the multi-step interactive dataset."""
-        dataset_path = os.path.join(os.path.dirname(__file__), "datasets", "multi_step_interactive.json")
+        dataset_path = os.path.join(os.path.dirname(__file__), "datasets", f"{task_name}.json")
+        if not os.path.exists(dataset_path):
+            raise ValueError(f"Dataset file not found: {dataset_path}")
         with open(dataset_path, 'r') as f:
             data = json.load(f)
+
+        asset_path = data.get("asset_path", "")
+        if asset_path:
+            self.object_path = os.path.join(os.path.dirname(__file__), "datasets", "assets", asset_path)
+        else:
+            self.object_path = os.path.join(os.path.dirname(__file__), "datasets", "assets", "objects")
+
         tasks = data.get("tasks", [])
         if not tasks:
             raise ValueError("No tasks found in dataset")
@@ -220,7 +230,7 @@ class MentalRotationEnv(BaseEnv):
     def _setup_object(self, task_config: Dict):
         """Setup main object based on task configuration."""
         obj = task_config["object"]
-        obj_path = os.path.join(os.path.dirname(__file__), "datasets", "assets", "objects", obj)
+        obj_path = os.path.join(self.object_path, obj)
         obj_scale = task_config.get("object_scale", 1.0)
         
         self.object = self.scene.add_entity(
@@ -542,123 +552,186 @@ if __name__ == "__main__":
     import os
     from .utils import quat_to_euler_xyz_scipy
     
-    print("[Standalone] Testing MentalRotationEnv with dataset-driven configuration...")
+    print("=" * 60)
+    print("Interactive MentalRotationEnv Test")
+    print("=" * 60)
+    
+    # Initialize Genesis
     gs.init(backend=gs.gpu)
     
-    config = MentalRotationEnvConfig(device="cuda", max_steps=10, n_parallel_envs=2)
+    # Create environment with single instance
+    config = MentalRotationEnvConfig(device="cuda", max_steps=20, n_parallel_envs=1, task_name='shepard_metzler_multi_step_rand_init')
     env = MentalRotationEnv(config)
     
-    print(f"[TEST] Dataset loaded with {len(env.dataset)} tasks")
-    for i, task in enumerate(env.dataset):
+    print(f"Dataset loaded with {len(env.dataset)} tasks")
+    print("\nAvailable tasks:")
+    for i, task in enumerate(env.dataset[:5]):  # Show first 5 tasks
         scene_key = (task["background"], task["object"])
-        print(f"[TEST] Task {i}: Scene key = {scene_key}")
-        print(f"[TEST] Task {i}: Instruction = {task['instruction'][:60]}...")
+        print(f"  Task {i}: {scene_key} - {task['instruction'][:60]}...")
     
-    env_id1, env_id2, env_id3 = "same_scene_1", "same_scene_2", "different_task"
-    
-    print(f"\n[TEST] Available actions: {env.VALID_ACTIONS}")
-    print("[TEST] Action format: axis + angle (e.g., x90, y-180, z270)")
-    
-    print(f"\n[TEST] Test 1: Reset with seeds 0, 1 (should have same scene key)")
-    results = env.reset(env_id_to_seed={env_id1: 0, env_id2: 1})
-    
-    task1 = env._get_task_data(0)
-    task2 = env._get_task_data(1) 
-    scene_key1 = (task1["background"], task1["object"])
-    scene_key2 = (task2["background"], task2["object"])
-    
-    print(f"[TEST] {env_id1} (seed 0): Scene key = {scene_key1}")
-    print(f"[TEST] {env_id2} (seed 1): Scene key = {scene_key2}")
-    
-    if scene_key1 == scene_key2:
-        print("[TEST] ✓ SUCCESS: Both environments use same scene configuration")
-        print("[TEST] ✓ This confirms they share the same scene instance")
-    else:
-        print("[TEST] ✗ FAILED: Environments use different scene configurations")
-    
-    prompts = env.system_prompt([env_id1, env_id2])
-    print(f"\n[TEST] System prompt (first 100 chars): {prompts[env_id1][:100]}...")
-    
+    # Create output directory
     os.makedirs("./test_mental_rotation_env", exist_ok=True)
     
-    for env_id in [env_id1, env_id2]:
-        obs, info = results[env_id]
-        idx = env.env_id_to_idx[env_id]
-        task_data = env._task_data[idx]
+    print(f"\nAvailable actions: {env.VALID_ACTIONS[:10]}...")  # Show first 10 actions
+    print("Action format: axis + angle (e.g., x90, y-180, z270)")
+    print("Just type the action directly (e.g., x90, y-180, z270)")
+    print("Type 'quit' to exit, 'reset <seed>' to reset with new task")
+    
+    env_id = "interactive_env"
+    step_count = 0
+    
+    # Initial setup
+    seed = int(input(f"\nEnter seed (0-{len(env.dataset)-1}) to start: "))
+    results = env.reset(env_id_to_seed={env_id: seed})
+    
+    obs, info = results[env_id]
+    idx = env.env_id_to_idx[env_id]
+    task_data = env._task_data[idx]
+    
+    print(f"\n{'='*60}")
+    print(f"TASK LOADED (Seed {seed})")
+    print(f"{'='*60}")
+    print(f"Instruction: {task_data['instruction']}")
+    print(f"Object: {task_data['object']}")
+    print(f"Background: {task_data['background']}")
+    print(f"Initial orientation: {env._current_orientations[idx]}")
+    print(f"Target orientation: {env._target_orientations[idx]}")
+    
+    # Save initial images
+    current_img = obs["multi_modal_data"][config.image_placeholder][0]
+    target_img = obs["multi_modal_data"][config.target_image_placeholder][0]
+    current_img.save(f"./test_mental_rotation_env/current_step{step_count}.png")
+    target_img.save(f"./test_mental_rotation_env/target.png")
+    
+    print(f"\nImages saved:")
+    print(f"  - Current view: ./test_mental_rotation_env/current_step{step_count}.png")
+    print(f"  - Target view: ./test_mental_rotation_env/target.png")
+    print(f"\nOpen these images to see the current and target orientations.")
+    
+    # Interactive loop
+    while True:
+        print(f"\n{'-'*40}")
+        print(f"Step {step_count + 1} | Reward so far: {env.total_rewards.get(idx, 0.0)}")
+        print(f"{'-'*40}")
         
-        print(f"\n[TEST] {env_id}:")
-        print(f"[TEST]   Task instruction: {task_data['instruction'][:80]}...")
-        print(f"[TEST]   Object: {task_data['object']}, Background: {task_data['background']}")
-        print(f"[TEST]   Initial orientation: {env._current_orientations[idx]}")
-        print(f"[TEST]   Target orientation: {env._target_orientations[idx]}")
+        user_input = input("Enter action (or 'quit'/'reset <seed>'): ").strip()
         
-        current_img = obs["multi_modal_data"][config.image_placeholder][0]
-        target_img = obs["multi_modal_data"][config.target_image_placeholder][0]
-        current_img.save(f"./test_mental_rotation_env/{env_id}_current_reset.png")
-        target_img.save(f"./test_mental_rotation_env/{env_id}_target_reset.png")
-        print(f"[TEST]   Saved images: {env_id}_current_reset.png, {env_id}_target_reset.png")
-    
-    print(f"\n[TEST] Test 2: Reset with seed 2 (different task)")
-    results_single = env.reset(env_id_to_seed={env_id3: 2})
-    
-    task3 = env._get_task_data(2)
-    scene_key3 = (task3["background"], task3["object"])
-    print(f"[TEST] {env_id3} (seed 2): Scene key = {scene_key3}")
-    
-    if scene_key3 == scene_key1:
-        print("[TEST] ✓ INFO: Same scene key - will reuse existing scene instance")
-    else:
-        print("[TEST] ✓ INFO: Different scene key - will create new scene instance")
-    
-    print(f"\n[TEST] Test 3: Testing actions on parallel environments")
-    test_actions = [
-        {env_id1: "<answer>x90</answer>", env_id2: "<answer>y-90</answer>"},
-        {env_id1: "<answer>z180</answer>", env_id2: "<answer>x270</answer>"}
-    ]
-    
-    for step_num, actions in enumerate(test_actions, 1):
-        print(f"\n[TEST] Step {step_num} - Actions: {actions}")
+        if user_input.lower() == 'quit':
+            break
         
-        step_results = env.step(actions)
-        
-        for env_id in [env_id1, env_id2]:
-            if env_id in step_results:
-                obs, reward, done, info = step_results[env_id]
-                print(f"[TEST] {env_id}: reward={reward}, done={done}")
-                print(f"[TEST] {env_id}: action_valid={info['metrics']['turn_metrics']['action_is_valid']}")
+        if user_input.lower().startswith('reset'):
+            try:
+                parts = user_input.split()
+                new_seed = int(parts[1]) if len(parts) > 1 else 0
                 
-                # Save step images
+                # Reset environment
+                results = env.reset(env_id_to_seed={env_id: new_seed})
+                obs, info = results[env_id]
+                idx = env.env_id_to_idx[env_id]
+                task_data = env._task_data[idx]
+                step_count = 0
+                
+                print(f"\n{'='*60}")
+                print(f"TASK RESET (Seed {new_seed})")
+                print(f"{'='*60}")
+                print(f"Instruction: {task_data['instruction']}")
+                print(f"Object: {task_data['object']}")
+                print(f"Background: {task_data['background']}")
+                print(f"Initial orientation: {env._current_orientations[idx]}")
+                print(f"Target orientation: {env._target_orientations[idx]}")
+                
+                # Save reset images
                 current_img = obs["multi_modal_data"][config.image_placeholder][0]
                 target_img = obs["multi_modal_data"][config.target_image_placeholder][0]
-                current_img.save(f"./test_mental_rotation_env/{env_id}_current_step{step_num}.png")
-                target_img.save(f"./test_mental_rotation_env/{env_id}_target_step{step_num}.png")
+                current_img.save(f"./test_mental_rotation_env/current_step{step_count}.png")
+                target_img.save(f"./test_mental_rotation_env/target.png")
                 
-                if done:
-                    print(f"[TEST] ✓ {env_id} completed the task!")
-    
-    # Test invalid action
-    print(f"\n[TEST] Test 4: Testing invalid action")
-    invalid_results = env.step({env_id1: "<answer>invalid_action</answer>"})
-    if env_id1 in invalid_results:
-        obs, reward, done, info = invalid_results[env_id1]
-        action_valid = info['metrics']['turn_metrics']['action_is_valid']
-        if not action_valid:
-            print("[TEST] ✓ SUCCESS: Invalid action properly rejected")
+                print(f"\nImages saved:")
+                print(f"  - Current view: ./test_mental_rotation_env/current_step{step_count}.png")
+                print(f"  - Target view: ./test_mental_rotation_env/target.png")
+                
+                continue
+            except (ValueError, IndexError):
+                print("Invalid reset command. Use: reset <seed>")
+                continue
+        
+        # Process action - wrap in <answer> tags if not already wrapped
+        if not (user_input.startswith('<answer>') and user_input.endswith('</answer>')):
+            formatted_input = f"<answer>{user_input}</answer>"
         else:
-            print("[TEST] ✗ FAILED: Invalid action not rejected")
+            formatted_input = user_input
+        
+        step_results = env.step({env_id: formatted_input})
+        
+        if env_id in step_results:
+            obs, reward, done, info = step_results[env_id]
+            step_count += 1
+            
+            # Save current image
+            current_img = obs["multi_modal_data"][config.image_placeholder][0]
+            current_img.save(f"./test_mental_rotation_env/current_step{step_count}.png")
+            
+            print(f"\nResult:")
+            print(f"  Action valid: {info['metrics']['turn_metrics']['action_is_valid']}")
+            print(f"  Action effective: {info['metrics']['turn_metrics']['action_is_effective']}")
+            print(f"  Reward this step: {reward}")
+            print(f"  Total reward: {env.total_rewards.get(idx, 0.0)}")
+            print(f"  Current orientation: {env._current_orientations[idx]}")
+            print(f"  Target orientation: {env._target_orientations[idx]}")
+            print(f"  Done: {done}")
+            
+            print(f"\nUpdated image saved: ./test_mental_rotation_env/current_step{step_count}.png")
+            
+            if done:
+                success = info['metrics']['traj_metrics']['success']
+                if success:
+                    print(f"\n🎉 CONGRATULATIONS! Task completed successfully!")
+                    print(f"   Final reward: {env.total_rewards.get(idx, 0.0)}")
+                else:
+                    print(f"\n❌ Task failed - maximum steps reached")
+                    print(f"   Final reward: {env.total_rewards.get(idx, 0.0)}")
+                
+                # Ask if user wants to continue
+                continue_input = input("\nStart new task? (y/n or seed number): ").strip()
+                if continue_input.lower() in ['n', 'no', 'quit']:
+                    break
+                elif continue_input.lower() in ['y', 'yes']:
+                    new_seed = (seed + 1) % len(env.dataset)
+                else:
+                    try:
+                        new_seed = int(continue_input)
+                    except ValueError:
+                        new_seed = (seed + 1) % len(env.dataset)
+                
+                # Reset for new task
+                results = env.reset(env_id_to_seed={env_id: new_seed})
+                obs, info = results[env_id]
+                idx = env.env_id_to_idx[env_id]
+                task_data = env._task_data[idx]
+                step_count = 0
+                seed = new_seed
+                
+                print(f"\n{'='*60}")
+                print(f"NEW TASK LOADED (Seed {seed})")
+                print(f"{'='*60}")
+                print(f"Instruction: {task_data['instruction']}")
+                print(f"Object: {task_data['object']}")
+                print(f"Background: {task_data['background']}")
+                
+                # Save new task images
+                current_img = obs["multi_modal_data"][config.image_placeholder][0]
+                target_img = obs["multi_modal_data"][config.target_image_placeholder][0]
+                current_img.save(f"./test_mental_rotation_env/current_step{step_count}.png")
+                target_img.save(f"./test_mental_rotation_env/target.png")
+                
+                print(f"\nImages saved:")
+                print(f"  - Current view: ./test_mental_rotation_env/current_step{step_count}.png")
+                print(f"  - Target view: ./test_mental_rotation_env/target.png")
+        else:
+            print("Error: No result returned for environment")
     
-    # Compute final rewards
-    print(f"\n[TEST] Final Results:")
-    rewards = env.compute_reward([env_id1, env_id2, env_id3])
-    for env_id in [env_id1, env_id2, env_id3]:
-        if env_id in rewards:
-            print(f"[TEST] {env_id} total reward: {rewards[env_id]}")
-    
-    print(f"\n[TEST] ✓ All tests completed!")
-    print(f"[TEST] Key findings:")
-    print(f"[TEST] - Dataset-driven configuration working correctly")
-    print(f"[TEST] - Environments with same (background, object) can share scenes")
-    print(f"[TEST] - Task-specific orientations and instructions loaded from JSON")
-    print(f"[TEST] - Images saved in ./test_mental_rotation_env/")
+    print(f"\n{'='*60}")
+    print("Interactive test completed. Thanks for testing!")
+    print(f"{'='*60}")
     
     env.close()
