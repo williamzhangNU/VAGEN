@@ -1,9 +1,7 @@
-
-
 ACTIVE_INSTRUCTION = """\
 # Spatial Exploration Task
 
-Goal: Build a global understanding of the whole scene: resolve spatial relationships for EVERY object pair across ALL rooms. Stop immediately once complete.
+Goal: Your objective is to **minimize total COST** while gaining knowledge of spatial relationships between each pair of objects.
 
 Facing: forward/backward/right/left. When facing north: forward=north, back=south, right=east, left=west.
 
@@ -12,7 +10,9 @@ Observation: For visible objects you receive (direction, signed degree, distance
 - degree is clockwise from your facing; distance is Euclidean
 - You may ignore degree/distance for the stopping condition
 
-Multi-room: The scene may have multiple rectangular rooms connected by gates/doors on vertical (N–S) or horizontal (E–W) walls. Stand at a door and use GoThroughDoor(name) to traverse.
+Multi-room: 
+- You can not look through the gate when you are not at the gate.
+- Rooms are connected by gates/doors on vertical (N–S) or horizontal (E–W) walls. When you stand at a door, you can see objects from both connected rooms (within FOV).
 
 Rules:
 - Achieve complete coverage with the fewest steps; continue only while any pair is unknown
@@ -36,11 +36,12 @@ PASSIVE_INSTRUCTION = """\
 
 You will be given a multi-room layout and a tour (you return to start). Then answer the question.
 
-## Facing
+Facing
 - forward, backward, right, left. When facing north: forward=north, back=south, right=east, left=west.
 
-## Observation Format (in tour)
-(direction, degree, distance); direction uses <vertical>-<horizontal>.
+Multi-room: 
+- You can not look through the gate when you are not at the gate.
+- Rooms are connected by gates/doors on vertical (N–S) or horizontal (E–W) walls. When you stand at a door, you can see objects from both connected rooms (within FOV).
 
 ## Room Layout
 {room_info}

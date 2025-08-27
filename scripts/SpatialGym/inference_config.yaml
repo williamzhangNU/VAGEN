@@ -10,7 +10,7 @@ split: "test"
 debug: false
 
 # Output configuration
-output_dir: "results/pass_rot"
+output_dir: "results/active_rot"
 
 # WandB configuration
 use_wandb: false

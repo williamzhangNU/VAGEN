@@ -97,8 +97,9 @@ class SpatialGym(gym.Env):
             proxy.run()
             obs_str = proxy.to_text(self.config.image_placeholder)
             for t in proxy.turns:
-                if any(result.action_type == 'observe' for result in t.actions):
+                if any('observe' in result.action_type for result in t.actions):
                     images.append(self._get_multi_modal_data(proxy.mgr, t.pos, t.ori))
+            assert images is not []
             exp_history_data['obs_str'] = obs_str
             exp_history_data['multi_modal_data'] = {self.config.image_placeholder: images}
             # expose proxy manager so metrics are available via env.get_exp_summary()
@@ -131,25 +132,7 @@ class SpatialGym(gym.Env):
         #     **self.config.get_room_config(),
         #     np_random=self.np_random,
         # )
-        mask = np.array([
-            [ -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, -1,  -1],
-            [ -1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,  0,  -1],
-            [ -1,   0,   3,   3,   3,   3,   3,   0,   1,   1,   1,   1,   1,  0,  -1],
-            [ -1,   0,   3,   3,   3,   3,   3,   0,   1,   1,   1,   1,   1,  0,  -1],
-            [ -1,   0,   3,   3,   3,   3,   3, 101,   1,   1,   1,   1,   1,  0,  -1],
-            [ -1,   0,   3,   3,   3,   3,   3,   0,   1,   1,   1,   1,   1,  0,  -1],
-            [ -1,   0,   3,   3,   3,   3,   3,   0,   1,   1,   1,   1,   1,  0,  -1],
-            [ -1,   0,   0,   0,   0,   0,   0,   0,   0,   0, 100,   0,   0,  0,  -1],
-            [ -1,  -1,  -1,  -1,  -1,  -1,  -1,   0,   2,   2,   2,   2,   2,  0,  -1],
-            [ -1,  -1,  -1,  -1,  -1,  -1,  -1,   0,   2,   2,   2,   2,   2,  0,  -1],
-            [ -1,  -1,  -1,  -1,  -1,  -1,  -1,   0,   2,   2,   2,   2,   2,  0,  -1],
-            [ -1,  -1,  -1,  -1,  -1,  -1,  -1,   0,   2,   2,   2,   2,   2,  0,  -1],
-            [ -1,  -1,  -1,  -1,  -1,  -1,  -1,   0,   2,   2,   2,   2,   2,  0,  -1],
-            [ -1,  -1,  -1,  -1,  -1,  -1,  -1,   0,   2,   2,   2,   2,   2,  0,  -1],
-            [ -1,  -1,  -1,  -1,  -1,  -1,  -1,   0,   0,   0,   0,   0,   0,  0,  -1],
-            [ -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, -1,  -1]
-        ])
-        self.initial_room, self.agent = initialize_room_from_json(self.json_data, mask)
+        self.initial_room, self.agent = initialize_room_from_json(self.json_data)
         self.initial_agent = self.agent.copy()
 
         # Initialize episode state
@@ -212,7 +195,6 @@ class SpatialGym(gym.Env):
             should_term = bool(final_act and final_act.is_term())
         if self.remaining_exp_steps < 0 or should_term:
             self.is_exploration_phase = False
-            obs_str += "Exploration phase ended\n"
             obs_str += self.prompter.get_evaluation_prompt(self.evaluation_manager)
         else:
             obs_str += f"\nYou have a maximum of {self.remaining_exp_steps} exploration steps left."

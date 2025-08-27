@@ -3,7 +3,7 @@ from typing import Dict, Any, Tuple
 from vagen.env.spatial.Base.tos_base.utils.room_utils import Room, Object, Agent, RoomGenerator
 
 # for initializing visual-based
-def initialize_room_from_json(json_data: Dict[str, Any], mask: np.ndarray) ->  Tuple[Room, Agent]:
+def initialize_room_from_json(json_data: Dict[str, Any]) ->  Tuple[Room, Agent]:
     """
     Initialize a Room from your metadata JSON, which now has:
       - objects: list of {oid, model, pos:{x,y,z}, rot:{x,y,z}, size:[w,h]}
@@ -33,6 +33,7 @@ def initialize_room_from_json(json_data: Dict[str, Any], mask: np.ndarray) ->  T
     for obj in objects:
         obj.pos +=offset
     agent_pos +=offset
+    mask = np.array(json_data['mask'])
     gates = RoomGenerator._gen_gates_from_mask(mask)
 
     # Update gate room_ids to match the connected rooms from JSON data
