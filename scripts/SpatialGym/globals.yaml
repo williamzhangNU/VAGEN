@@ -1,0 +1,26 @@
+# Global variables that can be shared across different config files
+globals:
+  # Common paths
+  base_output_dir: "results"
+  model_cache_dir: "/tmp/model_cache"
+  
+  # Common model settings
+  default_temperature: 0.0
+  default_max_tokens: 1024
+  default_timeout: 60
+  default_max_retries: 3
+  
+  # Common server settings
+  default_server_url: "http://localhost:5000"
+  default_batch_size: 32
+  default_max_workers: 48
+  
+  # Common environment settings
+  default_room_size: [15, 15]
+  default_n_objects: 4
+  default_level: 2
+  default_main: 5
+  
+  # WandB settings
+  wandb_project_name: "vagen-experiments"
+  wandb_log_count: 10

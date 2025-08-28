@@ -155,8 +155,8 @@
     },
     {
       "object_id": 10000,
-      "model": "door_0",
-      "name": "door 0",
+      "model": "door_bright_blue",
+      "name": "door bright_blue",
       "pos": {
         "x": 0.0,
         "y": 0,
@@ -182,8 +182,8 @@
     },
     {
       "object_id": 10001,
-      "model": "door_1",
-      "name": "door 1",
+      "model": "door_bright_orange",
+      "name": "door bright_orange",
       "pos": {
         "x": -4.0,
         "y": 0,

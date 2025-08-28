@@ -12,7 +12,7 @@ def initialize_room_from_json(json_data: Dict[str, Any]) ->  Tuple[Room, Agent]:
     """
     # Rotation to orientation vector mapping
     rotation_map = {0: np.array([0, 1]), 90: np.array([1, 0]), 180: np.array([0, -1]), 270: np.array([-1, 0])}
-    offset = np.array((8,7))
+    offset = np.array(json_data['offset'])
     # 1) Parse all objects
     objects = []
     for obj in json_data['objects']:

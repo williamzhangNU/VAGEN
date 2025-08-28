@@ -1,3 +1,5 @@
+defaults:
+  - globals
 # Server configuration
 server_url: "http://localhost:5000"
 server_timeout: 600
@@ -10,7 +12,7 @@ split: "test"
 debug: false
 
 # Output configuration
-output_dir: "results/active_rot"
+output_dir: "results/pass_rot"
 
 # WandB configuration
 use_wandb: false
