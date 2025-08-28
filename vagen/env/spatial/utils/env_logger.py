@@ -102,7 +102,7 @@ class SpatialEnvLogger:
                     # Plot initial room
                     initial_img_path = SpatialEnvLogger._plot_room(env_data["env_info"]["initial_room"], env_data["env_info"]["initial_agent"], output_dir, config_name, sample_idx, 0)
                     env_data["initial_room_image"] = initial_img_path
-
+                    message = env_data["message"]
                     # Plot room for each turn
                     for turn_log in env_data["env_turn_logs"]:
                         if turn_log["room_state"]:
@@ -111,9 +111,10 @@ class SpatialEnvLogger:
                             turn_log["room_image"] = img_path
                         
                         # Find corresponding user message and save its images
-                        message = env_data["message"]
                         img_folder = os.path.join(output_dir, "images", config_name, f"sample_{sample_idx+1}")
-                        user_msg_idx = (turn_idx * 2) if message and message[0]['role'] == 'user' else turn_idx * 2 + 1
+                        if env_data['env_info']['config']['exp_type'] == 'passive':
+                            turn_idx = 0
+                        user_msg_idx = (turn_idx * 2) if message[0]['role'] == 'user' else turn_idx * 2 + 1
                         if user_msg_idx < len(message) and 'multi_modal_data' in message[user_msg_idx]:
                             message_images = {}
                             for key, images in message[user_msg_idx]['multi_modal_data'].items():
@@ -125,7 +126,7 @@ class SpatialEnvLogger:
                                         image_paths.append(os.path.join("images", config_name, f"sample_{sample_idx+1}", img_name)) # relative path for visualization
                                     message_images[key] = image_paths
                             turn_log['message_images'] = message_images
-                        env_data["message"] = [{k: v for k, v in msg.items() if k != 'multi_modal_data'} for msg in message]
+                    env_data["message"] = [{k: v for k, v in msg.items() if k != 'multi_modal_data'} for msg in message]
 
         # Initialize result structure
         result = {

@@ -172,6 +172,7 @@ class SpatialGym(gym.Env):
         include_visual = False
         self.remaining_exp_steps -= 1
         exp_log = None
+        obs={}
 
         action = result['actions'][0]
         action_sequence = ActionSequence.parse(action)
@@ -198,8 +199,7 @@ class SpatialGym(gym.Env):
             obs_str += self.prompter.get_evaluation_prompt(self.evaluation_manager)
         else:
             obs_str += f"\nYou have a maximum of {self.remaining_exp_steps} exploration steps left."
-
-        obs = {'multi_modal_data': {self.config.image_placeholder: [self._get_multi_modal_data(self.exploration_manager, self.exploration_manager.agent.pos, self.exploration_manager.agent.ori)]}} if include_visual else {}
+            obs = {'multi_modal_data': {self.config.image_placeholder: [self._get_multi_modal_data(self.exploration_manager, self.exploration_manager.agent.pos, self.exploration_manager.agent.ori)]}} if include_visual else {}
         return {**obs, 'obs_str': obs_str}, reward, False, info, exp_log
 
     def _get_multi_modal_data(self, room: ExplorationManager, pos: np.ndarray, ori: np.ndarray):
@@ -213,7 +213,7 @@ class SpatialGym(gym.Env):
                     break
         assert position_name is not None, "Agent position not found"
         
-        direction = {(0, 1): 'north', (1, 0): 'west', (0, -1): 'south', (-1, 0): 'east'}[tuple(ori)]
+        direction = {(0, 1): 'north', (-1, 0): 'west', (0, -1): 'south', (1, 0): 'east'}[tuple(ori)]
         
         img = self.image_handler.get_image(position_name, direction)
         return img
