@@ -7,7 +7,7 @@ from vagen.env.utils.context_utils import convert_numpy_to_PIL
 
 from vagen.env.base.base_env import BaseEnv
 from .env_config import MentalRotationEnvConfig
-from .prompt import system_prompt, init_observation_template, action_template
+from .prompt import system_prompt, init_observation_template, action_template, format_prompt
 from .utils import euler_xyz_to_quat, quat_to_euler_xyz_scipy, quat_equal, quat_multiply
 
 import genesis as gs
@@ -48,6 +48,7 @@ class MentalRotationEnv(BaseEnv):
         self.rotate_granularity = self.config.rotate_granularity
 
         self.VALID_ACTIONS = self._generate_valid_actions()
+        self.format_prompt_func = format_prompt[self.config.prompt_format]
 
         self.scene = None
         self.target_images = {}  # env_idx -> target image
@@ -140,7 +141,7 @@ class MentalRotationEnv(BaseEnv):
         
         image_placeholder = self.config.image_placeholder
         target_image_placeholder = self.config.target_image_placeholder
-        format_prompt_text = self.system_prompt()
+        format_prompt_text = self.format_prompt_func(add_example=False)
         
         # Generate target images if needed
         missing_target_indices = [idx for idx in env_indices if idx not in self.target_images]
@@ -157,7 +158,7 @@ class MentalRotationEnv(BaseEnv):
                     img_str=image_placeholder,
                     target_img_str=target_image_placeholder,
                     valid_actions=self.VALID_ACTIONS
-                )
+                ) + "\n" + format_prompt_text
             else:
                 last_action = self._last_valid_actions[idx][-1] if self._last_valid_actions.get(idx) else "None"
                 obs_str = action_template(
@@ -165,7 +166,7 @@ class MentalRotationEnv(BaseEnv):
                     target_img_str=target_image_placeholder,
                     last_action=last_action,
                     step_count=self._step_counts[idx]
-                )
+                ) + "\n" + format_prompt_text
 
             multi_modal_data = {
                 image_placeholder: [convert_numpy_to_PIL(rgb)],
@@ -481,18 +482,14 @@ class MentalRotationEnv(BaseEnv):
         return
 
     def system_prompt(self, env_ids=None) -> Dict[str, str]:
-        """Get system prompts for specified environments.
-        
-        Args:
-            env_ids: List of env_ids to get prompts for. If None, get for all.
-            
-        Returns:
-            Dict mapping env_id to system prompt
-        """
         if env_ids is None:
             env_ids = list(self.env_id_to_idx.keys())
-        
-        prompt = system_prompt()
+
+        format_prompt_text = self.format_prompt_func(
+            add_example=True
+        )
+        prompt = system_prompt(format=self.config.prompt_format) + format_prompt_text
+
         return {env_id: prompt for env_id in env_ids}
 
     def compute_reward(self, env_ids=None) -> Dict[str, float]:
@@ -562,6 +559,8 @@ if __name__ == "__main__":
     # Create environment with single instance
     config = MentalRotationEnvConfig(device="cuda", max_steps=20, n_parallel_envs=1, task_name='shepard_metzler_multi_step_rand_init')
     env = MentalRotationEnv(config)
+
+    
     
     print(f"Dataset loaded with {len(env.dataset)} tasks")
     print("\nAvailable tasks:")
@@ -572,9 +571,6 @@ if __name__ == "__main__":
     # Create output directory
     os.makedirs("./test_mental_rotation_env", exist_ok=True)
     
-    print(f"\nAvailable actions: {env.VALID_ACTIONS[:10]}...")  # Show first 10 actions
-    print("Action format: axis + angle (e.g., x90, y-180, z270)")
-    print("Just type the action directly (e.g., x90, y-180, z270)")
     print("Type 'quit' to exit, 'reset <seed>' to reset with new task")
     
     env_id = "interactive_env"
@@ -583,19 +579,23 @@ if __name__ == "__main__":
     # Initial setup
     seed = int(input(f"\nEnter seed (0-{len(env.dataset)-1}) to start: "))
     results = env.reset(env_id_to_seed={env_id: seed})
+
+    print(env.system_prompt())
     
     obs, info = results[env_id]
     idx = env.env_id_to_idx[env_id]
     task_data = env._task_data[idx]
     
     print(f"\n{'='*60}")
-    print(f"TASK LOADED (Seed {seed})")
+    print(f"[DEBUG] TASK LOADED (Seed {seed})")
     print(f"{'='*60}")
-    print(f"Instruction: {task_data['instruction']}")
-    print(f"Object: {task_data['object']}")
-    print(f"Background: {task_data['background']}")
-    print(f"Initial orientation: {env._current_orientations[idx]}")
-    print(f"Target orientation: {env._target_orientations[idx]}")
+    print(f"[DEBUG] Instruction: {task_data['instruction']}")
+    print(f"[DEBUG] Object: {task_data['object']}")
+    print(f"[DEBUG] Background: {task_data['background']}")
+    print(f"[DEBUG] Initial orientation: {env._current_orientations[idx]}")
+    print(f"[DEBUG] Target orientation: {env._target_orientations[idx]}")
+
+    print(obs["obs_str"])
     
     # Save initial images
     current_img = obs["multi_modal_data"][config.image_placeholder][0]
@@ -603,18 +603,18 @@ if __name__ == "__main__":
     current_img.save(f"./test_mental_rotation_env/current_step{step_count}.png")
     target_img.save(f"./test_mental_rotation_env/target.png")
     
-    print(f"\nImages saved:")
-    print(f"  - Current view: ./test_mental_rotation_env/current_step{step_count}.png")
-    print(f"  - Target view: ./test_mental_rotation_env/target.png")
-    print(f"\nOpen these images to see the current and target orientations.")
+    print(f"\n[DEBUG] Images saved:")
+    print(f"[DEBUG]  - Current view: ./test_mental_rotation_env/current_step{step_count}.png")
+    print(f"[DEBUG]  - Target view: ./test_mental_rotation_env/target.png")
+    print(f"\n[DEBUG] Open these images to see the current and target orientations.")
     
     # Interactive loop
     while True:
         print(f"\n{'-'*40}")
-        print(f"Step {step_count + 1} | Reward so far: {env.total_rewards.get(idx, 0.0)}")
+        print(f"[DEBUG] Step {step_count + 1} | Reward so far: {env.total_rewards.get(idx, 0.0)}")
         print(f"{'-'*40}")
         
-        user_input = input("Enter action (or 'quit'/'reset <seed>'): ").strip()
+        user_input = input("[DEBUG] Enter action (or 'quit'/'reset <seed>'): ").strip()
         
         if user_input.lower() == 'quit':
             break
@@ -632,13 +632,15 @@ if __name__ == "__main__":
                 step_count = 0
                 
                 print(f"\n{'='*60}")
-                print(f"TASK RESET (Seed {new_seed})")
+                print(f"[DEBUG] TASK RESET (Seed {new_seed})")
                 print(f"{'='*60}")
-                print(f"Instruction: {task_data['instruction']}")
-                print(f"Object: {task_data['object']}")
-                print(f"Background: {task_data['background']}")
-                print(f"Initial orientation: {env._current_orientations[idx]}")
-                print(f"Target orientation: {env._target_orientations[idx]}")
+                print(f"[DEBUG] Instruction: {task_data['instruction']}")
+                print(f"[DEBUG] Object: {task_data['object']}")
+                print(f"[DEBUG] Background: {task_data['background']}")
+                print(f"[DEBUG] Initial orientation: {env._current_orientations[idx]}")
+                print(f"[DEBUG] Target orientation: {env._target_orientations[idx]}")
+
+                print(obs["obs_str"])
                 
                 # Save reset images
                 current_img = obs["multi_modal_data"][config.image_placeholder][0]
@@ -646,13 +648,13 @@ if __name__ == "__main__":
                 current_img.save(f"./test_mental_rotation_env/current_step{step_count}.png")
                 target_img.save(f"./test_mental_rotation_env/target.png")
                 
-                print(f"\nImages saved:")
-                print(f"  - Current view: ./test_mental_rotation_env/current_step{step_count}.png")
-                print(f"  - Target view: ./test_mental_rotation_env/target.png")
+                print(f"\n[DEBUG] Images saved:")
+                print(f"[DEBUG]  - Current view: ./test_mental_rotation_env/current_step{step_count}.png")
+                print(f"[DEBUG]  - Target view: ./test_mental_rotation_env/target.png")
                 
                 continue
             except (ValueError, IndexError):
-                print("Invalid reset command. Use: reset <seed>")
+                print("[DEBUG] Invalid reset command. Use: reset <seed>")
                 continue
         
         # Process action - wrap in <answer> tags if not already wrapped

@@ -9,7 +9,7 @@ class MentalRotationEnvConfig(BaseEnvConfig):
     image_placeholder: str = "<image>"
     target_image_placeholder: str = "<target_image>"
     max_actions_per_step: int = 1
-    prompt_format: str = "no_think"  # TODO
+    prompt_format: str = "free_think"  # TODO
     task_name: str = "multi_step_interactive"
 
     n_parallel_envs: int = 1

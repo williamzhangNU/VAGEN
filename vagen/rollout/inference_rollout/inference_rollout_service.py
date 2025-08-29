@@ -178,8 +178,6 @@ class InferenceRolloutService(BaseRollout):
             for env_id in active_envs:
                 # Get conversation history for this environment
                 env_messages[env_id] = self.recordings[env_id]
-
-            print(f"[DEBUG] env_messages: {env_messages}")
             
             # Generate responses using model interface
             start_time = time.time()

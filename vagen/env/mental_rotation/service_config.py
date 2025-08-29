@@ -6,4 +6,4 @@ class MentalRotationServiceConfig(BaseServiceConfig):
     devices: list = field(default_factory=lambda: [0])  # GPU indices, empty list [] means CPU
     use_state_reward: bool = False
     max_workers: int = 4
-    timeout: int = 120
+    timeout: int = 600

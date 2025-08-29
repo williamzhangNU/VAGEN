@@ -64,7 +64,15 @@ class MentalRotationService(BaseService):
             import json
             import os
             
-            dataset_path = os.path.join(os.path.dirname(__file__), "datasets", "multi_step_interactive.json")
+            # Get task_name from env_config
+            task_name = config.get('env_config', {}).get('task_name')
+            if not task_name:
+                raise ValueError("task_name must be provided in env_config")
+            dataset_path = os.path.join(os.path.dirname(__file__), "datasets", f"{task_name}.json")
+            
+            if not os.path.exists(dataset_path):
+                raise ValueError(f"Dataset file not found: {dataset_path}")
+            
             with open(dataset_path, 'r') as f:
                 data = json.load(f)
             tasks = data.get("tasks", [])
@@ -386,7 +394,15 @@ class MentalRotationService(BaseService):
             import json
             import os
             
-            dataset_path = os.path.join(os.path.dirname(__file__), "datasets", "multi_step_interactive.json")
+            # Get task_name from env_config
+            task_name = config.get('env_config', {}).get('task_name')
+            if not task_name:
+                raise ValueError("task_name must be provided in env_config")
+            dataset_path = os.path.join(os.path.dirname(__file__), "datasets", f"{task_name}.json")
+            
+            if not os.path.exists(dataset_path):
+                raise ValueError(f"Dataset file not found: {dataset_path}")
+            
             with open(dataset_path, 'r') as f:
                 data = json.load(f)
             tasks = data.get("tasks", [])
@@ -679,7 +695,9 @@ if __name__ == "__main__":
         print("[TEST] Checking scene keys for different seeds:")
         
         import json
-        dataset_path = os.path.join(os.path.dirname(__file__), "datasets", "multi_step_interactive.json")
+        # Use default task name for test
+        task_name = "multi_step_interactive"  # Default for test
+        dataset_path = os.path.join(os.path.dirname(__file__), "datasets", f"{task_name}.json")
         with open(dataset_path, 'r') as f:
             data = json.load(f)
         tasks = data.get("tasks", [])

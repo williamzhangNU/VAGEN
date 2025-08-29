@@ -37,7 +37,7 @@
                 "y": 0.0,
                 "z": 0.5
             },
-            "instruction": "Rotate the airplane to match the target orientation. The target shows the airplane rotated 90 degrees around the X-axis."
+            "instruction": "Rotate the airplane to match the target orientation."
         },
         {
             "object": "aligned_airplane.glb",
