@@ -1,0 +1,41 @@
+{
+  "img_dir": "imgs",
+  "tasks": [
+    {
+      "img_name": "R",
+      "initial_rotation": 0,
+      "target_rotation": 75,
+      "bg_color": "white"
+    },
+    {
+      "img_name": "R",
+      "initial_rotation": 30,
+      "target_rotation": 195,
+      "bg_color": "white"
+    },
+    {
+      "img_name": "F",
+      "initial_rotation": 15,
+      "target_rotation": 165,
+      "bg_color": "white"
+    },
+    {
+      "img_name": "F",
+      "initial_rotation": 45,
+      "target_rotation": 210,
+      "bg_color": "white"
+    },
+    {
+      "img_name": "N",
+      "initial_rotation": 60,
+      "target_rotation": 285,
+      "bg_color": "white"
+    },
+    {
+      "img_name": "N",
+      "initial_rotation": 105,
+      "target_rotation": 15,
+      "bg_color": "white"
+    }
+  ]
+}
