@@ -13,6 +13,7 @@ from vagen.env.spatial.Base.tos_base import (
     ExplorationTurnLog,
     CognitiveMapManager,
     CognitiveMapTurnLog,
+    HistoryManager,
     RoomGenerator,
     BaseAction,
     ObserveAction,
@@ -157,11 +158,19 @@ class SpatialGym(gym.Env):
         self.exploration_manager = ExplorationManager(self.initial_room, self.agent)
         self.evaluation_manager = EvaluationManager(self.config.eval_tasks, self.np_random, self.initial_room, self.agent) if len(self.config.eval_tasks) > 0 else None
         self.cognitive_map_manager = CognitiveMapManager() if self.config.prompt_config['cogmap'] else None
-
-        # Generate initial observation
-        obs = self._generate_initial_observation()
+        self.history_manager = HistoryManager(seed, self.config) if self.config.exp_type == 'active' else None
+        info = {}
+        if self.history_manager:
+            if self.history_manager.is_history_exist():
+                obs = self.history_manager.get_initial_observation()
+                info['history'] = self.history_manager.get_responses()
+            else:
+                obs = self._generate_initial_observation()
+                self.history_manager.update_initial_observation(obs)
+        else:
+            obs = self._generate_initial_observation()
         self.render_cache = obs
-        return obs, {}
+        return obs, info
 
     def _step_exploration(self, result: dict, info: dict):
         """
@@ -265,6 +274,10 @@ class SpatialGym(gym.Env):
             # action
             if self.is_exploration_phase:
                 obs, reward, done, _, exp_log = self._step_exploration(result, info)
+                if self.history_manager and not self.history_manager.is_history_exist():
+                    self.history_manager.update_response(llm_raw_response)
+                    if not self.is_exploration_phase:
+                        self.history_manager.save()
             else:
                 obs, reward, done, _, eval_log = self._step_evaluation(result, info)
         else:

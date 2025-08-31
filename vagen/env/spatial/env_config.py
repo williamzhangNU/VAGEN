@@ -47,7 +47,7 @@ class SpatialGymConfig(BaseEnvConfig):
     perspective: str = 'ego'
     observation_mode: str = "full"  # New from RAGEN
     max_exp_steps: int = 100
-    
+    kwargs: Dict = None
     # Evaluation configuration
     eval_tasks: List[Dict[str, Any]] = field(default_factory=lambda: [{"task_type": "rot", "task_kwargs": {"turn_direction": "counterclockwise"}}])
 
@@ -145,6 +145,7 @@ class SpatialGymConfig(BaseEnvConfig):
             'image_size': self.image_size,
             'prompt_config': self.prompt_config,
             'field_of_view': self.field_of_view,
+            'model': self.kwargs['model'],
         }
         
         # Common config (inherited from BaseEnvConfig)

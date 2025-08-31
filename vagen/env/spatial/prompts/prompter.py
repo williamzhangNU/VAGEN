@@ -22,7 +22,7 @@ class Prompter:
 
     # Add image prompt constants
     TOPDOWN_PROMPT = "\n\nTopdown view: {placeholder}\n{object_info}"
-    OBLIQUE_PROMPT = "\n\nOblique view: {placeholder}\n{object_info}"
+    # OBLIQUE_PROMPT = "\n\nOblique view: {placeholder}\n{object_info}"
 
     def __init__(self, config, image_handler, np_random: np.random.RandomState):
         self.config = config
@@ -62,8 +62,8 @@ class Prompter:
         # Add topdown/oblique image descriptions if enabled
         if self.config.prompt_config['topdown']:
             room_desc += self._get_topdown_prompt(self.TOPDOWN_PROMPT, room)
-        if self.config.prompt_config['oblique']:
-            room_desc += self._get_oblique_prompt(self.OBLIQUE_PROMPT, room)
+        # if self.config.prompt_config['oblique']:
+        #     room_desc += self._get_oblique_prompt(self.OBLIQUE_PROMPT, room)
 
         cogmap_instruction = cogmap_manager.get_cognitive_map_instruction() if cogmap_manager else ""
 
@@ -83,16 +83,16 @@ class Prompter:
                 images.append(self.image_handler.get_image('topdown'))
                 result['multi_modal_data'] = {self.config.image_placeholder: images}
         else:
-            if not self.config.prompt_config['topdown'] and not self.config.prompt_config['oblique']:
+            if not self.config.prompt_config['topdown']:
                 # Use exploration history from kwargs
                 exp_history_str = f"## Exploration History\n{exp_history['obs_str']}"
 
             elif self.config.prompt_config['topdown']:
                 images.append(self.image_handler.get_image('topdown'))
                 exp_history_str = ""
-            elif self.config.prompt_config['oblique']:
-                images.append(self.image_handler.get_image('oblique'))
-                exp_history_str = ""
+            # elif self.config.prompt_config['oblique']:
+            #     images.append(self.image_handler.get_image('oblique'))
+            #     exp_history_str = ""
             else:
                 exp_history_str = ""
 
