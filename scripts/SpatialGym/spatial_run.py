@@ -8,6 +8,8 @@ import time
 from pathlib import Path
 from typing import Dict, Any, List
 import yaml as pyyaml
+import urllib.request
+import threading
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 
@@ -27,6 +29,10 @@ def parse_args():
     p.add_argument("--base_env", type=str, default=str(SCRIPT_DIR / "base_env_config.yaml"))
     p.add_argument("--base_infer", type=str, default=str(SCRIPT_DIR / "inference_config.yaml"))
     p.add_argument("--base_model", type=str, default=str(SCRIPT_DIR / "base_model_config.yaml"))
+    # Server options: server is ON by default, use --no_server to skip starting it
+    p.add_argument("--no_server", action="store_true", help="Do not start internal env server (assume an external server is running)")
+    p.add_argument("--server_host", type=str, default="127.0.0.1", help="Server host to bind/connect")
+    p.add_argument("--server_port", type=int, default=5000, help="Server port to bind/connect")
     return p.parse_args()
 
 
@@ -127,12 +133,14 @@ def patch_model_yaml(model_cfg: Dict[str, Any], model_name: str) -> Dict[str, An
     sys.exit(2)
 
 
-def patch_infer_yaml(infer_cfg: Dict[str, Any], output_dir: Path, override: bool) -> Dict[str, Any]:
-    """Patch inference yaml to set output directory only. Split remains as in base config."""
+def patch_infer_yaml(infer_cfg: Dict[str, Any], output_dir: Path, override: bool, server_url: str | None = None) -> Dict[str, Any]:
+    """Patch inference yaml to set output directory and optional server_url. Split remains as in base config."""
     infer_cfg = dict(infer_cfg or {})
     infer_cfg["output_dir"] = str(output_dir)
     if override:
         infer_cfg["override"] = True
+    if server_url:
+        infer_cfg["server_url"] = server_url
     return infer_cfg
 
 
@@ -140,6 +148,62 @@ def run_cmd(cmd: List[str], cwd: Path | None = None) -> int:
     print("Running:", " ".join(shlex.quote(c) for c in cmd), f"(cwd={cwd or Path.cwd()})", flush=True)
     cp = subprocess.run(cmd, cwd=str(cwd) if cwd else None)
     return cp.returncode
+
+
+def _wait_for_http(url: str, timeout: float = 30.0, interval: float = 0.5) -> bool:
+    start = time.time()
+    while time.time() - start < timeout:
+        try:
+            with urllib.request.urlopen(url, timeout=2) as resp:
+                if resp.getcode() == 200:
+                    return True
+        except Exception:
+            pass
+        time.sleep(interval)
+    return False
+
+
+def _stream_process_output(proc: subprocess.Popen, prefix: str = "server") -> None:
+    def _reader():
+        try:
+            for line in iter(proc.stdout.readline, ''):
+                if not line:
+                    break
+                print(f"[{prefix}] {line}", end='')
+        except Exception as e:
+            print(f"[WARN] log stream error: {e}")
+    t = threading.Thread(target=_reader, daemon=True)
+    t.start()
+
+
+def start_env_server(host: str, port: int) -> subprocess.Popen:
+    cmd = [
+        sys.executable, "-m", "vagen.server.server",
+        f"server.host={host}",
+        f"server.port={port}",
+        "use_state_reward=false",
+    ]
+    print("Starting env server:", " ".join(shlex.quote(c) for c in cmd))
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
+    _stream_process_output(proc, prefix="server")
+    health_url = f"http://{host}:{port}/health"
+    if not _wait_for_http(health_url, timeout=40.0):
+        raise RuntimeError(f"Env server failed to start at {health_url}")
+    print(f"Env server is up at {health_url}")
+    return proc
+
+
+def stop_env_server(proc: subprocess.Popen) -> None:
+    if not proc:
+        return
+    try:
+        proc.terminate()
+        try:
+            proc.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+    except Exception as e:
+        print(f"[WARN] Failed to stop server: {e}")
 
 
 def main():
@@ -167,7 +231,13 @@ def main():
     output_root = Path(args.output_root)
 
     created_tmp_dirs: List[Path] = []
+    server_proc: subprocess.Popen | None = None
     try:
+        server_url: str | None = None
+        if not args.no_server:
+            server_proc = start_env_server(args.server_host, args.server_port)
+            server_url = f"http://{args.server_host}:{args.server_port}"
+
         for task in tasks:
             snake_task = to_task_key(task)
             tmp_paths = build_tmp_paths(run_id.replace('/', '-'), snake_task)
@@ -180,7 +250,7 @@ def main():
             env_cfg = patch_env_yaml(env_cfg, task, args.num)
             model_cfg = patch_model_yaml(model_cfg, args.model_name)
             task_output_dir = output_root / snake_task
-            infer_cfg = patch_infer_yaml(infer_cfg, task_output_dir, args.override)
+            infer_cfg = patch_infer_yaml(infer_cfg, task_output_dir, args.override, server_url)
 
             dump_yaml(env_cfg, tmp_paths["env"])
             dump_yaml(infer_cfg, tmp_paths["infer"])
@@ -219,6 +289,9 @@ def main():
                 shutil.rmtree(top_tmp)
             except Exception as e:
                 print(f"[WARN] Failed to remove tmp dir {top_tmp}: {e}")
+
+        if server_proc is not None:
+            stop_env_server(server_proc)
 
     print("All tasks completed.")
 
