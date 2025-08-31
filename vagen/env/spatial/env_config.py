@@ -48,11 +48,14 @@ class SpatialGymConfig(BaseEnvConfig):
     observation_mode: str = "full"  # New from RAGEN
     max_exp_steps: int = 100
     kwargs: Dict = None
+    proxy_agent_config: dict = field(default_factory=lambda: {"type": "analyst", "delegate": "oracle"})
     # Evaluation configuration
     eval_tasks: List[Dict[str, Any]] = field(default_factory=lambda: [{"task_type": "rot", "task_kwargs": {"turn_direction": "counterclockwise"}}])
 
     prompt_config: Dict[str, Any] = field(default_factory=lambda: {"topdown": False, "oblique": False, "cogmap": False, "type": "shorter"})
 
+    cogmap_config: dict = field(default_factory=lambda: {"cogmap_type": "standard", "pos_allow_scale": True, "scope": "all"})
+    
     def config_id(self) -> str:
         eval_task_str = ", ".join([f"{task['task_type']}" for task in self.eval_tasks])
         return f"SpatialGymConfig(mode={self.render_mode},format={self.prompt_format},eval_tasks={eval_task_str})"

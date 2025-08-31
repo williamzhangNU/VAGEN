@@ -260,13 +260,20 @@ class HTMLGenerator:
             # Display cognitive map information if available
             if env_log['cogmap_log']:
                 cogmap_log = env_log['cogmap_log']
-                f.write("<div class='block cogmap'><strong>🧠 Cognitive Map</strong>")
+                f.write("<div class='block cogmap'><strong>🧠 Cognitive Map (update)</strong>")
                 
                 details = copy.deepcopy(cogmap_log)
                 details.pop('pred_room_state')
                 f.write(VisualizationHelper.dict_to_html(details))
                 f.write("</div>\n")
-
+                
+            if env_log.get('cogmap_final_log'):
+                final_log = env_log['cogmap_final_log']
+                f.write("<div class='block cogmap'><strong>🧠 Cognitive Map (final)</strong>")
+                final_details = copy.deepcopy(final_log)
+                final_details.pop('pred_room_state')
+                f.write(VisualizationHelper.dict_to_html(final_details))
+                f.write("</div>\n")
 
 
             # Display turn metrics from env log

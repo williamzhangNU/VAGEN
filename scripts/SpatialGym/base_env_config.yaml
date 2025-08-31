@@ -13,10 +13,10 @@ _prompt_cogmap: &prompt_cogmap
   prompt_config:
     topdown: false
     cogmap: true
-  # cogmap_config:
-  #   cogmap_type: standard
-  #   pos_allow_scale: true
-  #   scope: all
+  cogmap_config:
+    cogmap_type: standard
+    pos_allow_scale: true
+    scope: all
 
 _prompt_topdown: &prompt_topdown
   prompt_config:
@@ -30,9 +30,9 @@ _passive: &passive
   level: 2
   main: 6
   room_size: [15, 15]
-  # proxy_agent_config:
-  #   type: analyst
-  #   delegate: oracle
+  proxy_agent_config:
+    type: analyst
+    delegate: oracle
 
 
 _active: &active

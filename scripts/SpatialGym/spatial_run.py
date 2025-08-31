@@ -18,7 +18,7 @@ def parse_args():
     p = argparse.ArgumentParser(
         description="Batch run SpatialGym: per-task tmp YAML generation, dataset then inference (no Hydra)."
     )
-    p.add_argument("--tasks", nargs="+", default=None,
+    p.add_argument("--tasks", nargs="+", default=['ActiveRotCogmap'],
                    help="Tasks (space or comma separated). Examples: ActiveRot PassiveRot or 'ActiveRot,PassiveLoc'. Default: ActiveRot")
     p.add_argument("--num", type=int, default=1, help="Number of samples per task. Default: 1")
     p.add_argument("--model_name", type=str, default="gpt-5-mini",
@@ -36,9 +36,7 @@ def parse_args():
     return p.parse_args()
 
 
-def normalize_tasks(tasks_arg: List[str] | None) -> List[str]:
-    if not tasks_arg:
-        return ["ActiveRot"]
+def normalize_tasks(tasks_arg: List[str]) -> List[str]:
     if len(tasks_arg) == 1 and "," in tasks_arg[0]:
         return [t.strip() for t in tasks_arg[0].split(",") if t.strip()]
     return [t.strip() for t in tasks_arg]
