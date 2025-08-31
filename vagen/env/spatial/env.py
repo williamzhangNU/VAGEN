@@ -1,5 +1,7 @@
 import gymnasium as gym
 import numpy as np
+import os
+import shutil
 from typing import Optional, List, Dict, Any
 from dataclasses import dataclass, field
 
@@ -25,7 +27,7 @@ from vagen.env.spatial.Base.tos_base.utils.action_utils import action_results_to
 from vagen.env.spatial.utils.initialize_room import initialize_room_from_json
 from vagen.env.utils.parse_utils import parse_freethink
 from vagen.env.spatial.utils.image_handler import ImageHandler
-from vagen.env.spatial.Base.tos_base.actions.actions import ForcedTermAction
+from ragen.env.spatial.Base.tos_base.actions.actions import ForcedTermAction, ActionSequence
 
 @dataclass
 class EnvTurnLog:
@@ -128,6 +130,19 @@ class SpatialGym(gym.Env):
         self.image_handler = ImageHandler(self.config.base_dir, seed, self.config.image_size)
         self.image_dir = self.image_handler.image_dir
         self.json_data = self.image_handler.json_data
+        
+        # Copy instruction image to current episode's image directory
+        src_instr = "/Users/songshe/ToS/VAGEN/vagen/env/spatial/prompts/instruction.png"
+        dst_instr = os.path.join(self.image_dir, "instruction.png")
+        try:
+            os.makedirs(self.image_dir, exist_ok=True)
+            if os.path.isfile(src_instr):
+                shutil.copy2(src_instr, dst_instr)
+            else:
+                print(f"[WARN] Instruction image not found at {src_instr}")
+        except Exception as e:
+            print(f"[WARN] Failed to stage instruction image: {e}")
+        
         self.prompter = Prompter(self.config, self.image_handler, self.np_random)
         # Generate initial room
         # self.initial_room, self.agent = RoomGenerator.generate_room(
@@ -167,7 +182,12 @@ class SpatialGym(gym.Env):
                 info['history'] = self.history_manager.get_responses()
             else:
                 obs = self._generate_initial_observation()
-                self.history_manager.update_initial_observation(obs)
+                # Create a copy of obs without PIL Images for history manager
+                obs_for_history = obs.copy() if isinstance(obs, dict) else obs
+                if isinstance(obs_for_history, dict) and 'multi_modal_data' in obs_for_history:
+                    # Remove multi_modal_data to avoid PIL Image serialization issues
+                    obs_for_history = {k: v for k, v in obs_for_history.items() if k != 'multi_modal_data'}
+                self.history_manager.update_initial_observation(obs_for_history)
         else:
             obs = self._generate_initial_observation()
         self.render_cache = obs

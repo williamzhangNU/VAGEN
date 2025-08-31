@@ -112,6 +112,8 @@ class SpatialEnvLogger:
                         
                         # Find corresponding user message and save its images
                         img_folder = os.path.join(output_dir, "images", config_name, f"sample_{sample_idx+1}")
+                        os.makedirs(img_folder, exist_ok=True)
+                        
                         if env_data['env_info']['config']['exp_type'] == 'passive':
                             turn_idx = 0
                         user_msg_idx = (turn_idx * 2) if message[0]['role'] == 'user' else turn_idx * 2 + 1
@@ -123,7 +125,7 @@ class SpatialEnvLogger:
                                     for img_idx, img in enumerate(images):
                                         img_name = f"obs_turn_{turn_idx+1}_{img_idx}.png"
                                         img.save(os.path.join(img_folder, img_name))
-                                        image_paths.append(os.path.join("images", config_name, f"sample_{sample_idx+1}", img_name)) # relative path for visualization
+                                        image_paths.append(os.path.join("images", config_name, f"sample_{sample_idx+1}", img_name))
                                     message_images[key] = image_paths
                             turn_log['message_images'] = message_images
                     env_data["message"] = [{k: v for k, v in msg.items() if k != 'multi_modal_data'} for msg in message]

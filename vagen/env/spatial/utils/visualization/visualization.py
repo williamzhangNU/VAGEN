@@ -315,8 +315,12 @@ class HTMLGenerator:
                     if 'image' in key.lower() and images:
                         for img_idx, img_path in enumerate(images):
                             if isinstance(img_path, str):  # It's a path
-                                # f.write(f"<img src='{img_path}' class='message-image' alt='Environment image {img_idx+1}'>\n")
-                                f.write(f"<figure><img src='{img_path}' class='room-plot' alt='Environment image {img_idx+1}'><figcaption>Observation {img_idx+1}</figcaption></figure>\n")
+                                # Check if this is likely the instruction image (first image in first turn)
+                                if img_idx == 0 and t_idx == 0:
+                                    f.write(f"<figure><img src='{img_path}' class='room-plot' alt='Instruction Image'><figcaption>📋 Task Instructions</figcaption></figure>\n")
+                                else:
+                                    obs_number = img_idx + 1 if t_idx > 0 or img_idx > 0 else img_idx + 2
+                                    f.write(f"<figure><img src='{img_path}' class='room-plot' alt='Environment image {obs_number}'><figcaption>Observation {obs_number}</figcaption></figure>\n")
             f.write("</div>\n")  # End turn-right
             
             f.write("</div>\n")  # End turn-split

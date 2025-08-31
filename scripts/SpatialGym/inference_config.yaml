@@ -1,5 +1,5 @@
 # Server configuration
-server_url: "http://localhost:5000"
+server_url: "http://localhost:5001"
 server_timeout: 600
 server_max_workers: 48
 
@@ -10,7 +10,7 @@ split: "test"
 debug: false
 
 # Output configuration
-output_dir: "results/active_rot/debug"
+output_dir: "results/passive_rot/without_instruction"
 override: false
 # WandB configuration
 use_wandb: false

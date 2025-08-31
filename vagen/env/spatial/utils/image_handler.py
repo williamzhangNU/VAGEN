@@ -55,6 +55,15 @@ class ImageHandler:
                     image_map[key] = path
         image_map['topdown'] = Image.open(os.path.join(self.image_dir, 'top_down_annotated.png'))
         # image_map['oblique'] = Image.open(os.path.join(self.image_dir, 'oblique_view.png'))
+        
+        # Load instruction image if it exists
+        instruction_path = os.path.join(self.image_dir, 'instruction.png')
+        if os.path.exists(instruction_path):
+            if self.preload_images:
+                image_map['instruction'] = Image.open(instruction_path).resize(self.image_size, Image.LANCZOS)
+            else:
+                image_map['instruction'] = instruction_path
+        
         return image_map
     
     def get_image(self, name: str = 'agent', direction: str = 'north') -> Image.Image:
@@ -62,7 +71,7 @@ class ImageHandler:
         Get image for given camera ID and direction.
         
         Args:
-            name: Name of the object ('agent' or object_name or 'topdown' as string)
+            name: Name of the object ('agent' or object_name or 'topdown' or 'instruction' as string)
             direction: Cardinal direction ('north', 'south', 'east', 'west')
             
         Returns:
@@ -71,7 +80,11 @@ class ImageHandler:
         Raises:
             KeyError: If image not found
         """
-        key = f"{self.name_2_cam_id[name]}_facing_{direction}" if name != 'topdown' else 'topdown'
+        # Handle special static images that don't need direction
+        if name in ['topdown', 'instruction']:
+            key = name
+        else:
+            key = f"{self.name_2_cam_id[name]}_facing_{direction}"
         
         if key not in self._image_map:
             raise KeyError(f"Image not found for name '{name}' facing '{direction}'")
