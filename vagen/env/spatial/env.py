@@ -25,7 +25,7 @@ from vagen.env.spatial.Base.tos_base.utils.action_utils import action_results_to
 from vagen.env.spatial.utils.initialize_room import initialize_room_from_json
 from vagen.env.utils.parse_utils import parse_freethink
 from vagen.env.spatial.utils.image_handler import ImageHandler
-from ragen.env.spatial.Base.tos_base.actions.actions import ForcedTermAction, ActionSequence
+from vagen.env.spatial.Base.tos_base.actions.actions import ForcedTermAction
 
 @dataclass
 class EnvTurnLog:
