@@ -24,7 +24,7 @@ class TaskGenerator:
             snapToGrid=False,
             rotateStepDegrees=90,
             renderDepthImage=False,
-            renderInstanceSegmentation=True,
+            renderInstanceSegmentation=False,
             width=960,
             height=540,
             platform=CloudRendering,
@@ -363,16 +363,14 @@ class TaskGenerator:
                 print("  No collision-free ground path found, skipping...")
                 continue
 
-            # 实际移动到候选位置，验证可见性
+            # 实际移动到候选位置，验证可见性（改为 PlaceObjectAtPoint）
             original_pos = target_obj["position"].copy()
-            original_rot = target_obj["rotation"].copy()
-            test_poses = [{
-                "objectName": target_obj["name"],
-                "position": target_pos,
-                "rotation": original_rot,
-            }]
-            complete_poses = self._build_complete_object_poses_from_metadata(test_poses)
-            move_event = self.controller.step(action="SetObjectPoses", objectPoses=complete_poses)
+            target_id = target_obj.get("objectId") or target_obj.get("name")
+            move_event = self.controller.step(
+                action="PlaceObjectAtPoint",
+                objectId=target_id,
+                position=target_pos,
+            )
             assert move_event.metadata["lastActionSuccess"]
 
             check_event = self.controller.step("Pass")
@@ -386,19 +384,19 @@ class TaskGenerator:
             if is_visible:
                 return (target_pos, path)
             else:
-                # 若不可见，恢复原位
-                restore_poses = [{
-                    "objectName": target_obj["name"],
-                    "position": original_pos,
-                    "rotation": original_rot,
-                }]
-                complete_restore = self._build_complete_object_poses_from_metadata(restore_poses)
-                self.controller.step(action="SetObjectPoses", objectPoses=complete_restore)
+                # 若不可见，恢复原位（PlaceObjectAtPoint 将物体放回原位置表面）
+                target_id = target_obj.get("objectId") or target_obj.get("name")
+                self.controller.step(
+                    action="PlaceObjectAtPoint",
+                    objectId=target_id,
+                    position=original_pos,
+                )
+                # 如需严格恢复朝向，可在此后追加一次 SetObjectPoses 仅改 rotation
                 print("  Target position is not visible, skipping...")
 
         return None
 
-    def is_object_visible(self, obj, percent: float = None, save_filtered_path: str = '/home/zihanhuang/VAGEN/rearrangement_dataset/images/filtered.png'):
+    def is_object_visible(self, obj, percent: float = None, save_filtered_path: str = '/home/zihanhuang/VAGEN/rearrangement_dataset/images'):
         """检查物体是否在当前视角中可见。
         当 percent == 0 时，沿用原有判定：obj["visible"] 且距离小于 visibilityDistance。
         当 percent > 0 时，要求该物体的可见像素占无遮挡像素的比例达到百分之 percent 才视为可见。
@@ -435,25 +433,67 @@ class TaskGenerator:
                 visible_pixels = int(np.sum(inst_masks[obj_id]))
             except Exception:
                 visible_pixels = 0
+        # 若提供保存路径：同时保存原图与掩码过滤图（以 objectType 命名）
+        if save_filtered_path and inst_masks and obj_id in inst_masks and inst_masks[obj_id] is not None:
+            try:
+                obj_type = obj.get("objectType")
+                os.makedirs(save_filtered_path, exist_ok=True)
+                # 原图
+                original_path = os.path.join(save_filtered_path, f"{obj_type}_original.png")
+                Image.fromarray(frame).save(original_path)
+                # 过滤后图使用随后“仅渲染该物体”的帧保存
+                # 在下方渲染后保存 filtered 图像
+                pass
+            except Exception as e:
+                print(f"Failed to save images to {save_filtered_path}: {e}")
+
 
         # 仅渲染该物体，计算"无遮挡可见像素数"
         unoccluded_pixels = 0
         if obj_id:
             other_ids = []
             try:
-                # 暂时隐藏除目标外的所有物体，以获得“无遮挡”视图
+                # 确保使用当前帧的 target_id（避免 name/id 不一致导致误禁用目标）
+                target_id = None
                 meta_objs = event.metadata.get("objects", []) if hasattr(event, 'metadata') else []
-                other_ids = [o.get("objectId") for o in meta_objs if o.get("objectId") and o.get("objectId") != obj_id]
-                for oid in other_ids:
-                    try:
-                        self.controller.step(action="DisableObject", objectId=oid)
-                    except Exception:
-                        pass
+                for o in meta_objs:
+                    if o.get("objectId") and (o.get("objectId") == obj.get("objectId") or o.get("name") == obj.get("name")):
+                        target_id = o.get("objectId")
+                        break
+                if target_id is None:
+                    target_id = obj_id  # 回退
 
-                event_single = self.controller.step("Pass")
+                # 不禁用结构体，但允许禁用家具（包括父容器），以便去除遮挡
+                structural_types = {"floor", "wall", "walls", "ceiling", "ceilings"}
+                def is_structural(otype: str) -> bool:
+                    return str(otype).lower() in structural_types
 
-                # 可选地保存仅渲染该物体的图像（其他物体被隐藏）
-                
+                other_ids = []
+                for o in meta_objs:
+                    oid = o.get("objectId")
+                    if not oid or oid == target_id:
+                        continue
+                    if is_structural(o.get("objectType", "")):
+                        continue
+                    other_ids.append(oid)
+
+                # 优先使用 SetObjectFilter 仅渲染目标；失败则回退到 HideObject/SetObjectVisibility
+                try:
+                    # 仅渲染目标物体（不改变物理）
+                    self.controller.step(action="SetObjectFilter", objectIds=[target_id])
+                    assert self.controller.last_event.metadata["lastActionSuccess"]
+                    event_single = self.controller.step("Pass")
+                except Exception:
+                    # 回退方案：逐个隐藏其他物体（优先 HideObject，不行则 SetObjectVisibility）
+                    for oid in other_ids:
+                        try:
+                            self.controller.step(action="HideObject", objectId=oid)
+                        except Exception:
+                            try:
+                                self.controller.step(action="SetObjectVisibility", objectId=oid, visible=False, forceAction=True)
+                            except Exception:
+                                pass
+                    event_single = self.controller.step("Pass")
 
                 inst_masks_single = getattr(event_single, "instance_masks", None)
                 if inst_masks_single and obj_id in inst_masks_single and inst_masks_single[obj_id] is not None:
@@ -462,27 +502,25 @@ class TaskGenerator:
                     except Exception:
                         unoccluded_pixels = 0
             finally:
-                # 恢复所有物体的可见性
+                # 恢复所有物体的可见性（渲染层面）
                 for oid in other_ids:
                     try:
-                        self.controller.step(action="EnableObject", objectId=oid)
+                        self.controller.step(action="SetObjectVisibility", objectId=oid, visible=True, forceAction=True)
                     except Exception:
                         pass
 
         # 根据可见像素占无遮挡像素的比例判断
         if unoccluded_pixels > 0:
             visible_ratio_percent = (visible_pixels / float(unoccluded_pixels)) * 100.0
-            if visible_ratio_percent < 80:
-                print(f"Visible ratio {visible_ratio_percent:.2f}%")
-                if save_filtered_path:
-                    try:
-                        dir_name = os.path.dirname(save_filtered_path)
-                        if dir_name:
-                            os.makedirs(dir_name, exist_ok=True)
-                        img = Image.fromarray(event_single.frame)
-                        img.save(save_filtered_path)
-                    except Exception as e:
-                        print(f"Failed to save filtered image to {save_filtered_path}: {e}")
+            if save_filtered_path:
+                try:
+                    obj_type = obj.get("objectType")
+                    os.makedirs(save_filtered_path, exist_ok=True)
+                    filtered_path = os.path.join(save_filtered_path, f"{obj_type}_filtered.png")
+                    Image.fromarray(event_single.frame).save(filtered_path)
+                    print(f"Saved filtered image: {filtered_path}")
+                except Exception as e:
+                    print(f"Failed to save filtered image to {save_filtered_path}: {e}")
             return visible_ratio_percent >= float(percent)
         else:
             return base_visible
@@ -606,23 +644,22 @@ class TaskGenerator:
                 if not event.metadata.get("lastActionSuccess", False):
                     continue
 
-                # 统计当前视角的对象
-                movable_objs, reference_objs, ground_count = self.get_visible_objects()
+                # 统计当前视角的对象（仅考虑可移动的地面物体）
+                movable_objs = self.get_visible_and_moveable_objects()
 
-                # 仅保留 movable 和 reference 都 > 3 的视角
-                if len(movable_objs) > 3 and len(reference_objs) > 3:
-                    if ground_count > max_ground_objects:
-                        max_ground_objects = ground_count
+                # 仅保留 movable > 3 的视角
+                if len(movable_objs) > 3:
+                    if len(movable_objs) > max_ground_objects:
+                        max_ground_objects = len(movable_objs)
                         best_viewpoint = {
                             "position": {"x": pos["x"], "y": pos["y"], "z": pos["z"]},
                             "rotation": {"x": 0, "y": rotation_y, "z": 0},
-                            "total_ground_objects": ground_count,
-                            "movable_count": len(movable_objs),
-                            "reference_count": len(reference_objs)
+                            "total_ground_objects": len(movable_objs),
+                            "movable_count": len(movable_objs)
                         }
                         print(
                             f"New valid viewpoint: pos=({pos['x']:.2f},{pos['z']:.2f}), rot={rotation_y}°, "
-                            f"movable={len(movable_objs)}, reference={len(reference_objs)}, total_ground={ground_count}"
+                            f"movable={len(movable_objs)}"
                         )
 
                 # 进度日志
@@ -642,10 +679,10 @@ class TaskGenerator:
             print(
                 f"Final best viewpoint: pos=({best_viewpoint['position']['x']:.2f},{best_viewpoint['position']['z']:.2f}), "
                 f"rotation={best_viewpoint['rotation']['y']}°, movable={best_viewpoint['movable_count']}, "
-                f"reference={best_viewpoint['reference_count']}, total_ground={best_viewpoint['total_ground_objects']}"
+                f"total_ground={best_viewpoint['total_ground_objects']}"
             )
         else:
-            print("No valid viewpoint (movable>3 and reference>3) found under 0.5m spacing.")
+            print("No valid viewpoint (movable>3) found under 0.5m spacing.")
 
         return best_viewpoint
 
@@ -844,6 +881,147 @@ class TaskGenerator:
             path = compressed
 
         return path
+    def _convert_path_to_view_relative_moves(self, path, min_segment=0.05):
+        """将世界坐标路径转换为相对于当前相机朝向的前/后/左/右移动序列。
+        - path: [{x,y,z}, ...]，至少包含两点
+        - 返回: [{"dir": one of {forward,backward,left,right}, "meters": float}, ...]
+        - 会合并连续相同方向的段
+        """
+        import math
+        if not path or len(path) < 2:
+            return []
+        # 当前相机朝向（弧度），用于定义局部坐标系
+        cam_yaw_deg = self.controller.last_event.metadata["agent"]["rotation"]["y"]
+        cam_yaw = math.radians(cam_yaw_deg)
+        sin_y = math.sin(cam_yaw)
+        cos_y = math.cos(cam_yaw)
+        def world_to_local(dx, dz):
+            # 将世界坐标增量旋转到以相机为基的局部坐标
+            # forward=+z_local，right=+x_local
+            x_local =  dx *  cos_y + dz * sin_y
+            z_local =  dz *  cos_y - dx * sin_y
+            return x_local, z_local
+        # 生成原子动作：把每一段分解到前/后与左/右两个轴（各自可能为0）
+        raw = []
+        for i in range(1, len(path)):
+            dx = path[i]["x"] - path[i-1]["x"]
+            dz = path[i]["z"] - path[i-1]["z"]
+            lx, lz = world_to_local(dx, dz)
+            # 先处理前/后
+            if abs(lz) >= min_segment:
+                raw.append({"dir": "forward" if lz >= 0 else "backward", "meters": round(abs(lz), 3)})
+            # 再处理左/右
+            if abs(lx) >= min_segment:
+                raw.append({"dir": "right" if lx >= 0 else "left", "meters": round(abs(lx), 3)})
+        # 合并同向段
+        if not raw:
+            return []
+        merged = [raw[0]]
+        for seg in raw[1:]:
+            if seg["dir"] == merged[-1]["dir"]:
+                merged[-1]["meters"] = round(merged[-1]["meters"] + seg["meters"], 3)
+            else:
+                merged.append(seg)
+        return merged
+
+
+
+    def find_far_visible_position(self, target_obj, min_distance: float = 3.0, max_distance: float = 6.0):
+        """为目标物体寻找一个无遮挡且无碰撞、距离原位置至少 min_distance 的新位置。
+        返回 (target_pos, movement_moves) 或 None。
+        其中 movement_moves 是相对于“当前视角”的前/后/左/右移动序列，例如：
+        [
+            {"dir": "forward", "meters": 0.4},
+            {"dir": "right", "meters": 0.2},
+            ...
+        ]
+        """
+
+        # 获取场景对象
+        event = self.controller.step("Pass")
+        all_objects = event.metadata.get("objects", [])
+
+        # 原始位置
+        orig_pos = target_obj.get("position", {}).copy()
+        if not orig_pos:
+            return None
+
+        # 基于 receptacle 的可放置点生成候选位置
+        ground_y = 0.1
+        original_pos = target_obj["position"].copy()
+
+        # 只使用 Floor 作为 receptacle（允许 Floor、Floor1 等名字）
+        def is_floor(otype: str) -> bool:
+            tl = str(otype).lower()
+            # 有些场景中地板类型可能命名为 Floor/Floor1 等，做一个宽松匹配
+            return tl=="floor"
+        receptacles = [o for o in all_objects if is_floor(o.get("objectType", ""))]
+
+        # 为每个 receptacle 获取可放置坐标
+        candidates = []
+        for rec in receptacles:
+            rec_id = rec.get("objectId")
+            if not rec_id:
+                continue
+            try:
+                ev = self.controller.step(action="GetSpawnCoordinatesAboveReceptacle", objectId=rec_id, anywhere=False)
+                coords = ev.metadata.get("actionReturn") or []
+            except Exception:
+                coords = []
+            for p in coords:
+                # 距离过滤（仅使用 xz 平面距离）
+                dx = p.get("x", 0.0) - orig_pos.get("x", 0.0)
+                dz = p.get("z", 0.0) - orig_pos.get("z", 0.0)
+                dist = (dx * dx + dz * dz) ** 0.5
+                if dist < float(min_distance):
+                    continue
+                if max_distance is not None and dist > float(max_distance):
+                    continue
+                candidates.append({"x": p.get("x", 0.0), "y": p.get("y", ground_y), "z": p.get("z", 0.0)})
+
+        # 近处优先：按距离排序
+        # candidates.sort(key=lambda c: (c["x"] - orig_pos.get("x", 0.0)) ** 2 + (c["z"] - orig_pos.get("z", 0.0)) ** 2)
+
+        target_id = target_obj.get("objectId") or target_obj.get("name")
+        for candidate in candidates:
+            # 简单碰撞检查
+            # if self.check_collision_with_objects(candidate, target_obj, all_objects):
+            #     continue
+
+            # 规划地面路径（xz）
+            start_xy = {"x": orig_pos.get("x", 0.0), "y": ground_y, "z": orig_pos.get("z", 0.0)}
+            path = self.plan_ground_path(start_xy, candidate, target_obj, all_objects)
+            if not path or len(path) < 2:
+                continue
+
+            moves = self._convert_path_to_view_relative_moves(path)
+
+            # 尝试放置
+            move_event = self.controller.step(
+                action="PlaceObjectAtPoint",
+                objectId=target_id,
+                position=candidate,
+            )
+            if not move_event.metadata.get("lastActionSuccess", False):
+                # 放置失败，尝试下一个候选
+                continue
+
+            # 验证可见性
+            check_event = self.controller.step("Pass")
+            moved_obj = None
+            for o in check_event.metadata.get("objects", []):
+                if o.get("name") == target_obj.get("name"):
+                    moved_obj = o
+                    break
+
+            if moved_obj and self.is_object_visible(moved_obj):
+                return (candidate, moves)
+            else:
+                # 恢复原位（尽力而为）
+                self.controller.step(action="PlaceObjectAtPoint", objectId=target_id, position=original_pos)
+                # 继续尝试下一个候选
+
+        return None
 
 
     def get_object_size(self, obj):
@@ -915,61 +1093,41 @@ class TaskGenerator:
         print(f"Total ground objects: {len(ground_objects)}")
         return ground_objects
 
-    def get_visible_objects(self):
-        """获取当前视角中可见的物体，只选择地面上的物体"""
+    def get_visible_and_moveable_objects(self):
+        """获取当前视角中可见的可移动/可拾取地面物体列表（先筛可移动，再判可见）"""
         event = self.controller.step("Pass")
         objects = event.metadata["objects"]
 
-        # 选择可移动的物体和参照物体，只选择地面上的
         movable = []
-        all_ground_objects = []
-        ground_objects_count = 0
 
-        print("Checking objects on ground:")
+        print("Checking movable objects on ground:")
         for obj in objects:
-            # 检查物体是否在地面上
+            # 仅考虑地面上的物体
             if not self.is_object_on_ground(obj):
                 continue
 
-            ground_objects_count += 1
             obj_type = obj["objectType"]
-            all_ground_objects.append(obj)
 
-            if not self.is_object_visible(obj, 30):
+            # 先快速筛掉不可移动的
+            is_movable = obj.get("moveable", False) or obj.get("pickupable", False)
+            if not is_movable:
                 continue
 
-            
-            # Check for movable objects (包含可移动或可拾取的物体，且在地面上)
-            # 仍然排除包含 sofa/table 的类型名
-            is_movable = obj.get("moveable", False) or obj.get("pickupable", False)
-            if is_movable:
-                obj_type_lower = obj_type.lower()
-                if "sofa" not in obj_type_lower and "table" not in obj_type_lower:
-                    movable.append(obj)
-                    print(f"  Added movable: {obj_type}")
-                else:
-                    print(f"  Skipped movable (contains sofa/table): {obj_type}")
-            else:
-                print(f"  Found ground object: {obj_type}")
+            # 过滤掉 sofa/table
+            obj_type_lower = obj_type.lower()
+            if "sofa" in obj_type_lower or "table" in obj_type_lower:
+                print(f"  Skipped movable (contains sofa/table): {obj_type}")
+                continue
 
-        # 所有地面物体都可以作为参照物体（除了目标物体本身）
-        # 这个筛选会在任务生成时进行，这里先保留所有地面物体
-        reference = all_ground_objects.copy()
+            # 再做可见性检查（较慢）
+            if not self.is_object_visible(obj):
+                continue
 
-        # 随机选择参照物体，不按大小排序
-        if reference:
-            import random
-            # 随机打乱参照物体列表
-            random.shuffle(reference)
-            # 保留所有参照物体，或者限制数量以避免过多
-            reference = reference[:min(15, len(reference))]  # 最多保留15个参照物体
 
-        # Debug output
-        print(f"Total ground objects: {ground_objects_count}")
-        # print(f"Found {len(movable)} movable objects on ground: {[obj['objectType'] for obj in movable]}")
-        # print(f"Found {len(reference)} reference objects on ground: {[obj['objectType'] for obj in reference]}")
+            movable.append(obj)
+            print(f"  Added movable: {obj_type}")
 
-        return movable, reference, ground_objects_count
+        return movable
 
     def filter_unique_objects(self, objects):
         """仅保留在该列表中类型出现次数为1的物体；并提前排除 floor/curtain 系列对象（可能带编号）"""
@@ -986,98 +1144,42 @@ class TaskGenerator:
         return unique_list
 
     def generate_task_with_validation(self):
-        """生成经过验证的任务（假定视角已在外部设置并已 Teleport）"""
-        # 直接基于当前相机视角获取可见物体
-        movable_objs, reference_objs, _ = self.get_visible_objects()
-        if not movable_objs or not reference_objs:
+        """生成经过验证的任务（假定视角已在外部设置并已 Teleport）。
+        需求：
+        - 去除 reference 物体，不使用方位关系
+        - after = 目标物体可无碰撞移动到的可见位置，且与原位置距离 >= 3m
+        - 只需保存移动前/后的两张图（由调用方已处理）
+        """
+        # 获取可见的地面可移动物体
+        movable_objs = self.get_visible_and_moveable_objects()
+
+        if not movable_objs:
             return None
 
-        # 过滤出唯一类型的物体（确保每种类型只有一个）
-        unique_movable_objs = self.filter_unique_objects(movable_objs)
-        unique_reference_objs = self.filter_unique_objects(reference_objs)
-
-        print(f"unique movable objects: {len(unique_movable_objs)} {[obj['objectType'] for obj in unique_movable_objs]}")
-        print(f"unique reference objects: {len(unique_reference_objs)} {[obj['objectType'] for obj in unique_reference_objs]}")
-
-        # 智能重试机制：先尝试不同方位词，再更换参照物体
-        if not unique_movable_objs or not unique_reference_objs:
-            return None
-
-        # 先选择目标物体：按估计体积从小到大排序，优先尝试体积小的
-        unique_movable_objs.sort(key=lambda o: self.get_object_size(o))
-        target_obj = unique_movable_objs[0]
+        # 直接按估计体积从小到大选择一个体积较小的目标
+        movable_objs.sort(key=lambda o: self.get_object_size(o))
+        target_obj = movable_objs[0]
         print(f"  Selected target object (smallest): {target_obj['objectType']}")
 
-        # 选择与目标物体有一定距离的参照物体
-        suitable_references = []
-        min_distance = 1.0  # 最小距离1米
-        max_distance = 6.0  # 最大距离3米
-
-        for ref_obj in unique_reference_objs:
-            distance = self.get_distance_between_objects(target_obj, ref_obj)
-            if min_distance <= distance <= max_distance:
-                suitable_references.append(ref_obj)
-
-        # 如果没有合适距离的物体，放宽条件
-        if not suitable_references:
-            suitable_references = [obj for obj in unique_reference_objs
-                                 if self.get_distance_between_objects(target_obj, obj) >= 0.5]
-
-        if not suitable_references:
-            print(f"  No suitable reference objects within distance for {target_obj['objectType']}")
+        # 搜索满足 >=3m 且可见的无碰撞位置
+        res = self.find_far_visible_position(target_obj, min_distance=3.0, max_distance=6.0)
+        if not res:
+            print("  No far visible collision-free position found (>=3m).")
             return None
+        target_pos, movement_path = res
 
-        # 随机打乱参照物体和方位词的顺序
-        random.shuffle(suitable_references)
-        spatial_relations = list(self.spatial_relations)
-        random.shuffle(spatial_relations)
-
-        print(f"  Found {len(suitable_references)} suitable reference objects")
-
-        # 尝试所有参照物体和方位词的组合
-        for ref_obj in suitable_references:
-            print(f"    Trying reference object: {ref_obj['objectType']}")
-
-            for relation in spatial_relations:
-                print(f"      Trying spatial relation: {relation}")
-
-                # 验证空间关系是否合理（包括碰撞检测与路径）；成功则保持移动
-                result = self.calculate_target_position(target_obj, ref_obj, relation)
-                if result:
-                    target_pos, movement_path = result
-                    print(f"      ✅ Success with {relation}!")
-
-                    # 生成任务描述 - 不包含颜色和大小描述
-                    task_description = f"Place the {target_obj['objectType'].lower()} {relation} the {ref_obj['objectType'].lower()}."
-
-                    return {
-                        "description": task_description,
-                        "target_object": {
-                            "name": target_obj.get("name"),
-                            "type": target_obj.get("objectType"),
-                            "position": target_obj.get("position")
-                        },
-                        "reference_object": {
-                            "name": ref_obj.get("name"),
-                            "type": ref_obj.get("objectType"),
-                            "position": ref_obj.get("position")
-                        },
-                        "spatial_relation": relation,
-                        "scene_metadata": {
-                            "visible_movable_objects": len(movable_objs),
-                            "visible_reference_objects": len(reference_objs)
-                        },
-                        "movement_path": movement_path,  # 地面上的无碰撞轨迹（含起终点）
-                        "target_obj_data": target_obj,  # 保存完整的目标物体数据（以 name 作为唯一凭证）
-                        "ref_obj_data": ref_obj  # 保存完整的参照物体数据（以 name 作为唯一凭证）
-                    }
-                else:
-                    print(f"      ❌ Failed with {relation} (collision, visibility, path, or other issue)")
-
-            print(f"      All spatial relations failed for {ref_obj['objectType']}")
-
-        print(f"    All reference objects and spatial relations failed for {target_obj['objectType']}")
-        return None
+        # 构造任务（只包含必要信息；before/after 图片由外部保存）
+        task_description = f"Move the {target_obj['objectType'].lower()} to a visible collision-free location at least 3m away."
+        return {
+            "description": task_description,
+            "target_object": {
+                "name": target_obj.get("name"),
+                "type": target_obj.get("objectType"),
+                "original_position": target_obj.get("position"),
+                "final_position": target_pos,
+            },
+            "movement_path": movement_path,
+        }
 
     def generate_batch(self, num_tasks=10):
         """生成一批高质量的任务，每个任务使用独立的场景"""
