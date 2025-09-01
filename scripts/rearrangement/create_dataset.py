@@ -24,7 +24,7 @@ class TaskGenerator:
             snapToGrid=False,
             rotateStepDegrees=90,
             renderDepthImage=False,
-            renderInstanceSegmentation=False,
+            renderInstanceSegmentation=True,
             width=960,
             height=540,
             platform=CloudRendering,
@@ -398,10 +398,94 @@ class TaskGenerator:
 
         return None
 
-    def is_object_visible(self, obj):
-        """检查物体是否在当前视角中可见"""
-        return obj["visible"] and obj["distance"] < self.controller.initialization_parameters["visibilityDistance"]
+    def is_object_visible(self, obj, percent: float = None, save_filtered_path: str = '/home/zihanhuang/VAGEN/rearrangement_dataset/images/filtered.png'):
+        """检查物体是否在当前视角中可见。
+        当 percent == 0 时，沿用原有判定：obj["visible"] 且距离小于 visibilityDistance。
+        当 percent > 0 时，要求该物体的可见像素占无遮挡像素的比例达到百分之 percent 才视为可见。
+        若当前未开启实例分割或获取掩码失败，将回退到原有判定。
 
+        参数:
+            obj: AI2-THOR 物体元数据字典
+            percent: 百分阈值（0-100），基于可见像素/无遮挡像素的比例
+        """
+        base_visible = obj.get("visible", False) and (
+            obj.get("distance", float("inf")) < self.controller.initialization_parameters["visibilityDistance"]
+        )
+        if not base_visible:
+            return False
+        if percent is None:
+            return base_visible
+
+        # 需要实例分割来统计像素占比
+        if not self.controller.initialization_parameters.get("renderInstanceSegmentation", False):
+            return base_visible
+
+        # 获取当前事件（包含分割信息）
+        event = self.controller.step("Pass")
+        frame = getattr(event, "frame", None)
+        if frame is None:
+            return base_visible
+
+        # 当前场景下的可见像素
+        visible_pixels = 0
+        inst_masks = getattr(event, "instance_masks", None)
+        obj_id = obj.get("objectId") or obj.get("name")
+        if inst_masks and obj_id in inst_masks and inst_masks[obj_id] is not None:
+            try:
+                visible_pixels = int(np.sum(inst_masks[obj_id]))
+            except Exception:
+                visible_pixels = 0
+
+        # 仅渲染该物体，计算"无遮挡可见像素数"
+        unoccluded_pixels = 0
+        if obj_id:
+            other_ids = []
+            try:
+                # 暂时隐藏除目标外的所有物体，以获得“无遮挡”视图
+                meta_objs = event.metadata.get("objects", []) if hasattr(event, 'metadata') else []
+                other_ids = [o.get("objectId") for o in meta_objs if o.get("objectId") and o.get("objectId") != obj_id]
+                for oid in other_ids:
+                    try:
+                        self.controller.step(action="DisableObject", objectId=oid)
+                    except Exception:
+                        pass
+
+                event_single = self.controller.step("Pass")
+
+                # 可选地保存仅渲染该物体的图像（其他物体被隐藏）
+                
+
+                inst_masks_single = getattr(event_single, "instance_masks", None)
+                if inst_masks_single and obj_id in inst_masks_single and inst_masks_single[obj_id] is not None:
+                    try:
+                        unoccluded_pixels = int(np.sum(inst_masks_single[obj_id]))
+                    except Exception:
+                        unoccluded_pixels = 0
+            finally:
+                # 恢复所有物体的可见性
+                for oid in other_ids:
+                    try:
+                        self.controller.step(action="EnableObject", objectId=oid)
+                    except Exception:
+                        pass
+
+        # 根据可见像素占无遮挡像素的比例判断
+        if unoccluded_pixels > 0:
+            visible_ratio_percent = (visible_pixels / float(unoccluded_pixels)) * 100.0
+            if visible_ratio_percent < 80:
+                print(f"Visible ratio {visible_ratio_percent:.2f}%")
+                if save_filtered_path:
+                    try:
+                        dir_name = os.path.dirname(save_filtered_path)
+                        if dir_name:
+                            os.makedirs(dir_name, exist_ok=True)
+                        img = Image.fromarray(event_single.frame)
+                        img.save(save_filtered_path)
+                    except Exception as e:
+                        print(f"Failed to save filtered image to {save_filtered_path}: {e}")
+            return visible_ratio_percent >= float(percent)
+        else:
+            return base_visible
     def get_object_bounds(self, obj):
         """获取物体的边界框"""
         if "axisAlignedBoundingBox" in obj:
@@ -625,7 +709,7 @@ class TaskGenerator:
     def plan_ground_path(self, start_pos, goal_pos, target_obj, all_objects, grid_size=0.2, padding=2.0):
         """在地面上为目标物体规划一条无碰撞轨迹（xz 平面上的路径）。
         - 使用简单的二维A*（8邻接）
-        - 将障碍物在xz平面上按目标物体的占地尺寸和安全边距进行膨胀
+        - 使用目标物体的占地尺寸考虑碰撞（不添加额外安全边距）
         - 返回路径点列表（包含起点和终点），每个点为 {x,y,z}
         - 返回 None 表示无可行路径
         """
@@ -634,11 +718,8 @@ class TaskGenerator:
 
         # 估算目标物体在 xz 平面的占地尺寸（半宽半深）
         tb = self.get_object_bounds(target_obj) or {"min_x": 0, "max_x": 0, "min_z": 0, "max_z": 0}
-        half_w = max(0.05, (tb["max_x"] - tb["min_x"]) / 2.0)
-        half_d = max(0.05, (tb["max_z"] - tb["min_z"]) / 2.0)
-        safety = 0.1
 
-        # 收集并膨胀障碍（不包含目标自身、也不把地板当障碍）
+        # 收集障碍（不包含目标自身、也不把地板当障碍），不做额外膨胀
         obstacles = []
         for obj in (all_objects or []):
             if obj.get("name") == target_obj.get("name"):
@@ -649,12 +730,12 @@ class TaskGenerator:
             ob = self.get_object_bounds(obj)
             if not ob:
                 continue
-            # 在 xz 平面上按目标物体占地+安全距离进行膨胀
+            # 直接使用障碍物自身边界（不膨胀）
             obstacles.append({
-                "min_x": ob["min_x"] - (half_w + safety),
-                "max_x": ob["max_x"] + (half_w + safety),
-                "min_z": ob["min_z"] - (half_d + safety),
-                "max_z": ob["max_z"] + (half_d + safety),
+                "min_x": ob["min_x"],
+                "max_x": ob["max_x"],
+                "min_z": ob["min_z"],
+                "max_z": ob["max_z"],
             })
 
         # 规划区域边界（围绕起终点加 padding）
@@ -846,9 +927,6 @@ class TaskGenerator:
 
         print("Checking objects on ground:")
         for obj in objects:
-            if not self.is_object_visible(obj):
-                continue
-
             # 检查物体是否在地面上
             if not self.is_object_on_ground(obj):
                 continue
@@ -857,6 +935,10 @@ class TaskGenerator:
             obj_type = obj["objectType"]
             all_ground_objects.append(obj)
 
+            if not self.is_object_visible(obj, 30):
+                continue
+
+            
             # Check for movable objects (包含可移动或可拾取的物体，且在地面上)
             # 仍然排除包含 sofa/table 的类型名
             is_movable = obj.get("moveable", False) or obj.get("pickupable", False)
@@ -1125,7 +1207,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate rearrangement tasks dataset")
     parser.add_argument("--output_dir", type=str, default="./rearrangement_dataset",
                        help="Output directory for the dataset")
-    parser.add_argument("--num_tasks", type=int, default=20)
+    parser.add_argument("--num_tasks", type=int, default=1)
     parser.add_argument("--seed", type=int, default=42,
                        help="Random seed for reproducibility")
     parser.add_argument("--num_workers", type=int, default=32,
