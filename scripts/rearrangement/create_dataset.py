@@ -7,8 +7,41 @@ import os
 from PIL import Image
 import re
 
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
+all_scenes = [
+    # 厨房场景 (FloorPlan1-30)
+    # "FloorPlan1", "FloorPlan2", "FloorPlan3", "FloorPlan4", "FloorPlan5",
+    # "FloorPlan6", "FloorPlan7", "FloorPlan8", "FloorPlan9", "FloorPlan10",
+    # "FloorPlan11", "FloorPlan12", "FloorPlan13", "FloorPlan14", "FloorPlan15",
+    # "FloorPlan16", "FloorPlan17", "FloorPlan18", "FloorPlan19", "FloorPlan20",
+    # "FloorPlan21", "FloorPlan22", "FloorPlan23", "FloorPlan24", "FloorPlan25",
+    # "FloorPlan26", "FloorPlan27", "FloorPlan28", "FloorPlan29", "FloorPlan30",
 
+    # 客厅场景 (FloorPlan201-230)
+    # "FloorPlan211",
+    "FloorPlan201", "FloorPlan202", "FloorPlan203", "FloorPlan204", "FloorPlan205",
+    "FloorPlan206", "FloorPlan207", "FloorPlan208", "FloorPlan209", "FloorPlan210",
+    "FloorPlan211", "FloorPlan212", "FloorPlan213", "FloorPlan214", "FloorPlan215",
+    "FloorPlan216", "FloorPlan217", "FloorPlan218", "FloorPlan219", "FloorPlan220",
+    "FloorPlan221", "FloorPlan222", "FloorPlan223", "FloorPlan224", "FloorPlan225",
+    "FloorPlan226", "FloorPlan227", "FloorPlan228", "FloorPlan229", "FloorPlan230",
+
+    # 卧室场景 (FloorPlan301-330)
+    # "FloorPlan301", "FloorPlan302", "FloorPlan303", "FloorPlan304", "FloorPlan305",
+    # "FloorPlan306", "FloorPlan307", "FloorPlan308", "FloorPlan309", "FloorPlan310",
+    # "FloorPlan311", "FloorPlan312", "FloorPlan313", "FloorPlan314", "FloorPlan315",
+    # "FloorPlan316", "FloorPlan317", "FloorPlan318", "FloorPlan319", "FloorPlan320",
+    # "FloorPlan321", "FloorPlan322", "FloorPlan323", "FloorPlan324", "FloorPlan325",
+    # "FloorPlan326", "FloorPlan327", "FloorPlan328", "FloorPlan329", "FloorPlan330",
+
+    # 浴室场景 (FloorPlan401-430)
+    # "FloorPlan401", "FloorPlan402", "FloorPlan403", "FloorPlan404", "FloorPlan405",
+    # "FloorPlan406", "FloorPlan407", "FloorPlan408", "FloorPlan409", "FloorPlan410",
+    # "FloorPlan411", "FloorPlan412", "FloorPlan413", "FloorPlan414", "FloorPlan415",
+    # "FloorPlan416", "FloorPlan417", "FloorPlan418", "FloorPlan419", "FloorPlan420",
+    # "FloorPlan421", "FloorPlan422", "FloorPlan423", "FloorPlan424", "FloorPlan425",
+    # "FloorPlan426", "FloorPlan427", "FloorPlan428", "FloorPlan429", "FloorPlan430"
+]
 class TaskGenerator:
     def __init__(self, output_dir="generated_tasks", seed=42):
         # Set random seeds for reproducibility
@@ -37,70 +70,8 @@ class TaskGenerator:
         self.images_dir = os.path.join(output_dir, "images")
         os.makedirs(self.images_dir, exist_ok=True)
 
-        # 定义物体类型和空间关系
-        # self.movable_objects = ["Vase", "Book", "Mug", "Apple", "Bread", "Plate", "Bowl", "CreditCard", "KeyChain"]
-        # self.reference_objects = ["Sofa", "Chair", "ArmChair", "Bed", "Dresser", "Desk", "DiningTable", "CoffeeTable"]
         # 只允许地面到地面的移动，移除"on"关系
         self.spatial_relations = ["behind", "in front of", "to the left of", "to the right of"]
-
-    def use_regular_scene(self):
-        """使用常规AI2Thor场景而不是ProcTHOR"""
-        # 扩展的场景列表 - 包含厨房、客厅、卧室、浴室场景
-        all_scenes = [
-            # 厨房场景 (FloorPlan1-30)
-            # "FloorPlan1", "FloorPlan2", "FloorPlan3", "FloorPlan4", "FloorPlan5",
-            # "FloorPlan6", "FloorPlan7", "FloorPlan8", "FloorPlan9", "FloorPlan10",
-            # "FloorPlan11", "FloorPlan12", "FloorPlan13", "FloorPlan14", "FloorPlan15",
-            # "FloorPlan16", "FloorPlan17", "FloorPlan18", "FloorPlan19", "FloorPlan20",
-            # "FloorPlan21", "FloorPlan22", "FloorPlan23", "FloorPlan24", "FloorPlan25",
-            # "FloorPlan26", "FloorPlan27", "FloorPlan28", "FloorPlan29", "FloorPlan30",
-
-            # 客厅场景 (FloorPlan201-230)
-            # "FloorPlan205",
-            "FloorPlan201", "FloorPlan202", "FloorPlan203", "FloorPlan204", "FloorPlan205",
-            "FloorPlan206", "FloorPlan207", "FloorPlan208", "FloorPlan209", "FloorPlan210",
-            "FloorPlan211", "FloorPlan212", "FloorPlan213", "FloorPlan214", "FloorPlan215",
-            "FloorPlan216", "FloorPlan217", "FloorPlan218", "FloorPlan219", "FloorPlan220",
-            "FloorPlan221", "FloorPlan222", "FloorPlan223", "FloorPlan224", "FloorPlan225",
-            "FloorPlan226", "FloorPlan227", "FloorPlan228", "FloorPlan229", "FloorPlan230",
-
-            # 卧室场景 (FloorPlan301-330)
-            # "FloorPlan301", "FloorPlan302", "FloorPlan303", "FloorPlan304", "FloorPlan305",
-            # "FloorPlan306", "FloorPlan307", "FloorPlan308", "FloorPlan309", "FloorPlan310",
-            # "FloorPlan311", "FloorPlan312", "FloorPlan313", "FloorPlan314", "FloorPlan315",
-            # "FloorPlan316", "FloorPlan317", "FloorPlan318", "FloorPlan319", "FloorPlan320",
-            # "FloorPlan321", "FloorPlan322", "FloorPlan323", "FloorPlan324", "FloorPlan325",
-            # "FloorPlan326", "FloorPlan327", "FloorPlan328", "FloorPlan329", "FloorPlan330",
-
-            # 浴室场景 (FloorPlan401-430)
-            # "FloorPlan401", "FloorPlan402", "FloorPlan403", "FloorPlan404", "FloorPlan405",
-            # "FloorPlan406", "FloorPlan407", "FloorPlan408", "FloorPlan409", "FloorPlan410",
-            # "FloorPlan411", "FloorPlan412", "FloorPlan413", "FloorPlan414", "FloorPlan415",
-            # "FloorPlan416", "FloorPlan417", "FloorPlan418", "FloorPlan419", "FloorPlan420",
-            # "FloorPlan421", "FloorPlan422", "FloorPlan423", "FloorPlan424", "FloorPlan425",
-            # "FloorPlan426", "FloorPlan427", "FloorPlan428", "FloorPlan429", "FloorPlan430"
-        ]
-
-        # 只随机选择一个场景进行尝试
-        scene = random.choice(all_scenes)
-        try:
-            event = self.controller.reset(scene=scene)
-            if event.metadata["lastActionSuccess"]:
-                print(f"Successfully loaded scene: {scene}")
-                self.current_scene = scene
-                return True
-            else:
-                print(f"Failed to load scene {scene}: {event.metadata.get('errorMessage')}")
-                return False
-        except Exception as e:
-            print(f"Exception loading scene {scene}: {e}")
-            return False
-
-    def generate_scene(self):
-        """生成场景 - 使用常规AI2Thor场景"""
-        return self.use_regular_scene()
-
-
 
     def save_viewpoint_image(self, suffix="before", prefix=None):
         """保存当前视角的图片；支持可选前缀以避免并发文件名冲突。
@@ -129,272 +100,6 @@ class TaskGenerator:
         except Exception as e:
             print(f"Error saving image for current scene: {e}")
             return None
-
-    def _build_complete_object_poses_from_metadata(self, override_poses):
-        """构建完整的物体位置列表，参考用户提供的函数"""
-        meta_objs = self.controller.last_event.metadata.get("objects", [])
-        # Map desired overrides by name
-        overrides = {}
-        for p in (override_poses or []):
-            key = p.get("name") or p.get("objectName")
-            if key is not None:
-                overrides[key] = {"position": p.get("position", {}), "rotation": p.get("rotation", {})}
-
-        full_list = []
-        for obj in meta_objs:
-            if obj['pickupable'] or obj['moveable']:
-                name = obj.get("name")
-                desired = overrides.get(name)
-                pos = desired["position"] if desired else obj.get("position", {})
-                rot = desired["rotation"] if desired else obj.get("rotation", {})
-                full_list.append({
-                    "objectName": obj.get("name"),
-                    "position": pos,
-                    "rotation": rot,
-                })
-
-        return full_list
-
-    def find_surface_for_placement(self, target_position):
-        """找到目标位置下方的表面物体"""
-        # 获取当前场景中的所有物体
-        event = self.controller.step("Pass")
-        objects = event.metadata["objects"]
-
-        # 寻找目标位置下方的表面
-        best_surface = None
-        min_distance = float('inf')
-
-        for obj in objects:
-            if not obj.get("receptacle", False):
-                continue
-
-            obj_pos = obj["position"]
-            obj_bounds = self.get_object_bounds(obj)
-
-            if not obj_bounds:
-                continue
-
-            # 检查目标位置是否在物体表面上方
-            if (obj_bounds["min_x"] <= target_position["x"] <= obj_bounds["max_x"] and
-                obj_bounds["min_z"] <= target_position["z"] <= obj_bounds["max_z"] and
-                obj_bounds["max_y"] <= target_position["y"]):
-
-                distance = target_position["y"] - obj_bounds["max_y"]
-                if distance < min_distance:
-                    min_distance = distance
-                    best_surface = obj
-
-        # 如果没找到合适的表面，默认是地板
-        if best_surface is None:
-            return "floor"
-        else:
-            return best_surface["objectType"].lower()
-
-    def find_best_surface_position(self, ref_obj):
-        """找到参照物体的最佳表面位置（如椅子座位）"""
-        try:
-            # 获取参照物体的详细信息
-            obj_type = ref_obj["objectType"].lower()
-            ref_bounds = self.get_object_bounds(ref_obj)
-            ref_pos = ref_obj["position"]
-
-            if not ref_bounds:
-                return None
-
-            # 针对不同类型的物体使用不同的表面检测策略
-            if obj_type in ["chair", "armchair"]:
-                # 对于椅子，需要更精确地定位座位
-                # 椅子的座位通常是最大的水平表面
-
-                # 获取椅子的尺寸
-                chair_width = ref_bounds["max_x"] - ref_bounds["min_x"]
-                chair_depth = ref_bounds["max_z"] - ref_bounds["min_z"]
-                chair_height = ref_bounds["max_y"] - ref_bounds["min_y"]
-
-                # 座位高度通常在椅子总高度的45%-65%之间
-                # 这是基于真实椅子的比例
-                seat_height_ratio = 0.55  # 座位高度比例
-                seat_height = ref_bounds["min_y"] + chair_height * seat_height_ratio
-
-                # 座位位置：椅子中心，但稍微向前（座位通常不在椅子的几何中心）
-                seat_x = ref_pos["x"]
-                seat_z = ref_pos["z"] + chair_depth * 0.05  # 稍微向前5%
-
-                # 确保座位位置在椅子边界内
-                seat_x = max(ref_bounds["min_x"] + chair_width * 0.1,
-                           min(ref_bounds["max_x"] - chair_width * 0.1, seat_x))
-                seat_z = max(ref_bounds["min_z"] + chair_depth * 0.1,
-                           min(ref_bounds["max_z"] - chair_depth * 0.1, seat_z))
-
-                return {
-                    "x": seat_x,
-                    "y": seat_height,
-                    "z": seat_z
-                }
-
-            elif obj_type in ["table", "diningtable", "coffeetable", "desk"]:
-                # 对于桌子，使用桌面中心
-                return {
-                    "x": ref_pos["x"],
-                    "y": ref_bounds["max_y"],
-                    "z": ref_pos["z"]
-                }
-
-            elif obj_type in ["bed"]:
-                # 对于床，使用床面中心
-                return {
-                    "x": ref_pos["x"],
-                    "y": ref_bounds["max_y"],
-                    "z": ref_pos["z"]
-                }
-
-            elif obj_type in ["stoveknob", "stoveburner"]:
-                # 对于炉灶相关物体，使用顶部中心
-                return {
-                    "x": ref_pos["x"],
-                    "y": ref_bounds["max_y"],
-                    "z": ref_pos["z"]
-                }
-
-            elif obj_type in ["sinkbasin", "sink"]:
-                # 对于水槽，使用边缘位置
-                return {
-                    "x": ref_pos["x"],
-                    "y": ref_bounds["max_y"],
-                    "z": ref_pos["z"]
-                }
-
-            else:
-                # 对于其他物体，使用顶部中心
-                return {
-                    "x": ref_pos["x"],
-                    "y": ref_bounds["max_y"],
-                    "z": ref_pos["z"]
-                }
-
-        except Exception as e:
-            print(f"Error finding best surface position: {e}")
-            return None
-
-    def get_camera_direction_vectors(self):
-        """获取相机的方向向量（基于当前相机旋转）"""
-        import math
-
-        # 获取相机旋转角度（Y轴旋转，单位：度）
-        camera_rotation = self.controller.last_event.metadata["agent"]["rotation"]["y"]
-
-        # 转换为弧度
-        angle_rad = math.radians(camera_rotation)
-
-        # 计算前方向量（相机朝向）
-        forward_x = math.sin(angle_rad)
-        forward_z = math.cos(angle_rad)
-
-        # 计算右方向量（相机右侧）
-        right_x = math.cos(angle_rad)
-        right_z = -math.sin(angle_rad)
-
-        return {
-            "forward": {"x": forward_x, "z": forward_z},
-            "right": {"x": right_x, "z": right_z},
-            "backward": {"x": -forward_x, "z": -forward_z},
-            "left": {"x": -right_x, "z": -right_z}
-        }
-
-    def calculate_target_position(self, target_obj, ref_obj, relation):
-        """根据空间关系计算目标位置：沿关系方向搜索多个offset，
-        找到第一个与场景中其他物体无碰撞且与原位置距离>2m的位置；再验证存在一条无碰撞的地面移动轨迹；
-        成功时会将物体移动到目标位置并保持，返回 (target_pos, movement_path)。失败返回 None。
-        """
-        ref_pos = ref_obj.get("position", None)
-        ref_bounds = self.get_object_bounds(ref_obj)
-        target_original_pos = target_obj.get("position", None)
-        if not ref_pos or not ref_bounds or not target_original_pos:
-            return None
-
-        # 场景对象用于碰撞/路径规划
-        event = self.controller.step("Pass")
-        all_objects = event.metadata.get("objects", [])
-
-        # 获取相机方向向量
-        directions = self.get_camera_direction_vectors()
-        ground_height = 0.1  # 地面高度
-
-        # 选择主方向
-        if relation == "behind":
-            base_dir = directions["forward"]
-        elif relation == "in front of":
-            base_dir = directions["backward"]
-        elif relation == "to the left of":
-            base_dir = directions["left"]
-        elif relation == "to the right of":
-            base_dir = directions["right"]
-        else:
-            return None
-
-        # 候选偏移（米）
-        offset_list = [0.2, 0.3, 0.4, 0.5, 0.6, 0.75, 0.9, 1.0, 1.2, 1.5]
-
-        # 目标物体原始位置
-        orig_pos = target_obj.get("position", {}).copy()
-
-        for d in offset_list:
-            cand_x = ref_pos["x"] + base_dir["x"] * d
-            cand_z = ref_pos["z"] + base_dir["z"] * d
-            target_pos = {"x": cand_x, "y": ground_height, "z": cand_z}
-
-            # 与原始位置的水平距离>2m
-            dx = target_pos["x"] - orig_pos.get("x", 0)
-            dz = target_pos["z"] - orig_pos.get("z", 0)
-            distance_from_orig = (dx * dx + dz * dz) ** 0.5
-            if distance_from_orig <= 2.0:
-                continue
-
-            # 终点碰撞检查
-            if self.check_collision_with_objects(target_pos, target_obj, all_objects):
-                print(f"  Target position would cause collision, skipping...")
-                continue
-
-            # 规划地面移动轨迹（xz）
-            start_xy = {"x": orig_pos.get("x", 0), "y": ground_height, "z": orig_pos.get("z", 0)}
-            path = self.plan_ground_path(start_xy, target_pos, target_obj, all_objects)
-            if not path or len(path) < 2:
-                print("  No collision-free ground path found, skipping...")
-                continue
-
-            # 实际移动到候选位置，验证可见性（改为 PlaceObjectAtPoint）
-            original_pos = target_obj["position"].copy()
-            target_id = target_obj.get("objectId") or target_obj.get("name")
-            move_event = self.controller.step(
-                action="PlaceObjectAtPoint",
-                objectId=target_id,
-                position=target_pos,
-            )
-            assert move_event.metadata["lastActionSuccess"]
-
-            check_event = self.controller.step("Pass")
-            moved_obj = None
-            for obj in check_event.metadata["objects"]:
-                if obj.get("name") == target_obj.get("name"):
-                    moved_obj = obj
-                    break
-            is_visible = moved_obj and self.is_object_visible(moved_obj)
-
-            if is_visible:
-                return (target_pos, path)
-            else:
-                # 若不可见，恢复原位（PlaceObjectAtPoint 将物体放回原位置表面）
-                target_id = target_obj.get("objectId") or target_obj.get("name")
-                self.controller.step(
-                    action="PlaceObjectAtPoint",
-                    objectId=target_id,
-                    position=original_pos,
-                )
-                # 如需严格恢复朝向，可在此后追加一次 SetObjectPoses 仅改 rotation
-                print("  Target position is not visible, skipping...")
-
-        return None
 
     def is_object_visible(self, obj, percent: float = None, save_filtered_path: str = '/home/zihanhuang/VAGEN/rearrangement_dataset/images'):
         """检查物体是否在当前视角中可见。
@@ -524,71 +229,7 @@ class TaskGenerator:
             return visible_ratio_percent >= float(percent)
         else:
             return base_visible
-    def get_object_bounds(self, obj):
-        """获取物体的边界框"""
-        if "axisAlignedBoundingBox" in obj:
-            bbox = obj["axisAlignedBoundingBox"]
-            if "cornerPoints" in bbox and bbox["cornerPoints"]:
-                corners = bbox["cornerPoints"]
-                # Handle different corner point formats
-                try:
-                    if isinstance(corners[0], dict):
-                        # Format: [{"x": 1, "y": 2, "z": 3}, ...]
-                        min_x = min(p["x"] for p in corners)
-                        max_x = max(p["x"] for p in corners)
-                        min_y = min(p["y"] for p in corners)
-                        max_y = max(p["y"] for p in corners)
-                        min_z = min(p["z"] for p in corners)
-                        max_z = max(p["z"] for p in corners)
-                    else:
-                        # Format: [[x, y, z], ...]
-                        min_x = min(p[0] for p in corners)
-                        max_x = max(p[0] for p in corners)
-                        min_y = min(p[1] for p in corners)
-                        max_y = max(p[1] for p in corners)
-                        min_z = min(p[2] for p in corners)
-                        max_z = max(p[2] for p in corners)
-                    return {
-                        "min_x": min_x, "max_x": max_x,
-                        "min_y": min_y, "max_y": max_y,
-                        "min_z": min_z, "max_z": max_z
-                    }
-                except (KeyError, IndexError, TypeError) as e:
-                    print(f"Error parsing bounding box for {obj.get('objectType', 'unknown')}: {e}")
 
-        # Fallback: use object position with default size
-        if "position" in obj:
-            pos = obj["position"]
-            size = 0.5  # Default size
-            return {
-                "min_x": pos["x"] - size,
-                "max_x": pos["x"] + size,
-                "min_y": pos["y"],
-                "max_y": pos["y"] + size,
-                "min_z": pos["z"] - size,
-                "max_z": pos["z"] + size
-            }
-        return None
-
-    def can_place_object(self, target_obj, ref_obj, relation):
-        """检查是否可以根据空间关系放置物体"""
-        # Check if target object is pickupable
-        if not target_obj.get("pickupable", False):
-            return False
-
-        ref_bounds = self.get_object_bounds(ref_obj)
-        if not ref_bounds:
-            return False
-
-        # 根据空间关系检查是否有足够空间
-        margin = 0.5  # 安全边距
-
-        if relation in ["behind", "in front of"]:
-            return abs(ref_bounds["max_z"] - ref_bounds["min_z"]) > margin
-        elif relation in ["to the left of", "to the right of"]:
-            return abs(ref_bounds["max_x"] - ref_bounds["min_x"]) > margin
-
-        return True
 
     def find_good_viewpoint(self, max_attempts=50):
         """按照0.5米最小间隔、避开碰撞点，筛选可见的地面物体中
@@ -628,7 +269,7 @@ class TaskGenerator:
         print(f"Evaluating {total_candidates} viewpoint candidates ...")
 
         best_viewpoint = None
-        max_ground_objects = -1
+        max_objects = -1
         candidate_count = 0
 
         for pos in selected_positions:
@@ -644,17 +285,18 @@ class TaskGenerator:
                 if not event.metadata.get("lastActionSuccess", False):
                     continue
 
+                visible_objects, ground_objects = self.get_visible_and_ground_objects()
                 # 统计当前视角的对象（仅考虑可移动的地面物体）
                 movable_objs = self.get_visible_and_moveable_objects()
 
                 # 仅保留 movable > 3 的视角
-                if len(movable_objs) > 3:
-                    if len(movable_objs) > max_ground_objects:
-                        max_ground_objects = len(movable_objs)
+                if len(movable_objs) > 0:
+                    if len(visible_objects) > max_objects:
+                        max_objects = len(visible_objects)
                         best_viewpoint = {
                             "position": {"x": pos["x"], "y": pos["y"], "z": pos["z"]},
                             "rotation": {"x": 0, "y": rotation_y, "z": 0},
-                            "total_ground_objects": len(movable_objs),
+                            "total_visible_objects": len(visible_objects),
                             "movable_count": len(movable_objs)
                         }
                         print(
@@ -666,7 +308,7 @@ class TaskGenerator:
                 if candidate_count % 200 == 0:
                     print(
                         f"Progress: {candidate_count}/{total_candidates}, "
-                        f"current best total_ground={max_ground_objects if max_ground_objects>=0 else 0}"
+                        f"current best total_ground={max_objects if max_objects>=0 else 0}"
                     )
 
         if best_viewpoint:
@@ -679,103 +321,29 @@ class TaskGenerator:
             print(
                 f"Final best viewpoint: pos=({best_viewpoint['position']['x']:.2f},{best_viewpoint['position']['z']:.2f}), "
                 f"rotation={best_viewpoint['rotation']['y']}°, movable={best_viewpoint['movable_count']}, "
-                f"total_ground={best_viewpoint['total_ground_objects']}"
+                f"total_visible_objects={best_viewpoint['total_visible_objects']}"
             )
         else:
             print("No valid viewpoint (movable>3) found under 0.5m spacing.")
 
         return best_viewpoint
 
-    def check_collision_with_objects(self, target_position, target_obj, all_objects):
-        """检查目标位置是否与其他物体发生碰撞"""
-        # 获取目标物体的边界框大小
-        target_bounds = self.get_object_bounds(target_obj)
-        if not target_bounds:
-            return True  # 如果无法获取边界框，保守地认为有碰撞
-
-        # 计算目标物体在新位置的边界框
-        target_width = target_bounds["max_x"] - target_bounds["min_x"]
-        target_depth = target_bounds["max_z"] - target_bounds["min_z"]
-        target_height = target_bounds["max_y"] - target_bounds["min_y"]
-
-        # 目标物体在新位置的边界框
-        new_target_bounds = {
-            "min_x": target_position["x"] - target_width / 2,
-            "max_x": target_position["x"] + target_width / 2,
-            "min_z": target_position["z"] - target_depth / 2,
-            "max_z": target_position["z"] + target_depth / 2,
-            "min_y": target_position["y"],
-            "max_y": target_position["y"] + target_height
-        }
-
-        # 安全边距
-        safety_margin = 0.1  # 10厘米安全距离
-
-        # 检查与所有其他物体的碰撞
-        for obj in all_objects:
-            # 跳过目标物体本身（以 name 作为唯一凭证）
-            if obj.get("name") and target_obj.get("name") and obj["name"] == target_obj["name"]:
-                continue
-
-            # 只检查可见的物体
-            if not self.is_object_visible(obj):
-                continue
-
-            # 忽略地板（objectType 可能形如 Floor555），与之不进行碰撞计算
-            obj_type_lower = str(obj.get("objectType", "")).lower()
-            if re.match(r"^floor[0-9]*$", obj_type_lower):
-                continue
-
-            obj_bounds = self.get_object_bounds(obj)
-            if not obj_bounds:
-                continue
-
-            # 检查3D边界框重叠（加上安全边距）
-            if (new_target_bounds["max_x"] + safety_margin > obj_bounds["min_x"] and
-                new_target_bounds["min_x"] - safety_margin < obj_bounds["max_x"] and
-                new_target_bounds["max_z"] + safety_margin > obj_bounds["min_z"] and
-                new_target_bounds["min_z"] - safety_margin < obj_bounds["max_z"] and
-                new_target_bounds["max_y"] + safety_margin > obj_bounds["min_y"] and
-                new_target_bounds["min_y"] - safety_margin < obj_bounds["max_y"]):
-
-                # print(f"  Collision detected with {obj['objectType']} at position ({obj['position']['x']:.2f}, {obj['position']['z']:.2f})")
-                return True  # 发现碰撞
-
-        return False  # 没有碰撞
-
-    def plan_ground_path(self, start_pos, goal_pos, target_obj, all_objects, grid_size=0.2, padding=2.0):
-        """在地面上为目标物体规划一条无碰撞轨迹（xz 平面上的路径）。
-        - 使用简单的二维A*（8邻接）
-        - 使用目标物体的占地尺寸考虑碰撞（不添加额外安全边距）
-        - 返回路径点列表（包含起点和终点），每个点为 {x,y,z}
-        - 返回 None 表示无可行路径
+    def plan_ground_path(self, start_pos, goal_pos, target_obj, step_size=0.25, padding=2.0):
+        """在地面上为目标物体规划一条无碰撞轨迹（xz 平面）。
+        A* 算法 + 4 邻接，网格步长为 step_size（默认 0.25m）。
+        每个网格点是否可行通过 PlaceObjectAtPoint 尝试判断（成功=可行），
+        尝试后立即将物体放回 original_pos，避免污染场景。
+        返回路径点列表（包含起点和终点），每个点为 {x,y,z}；无路则返回 None。
         """
         import heapq
         import math
 
-        # 估算目标物体在 xz 平面的占地尺寸（半宽半深）
-        tb = self.get_object_bounds(target_obj) or {"min_x": 0, "max_x": 0, "min_z": 0, "max_z": 0}
+        target_id = target_obj.get("objectId") or target_obj.get("name")
+        ground_y = start_pos.get("y", 0.1)
+        base_rot = target_obj["rotation"]
 
-        # 收集障碍（不包含目标自身、也不把地板当障碍），不做额外膨胀
-        obstacles = []
-        for obj in (all_objects or []):
-            if obj.get("name") == target_obj.get("name"):
-                continue
-            obj_type_lower = str(obj.get("objectType", "")).lower()
-            if re.match(r"^floor[0-9]*$", obj_type_lower):
-                continue
-            ob = self.get_object_bounds(obj)
-            if not ob:
-                continue
-            # 直接使用障碍物自身边界（不膨胀）
-            obstacles.append({
-                "min_x": ob["min_x"],
-                "max_x": ob["max_x"],
-                "min_z": ob["min_z"],
-                "max_z": ob["max_z"],
-            })
 
-        # 规划区域边界（围绕起终点加 padding）
+        # 搜索边界（围绕起终点加 padding）
         min_x = min(start_pos["x"], goal_pos["x"]) - padding
         max_x = max(start_pos["x"], goal_pos["x"]) + padding
         min_z = min(start_pos["z"], goal_pos["z"]) - padding
@@ -784,49 +352,57 @@ class TaskGenerator:
         def in_bounds(x, z):
             return (min_x <= x <= max_x) and (min_z <= z <= max_z)
 
-        def blocked(x, z):
-            # 判断点是否落在任一膨胀障碍之内
-            for ob in obstacles:
-                if ob["min_x"] <= x <= ob["max_x"] and ob["min_z"] <= z <= ob["max_z"]:
-                    return True
-            return False
-
-        # 网格坐标映射
+        # 网格映射
         def world_to_grid(x, z):
-            gx = int(round((x - min_x) / grid_size))
-            gz = int(round((z - min_z) / grid_size))
+            gx = int(round((x - min_x) / step_size))
+            gz = int(round((z - min_z) / step_size))
             return gx, gz
 
         def grid_to_world(gx, gz):
-            x = min_x + gx * grid_size
-            z = min_z + gz * grid_size
+            x = min_x + gx * step_size
+            z = min_z + gz * step_size
             return x, z
+
+        # 可行性判定缓存
+        passable_cache = {}
+        def is_passable(gx, gz):
+            key = (gx, gz)
+            if key in passable_cache:
+                return passable_cache[key]
+            wx, wz = grid_to_world(gx, gz)
+            if not in_bounds(wx, wz):
+                passable_cache[key] = False
+                return False
+            ev = self.controller.step(
+                action="PlaceObjectAtPoint",
+                objectId=target_id,
+                position={"x": wx, "y": ground_y, "z": wz},
+                rotation=base_rot,
+            )
+            ok = bool(ev.metadata.get("lastActionSuccess", False))
+            passable_cache[key] = ok
+            return ok
 
         start_g = world_to_grid(start_pos["x"], start_pos["z"])
         goal_g = world_to_grid(goal_pos["x"], goal_pos["z"])
 
-        # 起终点可行性初检
-        sx, sz = grid_to_world(*start_g)
-        gx, gz = grid_to_world(*goal_g)
-        if not in_bounds(sx, sz) or not in_bounds(gx, gz):
-            return None
-        if blocked(sx, sz) or blocked(gx, gz):
+        # 起终点可行性
+        if not is_passable(*start_g) or not is_passable(*goal_g):
             return None
 
-        # A* 搜索
+        # A*（4邻）
         def h(a, b):
             (x1, z1), (x2, z2) = a, b
             return math.hypot(x1 - x2, z1 - z2)
 
-        neighbors = [(-1, 0), (1, 0), (0, -1), (0, 1),  # 4邻
-                     (-1, -1), (-1, 1), (1, -1), (1, 1)]  # 对角 8邻
+        neighbors = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 
         open_heap = []
         heapq.heappush(open_heap, (0, start_g))
         came_from = {start_g: None}
         g_score = {start_g: 0.0}
 
-        max_nodes = 20000  # 防止无限膨胀
+        max_nodes = 20000
         expansions = 0
 
         while open_heap and expansions < max_nodes:
@@ -836,11 +412,9 @@ class TaskGenerator:
             cx, cz = current
             for dx, dz in neighbors:
                 nx, nz = cx + dx, cz + dz
-                wx, wz = grid_to_world(nx, nz)
-                if not in_bounds(wx, wz) or blocked(wx, wz):
+                if not is_passable(nx, nz):
                     continue
-                step_cost = math.hypot(dx, dz) * grid_size
-                tentative_g = g_score[current] + step_cost
+                tentative_g = g_score[current] + step_size  # 4邻，固定步长
                 if (nx, nz) not in g_score or tentative_g < g_score[(nx, nz)]:
                     g_score[(nx, nz)] = tentative_g
                     priority = tentative_g + h((nx, nz), goal_g)
@@ -851,7 +425,7 @@ class TaskGenerator:
         if goal_g not in came_from:
             return None
 
-        # 回溯路径
+        # 回溯路径（格点->世界坐标）
         path_g = []
         cur = goal_g
         while cur is not None:
@@ -859,19 +433,16 @@ class TaskGenerator:
             cur = came_from[cur]
         path_g.reverse()
 
-        # 转换为世界坐标并设置到地面高度
-        ground_y = 0.1
         path = []
         for gx_i, gz_i in path_g:
             wx, wz = grid_to_world(gx_i, gz_i)
-            path.append({"x": wx, "y": ground_y, "z": wz})
+            path.append({"x": round(wx, 3), "y": ground_y, "z": round(wz, 3)})
 
-        # 可选：路径压缩（保留转折点）
+        # 简单压缩共线点
         def is_colinear(p1, p2, p3, eps=1e-6):
             v1x, v1z = p2["x"] - p1["x"], p2["z"] - p1["z"]
             v2x, v2z = p3["x"] - p2["x"], p3["z"] - p2["z"]
             return abs(v1x * v2z - v1z * v2x) < eps
-
         if len(path) > 2:
             compressed = [path[0]]
             for i in range(1, len(path) - 1):
@@ -881,8 +452,8 @@ class TaskGenerator:
             path = compressed
 
         return path
-    def _convert_path_to_view_relative_moves(self, path, min_segment=0.05):
-        """将世界坐标路径转换为相对于当前相机朝向的前/后/左/右移动序列。
+    def _convert_path_to_view_relative_moves(self, path, min_segment=0.05, quantum=0.25):
+        """将世界坐标路径转换为相对于当前相机朝向的前/后/左/右移动序列，并量化到 0.25m。
         - path: [{x,y,z}, ...]，至少包含两点
         - 返回: [{"dir": one of {forward,backward,left,right}, "meters": float}, ...]
         - 会合并连续相同方向的段
@@ -896,10 +467,11 @@ class TaskGenerator:
         sin_y = math.sin(cam_yaw)
         cos_y = math.cos(cam_yaw)
         def world_to_local(dx, dz):
-            # 将世界坐标增量旋转到以相机为基的局部坐标
-            # forward=+z_local，right=+x_local
-            x_local =  dx *  cos_y + dz * sin_y
-            z_local =  dz *  cos_y - dx * sin_y
+            # 将世界坐标增量投影到以相机为基的局部坐标
+            # forward=+z_local（与相机朝向一致），right=+x_local（相机右手方向）
+            # 局部轴：forward = [sin(y), cos(y)], right = [cos(y), -sin(y)]（仅 xz 分量）
+            x_local = dx * cos_y - dz * sin_y    # = dot(delta, right)
+            z_local = dx * sin_y + dz * cos_y    # = dot(delta, forward)
             return x_local, z_local
         # 生成原子动作：把每一段分解到前/后与左/右两个轴（各自可能为0）
         raw = []
@@ -909,24 +481,31 @@ class TaskGenerator:
             lx, lz = world_to_local(dx, dz)
             # 先处理前/后
             if abs(lz) >= min_segment:
-                raw.append({"dir": "forward" if lz >= 0 else "backward", "meters": round(abs(lz), 3)})
+                raw.append({"dir": "forward" if lz >= 0 else "backward", "meters": abs(lz)})
             # 再处理左/右
             if abs(lx) >= min_segment:
-                raw.append({"dir": "right" if lx >= 0 else "left", "meters": round(abs(lx), 3)})
+                raw.append({"dir": "right" if lx >= 0 else "left", "meters": abs(lx)})
         # 合并同向段
         if not raw:
             return []
         merged = [raw[0]]
         for seg in raw[1:]:
             if seg["dir"] == merged[-1]["dir"]:
-                merged[-1]["meters"] = round(merged[-1]["meters"] + seg["meters"], 3)
+                merged[-1]["meters"] += seg["meters"]
             else:
                 merged.append(seg)
+        # 量化到 0.25m
+        def quantize(x: float, q: float) -> float:
+            return round(round(x / q) * q, 3)
+        for m in merged:
+            m["meters"] = quantize(m["meters"], quantum)
+        # 去除 0 段
+        merged = [m for m in merged if m["meters"] > 0]
         return merged
 
 
 
-    def find_far_visible_position(self, target_obj, min_distance: float = 3.0, max_distance: float = 6.0):
+    def find_far_visible_position(self, target_obj, min_distance: float = 3.0, max_distance: float = 6.0, save_each_move: bool = False):
         """为目标物体寻找一个无遮挡且无碰撞、距离原位置至少 min_distance 的新位置。
         返回 (target_pos, movement_moves) 或 None。
         其中 movement_moves 是相对于“当前视角”的前/后/左/右移动序列，例如：
@@ -935,21 +514,18 @@ class TaskGenerator:
             {"dir": "right", "meters": 0.2},
             ...
         ]
+        如果 save_each_move=True，会按 moves 逐步移动“目标物体”（使用 PlaceObjectAtPoint），
+        在每步后保存一张图片；Agent 视角不会改变。
         """
+
 
         # 获取场景对象
         event = self.controller.step("Pass")
         all_objects = event.metadata.get("objects", [])
-
-        # 原始位置
-        orig_pos = target_obj.get("position", {}).copy()
-        if not orig_pos:
-            return None
-
         # 基于 receptacle 的可放置点生成候选位置
         ground_y = 0.1
         original_pos = target_obj["position"].copy()
-
+        original_rot = target_obj["rotation"].copy()
         # 只使用 Floor 作为 receptacle（允许 Floor、Floor1 等名字）
         def is_floor(otype: str) -> bool:
             tl = str(otype).lower()
@@ -957,89 +533,117 @@ class TaskGenerator:
             return tl=="floor"
         receptacles = [o for o in all_objects if is_floor(o.get("objectType", ""))]
 
-        # 为每个 receptacle 获取可放置坐标
-        candidates = []
+        # 为每个 receptacle 获取可放置坐标并当场验证（无碰撞且可见）
+        target_id = target_obj.get("objectId")
         for rec in receptacles:
             rec_id = rec.get("objectId")
             if not rec_id:
                 continue
-            try:
-                ev = self.controller.step(action="GetSpawnCoordinatesAboveReceptacle", objectId=rec_id, anywhere=False)
-                coords = ev.metadata.get("actionReturn") or []
-            except Exception:
-                coords = []
+            ev = self.controller.step(action="GetSpawnCoordinatesAboveReceptacle", objectId=rec_id, anywhere=False)
+            coords = ev.metadata.get("actionReturn") or []
             for p in coords:
                 # 距离过滤（仅使用 xz 平面距离）
-                dx = p.get("x", 0.0) - orig_pos.get("x", 0.0)
-                dz = p.get("z", 0.0) - orig_pos.get("z", 0.0)
+                dx = p.get("x", 0.0) - original_pos.get("x", 0.0)
+                dz = p.get("z", 0.0) - original_pos.get("z", 0.0)
                 dist = (dx * dx + dz * dz) ** 0.5
                 if dist < float(min_distance):
                     continue
                 if max_distance is not None and dist > float(max_distance):
                     continue
-                candidates.append({"x": p.get("x", 0.0), "y": p.get("y", ground_y), "z": p.get("z", 0.0)})
+                candidate = {"x": p.get("x", 0.0), "y": p.get("y", ground_y), "z": p.get("z", 0.0)}
 
-        # 近处优先：按距离排序
-        # candidates.sort(key=lambda c: (c["x"] - orig_pos.get("x", 0.0)) ** 2 + (c["z"] - orig_pos.get("z", 0.0)) ** 2)
+                # 直接尝试放置（碰撞/可放置判定）
+                move_event = self.controller.step(
+                    action="PlaceObjectAtPoint",
+                    objectId=target_id,
+                    position=candidate,
+                    rotation=original_rot,
+                )
+                if not move_event.metadata.get("lastActionSuccess", False):
+                    continue
 
-        target_id = target_obj.get("objectId") or target_obj.get("name")
-        for candidate in candidates:
-            # 简单碰撞检查
-            # if self.check_collision_with_objects(candidate, target_obj, all_objects):
-            #     continue
+                # 放置成功：可见性用 is_object_visible 直接检查
+                check_event = self.controller.step("Pass")
+                moved_obj = next((o for o in check_event.metadata.get("objects", [])
+                                  if o.get("name") == target_obj.get("name")), None)
+                if not (moved_obj and self.is_object_visible(moved_obj)):
+                    self.controller.step(action="PlaceObjectAtPoint", objectId=target_id, position=original_pos, rotation=original_rot)
+                    continue
 
-            # 规划地面路径（xz）
-            start_xy = {"x": orig_pos.get("x", 0.0), "y": ground_y, "z": orig_pos.get("z", 0.0)}
-            path = self.plan_ground_path(start_xy, candidate, target_obj, all_objects)
-            if not path or len(path) < 2:
-                continue
+                # 可见后再验证是否存在 0.25m / 4邻 A* 可行路径
+                start_xy = {"x": original_pos.get("x"), "y": ground_y, "z": original_pos.get("z")}
+                path = self.plan_ground_path(start_xy, candidate, target_obj)
+                if not path or len(path) < 2:
+                    self.controller.step(action="PlaceObjectAtPoint", objectId=target_id, position=original_pos, rotation=original_rot)
+                    if not self.controller.last_event.metadata.get("lastActionSuccess"):
+                        self.save_viewpoint_image("fail")
+                        raise Exception("Failed to restore original position after failed plan_ground_path.")
+                    continue
+                moves = self._convert_path_to_view_relative_moves(path)
 
-            moves = self._convert_path_to_view_relative_moves(path)
+                # 可选：回放 moves 并保存每一步的图像
+                if save_each_move and moves:
+                    self.controller.step(action="PlaceObjectAtPoint", objectId=target_id, position=original_pos, rotation=original_rot)
+                    self._replay_and_save_moves(moves, target_id)
 
-            # 尝试放置
-            move_event = self.controller.step(
-                action="PlaceObjectAtPoint",
-                objectId=target_id,
-                position=candidate,
-            )
-            if not move_event.metadata.get("lastActionSuccess", False):
-                # 放置失败，尝试下一个候选
-                continue
+                self.controller.step(
+                    action="PlaceObjectAtPoint",
+                    objectId=target_id,
+                    position=candidate,
+                    rotation=original_rot,
+                )
 
-            # 验证可见性
-            check_event = self.controller.step("Pass")
-            moved_obj = None
-            for o in check_event.metadata.get("objects", []):
-                if o.get("name") == target_obj.get("name"):
-                    moved_obj = o
-                    break
-
-            if moved_obj and self.is_object_visible(moved_obj):
                 return (candidate, moves)
-            else:
-                # 恢复原位（尽力而为）
-                self.controller.step(action="PlaceObjectAtPoint", objectId=target_id, position=original_pos)
-                # 继续尝试下一个候选
+
+    def _replay_and_save_moves(self, moves, target_id):
+        """根据 moves 逐步移动“指定目标物体”（用 PlaceObjectAtPoint），每步后保存图片。
+        Agent 位置与视角不变，仅改变目标物体的位置。
+        """
+        if not moves:
+            return
+        # 获取当前场景名作为前缀
+        step_idx = 1
+        # 将 forward/right 相对位移按相机朝向分解到世界坐标
+        import math
+        ev = self.controller.step("Pass")
+        agent = ev.metadata.get("agent", {})
+        rot_y = agent.get("rotation", {}).get("y", 0.0)
+        ang = math.radians(rot_y)
+        fwd = {"x": math.sin(ang), "z": math.cos(ang)}
+        right = {"x": math.cos(ang), "z": -math.sin(ang)}
+        offset = {"x": 0.0, "z": 0.0}
+        # 从当前帧读取目标物体的位置作为基础
+        objs = ev.metadata.get("objects", [])
+        base_pos = None
+        for o in objs:
+            if (o.get("objectId") == target_id) or (o.get("name") == target_id):
+                base_pos = o.get("position", {}).copy()
+                break
+        if base_pos is None:
+            return
+        for m in moves:
+            meters = float(m.get("meters", 0.0))
+            if meters <= 0:
+                continue
+            if m.get("dir") in ("forward", "backward"):
+                s = meters if m["dir"] == "forward" else -meters
+                offset["x"] += fwd["x"] * s
+                offset["z"] += fwd["z"] * s
+            elif m.get("dir") in ("right", "left"):
+                s = meters if m["dir"] == "right" else -meters
+                offset["x"] += right["x"] * s
+                offset["z"] += right["z"] * s
+            new_pos = {"x": base_pos["x"] + offset["x"], "y": base_pos["y"], "z": base_pos["z"] + offset["z"]}
+            self.controller.step(action="PlaceObjectAtPoint", objectId=target_id, position=new_pos)
+            # 保存图片
+            suffix = f"step{step_idx}_{m['dir']}_{meters:.2f}"
+            self.save_viewpoint_image(suffix=suffix)
+            step_idx += 1
 
         return None
 
 
-    def get_object_size(self, obj):
-        """估算物体的大小（基于边界框）"""
-        bounds = self.get_object_bounds(obj)
-        if not bounds:
-            return float('inf')  # 如果无法获取边界框，认为很大
-
-        # 计算物体的体积（长x宽x高的近似）
-        width = bounds["max_x"] - bounds["min_x"]
-        depth = bounds["max_z"] - bounds["min_z"]
-
-        # 使用面积作为大小的度量
-        size = width * depth
-        return size
-
     def get_distance_between_objects(self, obj1, obj2):
-        """计算两个物体之间的距离"""
         pos1 = obj1["position"]
         pos2 = obj2["position"]
 
@@ -1050,48 +654,29 @@ class TaskGenerator:
 
     def is_object_on_ground(self, obj):
         """检查物体是否在地面上或低矮表面上（更宽松的地面检测）"""
-        ground_height = 0.1  # 地面高度
+        ground_height = 0.15  # 地面高度
         obj_y = obj["position"]["y"]
 
-        # 考虑物体的边界框，检查物体底部是否接近地面
-        bounds = self.get_object_bounds(obj)
-        if bounds:
-            bottom_y = bounds["min_y"]
-            # 检查物体底部是否在地面附近（包括低矮表面）
-            is_on_ground = bottom_y <= (ground_height)
-            if obj.get("moveable", False):  # 对于可移动物体，打印调试信息
-                print(f"    {obj['objectType']}: bottom_y={bottom_y:.2f}, ground={ground_height}, on_ground={is_on_ground}")
-            return is_on_ground
-        else:
-            # 如果无法获取边界，使用物体中心位置判断
-            is_on_ground = obj_y <= (ground_height)
-            if obj.get("moveable", False):  # 对于可移动物体，打印调试信息
-                print(f"    {obj['objectType']}: center_y={obj_y:.2f}, ground={ground_height}, on_ground={is_on_ground}")
-            return is_on_ground
+        return obj_y <= ground_height
 
-    def get_all_ground_objects(self):
+    def get_visible_and_ground_objects(self):
         """获取当前视角中所有在地面上的可见物体（包括可移动和不可移动物体）"""
         event = self.controller.step("Pass")
         objects = event.metadata["objects"]
 
         ground_objects = []
-        print("Checking all objects on ground (including furniture and items):")
-
+        visible_objects = []
         for obj in objects:
             if not self.is_object_visible(obj):
                 continue
-
+            visible_objects.append(obj)
             # 检查物体是否在地面上
             if not self.is_object_on_ground(obj):
                 continue
 
             ground_objects.append(obj)
-            obj_type = obj["objectType"]
-            pickupable = obj.get("pickupable", False)
-            print(f"  Found ground object: {obj_type} (pickupable: {pickupable})")
 
-        print(f"Total ground objects: {len(ground_objects)}")
-        return ground_objects
+        return visible_objects, ground_objects
 
     def get_visible_and_moveable_objects(self):
         """获取当前视角中可见的可移动/可拾取地面物体列表（先筛可移动，再判可见）"""
@@ -1100,7 +685,6 @@ class TaskGenerator:
 
         movable = []
 
-        print("Checking movable objects on ground:")
         for obj in objects:
             # 仅考虑地面上的物体
             if not self.is_object_on_ground(obj):
@@ -1113,10 +697,15 @@ class TaskGenerator:
             if not is_movable:
                 continue
 
+            receptacle = obj.get("receptacleObjectIds")
+            if receptacle and len(receptacle) > 0:
+                # 如果任何一个receptacle元素包含非'table'，则跳过此物体
+                if any('table' not in r.lower() for r in receptacle):
+                    continue
+
             # 过滤掉 sofa/table
             obj_type_lower = obj_type.lower()
             if "sofa" in obj_type_lower or "table" in obj_type_lower:
-                print(f"  Skipped movable (contains sofa/table): {obj_type}")
                 continue
 
             # 再做可见性检查（较慢）
@@ -1125,7 +714,6 @@ class TaskGenerator:
 
 
             movable.append(obj)
-            print(f"  Added movable: {obj_type}")
 
         return movable
 
@@ -1157,80 +745,103 @@ class TaskGenerator:
             return None
 
         # 直接按估计体积从小到大选择一个体积较小的目标
-        movable_objs.sort(key=lambda o: self.get_object_size(o))
-        target_obj = movable_objs[0]
-        print(f"  Selected target object (smallest): {target_obj['objectType']}")
+        # movable_objs.sort(key=lambda o: self.get_object_size(o))
+        for target_obj in movable_objs:
+            print(f"  Target Object: {target_obj['objectType']}")
 
-        # 搜索满足 >=3m 且可见的无碰撞位置
-        res = self.find_far_visible_position(target_obj, min_distance=3.0, max_distance=6.0)
-        if not res:
-            print("  No far visible collision-free position found (>=3m).")
-            return None
-        target_pos, movement_path = res
+            # 搜索满足 >=3m 且可见的无碰撞位置
+            res = self.find_far_visible_position(target_obj, min_distance=3.0, max_distance=6.0)
+            if not res:
+                print("  No far visible collision-free position found (>=3m).")
+                continue
+            target_pos, movement_path = res
 
-        # 构造任务（只包含必要信息；before/after 图片由外部保存）
-        task_description = f"Move the {target_obj['objectType'].lower()} to a visible collision-free location at least 3m away."
-        return {
-            "description": task_description,
-            "target_object": {
-                "name": target_obj.get("name"),
-                "type": target_obj.get("objectType"),
-                "original_position": target_obj.get("position"),
-                "final_position": target_pos,
-            },
-            "movement_path": movement_path,
-        }
+            # 构造任务（只包含必要信息；before/after 图片由外部保存）
+            task_description = f"Move the {target_obj['objectType'].lower()} to a visible collision-free location at least 3m away."
+            # 记录 agent 视角位姿
+            ev = self.controller.step("Pass")
+            agent_meta = ev.metadata.get("agent", {})
+            agent_pose = {
+                "position": agent_meta.get("position"),
+                "rotation": agent_meta.get("rotation"),
+            }
+            return {
+                "description": task_description,
+                "agent_view": agent_pose,
+                "target_object": {
+                    "name": target_obj.get("name"),
+                    "type": target_obj.get("objectType"),
+                    "original_position": target_obj.get("position"),
+                    "final_position": target_pos,
+                },
+                "movement_path": movement_path,
+            }
 
     def generate_batch(self, num_tasks=10):
-        """生成一批高质量的任务，每个任务使用独立的场景"""
+        """生成一批高质量的任务，每个任务使用独立的场景。
+        要求：场景不能重复；如可选场景数少于 num_tasks 则抛出错误。
+        """
         tasks = []
 
-        for task_num in range(num_tasks):
-            print(f"\nGenerating task {task_num + 1}/{num_tasks}...")
+        # 准备不重复场景列表
+        all_scenes = [
+            "FloorPlan201", "FloorPlan202", "FloorPlan203", "FloorPlan204", "FloorPlan205",
+            "FloorPlan206", "FloorPlan207", "FloorPlan208", "FloorPlan209", "FloorPlan210",
+            "FloorPlan211", "FloorPlan212", "FloorPlan213", "FloorPlan214", "FloorPlan215",
+            "FloorPlan216", "FloorPlan217", "FloorPlan218", "FloorPlan219", "FloorPlan220",
+            "FloorPlan221", "FloorPlan222", "FloorPlan223", "FloorPlan224", "FloorPlan225",
+            "FloorPlan226", "FloorPlan227", "FloorPlan228", "FloorPlan229", "FloorPlan230",
+        ]
+        if len(all_scenes) < num_tasks:
+            raise ValueError(f"Not enough unique scenes to generate {num_tasks} tasks (available={len(all_scenes)})")
 
-            # 每个任务只随机选择一个场景，若该场景无有效任务则返回 None
-            task = None
+        # 随机抽取不重复的场景
+        chosen_scenes = random.sample(all_scenes, num_tasks)
 
-            print("  Selecting a single random scene...")
-            success = self.generate_scene()
+        for task_num, scene in enumerate(chosen_scenes):
+            print(f"\nGenerating task {task_num + 1}/{num_tasks} for scene {scene}...")
 
-            if not success:
-                print("  Failed to load the randomly selected scene. Returning None for this task.")
+            # 加载指定场景
+            try:
+                event = self.controller.reset(scene=scene)
+            except Exception as e:
+                print(f"  Exception loading scene {scene}: {e}")
+                continue
+            if not event.metadata.get("lastActionSuccess", False):
+                print(f"  Failed to load scene {scene}: {event.metadata.get('errorMessage')}")
+                continue
+            self.current_scene = scene
+
+            # 在该场景中尝试生成任务（只尝试一次）
+            viewpoint = self.find_good_viewpoint()
+            if not viewpoint:
+                print("  No valid viewpoint found in this selected scene. Skipping...")
+                continue
+            self.controller.step(
+                action="Teleport",
+                position=viewpoint["position"],
+                rotation=viewpoint["rotation"]
+            )
+            before_image = self.save_viewpoint_image("before")
+
+            task = self.generate_task_with_validation()
+            if task:
+                task["scene_id"] = scene
+
+                if before_image:
+                    task["before_image"] = before_image
+
+                after_image = self.save_viewpoint_image("after")
+                if after_image:
+                    task["after_image"] = after_image
+
+                # 移除临时数据
+                task.pop("target_obj_data", None)
+                task.pop("ref_obj_data", None)
+
+                print(f"  ✅ Successfully generated task: {task['description']}")
             else:
-                # 在该场景中尝试生成任务（只尝试一次）
-                # 先寻找最佳视角，并显式 Teleport 到该视角，再保存移动前的图片
-                viewpoint = self.find_good_viewpoint()
-                if not viewpoint:
-                    print("  No valid viewpoint found in this selected scene. Returning None for this task.")
-                    continue
-                self.controller.step(
-                    action="Teleport",
-                    position=viewpoint["position"],
-                    rotation=viewpoint["rotation"]
-                )
-                before_image = self.save_viewpoint_image("before")
-
-                task = self.generate_task_with_validation()
-                if task:
-                    task["scene_id"] = f"scene_{task_num + 1}"
-
-                    # 如果有 before 图片则记录
-                    if before_image:
-                        task["before_image"] = before_image
-
-                    # generate_task_with_validation 内部已完成最终移动与验证
-                    # 此处仅保存移动后图片（以 FloorPlan 名称命名）
-                    after_image = self.save_viewpoint_image("after")
-                    if after_image:
-                        task["after_image"] = after_image
-
-                    # 移除临时数据
-                    task.pop("target_obj_data", None)
-                    task.pop("ref_obj_data", None)
-
-                    print(f"  ✅ Successfully generated task: {task['description']}")
-                else:
-                    print("  No valid task found in this selected scene. Returning None for this task.")
+                print("  No valid task found in this selected scene. Returning None for this task.")
 
             if task:
                 tasks.append(task)
@@ -1240,20 +851,26 @@ class TaskGenerator:
 
         return tasks
 
-def generate_one_task_threadsafe(output_dir: str, seed: int, index: int):
+def generate_one_task_threadsafe(output_dir: str, seed: int, index: int, scene: str):
     """在线程中生成一个任务。每个线程内部创建独立的 Controller，避免共享状态。
+    该版本接收预分配的唯一 scene，确保多线程多任务时不重复场景。
     返回任务字典或 None。
     """
     gen = None
     try:
         gen = TaskGenerator(output_dir=output_dir, seed=seed)
-        print(f"\n[Thread-{index}] Generating task with seed={seed}...")
+        print(f"\n[Thread-{index}] Generating task with seed={seed} for scene={scene}...")
 
-        task = None
-        success = gen.generate_scene()
-        if not success:
-            print(f"[Thread-{index}] Failed to load a scene.")
+        # 加载指定的唯一场景
+        try:
+            event = gen.controller.reset(scene=scene)
+        except Exception as e:
+            print(f"[Thread-{index}] Exception loading scene {scene}: {e}")
             return None
+        if not event.metadata.get("lastActionSuccess", False):
+            print(f"[Thread-{index}] Failed to load scene {scene}: {event.metadata.get('errorMessage')}")
+            return None
+        gen.current_scene = scene
 
         viewpoint = gen.find_good_viewpoint()
         if not viewpoint:
@@ -1276,7 +893,7 @@ def generate_one_task_threadsafe(output_dir: str, seed: int, index: int):
             print(f"[Thread-{index}] No valid task generated in this scene.")
             return None
 
-        task["scene_id"] = f"scene_{index + 1}"
+        task["scene_id"] = scene
         if before_image:
             task["before_image"] = before_image
 
@@ -1309,7 +926,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate rearrangement tasks dataset")
     parser.add_argument("--output_dir", type=str, default="./rearrangement_dataset",
                        help="Output directory for the dataset")
-    parser.add_argument("--num_tasks", type=int, default=1)
+    parser.add_argument("--num-tasks", type=int, default=1)
     parser.add_argument("--seed", type=int, default=42,
                        help="Random seed for reproducibility")
     parser.add_argument("--num_workers", type=int, default=32,
@@ -1328,17 +945,22 @@ if __name__ == "__main__":
     tasks = []
 
     if args.num_workers and args.num_workers > 1:
-        # 并行路径：每个线程独立创建 TaskGenerator 和 Controller
+        # 并行路径：预分配不重复场景，一一对应到线程任务
         os.makedirs(os.path.join(args.output_dir, "images"), exist_ok=True)
         print("Running in parallel with ThreadPoolExecutor...")
+        
+        if len(all_scenes) < args.num_tasks:
+            raise ValueError(f"Not enough unique scenes to generate {args.num_tasks} tasks (available={len(all_scenes)})")
+        chosen_scenes = random.sample(all_scenes, args.num_tasks)
         with ThreadPoolExecutor(max_workers=args.num_workers) as executor:
             futures = []
-            for i in range(args.num_tasks):
+            for i, scene in enumerate(chosen_scenes):
                 futures.append(executor.submit(
                     generate_one_task_threadsafe,
                     args.output_dir,
                     args.seed + i,
-                    i
+                    i,
+                    scene,
                 ))
             for fut in futures:
                 res = fut.result()
