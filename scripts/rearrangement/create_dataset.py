@@ -6,7 +6,7 @@ import numpy as np
 import os
 from PIL import Image
 import re
-
+import time
 from concurrent.futures import ThreadPoolExecutor
 all_scenes = [
     # 厨房场景 (FloorPlan1-30)
@@ -18,7 +18,7 @@ all_scenes = [
     # "FloorPlan26", "FloorPlan27", "FloorPlan28", "FloorPlan29", "FloorPlan30",
 
     # 客厅场景 (FloorPlan201-230)
-    # "FloorPlan211",
+    # "FloorPlan225",
     "FloorPlan201", "FloorPlan202", "FloorPlan203", "FloorPlan204", "FloorPlan205",
     "FloorPlan206", "FloorPlan207", "FloorPlan208", "FloorPlan209", "FloorPlan210",
     "FloorPlan211", "FloorPlan212", "FloorPlan213", "FloorPlan214", "FloorPlan215",
@@ -57,7 +57,7 @@ class TaskGenerator:
             snapToGrid=False,
             rotateStepDegrees=90,
             renderDepthImage=False,
-            renderInstanceSegmentation=False,
+            renderInstanceSegmentation=True,
             width=960,
             height=540,
             platform=CloudRendering,
@@ -78,25 +78,19 @@ class TaskGenerator:
         例如：<prefix>_FloorPlan201_before.png
         """
         try:
-            # 获取当前帧
-            event = self.controller.step("Pass")
-            if event.metadata["lastActionSuccess"]:
-                # 转换为PIL图片
-                image = Image.fromarray(event.frame)
+            # 转换为PIL图片
+            image = Image.fromarray(self.controller.last_event.frame)
 
-                # 基于当前场景名生成文件名
-                scene_name = getattr(self, "current_scene", "scene")
-                base = f"{scene_name}_{suffix}.png"
-                filename = f"{prefix}_{base}" if prefix else base
-                filepath = os.path.join(self.images_dir, filename)
+            # 基于当前场景名生成文件名
+            scene_name = getattr(self, "current_scene", "scene")
+            base = f"{scene_name}_{suffix}.png"
+            filename = f"{prefix}_{base}" if prefix else base
+            filepath = os.path.join(self.images_dir, filename)
 
-                # 保存图片
-                image.save(filepath)
-                print(f"Saved image: {filepath}")
-                return filename
-            else:
-                print("Failed to capture image for current scene")
-                return None
+            # 保存图片
+            image.save(filepath)
+            print(f"Saved image: {filepath}")
+            return filename
         except Exception as e:
             print(f"Error saving image for current scene: {e}")
             return None
@@ -116,8 +110,24 @@ class TaskGenerator:
         )
         if not base_visible:
             return False
+        # 额外约束：物体需在相机前方至少 1.25 米
+        ev = getattr(self.controller, "last_event", None) or self.controller.step("Pass")
+        agent = ev.metadata.get("agent", {})
+        agent_pos = agent.get("position", {})
+        agent_rot = agent.get("rotation", {})
+        obj_pos = obj.get("position", {})
+        if all(k in agent_pos for k in ("x", "z")) and all(k in obj_pos for k in ("x", "z")) and "y" in agent_rot:
+            import math
+            yaw_rad = math.radians(agent_rot["y"])
+            fwd_x, fwd_z = math.sin(yaw_rad), math.cos(yaw_rad)
+            dx = obj_pos["x"] - agent_pos["x"]
+            dz = obj_pos["z"] - agent_pos["z"]
+            forward_dist = dx * fwd_x + dz * fwd_z
+            if forward_dist < 1.25 - 1e-6:
+                return False
+        
         if percent is None:
-            return base_visible
+            return True
 
         # 需要实例分割来统计像素占比
         if not self.controller.initialization_parameters.get("renderInstanceSegmentation", False):
@@ -128,7 +138,8 @@ class TaskGenerator:
         frame = getattr(event, "frame", None)
         if frame is None:
             return base_visible
-
+        H, W = frame.shape[0], frame.shape[1]
+        total_pixels = float(H * W)
         # 当前场景下的可见像素
         visible_pixels = 0
         inst_masks = getattr(event, "instance_masks", None)
@@ -138,97 +149,22 @@ class TaskGenerator:
                 visible_pixels = int(np.sum(inst_masks[obj_id]))
             except Exception:
                 visible_pixels = 0
-        # 若提供保存路径：同时保存原图与掩码过滤图（以 objectType 命名）
-        if save_filtered_path and inst_masks and obj_id in inst_masks and inst_masks[obj_id] is not None:
-            try:
-                obj_type = obj.get("objectType")
-                os.makedirs(save_filtered_path, exist_ok=True)
-                # 原图
-                original_path = os.path.join(save_filtered_path, f"{obj_type}_original.png")
-                Image.fromarray(frame).save(original_path)
-                # 过滤后图使用随后“仅渲染该物体”的帧保存
-                # 在下方渲染后保存 filtered 图像
-                pass
-            except Exception as e:
-                print(f"Failed to save images to {save_filtered_path}: {e}")
+        # if save_filtered_path and inst_masks and obj_id in inst_masks and inst_masks[obj_id] is not None:
+        #     try:
+        #         obj_type = obj.get("objectType")
+        #         os.makedirs(save_filtered_path, exist_ok=True)
+        #         # 原图
+        #         mask = np.array(inst_masks[obj_id], dtype=bool)
+        #         mask_img = (mask.astype(np.uint8) * 255)
+        #         Image.fromarray(mask_img).save(os.path.join(save_filtered_path, f"{self.current_scene}_{obj_type}_mask.png"))
+        #         pass
+        #     except Exception as e:
+        #         print(f"Failed to save images to {save_filtered_path}: {e}")
 
 
-        # 仅渲染该物体，计算"无遮挡可见像素数"
-        unoccluded_pixels = 0
-        if obj_id:
-            other_ids = []
-            try:
-                # 确保使用当前帧的 target_id（避免 name/id 不一致导致误禁用目标）
-                target_id = None
-                meta_objs = event.metadata.get("objects", []) if hasattr(event, 'metadata') else []
-                for o in meta_objs:
-                    if o.get("objectId") and (o.get("objectId") == obj.get("objectId") or o.get("name") == obj.get("name")):
-                        target_id = o.get("objectId")
-                        break
-                if target_id is None:
-                    target_id = obj_id  # 回退
-
-                # 不禁用结构体，但允许禁用家具（包括父容器），以便去除遮挡
-                structural_types = {"floor", "wall", "walls", "ceiling", "ceilings"}
-                def is_structural(otype: str) -> bool:
-                    return str(otype).lower() in structural_types
-
-                other_ids = []
-                for o in meta_objs:
-                    oid = o.get("objectId")
-                    if not oid or oid == target_id:
-                        continue
-                    if is_structural(o.get("objectType", "")):
-                        continue
-                    other_ids.append(oid)
-
-                # 优先使用 SetObjectFilter 仅渲染目标；失败则回退到 HideObject/SetObjectVisibility
-                try:
-                    # 仅渲染目标物体（不改变物理）
-                    self.controller.step(action="SetObjectFilter", objectIds=[target_id])
-                    assert self.controller.last_event.metadata["lastActionSuccess"]
-                    event_single = self.controller.step("Pass")
-                except Exception:
-                    # 回退方案：逐个隐藏其他物体（优先 HideObject，不行则 SetObjectVisibility）
-                    for oid in other_ids:
-                        try:
-                            self.controller.step(action="HideObject", objectId=oid)
-                        except Exception:
-                            try:
-                                self.controller.step(action="SetObjectVisibility", objectId=oid, visible=False, forceAction=True)
-                            except Exception:
-                                pass
-                    event_single = self.controller.step("Pass")
-
-                inst_masks_single = getattr(event_single, "instance_masks", None)
-                if inst_masks_single and obj_id in inst_masks_single and inst_masks_single[obj_id] is not None:
-                    try:
-                        unoccluded_pixels = int(np.sum(inst_masks_single[obj_id]))
-                    except Exception:
-                        unoccluded_pixels = 0
-            finally:
-                # 恢复所有物体的可见性（渲染层面）
-                for oid in other_ids:
-                    try:
-                        self.controller.step(action="SetObjectVisibility", objectId=oid, visible=True, forceAction=True)
-                    except Exception:
-                        pass
-
-        # 根据可见像素占无遮挡像素的比例判断
-        if unoccluded_pixels > 0:
-            visible_ratio_percent = (visible_pixels / float(unoccluded_pixels)) * 100.0
-            if save_filtered_path:
-                try:
-                    obj_type = obj.get("objectType")
-                    os.makedirs(save_filtered_path, exist_ok=True)
-                    filtered_path = os.path.join(save_filtered_path, f"{obj_type}_filtered.png")
-                    Image.fromarray(event_single.frame).save(filtered_path)
-                    print(f"Saved filtered image: {filtered_path}")
-                except Exception as e:
-                    print(f"Failed to save filtered image to {save_filtered_path}: {e}")
-            return visible_ratio_percent >= float(percent)
-        else:
-            return base_visible
+        visible_ratio = visible_pixels / total_pixels * 100 if total_pixels > 0 else 0
+        # print(visible_ratio)
+        return visible_ratio >= percent
 
 
     def find_good_viewpoint(self, max_attempts=50):
@@ -262,7 +198,6 @@ class TaskGenerator:
                 selected_positions.append({"x": px, "y": p.get("y", 0.9), "z": pz})
 
         print(f"Selected {len(selected_positions)} positions after 0.5m spacing filter (from {len(reachable)} reachable).")
-
         # 四个主要朝向
         rotations = [0, 90, 180, 270]
         total_candidates = len(selected_positions) * len(rotations)
@@ -285,9 +220,9 @@ class TaskGenerator:
                 if not event.metadata.get("lastActionSuccess", False):
                     continue
 
-                visible_objects, ground_objects = self.get_visible_and_ground_objects()
+                visible_objects = self.get_visible_objects()
                 # 统计当前视角的对象（仅考虑可移动的地面物体）
-                movable_objs = self.get_visible_and_moveable_objects()
+                movable_objs = self.get_moveable_objects(visible_objects)
 
                 # 仅保留 movable > 3 的视角
                 if len(movable_objs) > 0:
@@ -308,7 +243,7 @@ class TaskGenerator:
                 if candidate_count % 200 == 0:
                     print(
                         f"Progress: {candidate_count}/{total_candidates}, "
-                        f"current best total_ground={max_objects if max_objects>=0 else 0}"
+                        f"current best visible_ground={max_objects if max_objects>=0 else 0}"
                     )
 
         if best_viewpoint:
@@ -562,11 +497,11 @@ class TaskGenerator:
                 if not move_event.metadata.get("lastActionSuccess", False):
                     continue
 
-                # 放置成功：可见性用 is_object_visible 直接检查
+                # 放置成功：可见性用检查
                 check_event = self.controller.step("Pass")
                 moved_obj = next((o for o in check_event.metadata.get("objects", [])
                                   if o.get("name") == target_obj.get("name")), None)
-                if not (moved_obj and self.is_object_visible(moved_obj)):
+                if not (moved_obj and self.is_object_visible(moved_obj, 0.03)):
                     self.controller.step(action="PlaceObjectAtPoint", objectId=target_id, position=original_pos, rotation=original_rot)
                     continue
 
@@ -577,7 +512,7 @@ class TaskGenerator:
                     self.controller.step(action="PlaceObjectAtPoint", objectId=target_id, position=original_pos, rotation=original_rot)
                     if not self.controller.last_event.metadata.get("lastActionSuccess"):
                         self.save_viewpoint_image("fail")
-                        raise Exception("Failed to restore original position after failed plan_ground_path.")
+                        raise Exception(f"Failed to restore original position after failed plan_ground_path due to {self.controller.last_event.metadata.get('errorMessage')}")
                     continue
                 moves = self._convert_path_to_view_relative_moves(path)
 
@@ -659,31 +594,23 @@ class TaskGenerator:
 
         return obj_y <= ground_height
 
-    def get_visible_and_ground_objects(self):
-        """获取当前视角中所有在地面上的可见物体（包括可移动和不可移动物体）"""
-        event = self.controller.step("Pass")
-        objects = event.metadata["objects"]
-
-        ground_objects = []
+    def get_visible_objects(self, objects= None, percent = None):
+        if objects is None:
+            objects = self.controller.last_event.metadata["objects"]
+        
         visible_objects = []
         for obj in objects:
-            if not self.is_object_visible(obj):
-                continue
-            visible_objects.append(obj)
-            # 检查物体是否在地面上
-            if not self.is_object_on_ground(obj):
-                continue
+            if self.is_object_visible(obj, percent):
+                visible_objects.append(obj)
 
-            ground_objects.append(obj)
-
-        return visible_objects, ground_objects
-
-    def get_visible_and_moveable_objects(self):
+        return visible_objects
+        
+    def get_moveable_objects(self, objects =None):
         """获取当前视角中可见的可移动/可拾取地面物体列表（先筛可移动，再判可见）"""
-        event = self.controller.step("Pass")
-        objects = event.metadata["objects"]
+        if objects is None:
+            objects = self.controller.last_event.metadata["objects"]
 
-        movable = []
+        movable_objects = []
 
         for obj in objects:
             # 仅考虑地面上的物体
@@ -697,10 +624,13 @@ class TaskGenerator:
             if not is_movable:
                 continue
 
+            # Define allowed receptacle types
+            allowed_receptacles = ['table']
+            
             receptacle = obj.get("receptacleObjectIds")
             if receptacle and len(receptacle) > 0:
-                # 如果任何一个receptacle元素包含非'table'，则跳过此物体
-                if any('table' not in r.lower() for r in receptacle):
+                # Check if any receptacle matches our allowed types
+                if not any(any(allowed_type in r.lower() for allowed_type in allowed_receptacles) for r in receptacle):
                     continue
 
             # 过滤掉 sofa/table
@@ -708,14 +638,9 @@ class TaskGenerator:
             if "sofa" in obj_type_lower or "table" in obj_type_lower:
                 continue
 
-            # 再做可见性检查（较慢）
-            if not self.is_object_visible(obj):
-                continue
+            movable_objects.append(obj)
 
-
-            movable.append(obj)
-
-        return movable
+        return movable_objects
 
     def filter_unique_objects(self, objects):
         """仅保留在该列表中类型出现次数为1的物体；并提前排除 floor/curtain 系列对象（可能带编号）"""
@@ -739,7 +664,8 @@ class TaskGenerator:
         - 只需保存移动前/后的两张图（由调用方已处理）
         """
         # 获取可见的地面可移动物体
-        movable_objs = self.get_visible_and_moveable_objects()
+        movable_objs = self.get_moveable_objects()
+        movable_objs = self.get_visible_objects(movable_objs, 0.03)
 
         if not movable_objs:
             return None
@@ -935,6 +861,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    random.seed(args.seed)
     # 单线程或并行生成
     print("Starting task generation...")
     print(f"Random seed: {args.seed}")
@@ -943,7 +870,7 @@ if __name__ == "__main__":
     print(f"Num workers: {args.num_workers}")
 
     tasks = []
-
+    time_start = time.time()
     if args.num_workers and args.num_workers > 1:
         # 并行路径：预分配不重复场景，一一对应到线程任务
         os.makedirs(os.path.join(args.output_dir, "images"), exist_ok=True)
@@ -973,7 +900,8 @@ if __name__ == "__main__":
         tasks = generator.generate_batch(args.num_tasks)
         generator.controller.stop()
 
-
+    time_end = time.time()
+    print(f"Time cost: {time_end - time_start:.2f}s")
     # 保存到JSON文件
     output_file = os.path.join(args.output_dir, "tasks.json")
     with open(output_file, "w") as f:
