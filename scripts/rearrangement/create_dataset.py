@@ -18,13 +18,13 @@ all_scenes = [
     # "FloorPlan26", "FloorPlan27", "FloorPlan28", "FloorPlan29", "FloorPlan30",
 
     # 客厅场景 (FloorPlan201-230)
-    # "FloorPlan225",
-    "FloorPlan201", "FloorPlan202", "FloorPlan203", "FloorPlan204", "FloorPlan205",
-    "FloorPlan206", "FloorPlan207", "FloorPlan208", "FloorPlan209", "FloorPlan210",
-    "FloorPlan211", "FloorPlan212", "FloorPlan213", "FloorPlan214", "FloorPlan215",
-    "FloorPlan216", "FloorPlan217", "FloorPlan218", "FloorPlan219", "FloorPlan220",
-    "FloorPlan221", "FloorPlan222", "FloorPlan223", "FloorPlan224", "FloorPlan225",
-    "FloorPlan226", "FloorPlan227", "FloorPlan228", "FloorPlan229", "FloorPlan230",
+    "FloorPlan201",
+    # "FloorPlan201", "FloorPlan202", "FloorPlan203", "FloorPlan204", "FloorPlan205",
+    # "FloorPlan206", "FloorPlan207", "FloorPlan208", "FloorPlan209", "FloorPlan210",
+    # "FloorPlan211", "FloorPlan212", "FloorPlan213", "FloorPlan214", "FloorPlan215",
+    # "FloorPlan216", "FloorPlan217", "FloorPlan218", "FloorPlan219", "FloorPlan220",
+    # "FloorPlan221", "FloorPlan222", "FloorPlan223", "FloorPlan224", "FloorPlan225",
+    # "FloorPlan226", "FloorPlan227", "FloorPlan228", "FloorPlan229", "FloorPlan230",
 
     # 卧室场景 (FloorPlan301-330)
     # "FloorPlan301", "FloorPlan302", "FloorPlan303", "FloorPlan304", "FloorPlan305",
@@ -94,7 +94,24 @@ class TaskGenerator:
         except Exception as e:
             print(f"Error saving image for current scene: {e}")
             return None
+        
+    def is_in_front_within_distance(self, obj_pos: dict, distance: float) -> bool:
+        """判断目标是否在 agent 朝向的前方带内，且 xz 距离 <= max_distance。"""
+        ev = self.controller.last_event
+        agent = ev.metadata["agent"]
+        apos = agent["position"]
+        arot = agent["rotation"]
 
+        import math
+        yaw = math.radians(arot["y"])
+        fwd_x, fwd_z = math.sin(yaw), math.cos(yaw)
+
+        dx = obj_pos["x"] - apos["x"]
+        dz = obj_pos["z"] - apos["z"]
+        forward_dist = dx * fwd_x + dz * fwd_z
+
+        return forward_dist < distance - 1e-6
+    
     def is_object_visible(self, obj, percent: float = None, save_filtered_path: str = '/home/zihanhuang/VAGEN/rearrangement_dataset/images'):
         """检查物体是否在当前视角中可见。
         当 percent == 0 时，沿用原有判定：obj["visible"] 且距离小于 visibilityDistance。
@@ -105,29 +122,12 @@ class TaskGenerator:
             obj: AI2-THOR 物体元数据字典
             percent: 百分阈值（0-100），基于可见像素/无遮挡像素的比例
         """
-        base_visible = obj.get("visible", False) and (
-            obj.get("distance", float("inf")) < self.controller.initialization_parameters["visibilityDistance"]
-        )
-        if not base_visible:
+        base_visible = obj.get("visible")
+        if percent == None: 
+            return base_visible
+
+        if self.is_in_front_within_distance(obj["position"], 1.25):
             return False
-        # 额外约束：物体需在相机前方至少 1.25 米
-        ev = getattr(self.controller, "last_event", None) or self.controller.step("Pass")
-        agent = ev.metadata.get("agent", {})
-        agent_pos = agent.get("position", {})
-        agent_rot = agent.get("rotation", {})
-        obj_pos = obj.get("position", {})
-        if all(k in agent_pos for k in ("x", "z")) and all(k in obj_pos for k in ("x", "z")) and "y" in agent_rot:
-            import math
-            yaw_rad = math.radians(agent_rot["y"])
-            fwd_x, fwd_z = math.sin(yaw_rad), math.cos(yaw_rad)
-            dx = obj_pos["x"] - agent_pos["x"]
-            dz = obj_pos["z"] - agent_pos["z"]
-            forward_dist = dx * fwd_x + dz * fwd_z
-            if forward_dist < 1.25 - 1e-6:
-                return False
-        
-        if percent is None:
-            return True
 
         # 需要实例分割来统计像素占比
         if not self.controller.initialization_parameters.get("renderInstanceSegmentation", False):
@@ -285,7 +285,7 @@ class TaskGenerator:
         max_z = max(start_pos["z"], goal_pos["z"]) + padding
 
         def in_bounds(x, z):
-            return (min_x <= x <= max_x) and (min_z <= z <= max_z)
+            return (min_x <= x <= max_x) and (min_z <= z <= max_z) and not self.is_in_front_within_distance({"x": x, "z": z}, 1.25)
 
         # 网格映射
         def world_to_grid(x, z):
@@ -682,8 +682,6 @@ class TaskGenerator:
                 continue
             target_pos, movement_path = res
 
-            # 构造任务（只包含必要信息；before/after 图片由外部保存）
-            task_description = f"Move the {target_obj['objectType'].lower()} to a visible collision-free location at least 3m away."
             # 记录 agent 视角位姿
             ev = self.controller.step("Pass")
             agent_meta = ev.metadata.get("agent", {})
@@ -692,91 +690,17 @@ class TaskGenerator:
                 "rotation": agent_meta.get("rotation"),
             }
             return {
-                "description": task_description,
                 "agent_view": agent_pose,
-                "target_object": {
-                    "name": target_obj.get("name"),
-                    "type": target_obj.get("objectType"),
-                    "original_position": target_obj.get("position"),
-                    "final_position": target_pos,
-                },
+                "height": ev.frame.shape[0],
+                "width": ev.frame.shape[1],
+                "target_object_type": target_obj.get("objectType"),
+                "target_object_id": target_obj.get("objectId"),
+                "original_position": target_obj.get("position"),
+                "final_position": target_pos,
                 "movement_path": movement_path,
             }
 
-    def generate_batch(self, num_tasks=10):
-        """生成一批高质量的任务，每个任务使用独立的场景。
-        要求：场景不能重复；如可选场景数少于 num_tasks 则抛出错误。
-        """
-        tasks = []
-
-        # 准备不重复场景列表
-        all_scenes = [
-            "FloorPlan201", "FloorPlan202", "FloorPlan203", "FloorPlan204", "FloorPlan205",
-            "FloorPlan206", "FloorPlan207", "FloorPlan208", "FloorPlan209", "FloorPlan210",
-            "FloorPlan211", "FloorPlan212", "FloorPlan213", "FloorPlan214", "FloorPlan215",
-            "FloorPlan216", "FloorPlan217", "FloorPlan218", "FloorPlan219", "FloorPlan220",
-            "FloorPlan221", "FloorPlan222", "FloorPlan223", "FloorPlan224", "FloorPlan225",
-            "FloorPlan226", "FloorPlan227", "FloorPlan228", "FloorPlan229", "FloorPlan230",
-        ]
-        if len(all_scenes) < num_tasks:
-            raise ValueError(f"Not enough unique scenes to generate {num_tasks} tasks (available={len(all_scenes)})")
-
-        # 随机抽取不重复的场景
-        chosen_scenes = random.sample(all_scenes, num_tasks)
-
-        for task_num, scene in enumerate(chosen_scenes):
-            print(f"\nGenerating task {task_num + 1}/{num_tasks} for scene {scene}...")
-
-            # 加载指定场景
-            try:
-                event = self.controller.reset(scene=scene)
-            except Exception as e:
-                print(f"  Exception loading scene {scene}: {e}")
-                continue
-            if not event.metadata.get("lastActionSuccess", False):
-                print(f"  Failed to load scene {scene}: {event.metadata.get('errorMessage')}")
-                continue
-            self.current_scene = scene
-
-            # 在该场景中尝试生成任务（只尝试一次）
-            viewpoint = self.find_good_viewpoint()
-            if not viewpoint:
-                print("  No valid viewpoint found in this selected scene. Skipping...")
-                continue
-            self.controller.step(
-                action="Teleport",
-                position=viewpoint["position"],
-                rotation=viewpoint["rotation"]
-            )
-            before_image = self.save_viewpoint_image("before")
-
-            task = self.generate_task_with_validation()
-            if task:
-                task["scene_id"] = scene
-
-                if before_image:
-                    task["before_image"] = before_image
-
-                after_image = self.save_viewpoint_image("after")
-                if after_image:
-                    task["after_image"] = after_image
-
-                # 移除临时数据
-                task.pop("target_obj_data", None)
-                task.pop("ref_obj_data", None)
-
-                print(f"  ✅ Successfully generated task: {task['description']}")
-            else:
-                print("  No valid task found in this selected scene. Returning None for this task.")
-
-            if task:
-                tasks.append(task)
-                print(f"Generated task {len(tasks)}: {task['description']}")
-            else:
-                print(f"❌ Task {task_num + 1}: None (no valid scene/view)")
-
-        return tasks
-
+    
 def generate_one_task_threadsafe(output_dir: str, seed: int, index: int, scene: str):
     """在线程中生成一个任务。每个线程内部创建独立的 Controller，避免共享状态。
     该版本接收预分配的唯一 scene，确保多线程多任务时不重复场景。
@@ -819,7 +743,7 @@ def generate_one_task_threadsafe(output_dir: str, seed: int, index: int, scene: 
             print(f"[Thread-{index}] No valid task generated in this scene.")
             return None
 
-        task["scene_id"] = scene
+        task["scene"] = scene
         if before_image:
             task["before_image"] = before_image
 
@@ -831,7 +755,7 @@ def generate_one_task_threadsafe(output_dir: str, seed: int, index: int, scene: 
         task.pop("target_obj_data", None)
         task.pop("ref_obj_data", None)
 
-        print(f"[Thread-{index}] ✅ Task generated: {task['description']}")
+        print(f"[Thread-{index}] ✅ Task generated")
         return task
     except Exception as e:
         print(f"[Thread-{index}] Exception: {e}")
@@ -871,38 +795,32 @@ if __name__ == "__main__":
 
     tasks = []
     time_start = time.time()
-    if args.num_workers and args.num_workers > 1:
-        # 并行路径：预分配不重复场景，一一对应到线程任务
-        os.makedirs(os.path.join(args.output_dir, "images"), exist_ok=True)
-        print("Running in parallel with ThreadPoolExecutor...")
-        
-        if len(all_scenes) < args.num_tasks:
-            raise ValueError(f"Not enough unique scenes to generate {args.num_tasks} tasks (available={len(all_scenes)})")
-        chosen_scenes = random.sample(all_scenes, args.num_tasks)
-        with ThreadPoolExecutor(max_workers=args.num_workers) as executor:
-            futures = []
-            for i, scene in enumerate(chosen_scenes):
-                futures.append(executor.submit(
-                    generate_one_task_threadsafe,
-                    args.output_dir,
-                    args.seed + i,
-                    i,
-                    scene,
-                ))
-            for fut in futures:
-                res = fut.result()
-                if res:
-                    tasks.append(res)
-    else:
-        # 保持原有单线程路径
-        generator = TaskGenerator(output_dir=args.output_dir, seed=args.seed)
-        print(f"Images will be saved to: {generator.images_dir}")
-        tasks = generator.generate_batch(args.num_tasks)
-        generator.controller.stop()
+    # 并行路径：预分配不重复场景，一一对应到线程任务
+    os.makedirs(os.path.join(args.output_dir, "images"), exist_ok=True)
+    print("Running in parallel with ThreadPoolExecutor...")
+    
+    if len(all_scenes) < args.num_tasks:
+        raise ValueError(f"Not enough unique scenes to generate {args.num_tasks} tasks (available={len(all_scenes)})")
+    chosen_scenes = random.sample(all_scenes, args.num_tasks)
+    with ThreadPoolExecutor(max_workers=args.num_workers) as executor:
+        futures = []
+        for i, scene in enumerate(chosen_scenes):
+            futures.append(executor.submit(
+                generate_one_task_threadsafe,
+                args.output_dir,
+                args.seed + i,
+                i,
+                scene,
+            ))
+        for fut in futures:
+            res = fut.result()
+            if res:
+                tasks.append(res)
+   
 
     time_end = time.time()
     print(f"Time cost: {time_end - time_start:.2f}s")
-    # 保存到JSON文件
+
     output_file = os.path.join(args.output_dir, "tasks.json")
     with open(output_file, "w") as f:
         json.dump(tasks, f, indent=2)
@@ -914,6 +832,5 @@ if __name__ == "__main__":
     for i, task in enumerate(tasks, 1):
         before_img = task.get('before_image', 'N/A')
         after_img = task.get('after_image', 'N/A')
-        print(f"Task {i}: {task['description']}")
-        print(f"  Before: {before_img}, After: {after_img}")
+        print(f"Task {i}:  Before: {before_img}, After: {after_img}")
 
