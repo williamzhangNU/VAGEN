@@ -26,10 +26,11 @@ class BaseEnvConfig(ABC):
 @dataclass
 class RearrangementEnvConfig(BaseEnvConfig):
     env_name: str = "rearrangement"
-    resolution: int = 255
+    width: int = 960
+    height: int = 540
     eval_set: str = 'base'
     down_sample_ratio: float = 1.0
-    fov: int = 100
+    fov: int = 90
     multiview: bool = False
     render_mode: str= 'vision'
     max_actions_per_step: int = 5

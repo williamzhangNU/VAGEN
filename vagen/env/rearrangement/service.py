@@ -125,14 +125,7 @@ class RearrangementService(BaseService):
                 return env_id, None, f"Environment {env_id} not found"
 
             try:
-                result = self.environments[env_id].step(action)
-                # Extract components from result
-                observation = result.get('observation', {})
-                reward = result.get('reward', 0.0)
-                done = result.get('done', False)
-                info = {k: v for k, v in result.items() if k not in ['observation', 'reward', 'done']}
-
-                # Serialize observation for transmission
+                observation, reward, done, info = self.environments[env_id].step(action)
                 serialized_observation = serialize_observation(observation)
                 return env_id, (serialized_observation, reward, done, info), None
             except Exception as e:
