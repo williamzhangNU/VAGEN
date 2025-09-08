@@ -48,9 +48,7 @@ class Prompter:
             room: Room,
             agent: Agent,
             eval_manager: Optional[EvaluationManager] = None,
-            cogmap_manager: Optional[CognitiveMapManager] = None,
-            exp_history = None,
-            **kwargs
+            exp_history = None
         ) -> dict:
         """
         Generates the initial observation prompt based on the exploration type.
@@ -63,26 +61,7 @@ class Prompter:
         if self.config.prompt_config['topdown']:
             room_desc += self._get_topdown_prompt(self.TOPDOWN_PROMPT, room)
 
-        cogmap_instruction = cogmap_manager.get_cognitive_map_instruction() if cogmap_manager else ""
-
-        # Prepare image list in the EXACT order of placeholders
-        exp_imgs = []
-        if (exp_history and isinstance(exp_history, dict)
-            and 'multi_modal_data' in exp_history
-            and self.config.image_placeholder in exp_history['multi_modal_data']):
-            exp_imgs = list(exp_history['multi_modal_data'][self.config.image_placeholder])
-
-        images = []  # start fresh, append strictly by placeholder order
-
-        # Add instruction image first (corresponds to {instruction_example})
-        if self.image_handler:
-            try:
-                images.append(self.image_handler.get_image('instruction'))
-            except Exception:
-                pass
-
-        # Text placeholder for {instruction_example}
-        instruction_example_str = self.config.image_placeholder
+        images = [self.image_handler.get_image('instruction')]
 
         if self.config.exp_type == 'active':
             exp_instructions = ActionSequence.get_usage_instructions() + f"\n\nYou have a maximum of {self.config.max_exp_steps} exploration steps."
@@ -90,49 +69,30 @@ class Prompter:
             obs_str = active_instruction.format(
                 room_info=room_desc,
                 exp_instructions=exp_instructions,
-                cogmap_instruction=cogmap_instruction,
-                instruction_example=instruction_example_str
+                instruction_example=self.config.image_placeholder
             )
 
-            if self.config.prompt_config.get('cogmap', False):
-                obs_str += '\n' + self.COGMAP_EXP_REQUIRED_INSTRUCTION
-
             # Add topdown image if enabled (after instruction image)
-            if self.config.prompt_config['topdown'] and self.image_handler:
+            if self.config.prompt_config['topdown']:
                 images.append(self.image_handler.get_image('topdown'))
 
             result['multi_modal_data'] = {self.config.image_placeholder: images}
 
         else:
-            # PASSIVE mode
-            include_history = not (self.config.prompt_config['topdown'])
-
-            if include_history:
-                exp_history_str = f"## Exploration History\n{exp_history.get('obs_str', '')}" \
-                                if isinstance(exp_history, dict) else ""
-            else:
+            if self.config.prompt_config['topdown']:
                 exp_history_str = ""
+                images.append(self.image_handler.get_image('topdown'))
+            else:
+                exp_history_str = f"## Exploration History\n{exp_history['obs_str']}"
+                images.extend(exp_history['multi_modal_data'][self.config.image_placeholder])
 
             obs_str = self.PASSIVE_INSTRUCTION.format(
                 room_info=room_desc,
                 exp_history=exp_history_str,
-                cogmap_instruction=cogmap_instruction,
-                instruction_example=instruction_example_str
+                instruction_example=self.config.image_placeholder
             )
-
-            if self.config.prompt_config.get('cogmap', False):
-                obs_str += '\n' + self.COGMAP_EVAL_REQUIRED_INSTRUCTION
-
-            if eval_manager is not None:
-                obs_str += f"\n{self.get_evaluation_prompt(eval_manager)}"
-
-            # Add images in placeholder order
-            if self.image_handler and self.config.prompt_config['topdown']:
-                images.append(self.image_handler.get_image('topdown'))
             
-            # Add exploration history images if included
-            if include_history and exp_imgs:
-                images.extend(exp_imgs)
+            obs_str += f"\n{self.get_evaluation_prompt(eval_manager)}"
 
             result['multi_modal_data'] = {self.config.image_placeholder: images}
 

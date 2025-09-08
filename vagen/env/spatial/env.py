@@ -1,67 +1,27 @@
 import gymnasium as gym
 import numpy as np
-import os
-import shutil
-from typing import Optional, List, Dict, Any
-from dataclasses import dataclass, field
+from typing import List, Dict, Any
 
 from vagen.env.spatial.env_config import SpatialGymConfig
 from vagen.env.spatial.Base.tos_base import (
     EvaluationManager,
-    EvaluationTurnLog,
-    Room,
     ActionSequence,
     ExplorationManager,
-    ExplorationTurnLog,
     CognitiveMapManager,
-    CognitiveMapTurnLog,
     HistoryManager,
     RoomGenerator,
     BaseAction,
     ObserveAction,
-    Agent,
 )
 from vagen.env.spatial.Base.tos_base.managers.agent_proxy import get_agent_proxy
 from vagen.env.spatial.prompts import Prompter
 from vagen.env.spatial.Base.tos_base.utils.action_utils import action_results_to_text
 from vagen.env.spatial.utils.initialize_room import initialize_room_from_json
-from vagen.env.utils.parse_utils import parse_freethink
+from vagen.env.spatial.Base.tos_base.utils.env_logger import EnvTurnLog
+from vagen.env.spatial.Base.tos_base.utils.utils import extract_think_and_answer
 from vagen.env.spatial.utils.image_handler import ImageHandler
-from ragen.env.spatial.Base.tos_base.actions.actions import ForcedTermAction, ActionSequence
+from vagen.env.spatial.Base.tos_base.actions.actions import ForcedTermAction, ActionSequence
 
-@dataclass
-class EnvTurnLog:
-    """Log data for a single environment turn."""
-    turn_number: int
-    user_message: str = ""  # Environment observation
-    assistant_raw_message: str = ""  # Raw assistant input
-    assistant_think_message: str = ""  # Think part of assistant message
-    assistant_parsed_message: str = ""  # Parsed assistant action
-    is_exploration_phase: bool = False
-    exploration_log: Optional["ExplorationTurnLog"] = None
-    evaluation_log: Optional["EvaluationTurnLog"] = None
-    cogmap_log: Optional["CognitiveMapTurnLog"] = None
-    cogmap_final_log: Optional["CognitiveMapTurnLog"] = None
-    room_state: Optional["Room"] = None
-    agent_state: Optional["Agent"] = None
-    info: Dict[str, Any] = field(default_factory=dict)
-
-    def to_dict(self):
-        return {
-            "turn_number": self.turn_number,
-            "user_message": self.user_message,
-            "assistant_raw_message": self.assistant_raw_message,
-            "assistant_think_message": self.assistant_think_message,
-            "assistant_parsed_message": self.assistant_parsed_message,
-            "is_exploration_phase": self.is_exploration_phase,
-            "exploration_log": self.exploration_log.to_dict() if self.exploration_log else {},
-            "evaluation_log": self.evaluation_log.to_dict() if self.evaluation_log else {},
-            "cogmap_log": self.cogmap_log.to_dict() if self.cogmap_log else {},
-            "cogmap_final_log": self.cogmap_final_log.to_dict() if self.cogmap_final_log else {},
-            "room_state": self.room_state.to_dict() if self.room_state else {},
-            "agent_state": self.agent_state.to_dict() if self.agent_state else {},
-            "info": self.info
-        }
 
 class SpatialGym(gym.Env):
     """
@@ -91,10 +51,11 @@ class SpatialGym(gym.Env):
         # Turn logging
         self.turn_logs: List[EnvTurnLog] = None
         self.current_turn_number = None
+        self.observed_image_paths: List[str] = None
 
     def _generate_initial_observation(self) -> str:
         """Generate initial observation based on exploration type."""
-        exp_history_data = {}
+        exp_history = {}
         images = []
         if self.config.exp_type == 'passive' and not self.config.prompt_config['topdown']:
             proxy = get_agent_proxy(self.config.proxy_agent_config["type"], self.initial_room, self.agent, delegate=self.config.proxy_agent_config["delegate"])
@@ -102,22 +63,20 @@ class SpatialGym(gym.Env):
             obs_str = proxy.to_text(self.config.image_placeholder)
             for t in proxy.turns:
                 if any('observe' in result.action_type for result in t.actions):
-                    images.append(self._get_multi_modal_data(proxy.mgr, t.pos, t.ori))
+                    image, image_path = self._get_multi_modal_data(proxy.mgr, t.pos, t.ori)
+                    images.append(image)
+                    self.observed_image_paths.append(image_path)
             assert images is not []
-            exp_history_data['obs_str'] = obs_str
-            exp_history_data['multi_modal_data'] = {self.config.image_placeholder: images}
+            exp_history['obs_str'] = obs_str
+            exp_history['multi_modal_data'] = {self.config.image_placeholder: images}
             # expose proxy manager so metrics are available via env.get_exp_summary()
             self.exploration_manager = proxy.mgr
-        elif self.config.exp_type == 'active':
-            images.append(self._get_multi_modal_data(self.exploration_manager, self.agent.pos, self.agent.ori))
-            exp_history_data['multi_modal_data'] = {self.config.image_placeholder: images}
 
         return self.prompter.get_initial_observation_prompt(
             room=self.initial_room,
             agent=self.agent,
             eval_manager=self.evaluation_manager,
-            cogmap_manager=self.cognitive_map_manager,
-            exp_history=exp_history_data,
+            exp_history=exp_history,
         )
 
     def system_prompt(self) -> str:
@@ -130,19 +89,7 @@ class SpatialGym(gym.Env):
         self.image_handler = ImageHandler(self.config.base_dir, seed, self.config.image_size)
         self.image_dir = self.image_handler.image_dir
         self.json_data = self.image_handler.json_data
-        
-        # Copy instruction image to current episode's image directory
-        src_instr = "/Users/songshe/ToS/VAGEN/vagen/env/spatial/prompts/instruction.png"
-        dst_instr = os.path.join(self.image_dir, "instruction.png")
-        try:
-            os.makedirs(self.image_dir, exist_ok=True)
-            if os.path.isfile(src_instr):
-                shutil.copy2(src_instr, dst_instr)
-            else:
-                print(f"[WARN] Instruction image not found at {src_instr}")
-        except Exception as e:
-            print(f"[WARN] Failed to stage instruction image: {e}")
-        
+
         self.prompter = Prompter(self.config, self.image_handler, self.np_random)
         # Generate initial room
         # self.initial_room, self.agent = RoomGenerator.generate_room(
@@ -158,7 +105,7 @@ class SpatialGym(gym.Env):
         # Initialize turn logs
         self.turn_logs = []
         self.current_turn_number = 0
-
+        self.observed_image_paths = []
         # Set exploration phase
         self.is_exploration_phase = self.config.exp_type == 'active'
 
@@ -176,59 +123,43 @@ class SpatialGym(gym.Env):
         self.cognitive_map_manager = CognitiveMapManager(**self.config.cogmap_config) if self.config.prompt_config["cogmap"] else None
         self.history_manager = HistoryManager(seed, self.config) if self.config.exp_type == 'active' else None
         info = {}
-        if self.history_manager:
-            if self.history_manager.is_history_exist():
-                obs = self.history_manager.get_initial_observation()
-                info['history'] = self.history_manager.get_responses()
-            else:
-                obs = self._generate_initial_observation()
-                # Create a copy of obs without PIL Images for history manager
-                obs_for_history = obs.copy() if isinstance(obs, dict) else obs
-                if isinstance(obs_for_history, dict) and 'multi_modal_data' in obs_for_history:
-                    # Remove multi_modal_data to avoid PIL Image serialization issues
-                    obs_for_history = {k: v for k, v in obs_for_history.items() if k != 'multi_modal_data'}
-                self.history_manager.update_initial_observation(obs_for_history)
-        else:
-            obs = self._generate_initial_observation()
+        if self.history_manager and self.history_manager.is_history_exist():
+            info['history'] = self.history_manager.get_responses()
+            
+        obs = self._generate_initial_observation()
         self.render_cache = obs
         return obs, info
 
-    def _step_exploration(self, result: dict, info: dict):
+    def _step_exploration(self, action: str):
         """
         Handle exploration phase step with parsed result and shared info.
         """
         obs_str = ""
-        reward = -0.1 # per step penalty
-        include_visual = False
+        reward = -0.1 
         self.remaining_exp_steps -= 1
         exp_log = None
         obs={}
-
-        action = result['actions'][0]
+        info = {'is_valid_action': True}
         action_sequence = ActionSequence.parse(action)
         if self.remaining_exp_steps < 0:
             action_sequence = ActionSequence(motion_actions=[], final_action=ForcedTermAction())
         if not action_sequence:
             obs_str += "Invalid action\n"
             reward += -0.5 # invalid action penalty
-            info['metrics']['action_is_valid'] = False
-            info['metrics']['action_is_effective'] = False
-            # no state change, return last turn log
-            exp_log = self.exploration_manager.turn_logs[-1]
+            info['is_valid_action'] = False
         else:
             # execute action
-            exp_info, action_results = self.exploration_manager.execute_action_sequence(action_sequence)
-            reward += -1 if exp_info.get('redundant', False) else 0 # redundant observe penalty
+            _ , action_results = self.exploration_manager.execute_action_sequence(action_sequence)
             obs_str += action_results_to_text(action_results, self.config.image_placeholder)
             exp_log = self.exploration_manager.turn_logs[-1]
-            include_visual = True
-
-        if action_sequence and action_sequence.final_action and action_sequence.final_action.is_term():
-            self.is_exploration_phase = False
-            obs_str += self.prompter.get_evaluation_prompt(self.evaluation_manager)
-        else:
-            obs_str += f"\nYou have a maximum of {self.remaining_exp_steps} exploration steps left."
-            obs = {'multi_modal_data': {self.config.image_placeholder: [self._get_multi_modal_data(self.exploration_manager, self.exploration_manager.agent.pos, self.exploration_manager.agent.ori)]}} if include_visual else {}
+            if action_sequence.final_action and action_sequence.final_action.is_term():
+                self.is_exploration_phase = False
+                obs_str += self.prompter.get_evaluation_prompt(self.evaluation_manager)
+            else:
+                obs_str += f"\nYou have a maximum of {self.remaining_exp_steps} exploration steps left."
+                image, image_path = self._get_multi_modal_data(self.exploration_manager, self.exploration_manager.agent.pos, self.exploration_manager.agent.ori)
+                obs = {'multi_modal_data': {self.config.image_placeholder: [image]}}
+                self.observed_image_paths.append(image_path)
         return {**obs, 'obs_str': obs_str}, reward, False, info, exp_log
 
     def _get_multi_modal_data(self, room: ExplorationManager, pos: np.ndarray, ori: np.ndarray):
@@ -245,107 +176,78 @@ class SpatialGym(gym.Env):
         direction = {(0, 1): 'north', (-1, 0): 'west', (0, -1): 'south', (1, 0): 'east'}[tuple(ori)]
         
         img = self.image_handler.get_image(position_name, direction)
-        return img
+        img_path = self.image_handler.get_image_path(position_name, direction)
+        return img, img_path
             
 
-    def _step_evaluation(self, result: dict, info: dict):
+    def _step_evaluation(self, action: str):
         """Handle evaluation phase step with parsed result and shared info."""
-
-        action = result['actions'][0]
 
         correct, _ = self.evaluation_manager.evaluate_answer(action)
         eval_log = self.evaluation_manager.turn_logs[-1]
         reward = 1 if correct else 0
-        info['metrics']['success'] = correct
 
         if self.evaluation_manager.next_task():
             next_question = self.evaluation_manager.get_current_question()
             assert next_question, "No question found after evaluation phase"
-            return {'obs_str': next_question}, reward, False, info, eval_log
+            return {'obs_str': next_question}, reward, False, {}, eval_log
 
-        return {'obs_str': "Task finished"}, reward, True, info, eval_log
+        return {'obs_str': "Task finished"}, reward, True, {}, eval_log
 
-    def step(self, llm_raw_response: str):
+    def step(self, llm_response: str):
         """Process agent actions in the spatial gym environment."""
         self.current_turn_number += 1
-        exp_log, eval_log, cogmap_log, cogmap_final_log = None, None, None, None
-        result = parse_freethink(llm_raw_response, action_sep="|", max_actions=1)
+        exp_log, eval_log = None, None
+        think_content, action = extract_think_and_answer(llm_response)
         room_state = next((turn_log.room_state for turn_log in self.turn_logs[::-1] if turn_log.room_state), self.initial_room)
         agent_state = next((turn_log.agent_state for turn_log in self.turn_logs[::-1] if turn_log.agent_state), self.agent)
 
         current_obs = self.render_cache
-
-        info = {
-            "metrics": {
-                'success': bool(result['actions']),
-                'action_is_effective': bool(result['actions']),
-                'action_is_valid': bool(result['actions']),
-            },
-            "llm_raw_response": llm_raw_response,
-            "llm_response": result['llm_response'],
-        }
-
+        img_path = None
         # step the environment
-        if result['actions'] and result['think_content']:
-            was_exploration = bool(self.is_exploration_phase)
-            # action
+        if action and think_content:
             if self.is_exploration_phase:
-                obs, reward, done, _, exp_log = self._step_exploration(result, info)
+                obs, reward, done, step_info, exp_log = self._step_exploration(action)
+                if exp_log:
+                    room_state, agent_state = exp_log.room_state, exp_log.agent_state
                 if self.history_manager and not self.history_manager.is_history_exist():
-                    self.history_manager.update_response(llm_raw_response)
+                    if self.history_manager.is_history_exist():
+                        img_path = self.history_manager.get_image_path(self.current_turn_number)
+                    else:
+                        img_path = self.history_manager.update_response(llm_response, room_state, agent_state)
+                    # has terminated
                     if not self.is_exploration_phase:
                         self.history_manager.save()
             else:
-                obs, reward, done, _, eval_log = self._step_evaluation(result, info)
-
-            if self.cognitive_map_manager:
-                room_state, agent_state = (exp_log.room_state, exp_log.agent_state) if self.is_exploration_phase else self.evaluation_manager.get_last_room_state()
-                def _eval_cogmap(use_all_items: bool):
-                    names = [o.name for o in room_state.all_objects] if use_all_items else list(self.exploration_manager.observed_items)
-                    self.cognitive_map_manager.evaluate_cognitive_map(result['think_content'], room_state, agent_state, observed_items=names)
-                    return self.cognitive_map_manager.turn_logs[-1]
-
-                if was_exploration:
-                    cogmap_log = _eval_cogmap(False)
-                if not self.is_exploration_phase:
-                    cogmap_final_log = _eval_cogmap(True)
-        else:
-            obs = {'obs_str': 'Invalid input format'}
-            reward = -0.5 # invalid input penalty
-            done = False
-
-        if self.is_exploration_phase:
-            if exp_log and exp_log.room_state and exp_log.agent_state:
-                room_state = exp_log.room_state
-                agent_state = exp_log.agent_state
-        else:
-            if self.evaluation_manager:
+                obs, reward, done, step_info, eval_log = self._step_evaluation(action)
                 room_state, agent_state = self.evaluation_manager.get_last_room_state()
-        # post-process the observation
-        if self.is_exploration_phase:
-            obs['obs_str'] += '\n' + self.prompter.COGMAP_EXP_REQUIRED_INSTRUCTION if self.config.prompt_config['cogmap'] else ''
+
         else:
-            obs['obs_str'] += '\n' + self.prompter.COGMAP_EVAL_REQUIRED_INSTRUCTION if self.config.prompt_config['cogmap'] else ''
+            reward, obs, done, step_info = -0.5, {'obs_str': 'Invalid input format'}, False, {}
+
+        
         obs['obs_str'] += '\n' + self.prompter.FORMAT_PROMPT
         self.render_cache = obs
 
         turn_log = EnvTurnLog(
             turn_number=self.current_turn_number,
             user_message=current_obs['obs_str'],
-            assistant_raw_message=llm_raw_response,
-            assistant_think_message=result['think_content'],
-            assistant_parsed_message=result['action_content'],
+            assistant_raw_message=llm_response,
+            assistant_think_message=think_content,
+            assistant_parsed_message=action,
             is_exploration_phase=self.is_exploration_phase,
             room_state=room_state,
             agent_state=agent_state,
+            observed_items=list(self.exploration_manager.observed_items),
+            room_image=img_path,
+            message_images=self.observed_image_paths,
             exploration_log=exp_log,
             evaluation_log=eval_log,
-            cogmap_log=cogmap_log,
-            cogmap_final_log=cogmap_final_log,
-            info={"reward": reward, "is_done": done, **{k: v for k, v in info.items() if 'response' not in k}}
+            info={"reward": reward, "is_done": done, **step_info}
         )
+        self.observed_image_paths = []
         self.turn_logs.append(turn_log)
-        return obs, reward, done, info
+        return obs, reward, done, step_info
 
     def render(self):
         return self.render_cache

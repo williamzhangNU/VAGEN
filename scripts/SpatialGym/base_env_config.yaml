@@ -68,13 +68,14 @@ custom_envs:
       name: "passive_rot_dual"
       eval_tasks: [{task_type: "rot_dual"}]
 
-  PassiveLoc:
+  PassiveBwdLoc:
     <<: *common
     env_config:
       <<: *prompt_standard
       <<: *passive
-      name: "passive_loc"
-      eval_tasks: [{task_type: "loc", task_kwargs: {'only_main_room': False}}]
+      name: "passive_bwd_loc"
+      eval_tasks: [{task_type: "bwd_loc"}]
+
 
   PassiveE2A:
     <<: *common

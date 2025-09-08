@@ -25,8 +25,6 @@ Here is an example of your observation: blue object 1 m straight ahead; yellow o
 ## Room Layout
 {room_info}
 
-{cogmap_instruction}
-
 ## Action Instructions
 {exp_instructions}
 
@@ -50,14 +48,12 @@ Here is an example of your observation: blue object 1 m straight ahead; yellow o
 ## Room Layout
 {room_info}
 
-{cogmap_instruction}
-
 {exp_history}
 """
 
 # NOTE: COGNITION_MAP_INSTRUCTION has been moved to CognitiveMap class for flexible formatting
 # The dynamic instruction is now provided by CognitiveMap.get_json_format_instruction()
 
-EVALUATION_INSTRUCTION = "NOTE: Now you return to your starting position and facing north.\n{eval_question}"
+EVALUATION_INSTRUCTION = "{eval_question}"
 SHORT_EXPLORATION_PROMPT = "Please respond with valid actions to explore the rooms."
 SHORT_EVALUATION_PROMPT = "Please respond with a valid answer to the question."
