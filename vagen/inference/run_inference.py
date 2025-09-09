@@ -131,7 +131,7 @@ def main():
             SpatialEnvLogger.log_each_env_info(
                 env_summary, 
                 [result['messages'] for result in results], 
-                output_dir=os.path.join(inference_config.get('output_dir', 'results/inference_outputs'), model_name),
+                output_dir=inference_config.get('output_dir', 'results/inference_outputs'),
                 save_images=True,
                 model_name=model_name
             )

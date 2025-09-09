@@ -155,9 +155,33 @@
       }
     },
     {
+      "object_id": 1593158,
+      "model": "white_lamp",
+      "name": "white lamp",
+      "pos": {
+        "x": -3.0,
+        "y": 0.05,
+        "z": -5.0
+      },
+      "rot": {
+        "x": 0,
+        "y": 180,
+        "z": 0
+      },
+      "size": [
+        0.5249988,
+        1.08171015
+      ],
+      "attributes": {
+        "scale": 1.5,
+        "has_orientation": false,
+        "room_id": 3
+      }
+    },
+    {
       "object_id": 10000,
-      "model": "door_bright_green",
-      "name": "door bright_green",
+      "model": "green_door",
+      "name": "green door",
       "pos": {
         "x": 0.0,
         "y": 0,
@@ -173,7 +197,7 @@
         2.0
       ],
       "attributes": {
-        "color": "bright_green",
+        "color": "green",
         "orientation": "vertical",
         "connected_rooms": [
           1,
@@ -183,8 +207,8 @@
     },
     {
       "object_id": 10001,
-      "model": "door_bright_orange",
-      "name": "door bright_orange",
+      "model": "orange_door",
+      "name": "orange door",
       "pos": {
         "x": -4.0,
         "y": 0,
@@ -200,7 +224,7 @@
         2.0
       ],
       "attributes": {
-        "color": "bright_orange",
+        "color": "orange",
         "orientation": "horizontal",
         "connected_rooms": [
           1,
@@ -227,7 +251,7 @@
       "label": "1",
       "position": {
         "x": -5.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": 0.0
       },
       "rotation": {
@@ -239,7 +263,7 @@
       "label": "2",
       "position": {
         "x": 2.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": 2.0
       },
       "rotation": {
@@ -251,7 +275,7 @@
       "label": "3",
       "position": {
         "x": -5.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": -5.0
       },
       "rotation": {
@@ -263,7 +287,7 @@
       "label": "4",
       "position": {
         "x": -3.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": 1.0
       },
       "rotation": {
@@ -275,7 +299,7 @@
       "label": "5",
       "position": {
         "x": 2.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": 4.0
       },
       "rotation": {
@@ -283,11 +307,23 @@
       }
     },
     {
+      "id": "1593158",
+      "label": "6",
+      "position": {
+        "x": -3.0,
+        "y": 0.8,
+        "z": -5.0
+      },
+      "rotation": {
+        "y": 30.96375653207352
+      }
+    },
+    {
       "id": "10000",
       "label": "D100",
       "position": {
         "x": 0.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": 1.0
       },
       "rotation": {
@@ -299,7 +335,7 @@
       "label": "D101",
       "position": {
         "x": -4.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": -2.0
       },
       "rotation": {
@@ -335,7 +371,7 @@
       "cam_id": "agent",
       "pos": {
         "x": -4.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": 4.0
       },
       "direction": "north",
@@ -346,7 +382,7 @@
       "cam_id": "agent",
       "pos": {
         "x": -4.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": 4.0
       },
       "direction": "east",
@@ -357,7 +393,7 @@
       "cam_id": "agent",
       "pos": {
         "x": -4.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": 4.0
       },
       "direction": "south",
@@ -381,7 +417,7 @@
       "cam_id": "agent",
       "pos": {
         "x": -4.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": 4.0
       },
       "direction": "west",
@@ -392,7 +428,7 @@
       "cam_id": "1702405",
       "pos": {
         "x": -5.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": 0.0
       },
       "direction": "north",
@@ -403,7 +439,7 @@
       "cam_id": "1702405",
       "pos": {
         "x": -5.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": 0.0
       },
       "direction": "east",
@@ -421,7 +457,7 @@
       "cam_id": "1702405",
       "pos": {
         "x": -5.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": 0.0
       },
       "direction": "south",
@@ -432,7 +468,7 @@
       "cam_id": "1702405",
       "pos": {
         "x": -5.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": 0.0
       },
       "direction": "west",
@@ -443,7 +479,7 @@
       "cam_id": "1774466",
       "pos": {
         "x": 2.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": 2.0
       },
       "direction": "north",
@@ -461,7 +497,7 @@
       "cam_id": "1774466",
       "pos": {
         "x": 2.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": 2.0
       },
       "direction": "east",
@@ -472,7 +508,7 @@
       "cam_id": "1774466",
       "pos": {
         "x": 2.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": 2.0
       },
       "direction": "south",
@@ -483,7 +519,7 @@
       "cam_id": "1774466",
       "pos": {
         "x": 2.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": 2.0
       },
       "direction": "west",
@@ -494,7 +530,7 @@
       "cam_id": "8515035",
       "pos": {
         "x": -5.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": -5.0
       },
       "direction": "north",
@@ -505,18 +541,25 @@
       "cam_id": "8515035",
       "pos": {
         "x": -5.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": -5.0
       },
       "direction": "east",
-      "object_ratios": []
+      "object_ratios": [
+        {
+          "object_id": 1593158,
+          "model": "white_lamp",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        }
+      ]
     },
     {
       "file": "8515035_facing_south.png",
       "cam_id": "8515035",
       "pos": {
         "x": -5.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": -5.0
       },
       "direction": "south",
@@ -527,7 +570,7 @@
       "cam_id": "8515035",
       "pos": {
         "x": -5.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": -5.0
       },
       "direction": "west",
@@ -538,7 +581,7 @@
       "cam_id": "4579308",
       "pos": {
         "x": -3.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": 1.0
       },
       "direction": "north",
@@ -549,7 +592,7 @@
       "cam_id": "4579308",
       "pos": {
         "x": -3.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": 1.0
       },
       "direction": "east",
@@ -560,7 +603,7 @@
       "cam_id": "4579308",
       "pos": {
         "x": -3.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": 1.0
       },
       "direction": "south",
@@ -571,7 +614,7 @@
       "cam_id": "4579308",
       "pos": {
         "x": -3.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": 1.0
       },
       "direction": "west",
@@ -579,7 +622,7 @@
         {
           "object_id": 1702405,
           "model": "ligne_roset_armchair",
-          "visibility_ratio": 0.993,
+          "visibility_ratio": 1.0,
           "occlusion_ratio": 0.0
         }
       ]
@@ -589,7 +632,7 @@
       "cam_id": "5226415",
       "pos": {
         "x": 2.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": 4.0
       },
       "direction": "north",
@@ -600,7 +643,7 @@
       "cam_id": "5226415",
       "pos": {
         "x": 2.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": 4.0
       },
       "direction": "east",
@@ -611,7 +654,7 @@
       "cam_id": "5226415",
       "pos": {
         "x": 2.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": 4.0
       },
       "direction": "south",
@@ -629,18 +672,69 @@
       "cam_id": "5226415",
       "pos": {
         "x": 2.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": 4.0
       },
       "direction": "west",
       "object_ratios": []
     },
     {
+      "file": "1593158_facing_north.png",
+      "cam_id": "1593158",
+      "pos": {
+        "x": -3.0,
+        "y": 0.8,
+        "z": -5.0
+      },
+      "direction": "north",
+      "object_ratios": []
+    },
+    {
+      "file": "1593158_facing_east.png",
+      "cam_id": "1593158",
+      "pos": {
+        "x": -3.0,
+        "y": 0.8,
+        "z": -5.0
+      },
+      "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "1593158_facing_south.png",
+      "cam_id": "1593158",
+      "pos": {
+        "x": -3.0,
+        "y": 0.8,
+        "z": -5.0
+      },
+      "direction": "south",
+      "object_ratios": []
+    },
+    {
+      "file": "1593158_facing_west.png",
+      "cam_id": "1593158",
+      "pos": {
+        "x": -3.0,
+        "y": 0.8,
+        "z": -5.0
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 8515035,
+          "model": "lapalma_stil_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        }
+      ]
+    },
+    {
       "file": "10000_facing_north.png",
       "cam_id": "10000",
       "pos": {
         "x": 0.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": 1.0
       },
       "direction": "north",
@@ -651,7 +745,7 @@
       "cam_id": "10000",
       "pos": {
         "x": 0.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": 1.0
       },
       "direction": "east",
@@ -662,7 +756,7 @@
       "cam_id": "10000",
       "pos": {
         "x": 0.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": 1.0
       },
       "direction": "south",
@@ -673,7 +767,7 @@
       "cam_id": "10000",
       "pos": {
         "x": 0.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": 1.0
       },
       "direction": "west",
@@ -697,7 +791,7 @@
       "cam_id": "10000",
       "pos": {
         "x": 0.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": 1.0
       },
       "direction": "north",
@@ -715,7 +809,7 @@
       "cam_id": "10000",
       "pos": {
         "x": 0.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": 1.0
       },
       "direction": "east",
@@ -733,7 +827,7 @@
       "cam_id": "10000",
       "pos": {
         "x": 0.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": 1.0
       },
       "direction": "south",
@@ -744,7 +838,7 @@
       "cam_id": "10000",
       "pos": {
         "x": 0.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": 1.0
       },
       "direction": "west",
@@ -755,7 +849,7 @@
       "cam_id": "10001",
       "pos": {
         "x": -4.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": -2.0
       },
       "direction": "north",
@@ -763,7 +857,7 @@
         {
           "object_id": 1702405,
           "model": "ligne_roset_armchair",
-          "visibility_ratio": 0.993,
+          "visibility_ratio": 1.0,
           "occlusion_ratio": 0.0
         },
         {
@@ -779,7 +873,7 @@
       "cam_id": "10001",
       "pos": {
         "x": -4.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": -2.0
       },
       "direction": "east",
@@ -790,7 +884,7 @@
       "cam_id": "10001",
       "pos": {
         "x": -4.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": -2.0
       },
       "direction": "south",
@@ -801,7 +895,7 @@
       "cam_id": "10001",
       "pos": {
         "x": -4.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": -2.0
       },
       "direction": "west",
@@ -812,7 +906,7 @@
       "cam_id": "10001",
       "pos": {
         "x": -4.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": -2.0
       },
       "direction": "north",
@@ -823,7 +917,7 @@
       "cam_id": "10001",
       "pos": {
         "x": -4.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": -2.0
       },
       "direction": "east",
@@ -834,7 +928,7 @@
       "cam_id": "10001",
       "pos": {
         "x": -4.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": -2.0
       },
       "direction": "south",
@@ -842,6 +936,12 @@
         {
           "object_id": 8515035,
           "model": "lapalma_stil_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        },
+        {
+          "object_id": 1593158,
+          "model": "white_lamp",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 0.0
         }
@@ -852,7 +952,7 @@
       "cam_id": "10001",
       "pos": {
         "x": -4.0,
-        "y": 1.2,
+        "y": 0.8,
         "z": -2.0
       },
       "direction": "west",
@@ -916,7 +1016,7 @@
         0.0,
         1.0
       ],
-      "color": "bright_green",
+      "color": "green",
       "connected_rooms": [
         1,
         2
@@ -929,7 +1029,7 @@
         -4.0,
         -2.0
       ],
-      "color": "bright_orange",
+      "color": "orange",
       "connected_rooms": [
         1,
         3
@@ -968,6 +1068,11 @@
         "object_id": 8515035,
         "name": "pink chair",
         "label": "3"
+      },
+      {
+        "object_id": 1593158,
+        "name": "white lamp",
+        "label": "6"
       }
     ]
   },

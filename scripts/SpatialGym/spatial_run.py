@@ -42,21 +42,6 @@ def normalize_tasks(tasks_arg: List[str]) -> List[str]:
     return [t.strip() for t in tasks_arg]
 
 
-def to_task_key(name: str) -> str:
-    # Accept forms like ActiveRot, active-rot, active_rot -> active_rot
-    s = name.strip().replace("-", "_")
-    # CamelCase to snake
-    out = []
-    for ch in s:
-        if ch.isupper() and out and out[-1] != "_":
-            out.append("_")
-        out.append(ch.lower())
-    s2 = "".join(out)
-    s2 = s2.replace("__", "_")
-    return s2
-
-
-
 def load_yaml(path: Path) -> Dict[str, Any]:
     with path.open("r") as f:
         return pyyaml.safe_load(f)
@@ -237,8 +222,7 @@ def main():
             server_url = f"http://{args.server_host}:{args.server_port}"
 
         for task in tasks:
-            snake_task = to_task_key(task)
-            tmp_paths = build_tmp_paths(run_id.replace('/', '-'), snake_task)
+            tmp_paths = build_tmp_paths(run_id.replace('/', '-'), task)
             created_tmp_dirs.append(tmp_paths["base"])
 
             env_cfg = load_yaml(base_env)
@@ -247,7 +231,8 @@ def main():
 
             env_cfg = patch_env_yaml(env_cfg, task, args.num)
             model_cfg = patch_model_yaml(model_cfg, args.model_name)
-            task_output_dir = output_root / snake_task
+            model_name = next(iter(model_cfg['models']))
+            task_output_dir = output_root / model_name / task
             infer_cfg = patch_infer_yaml(infer_cfg, task_output_dir, args.override, server_url)
 
             dump_yaml(env_cfg, tmp_paths["env"])

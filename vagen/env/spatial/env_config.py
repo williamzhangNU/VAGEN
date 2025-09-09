@@ -130,17 +130,15 @@ class SpatialGymConfig(BaseEnvConfig):
             'level': self.level,
             'main': self.main,
         }
+    
     def get_observation_config(self) -> Dict[str, Any]:
         return {
-            'room_size': self.room_size,
-            'n_objects': self.n_objects,
-            'level': self.level,
-            'main': self.main,
             'field_of_view': self.field_of_view,
             'observation_mode': self.observation_mode,
             'render_mode': self.render_mode,
             'model': self.kwargs['model']
         }        
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert configuration to dictionary."""
         # Specific config (spatial-specific parameters)
