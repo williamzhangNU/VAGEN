@@ -12,6 +12,8 @@ debug: false
 # Output configuration
 output_dir: "results/passive_rot/without_instruction"
 override: false
+evaluate_cogmap: false
+
 # WandB configuration
 use_wandb: false
 wandb_project: "vagen-debug"

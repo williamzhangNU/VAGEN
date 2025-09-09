@@ -136,7 +136,6 @@ class SpatialGymConfig(BaseEnvConfig):
             'field_of_view': self.field_of_view,
             'observation_mode': self.observation_mode,
             'render_mode': self.render_mode,
-            'model': self.kwargs['model']
         }        
 
     def to_dict(self) -> Dict[str, Any]:
@@ -156,7 +155,6 @@ class SpatialGymConfig(BaseEnvConfig):
             'image_size': self.image_size,
             'prompt_config': self.prompt_config,
             'field_of_view': self.field_of_view,
-            'model': self.kwargs['model'],
         }
         
         # Common config (inherited from BaseEnvConfig)
