@@ -277,6 +277,7 @@ class SpatialGym(gym.Env):
                 'total_turns': len(self.turn_logs),
                 'exp_summary': self.get_exp_summary(),
                 'eval_summary': self.get_eval_summary(),
+                'cogmap_summary': {},
             }
         }
 
