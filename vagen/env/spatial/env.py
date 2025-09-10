@@ -17,7 +17,7 @@ from vagen.env.spatial.prompts import Prompter
 from vagen.env.spatial.Base.tos_base.utils.action_utils import action_results_to_text
 from vagen.env.spatial.utils.initialize_room import initialize_room_from_json
 from vagen.env.spatial.Base.tos_base.utils.env_logger import EnvTurnLog
-from vagen.env.spatial.Base.tos_base.utils.utils import extract_think_and_answer
+from vagen.env.spatial.Base.tos_base.utils.utils import parse_llm_response
 from vagen.env.spatial.utils.image_handler import ImageHandler
 from vagen.env.spatial.Base.tos_base.actions.actions import ForcedTermAction, ActionSequence
 
@@ -29,6 +29,7 @@ class SpatialGym(gym.Env):
     This environment uses an EvaluationManager to handle all evaluation tasks,
     separating evaluation logic from the main environment logic.
     """
+    parsing_kwargs = {'enable_think': True}
     def __init__(self, config: SpatialGymConfig):
         super().__init__()
         self.config = config
@@ -89,7 +90,7 @@ class SpatialGym(gym.Env):
         self.image_dir = self.image_handler.image_dir
         self.json_data = self.image_handler.json_data
 
-        self.prompter = Prompter(self.config, self.image_handler, self.np_random)
+        self.prompter = Prompter(self.config, self.image_handler, self.np_random, enable_think=bool(self.parsing_kwargs['enable_think']))
         # Generate initial room
         # self.initial_room, self.agent = RoomGenerator.generate_room(
         #     **self.config.get_room_config(),
@@ -196,14 +197,16 @@ class SpatialGym(gym.Env):
         """Process agent actions in the spatial gym environment."""
         self.current_turn_number += 1
         exp_log, eval_log = None, None
-        think_content, action = extract_think_and_answer(llm_response)
+        think_content, action, parsed_ok = parse_llm_response(
+            llm_response, enable_think=bool(self.parsing_kwargs.get('enable_think', True))
+        )
         room_state = next((turn_log.room_state for turn_log in self.turn_logs[::-1] if turn_log.room_state), self.initial_room)
         agent_state = next((turn_log.agent_state for turn_log in self.turn_logs[::-1] if turn_log.agent_state), self.agent)
 
         current_obs = self.render_cache
         img_path = None
         # step the environment
-        if action and think_content:
+        if parsed_ok:
             if self.is_exploration_phase:
                 obs, reward, done, step_info, exp_log = self._step_exploration(action)
                 if exp_log:

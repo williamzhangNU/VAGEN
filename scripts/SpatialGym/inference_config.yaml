@@ -8,6 +8,7 @@ batch_size: 32
 max_steps: 20
 split: "test"
 debug: false
+enable_think: true
 
 # Output configuration
 output_dir: "results/passive_rot/without_instruction"

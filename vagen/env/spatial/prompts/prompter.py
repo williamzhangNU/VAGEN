@@ -24,10 +24,16 @@ class Prompter:
     TOPDOWN_PROMPT = "\n\nTopdown view: {placeholder}\n{object_info}"
     # OBLIQUE_PROMPT = "\n\nOblique view: {placeholder}\n{object_info}"
 
-    def __init__(self, config, image_handler, np_random: np.random.RandomState):
+    def __init__(self, config, image_handler, np_random: np.random.RandomState, enable_think: bool = True):
         self.config = config
         self.image_handler = image_handler
         self.np_random = np_random
+        # Set output format based on parsing setting (enable_think)
+        self.FORMAT_PROMPT = (
+            "Always output: <think> [Your thoughts] </think> <answer> [your answer] </answer> with no extra text."
+            if enable_think else
+            "Always output: <answer> [your answer] </answer> with no extra text."
+        )
 
     def _get_topdown_prompt(self, prompt_template: str, room) -> str:
         """Generate topdown view prompt with object information."""

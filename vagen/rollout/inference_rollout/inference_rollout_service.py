@@ -11,6 +11,7 @@ import PIL
 from vagen.rollout.base_rollout import BaseRollout
 from vagen.server.client import BatchEnvClient
 from vagen.env import REGISTERED_ENV
+from vagen.env.spatial.env import SpatialGym
 
 class InferenceRolloutService(BaseRollout):
     """
@@ -94,6 +95,9 @@ class InferenceRolloutService(BaseRollout):
         ids2configs = {}
         ids2seeds = {}
         
+        # for spatial env
+        SpatialGym.parsing_kwargs = {"enable_think": bool(self.config.get('enable_think', True))}
+
         for i, cfg in enumerate(env_configs):
             env_id = f"{self.split}_{i}"
             ids2configs[env_id] = cfg
@@ -101,7 +105,7 @@ class InferenceRolloutService(BaseRollout):
             if cfg["env_name"] == "spatial":
                 kwargs = {
                     "model_config": self.model_interface.config.to_dict(),
-                    "override": self.config.get('override', False)  
+                    "override": self.config.get('override', False)
                 }
                 cfg["env_config"]['kwargs'] = kwargs
 
@@ -152,20 +156,20 @@ class InferenceRolloutService(BaseRollout):
             if self.debug:
                 print(f"Replaying history for {len(env_histories)} environments...")
             
-            # 循环直到所有 env 的 history 均为空
+            # Loop until all env histories are empty
             while True:
-                # 选取当前仍有待回放 history 的环境（不再判断 done）
+                # Select environments that still have history to replay (no longer check done status)
                 ready_envs = [eid for eid, hist in env_histories.items() if hist]
                 if not ready_envs:
                     break
                 
-                # 构造本步的 actions：各自取队首一条
+                # Construct actions for this step: take the first item from each queue
                 ids2actions = {eid: env_histories[eid].pop(0) for eid in ready_envs}
                 
-                # 批量 step
+                # Batch step
                 step_results = self.env_client.step_batch(ids2actions)
                 
-                # 统一处理 step 结果（history 回放阶段强制追加 user 观测）
+                # Process step results uniformly (force append user observations during history replay)
                 self._apply_step_results(step_results, ids2actions)
                 
                 env_histories = {eid: hist for eid, hist in env_histories.items() if hist}
