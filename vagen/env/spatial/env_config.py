@@ -136,8 +136,11 @@ class SpatialGymConfig(BaseEnvConfig):
             'field_of_view': self.field_of_view,
             'observation_mode': self.observation_mode,
             'render_mode': self.render_mode,
+            'exp_type': self.exp_type,
         }        
-
+    def get_model_config(self) -> Dict[str, Any]:
+        return  self.kwargs['model_config']
+    
     def to_dict(self) -> Dict[str, Any]:
         """Convert configuration to dictionary."""
         # Specific config (spatial-specific parameters)
@@ -149,7 +152,8 @@ class SpatialGymConfig(BaseEnvConfig):
             'main': self.main,  # New from RAGEN
             'exp_type': self.exp_type,
             'perspective': self.perspective,  # VAGEN specific
-            'observation_mode': self.observation_mode,  # New from RAGEN
+            'observation_config': self.get_observation_config(),
+            'model_config': self.get_model_config(),
             'eval_tasks': self.eval_tasks,
             'max_exp_steps': self.max_exp_steps,
             'image_size': self.image_size,

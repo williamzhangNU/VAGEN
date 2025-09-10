@@ -26,6 +26,7 @@ def parse_args():
     p.add_argument("--output_root", type=str, default="results", help="Root dir for inference output_dir. Default: results")
     p.add_argument("--override", action="store_true", help="If set, will override the active exploration history")
     p.add_argument("--cogmap", action="store_true", help="If set, will enable cognitive map evaluation")
+    p.add_argument("--override-cogmap", action="store_true", help="If set, will enable cognitive map evaluation")
     # Optional: override base yaml paths (env/model now default to base_*.yaml)
     p.add_argument("--base_env", type=str, default=str(SCRIPT_DIR / "base_env_config.yaml"))
     p.add_argument("--base_infer", type=str, default=str(SCRIPT_DIR / "inference_config.yaml"))
@@ -117,7 +118,7 @@ def patch_model_yaml(model_cfg: Dict[str, Any], model_name: str) -> Dict[str, An
     sys.exit(2)
 
 
-def patch_infer_yaml(infer_cfg: Dict[str, Any], output_dir: Path, override: bool, evaluate_cogmap: bool, server_url: str | None = None) -> Dict[str, Any]:
+def patch_infer_yaml(infer_cfg: Dict[str, Any], output_dir: Path, override: bool, evaluate_cogmap: bool, override_cogmap: bool, server_url: str | None = None) -> Dict[str, Any]:
     """Patch inference yaml to set output directory and optional server_url. Split remains as in base config."""
     infer_cfg = dict(infer_cfg or {})
     infer_cfg["output_dir"] = str(output_dir)
@@ -127,6 +128,8 @@ def patch_infer_yaml(infer_cfg: Dict[str, Any], output_dir: Path, override: bool
         infer_cfg["server_url"] = server_url
     if evaluate_cogmap:
         infer_cfg["evaluate_cogmap"] = True
+    if override_cogmap:
+        infer_cfg["override_cogmap"] = True
     return infer_cfg
 
 
@@ -236,7 +239,7 @@ def main():
             model_cfg = patch_model_yaml(model_cfg, args.model_name)
             model_name = next(iter(model_cfg['models']))
             task_output_dir = output_root / model_name / task
-            infer_cfg = patch_infer_yaml(infer_cfg, task_output_dir, args.override, args.cogmap, server_url)
+            infer_cfg = patch_infer_yaml(infer_cfg, task_output_dir, args.override, args.cogmap, args.override_cogmap, server_url)
 
             dump_yaml(env_cfg, tmp_paths["env"])
             dump_yaml(infer_cfg, tmp_paths["infer"])

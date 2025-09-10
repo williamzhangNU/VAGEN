@@ -85,7 +85,7 @@ custom_envs:
       name: "passive_e2a"
       eval_tasks: [{task_type: "e2a"}]
 
-  PassivePoV:
+  PassivePov:
     <<: *common
     env_config:
       <<: *prompt_standard
@@ -100,30 +100,6 @@ custom_envs:
       <<: *passive
       name: "passive_false_belief"
       eval_tasks: [{task_type: "false_belief"}]
-  PassiveDirCogmap:
-    <<: *common
-    env_config:
-      <<: *prompt_cogmap
-      <<: *passive
-      name: "passive_dir_cogmap"
-      eval_tasks: [{task_type: "dir"}]
-
-  PassiveRotCogmap:
-    <<: *common
-    env_config:
-      <<: *prompt_cogmap
-      <<: *passive
-      name: "passive_rot_cogmap"
-      eval_tasks: [{task_type: "rot"}]
-
-  PassiveLocCogmap:
-    <<: *common
-    env_config:
-      <<: *prompt_cogmap
-      <<: *passive
-      name: "passive_loc_cogmap"
-      eval_tasks: [{task_type: "loc"}]
-
 
   ActiveDir:
     <<: *common
@@ -148,29 +124,38 @@ custom_envs:
       <<: *active
       name: "active_loc"
       eval_tasks: [{task_type: "loc"}]
-
-  ActiveDirCogmap:
+  
+  ActiveBwdLoc:
     <<: *common
     env_config:
-      <<: *prompt_cogmap
+      <<: *prompt_standard
       <<: *active
-      name: "active_dir_cogmap"
-      eval_tasks: [{task_type: "dir"}]
+      name: "active_bwd_loc"
+      eval_tasks: [{task_type: "bwd_loc"}]
 
-  ActiveRotCogmap:
+
+  ActiveE2A:
     <<: *common
     env_config:
-      <<: *prompt_cogmap
+      <<: *prompt_standard
       <<: *active
-      name: "active_rot_cogmap"
-      eval_tasks: [{task_type: "rot"}]
+      name: "active_e2a"
+      eval_tasks: [{task_type: "e2a"}]
 
-  ActiveLocCogmap:
+  ActivePov:
     <<: *common
     env_config:
-      <<: *prompt_cogmap
+      <<: *prompt_standard
       <<: *active
-      name: "active_loc_cogmap"
-      eval_tasks: [{task_type: "loc"}]
+      name: "active_pov"
+      eval_tasks: [{task_type: "pov"}]
+
+  ActiveFalseBelief:
+    <<: *common
+    env_config:
+      <<: *prompt_standard
+      <<: *active
+      name: "active_false_belief"
+      eval_tasks: [{task_type: "false_belief"}]
 
   

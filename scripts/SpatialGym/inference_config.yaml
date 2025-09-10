@@ -13,6 +13,11 @@ debug: false
 output_dir: "results/passive_rot/without_instruction"
 override: false
 evaluate_cogmap: false
+cogmap_config:
+  cogmap_type: standard
+  pos_allow_scale: True
+  scope: all
+override_cogmap: false
 
 # WandB configuration
 use_wandb: false

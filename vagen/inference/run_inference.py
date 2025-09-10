@@ -128,6 +128,8 @@ def main():
                     [result['env_summary'] for result in results], 
                     [result['messages'] for result in results], 
                     service.model_interface,
+                    override_cogmap=inference_config['override_cogmap'],
+                    cogmap_config=inference_config['cogmap_config'],
                     vagen=True)
             else:
                 env_summary = [result['env_summary'] for result in results]
