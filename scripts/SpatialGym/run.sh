@@ -9,6 +9,7 @@ EXPERIMENT_NAME=$(echo $SCRIPT_DIR | rev | cut -d'/' -f1-2 | rev | tr '/' '-')
 
 echo "Experiment name: $EXPERIMENT_NAME"
 # run python -m vagen.server.server in a tmux session first
+# -m debugpy --listen 127.0.0.1:5678
 python -m vagen.env.create_dataset \
     --yaml_path "$SCRIPT_DIR/env_config.yaml" \
     --train_path "data/$EXPERIMENT_NAME/train.parquet" \

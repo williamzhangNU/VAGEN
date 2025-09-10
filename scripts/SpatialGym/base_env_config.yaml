@@ -1,0 +1,176 @@
+_common: &common
+  env_name: spatial
+  train_size: 25
+  test_size: 2
+
+# prompt
+_prompt_standard: &prompt_standard
+  prompt_config:
+    topdown: false
+    cogmap: false
+
+_prompt_cogmap: &prompt_cogmap
+  prompt_config:
+    topdown: false
+    cogmap: true
+  cogmap_config:
+    cogmap_type: standard
+    pos_allow_scale: true
+    scope: all
+
+_prompt_topdown: &prompt_topdown
+  prompt_config:
+    topdown: true
+    cogmap: false
+
+# exp_type
+_passive: &passive
+  exp_type: passive
+  n_objects: 8
+  level: 2
+  main: 6
+  room_size: [15, 15]
+  proxy_agent_config:
+    type: analyst
+    delegate: oracle
+
+
+_active: &active
+  exp_type: active
+  n_objects: 8
+  max_exp_steps: 15
+  room_size: [15, 15]
+  level: 2
+  main: 6
+
+custom_envs:
+  PassiveDir:
+    <<: *common
+    env_config:
+      <<: *prompt_standard
+      <<: *passive
+      name: "passive_dir"
+      eval_tasks: [{task_type: "dir"}]
+
+  PassiveRot:
+    <<: *common
+    env_config:
+      <<: *prompt_standard
+      <<: *passive
+      name: "passive_rot"
+      eval_tasks: [{task_type: "rot"}]
+
+  PassiveRotDual:
+    <<: *common
+    env_config:
+      <<: *prompt_standard
+      <<: *passive
+      name: "passive_rot_dual"
+      eval_tasks: [{task_type: "rot_dual"}]
+
+  PassiveBwdLoc:
+    <<: *common
+    env_config:
+      <<: *prompt_standard
+      <<: *passive
+      name: "passive_bwd_loc"
+      eval_tasks: [{task_type: "bwd_loc"}]
+
+
+  PassiveE2A:
+    <<: *common
+    env_config:
+      <<: *prompt_standard
+      <<: *passive
+      name: "passive_e2a"
+      eval_tasks: [{task_type: "e2a"}]
+
+  PassivePoV:
+    <<: *common
+    env_config:
+      <<: *prompt_standard
+      <<: *passive
+      name: "passive_pov"
+      eval_tasks: [{task_type: "pov"}]
+
+  PassiveFalseBelief:
+    <<: *common
+    env_config:
+      <<: *prompt_standard
+      <<: *passive
+      name: "passive_false_belief"
+      eval_tasks: [{task_type: "false_belief"}]
+  PassiveDirCogmap:
+    <<: *common
+    env_config:
+      <<: *prompt_cogmap
+      <<: *passive
+      name: "passive_dir_cogmap"
+      eval_tasks: [{task_type: "dir"}]
+
+  PassiveRotCogmap:
+    <<: *common
+    env_config:
+      <<: *prompt_cogmap
+      <<: *passive
+      name: "passive_rot_cogmap"
+      eval_tasks: [{task_type: "rot"}]
+
+  PassiveLocCogmap:
+    <<: *common
+    env_config:
+      <<: *prompt_cogmap
+      <<: *passive
+      name: "passive_loc_cogmap"
+      eval_tasks: [{task_type: "loc"}]
+
+
+  ActiveDir:
+    <<: *common
+    env_config:
+      <<: *prompt_standard
+      <<: *active
+      name: "active_dir"
+      eval_tasks: [{task_type: "dir"}]
+
+  ActiveRot:
+    <<: *common
+    env_config:
+      <<: *prompt_standard
+      <<: *active
+      name: "active_rot"
+      eval_tasks: [{task_type: "rot"}]
+
+  ActiveLoc:
+    <<: *common
+    env_config:
+      <<: *prompt_standard
+      <<: *active
+      name: "active_loc"
+      eval_tasks: [{task_type: "loc"}]
+
+  ActiveDirCogmap:
+    <<: *common
+    env_config:
+      <<: *prompt_cogmap
+      <<: *active
+      name: "active_dir_cogmap"
+      eval_tasks: [{task_type: "dir"}]
+
+  ActiveRotCogmap:
+    <<: *common
+    env_config:
+      <<: *prompt_cogmap
+      <<: *active
+      name: "active_rot_cogmap"
+      eval_tasks: [{task_type: "rot"}]
+
+  ActiveLocCogmap:
+    <<: *common
+    env_config:
+      <<: *prompt_cogmap
+      <<: *active
+      name: "active_loc_cogmap"
+      eval_tasks: [{task_type: "loc"}]
+
+  

@@ -21,11 +21,12 @@ class ImageHandler:
             image_size: Target size for loaded images
             preload_images: Whether to load all images into memory
         """
+        self.base_dir = base_dir
         self.image_size = image_size
         self.preload_images = preload_images
         self.image_dir, self.json_data = self._load_data(base_dir, seed)
         self.objects = {obj['object_id']: obj for obj in self.json_data.get('objects', [])}
-        self._image_map = self._load_images()
+        self._image_map, self._image_path_map = self._load_images()
         self.name_2_cam_id = {obj['name']: obj['object_id'] for obj in self.objects.values()}
         self.name_2_cam_id['agent'] = 'agent'
     
@@ -43,26 +44,34 @@ class ImageHandler:
     def _load_images(self) -> Dict[str, Union[Image.Image, str]]:
         """Load images or paths based on preload setting."""
         image_map = {}
-        
+        image_path_map = {}
         for entry in self.json_data.get('images', []):
             key = f"{entry['cam_id']}_facing_{entry['direction']}"
             path = os.path.join(self.image_dir, entry['file'])
-            
-            if os.path.exists(path):
-                if self.preload_images:
-                    image_map[key] = Image.open(path).resize(self.image_size, Image.LANCZOS)
-                else:
-                    image_map[key] = path
-        image_map['topdown'] = Image.open(os.path.join(self.image_dir, 'top_down_annotated.png'))
-        image_map['oblique'] = Image.open(os.path.join(self.image_dir, 'oblique_view.png'))
-        return image_map
+            assert os.path.exists(path)
+            image_path_map[key] = path
+            if self.preload_images:
+                image_map[key] = Image.open(path).resize(self.image_size, Image.LANCZOS)
+        topdown_path = os.path.join(self.image_dir, 'top_down_annotated.png')
+        assert os.path.exists(topdown_path)
+        image_path_map['topdown'] = topdown_path
+        if self.preload_images:
+            image_map['topdown'] = Image.open(topdown_path).resize(self.image_size, Image.LANCZOS)
+
+        instruction_path = os.path.join(self.base_dir, 'instruction.png')
+        assert os.path.exists(instruction_path)
+        image_path_map['instruction'] = instruction_path
+        if self.preload_images:
+            image_map['instruction'] = Image.open(instruction_path).resize(self.image_size, Image.LANCZOS)            
+        
+        return image_map, image_path_map
     
     def get_image(self, name: str = 'agent', direction: str = 'north') -> Image.Image:
         """
         Get image for given camera ID and direction.
         
         Args:
-            name: Name of the object ('agent' or object_name or 'topdown' as string)
+            name: Name of the object ('agent' or object_name or 'topdown' or 'instruction' as string)
             direction: Cardinal direction ('north', 'south', 'east', 'west')
             
         Returns:
@@ -71,7 +80,11 @@ class ImageHandler:
         Raises:
             KeyError: If image not found
         """
-        key = f"{self.name_2_cam_id[name]}_facing_{direction}" if name != 'topdown' else 'topdown'
+        # Handle special static images that don't need direction
+        if name in ['topdown', 'instruction']:
+            key = name
+        else:
+            key = f"{self.name_2_cam_id[name]}_facing_{direction}"
         
         if key not in self._image_map:
             raise KeyError(f"Image not found for name '{name}' facing '{direction}'")
@@ -79,5 +92,30 @@ class ImageHandler:
         if self.preload_images:
             return self._image_map[key]
         else:
-            path = self._image_map[key]
+            path = self._image_path_map[key]
             return Image.open(path).resize(self.image_size, Image.LANCZOS)
+        
+    def get_image_path(self, name: str = 'agent', direction: str = 'north') -> str:
+        """
+        Get image path for given camera ID and direction.
+        
+        Args:
+            name: Name of the object ('agent' or object_name or 'topdown' or 'instruction' as string)
+            direction: Cardinal direction ('north', 'south', 'east', 'west')
+            
+        Returns:
+            Image file path
+            
+        Raises:
+            KeyError: If image path not found
+        """
+        # Handle special static images that don't need direction
+        if name in ['topdown', 'instruction']:
+            key = name
+        else:
+            key = f"{self.name_2_cam_id[name]}_facing_{direction}"
+        
+        if key not in self._image_path_map:
+            raise KeyError(f"Image path not found for name '{name}' facing '{direction}'")
+        
+        return self._image_path_map[key]

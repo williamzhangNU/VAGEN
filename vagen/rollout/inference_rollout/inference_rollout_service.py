@@ -98,8 +98,13 @@ class InferenceRolloutService(BaseRollout):
             env_id = f"{self.split}_{i}"
             ids2configs[env_id] = cfg
             ids2seeds[env_id] = cfg.get("seed", 42)
-            
-            # Store configuration for reference
+            if cfg["env_name"] == "spatial":
+                kwargs = {
+                    "model_config": self.model_interface.config.to_dict(),
+                    "override": self.config.get('override', False)  
+                }
+                cfg["env_config"]['kwargs'] = kwargs
+
             self.envs[env_id] = REGISTERED_ENV[cfg["env_name"]]["config_cls"](**cfg["env_config"])
         
         if self.debug:
@@ -112,6 +117,8 @@ class InferenceRolloutService(BaseRollout):
         # Get system prompts
         self.system_prompts = self.env_client.get_system_prompts_batch(list(self.envs.keys()))
         
+        env_histories: Dict[str, list] = {}
+        
         # Initialize recordings and state tracking
         for env_id, (obs, info) in reset_results.items():
             # Initialize recording with system prompt and first observation
@@ -119,7 +126,10 @@ class InferenceRolloutService(BaseRollout):
                 {"role": "system", "content": self.system_prompts[env_id]},
                 {"role": "user", "content": obs["obs_str"]}
             ]
-            
+            history = info.pop("history", None)
+            if history:
+                env_histories[env_id] = history
+
             # Track multi-modal data if present
             if "multi_modal_data" in obs:
                 # Store multimodal data with the message
@@ -138,11 +148,86 @@ class InferenceRolloutService(BaseRollout):
                 }
             }
         
+        if env_histories:
+            if self.debug:
+                print(f"Replaying history for {len(env_histories)} environments...")
+            
+            # 循环直到所有 env 的 history 均为空
+            while True:
+                # 选取当前仍有待回放 history 的环境（不再判断 done）
+                ready_envs = [eid for eid, hist in env_histories.items() if hist]
+                if not ready_envs:
+                    break
+                
+                # 构造本步的 actions：各自取队首一条
+                ids2actions = {eid: env_histories[eid].pop(0) for eid in ready_envs}
+                
+                # 批量 step
+                step_results = self.env_client.step_batch(ids2actions)
+                
+                # 统一处理 step 结果（history 回放阶段强制追加 user 观测）
+                self._apply_step_results(step_results, ids2actions)
+                
+                env_histories = {eid: hist for eid, hist in env_histories.items() if hist}
+        
         if self.debug:
             print(f"Reset {len(reset_results)} environments")
         
-        return reset_results
     
+    def _apply_step_results(self,
+                            step_results: Dict[str, Tuple[Dict, float, bool, Dict]],
+                            responses: Dict[str, str]) -> set:
+        """Apply step results to internal state and recordings.
+        
+        Args:
+            step_results: env_id -> (obs, reward, done, info)
+            responses: env_id -> assistant text (the action sent)
+        Returns:
+            Set of env_ids that remain active (not done)
+        """
+        next_active_envs = set()
+        for env_id, (obs, reward, done, info) in step_results.items():
+            # Update state
+            self.env_states[env_id]["step"] += 1
+            self.env_states[env_id]["done"] = done
+            self.env_states[env_id]["last_obs"] = obs
+            self.env_states[env_id]["last_info"] = info
+            self.env_states[env_id]["rewards"].append(reward)
+            
+            # Store llm_raw_response in info
+            info["llm_raw_response"] = responses[env_id]
+            
+            # Update metrics - properly handle all metrics from the environment
+            if "metrics" in info:
+                # Update trajectory metrics
+                for k, v in info["metrics"].get("traj_metrics", {}).items():
+                    if isinstance(v, list):
+                        self.env_states[env_id]["metrics"]["traj_metrics"][k].extend(v)
+                    else:
+                        self.env_states[env_id]["metrics"]["traj_metrics"][k] = v
+                
+                # Update turn metrics (accumulate lists)
+                for k, v in info["metrics"].get("turn_metrics", {}).items():
+                    if isinstance(v, list):
+                        self.env_states[env_id]["metrics"]["turn_metrics"][k].extend(v)
+                    else:
+                        self.env_states[env_id]["metrics"]["turn_metrics"][k].append(v)
+            
+            # Add assistant response to recording
+            self.recordings[env_id].append({
+                "role": "assistant",
+                "content": responses[env_id]
+            })
+            
+            # Add user observation only if not done
+            if not done:
+                user_message = {"role": "user", "content": obs["obs_str"]}
+                if "multi_modal_data" in obs:
+                    user_message["multi_modal_data"] = obs["multi_modal_data"]
+                self.recordings[env_id].append(user_message)
+                next_active_envs.add(env_id)
+        return next_active_envs
+
     def run(self, max_steps: int = None) -> None:
         """
         Run inference on all environments until completion or max steps.
@@ -190,53 +275,9 @@ class InferenceRolloutService(BaseRollout):
             # Step environments using service
             step_results = self.env_client.step_batch(ids2actions)
             
-            for env_id, (obs, reward, done, info) in step_results.items():
-                # Update state
-                self.env_states[env_id]["step"] += 1
-                self.env_states[env_id]["done"] = done
-                self.env_states[env_id]["last_obs"] = obs
-                self.env_states[env_id]["last_info"] = info
-                self.env_states[env_id]["rewards"].append(reward)
-                
-                # Store llm_raw_response in info
-                info["llm_raw_response"] = responses[env_id]
-                
-                # Update metrics - properly handle all metrics from the environment
-                if "metrics" in info:
-                    # Update trajectory metrics
-                    for k, v in info["metrics"].get("traj_metrics", {}).items():
-                        if isinstance(v, list):
-                            self.env_states[env_id]["metrics"]["traj_metrics"][k].extend(v)
-                        else:
-                            self.env_states[env_id]["metrics"]["traj_metrics"][k] = v
-                    
-                    # Update turn metrics (accumulate lists)
-                    for k, v in info["metrics"].get("turn_metrics", {}).items():
-                        if isinstance(v, list):
-                            self.env_states[env_id]["metrics"]["turn_metrics"][k].extend(v)
-                        else:
-                            self.env_states[env_id]["metrics"]["turn_metrics"][k].append(v)
-                
-                # Add assistant response to recording
-                self.recordings[env_id].append({
-                    "role": "assistant",
-                    "content": responses[env_id]
-                })
-                
-                # Add user observation to recording if not done
-                if not done:
-                    user_message = {"role": "user", "content": obs["obs_str"]}
-                    
-                    # Track multi-modal data if present
-                    if "multi_modal_data" in obs:
-                        user_message["multi_modal_data"] = obs["multi_modal_data"]
-                    
-                    self.recordings[env_id].append(user_message)
-                    next_active_envs.add(env_id)
-            
             # Update active environments for next iteration
-            active_envs = next_active_envs
-            
+            active_envs = self._apply_step_results(step_results, responses)
+        
             if self.debug or (step % 5 == 0 and self.show_progress):
                 # Print progress stats every 5 steps
                 completion_rate = (len(self.envs) - len(active_envs)) / len(self.envs) * 100

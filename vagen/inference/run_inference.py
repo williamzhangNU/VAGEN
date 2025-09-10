@@ -8,18 +8,18 @@ import yaml
 import wandb
 import pandas as pd
 import numpy as np
+import dotenv
 from datetime import datetime
 from typing import Dict, List, Any
 from collections import defaultdict
-
 from vagen.inference.model_interface.factory_model import ModelFactory
 from vagen.rollout.inference_rollout.inference_rollout_service import InferenceRolloutService
 from vagen.inference.utils.logging import log_results_to_wandb
-from vagen.env.spatial.env import SpatialGym
-from vagen.env.spatial.utils.env_logger import SpatialEnvLogger
+from vagen.env.spatial.Base.tos_base.utils.env_logger import SpatialEnvLogger
+from vagen.env.spatial.Base.tos_base.utils.cog_utils import evaluate_cognitive_maps_from_turnlogs
 
 logger = logging.getLogger(__name__)
-
+dotenv.load_dotenv() 
 def parse_args():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description="Run inference with models")
@@ -123,10 +123,18 @@ def main():
 
             # save results to json and visualize (for spatial env)
             # save_results_to_disk([result['env_summary'] for result in results], [result['messages'] for result in results], inference_config.get('output_dir', 'results/inference_outputs'), model_name=model_name)
+            if inference_config['evaluate_cogmap']:
+                env_summary = evaluate_cognitive_maps_from_turnlogs(
+                    [result['env_summary'] for result in results], 
+                    [result['messages'] for result in results], 
+                    service.model_interface,
+                    vagen=True)
+            else:
+                env_summary = [result['env_summary'] for result in results]
             SpatialEnvLogger.log_each_env_info(
-                [result['env_summary'] for result in results], 
+                env_summary, 
                 [result['messages'] for result in results], 
-                output_dir=os.path.join(inference_config.get('output_dir', 'results/inference_outputs'), model_name),
+                output_dir=inference_config.get('output_dir', 'results/inference_outputs'),
                 save_images=True,
                 model_name=model_name
             )

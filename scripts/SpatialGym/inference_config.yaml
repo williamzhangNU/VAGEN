@@ -1,16 +1,18 @@
 # Server configuration
-server_url: "http://localhost:5000"
+server_url: "http://localhost:5001"
 server_timeout: 600
 server_max_workers: 48
 
 # Inference parameters
 batch_size: 32
-max_steps: 12
+max_steps: 20
 split: "test"
 debug: false
 
 # Output configuration
-output_dir: "results/gpt-5-mini/rot"
+output_dir: "results/passive_rot/without_instruction"
+override: false
+evaluate_cogmap: false
 
 # WandB configuration
 use_wandb: false
