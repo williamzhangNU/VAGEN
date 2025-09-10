@@ -95,9 +95,6 @@ class InferenceRolloutService(BaseRollout):
         ids2configs = {}
         ids2seeds = {}
         
-        # for spatial env
-        SpatialGym.parsing_kwargs = {"enable_think": bool(self.config.get('enable_think', True))}
-
         for i, cfg in enumerate(env_configs):
             env_id = f"{self.split}_{i}"
             ids2configs[env_id] = cfg
@@ -108,6 +105,8 @@ class InferenceRolloutService(BaseRollout):
                     "override": self.config.get('override', False)
                 }
                 cfg["env_config"]['kwargs'] = kwargs
+                # pass enable_think via prompt_config
+                cfg["env_config"]['prompt_config']["enable_think"] = bool(self.config.get('enable_think', True))
 
             self.envs[env_id] = REGISTERED_ENV[cfg["env_name"]]["config_cls"](**cfg["env_config"])
         

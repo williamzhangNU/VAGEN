@@ -29,7 +29,6 @@ class SpatialGym(gym.Env):
     This environment uses an EvaluationManager to handle all evaluation tasks,
     separating evaluation logic from the main environment logic.
     """
-    parsing_kwargs = {'enable_think': True}
     def __init__(self, config: SpatialGymConfig):
         super().__init__()
         self.config = config
@@ -90,7 +89,7 @@ class SpatialGym(gym.Env):
         self.image_dir = self.image_handler.image_dir
         self.json_data = self.image_handler.json_data
 
-        self.prompter = Prompter(self.config, self.image_handler, self.np_random, enable_think=bool(self.parsing_kwargs['enable_think']))
+        self.prompter = Prompter(self.config, self.image_handler, self.np_random, enable_think=bool(self.config.prompt_config.get('enable_think', True)))
         # Generate initial room
         # self.initial_room, self.agent = RoomGenerator.generate_room(
         #     **self.config.get_room_config(),
@@ -198,7 +197,7 @@ class SpatialGym(gym.Env):
         self.current_turn_number += 1
         exp_log, eval_log = None, None
         think_content, action, parsed_ok = parse_llm_response(
-            llm_response, enable_think=bool(self.parsing_kwargs.get('enable_think', True))
+            llm_response, enable_think=bool(self.config.prompt_config.get('enable_think', True))
         )
         room_state = next((turn_log.room_state for turn_log in self.turn_logs[::-1] if turn_log.room_state), self.initial_room)
         agent_state = next((turn_log.agent_state for turn_log in self.turn_logs[::-1] if turn_log.agent_state), self.agent)

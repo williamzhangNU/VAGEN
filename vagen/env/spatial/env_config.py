@@ -52,7 +52,7 @@ class SpatialGymConfig(BaseEnvConfig):
     # Evaluation configuration
     eval_tasks: List[Dict[str, Any]] = field(default_factory=lambda: [{"task_type": "rot", "task_kwargs": {"turn_direction": "counterclockwise"}}])
 
-    prompt_config: Dict[str, Any] = field(default_factory=lambda: {"topdown": False, "oblique": False, "cogmap": False, "type": "shorter"})
+    prompt_config: Dict[str, Any] = field(default_factory=lambda: {"topdown": False, "oblique": False, "type": "shorter", "enable_think": True})
 
     cogmap_config: dict = field(default_factory=lambda: {"cogmap_type": "standard", "pos_allow_scale": True, "scope": "all"})
     
@@ -136,6 +136,7 @@ class SpatialGymConfig(BaseEnvConfig):
             'field_of_view': self.field_of_view,
             'observation_mode': self.observation_mode,
             'render_mode': self.render_mode,
+            'prompt_config': self.prompt_config,
         }        
 
     def to_dict(self) -> Dict[str, Any]:
