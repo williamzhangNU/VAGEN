@@ -4,6 +4,7 @@ from .claude import ClaudeModelInterface, ClaudeModelConfig
 from .gemini import GeminiModelInterface, GeminiModelConfig
 # from .routerapi import RouterAPIModelInterface, RouterAPIModelConfig
 from .together import TogetherModelInterface, TogetherModelConfig
+from .zhipu import ZhipuModelInterface, ZhipuModelConfig
 
 REGISTERED_MODEL = {
     "vllm": {
@@ -29,5 +30,9 @@ REGISTERED_MODEL = {
     "together": {
         "model_cls": TogetherModelInterface,
         "config_cls": TogetherModelConfig
+    },
+    "zhipu": {
+        "model_cls": ZhipuModelInterface,
+       "config_cls": ZhipuModelConfig
     }
 }
