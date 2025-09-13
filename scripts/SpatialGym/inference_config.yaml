@@ -11,8 +11,8 @@ debug: false
 enable_think: true
 
 # Output configuration
-output_dir: "results/passive_rot/without_instruction"
-override: false
+output_dir: "results/passive_rot/with_instruction"
+override: true
 evaluate_cogmap: false
 
 # WandB configuration

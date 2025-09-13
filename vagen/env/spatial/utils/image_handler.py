@@ -62,7 +62,14 @@ class ImageHandler:
         assert os.path.exists(instruction_path)
         image_path_map['instruction'] = instruction_path
         if self.preload_images:
-            image_map['instruction'] = Image.open(instruction_path).resize(self.image_size, Image.LANCZOS)            
+            image_map['instruction'] = Image.open(instruction_path).resize(self.image_size, Image.LANCZOS)
+            
+        # Add orientation_instruction.png from current image directory
+        orientation_instruction_path = os.path.join(self.image_dir, 'orientation_instruction.png')
+        if os.path.exists(orientation_instruction_path):
+            image_path_map['orientation_instruction'] = orientation_instruction_path
+            if self.preload_images:
+                image_map['orientation_instruction'] = Image.open(orientation_instruction_path).resize(self.image_size, Image.LANCZOS)
         
         return image_map, image_path_map
     
@@ -71,7 +78,7 @@ class ImageHandler:
         Get image for given camera ID and direction.
         
         Args:
-            name: Name of the object ('agent' or object_name or 'topdown' or 'instruction' as string)
+            name: Name of the object ('agent' or object_name or 'topdown' or 'instruction' or 'orientation_instruction' as string)
             direction: Cardinal direction ('north', 'south', 'east', 'west')
             
         Returns:
@@ -81,7 +88,7 @@ class ImageHandler:
             KeyError: If image not found
         """
         # Handle special static images that don't need direction
-        if name in ['topdown', 'instruction']:
+        if name in ['topdown', 'instruction', 'orientation_instruction']:
             key = name
         else:
             key = f"{self.name_2_cam_id[name]}_facing_{direction}"
@@ -100,7 +107,7 @@ class ImageHandler:
         Get image path for given camera ID and direction.
         
         Args:
-            name: Name of the object ('agent' or object_name or 'topdown' or 'instruction' as string)
+            name: Name of the object ('agent' or object_name or 'topdown' or 'instruction' or 'orientation_instruction' as string)
             direction: Cardinal direction ('north', 'south', 'east', 'west')
             
         Returns:
@@ -110,7 +117,7 @@ class ImageHandler:
             KeyError: If image path not found
         """
         # Handle special static images that don't need direction
-        if name in ['topdown', 'instruction']:
+        if name in ['topdown', 'instruction', 'orientation_instruction']:
             key = name
         else:
             key = f"{self.name_2_cam_id[name]}_facing_{direction}"

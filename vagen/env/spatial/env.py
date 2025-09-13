@@ -119,7 +119,7 @@ class SpatialGym(gym.Env):
         # always create exploration manager (also used to generate passive history)
         self.exploration_manager = ExplorationManager(self.initial_room, self.agent)
         self.evaluation_manager = EvaluationManager(self.config.eval_tasks, self.np_random, self.initial_room, self.agent) if len(self.config.eval_tasks) > 0 else None
-        self.history_manager = HistoryManager(seed, self.config, self.initial_room, self.agent) if self.config.exp_type == 'active' else None
+        self.history_manager = HistoryManager(self.config, self.initial_room, self.agent) if self.config.exp_type == 'active' else None
         info = {}
         if self.history_manager and self.history_manager.is_history_exist():
             info['history'] = self.history_manager.get_responses()

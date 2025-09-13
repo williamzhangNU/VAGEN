@@ -1,54 +1,23 @@
 {
   "room_size": [
-    16.0,
-    16.0
+    20.0,
+    20.0
   ],
   "screen_size": [
     768,
     768
   ],
   "seed": 42,
-  "min_distance": 0.5,
+  "min_distance": 1.1,
   "objects": [
     {
-      "object_id": 6664789,
-      "model": "cabinet_36_white_wood",
-      "name": "white cabinet",
+      "object_id": 5721339,
+      "model": "wood_chair",
+      "name": "blue_chair",
       "pos": {
-        "x": -5.0,
+        "x": -2.0,
         "y": 0.05,
-        "z": 0.0
-      },
-      "rot": {
-        "x": 0,
-        "y": 0,
-        "z": 0
-      },
-      "size": [
-        0.9098790999999999,
-        0.6424497
-      ],
-      "attributes": {
-        "scale": 1.0,
-        "has_orientation": false,
-        "room_id": 1,
-        "color": {
-          "name": "white",
-          "r": 1.0,
-          "g": 1.0,
-          "b": 1.0,
-          "a": 1.0
-        }
-      }
-    },
-    {
-      "object_id": 6499720,
-      "model": "white_lamp",
-      "name": "white lamp",
-      "pos": {
-        "x": 2.0,
-        "y": 0.05,
-        "z": 4.0
+        "z": 7.0
       },
       "rot": {
         "x": 0,
@@ -56,110 +25,227 @@
         "z": 0
       },
       "size": [
-        0.5249988,
-        1.08171015
+        0.34391456,
+        0.38231632
       ],
       "attributes": {
-        "scale": 1.5,
-        "has_orientation": false,
-        "room_id": 2
-      }
-    },
-    {
-      "object_id": 1068148,
-      "model": "wood_chair",
-      "name": "yellow chair",
-      "pos": {
-        "x": -4.0,
-        "y": 0.05,
-        "z": -4.0
-      },
-      "rot": {
-        "x": 0,
-        "y": 90,
-        "z": 0
-      },
-      "size": [
-        0.4298932,
-        0.47789539999999997
-      ],
-      "attributes": {
-        "scale": 1.0,
-        "has_orientation": true,
-        "room_id": 3,
-        "color": {
-          "name": "yellow",
-          "r": 1.0,
-          "g": 1.0,
-          "b": 0.0,
-          "a": 1.0
-        },
-        "orientation": "east"
-      }
-    },
-    {
-      "object_id": 4584702,
-      "model": "white_club_chair",
-      "name": "green chair",
-      "pos": {
-        "x": -2.0,
-        "y": 0.05,
-        "z": 0.0
-      },
-      "rot": {
-        "x": 0,
-        "y": 90,
-        "z": 0
-      },
-      "size": [
-        0.7982815,
-        0.9681153
-      ],
-      "attributes": {
-        "scale": 1.0,
+        "scale": 0.8,
         "has_orientation": true,
         "room_id": 1,
         "color": {
-          "name": "green",
+          "name": "blue",
           "r": 0.0,
-          "g": 1.0,
-          "b": 0.0,
+          "g": 0.0,
+          "b": 1.0,
           "a": 1.0
         },
+        "orientation": "south"
+      }
+    },
+    {
+      "object_id": 4275709,
+      "model": "backpack3",
+      "name": "backpack",
+      "pos": {
+        "x": -3.0,
+        "y": 0.25,
+        "z": 6.0
+      },
+      "rot": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "size": [
+        0.005209752320000001,
+        0.00574820087
+      ],
+      "attributes": {
+        "scale": 0.01,
+        "has_orientation": true,
+        "room_id": 1,
         "orientation": "east"
       }
     },
     {
-      "object_id": 6517209,
-      "model": "dining_room_table",
-      "name": "wooden table",
+      "object_id": 6147581,
+      "model": "vase_01",
+      "name": "vase",
       "pos": {
-        "x": 4.0,
+        "x": -1.0,
         "y": 0.05,
-        "z": 1.0
+        "z": 6.0
       },
       "rot": {
         "x": 0,
-        "y": 0,
+        "y": 180,
         "z": 0
       },
       "size": [
-        1.0922,
-        1.0922
+        0.29050520999999996,
+        0.29050524
       ],
       "attributes": {
-        "scale": 1.0,
+        "scale": 3.0,
+        "has_orientation": false,
+        "room_id": 1
+      }
+    },
+    {
+      "object_id": 1996107,
+      "model": "appliance-ge-profile-microwave3",
+      "name": "microwave",
+      "pos": {
+        "x": -1.0,
+        "y": 0.05,
+        "z": -3.0
+      },
+      "rot": {
+        "x": 0,
+        "y": 180,
+        "z": 0
+      },
+      "size": [
+        0.9137831999999999,
+        0.5273385599999999
+      ],
+      "attributes": {
+        "scale": 1.2,
         "has_orientation": false,
         "room_id": 2
       }
     },
     {
-      "object_id": 2425472,
-      "model": "vase_01",
-      "name": "vase",
+      "object_id": 8130144,
+      "model": "blue_rug",
+      "name": "rug",
       "pos": {
-        "x": -2.0,
+        "x": 1.0,
         "y": 0.05,
+        "z": -7.0
+      },
+      "rot": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "size": [
+        0.9144,
+        1.3716
+      ],
+      "attributes": {
+        "scale": 0.5,
+        "has_orientation": false,
+        "room_id": 2
+      }
+    },
+    {
+      "object_id": 4747389,
+      "model": "kettle",
+      "name": "kettle",
+      "pos": {
+        "x": -1.0,
+        "y": 0.05,
+        "z": -7.0
+      },
+      "rot": {
+        "x": 0,
+        "y": 270,
+        "z": 0
+      },
+      "size": [
+        0.53012865,
+        0.37114645
+      ],
+      "attributes": {
+        "scale": 2.5,
+        "has_orientation": true,
+        "room_id": 2,
+        "orientation": "west"
+      }
+    },
+    {
+      "object_id": 3558231,
+      "model": "fire_extinguisher",
+      "name": "fire_extinguisher",
+      "pos": {
+        "x": -7.0,
+        "y": 0.05,
+        "z": -3.0
+      },
+      "rot": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "size": [
+        0.3545385,
+        0.217863105
+      ],
+      "attributes": {
+        "scale": 1.5,
+        "has_orientation": true,
+        "room_id": 3,
+        "orientation": "east"
+      }
+    },
+    {
+      "object_id": 4080389,
+      "model": "monitor1",
+      "name": "monitor",
+      "pos": {
+        "x": -9.0,
+        "y": 0.45,
+        "z": -4.0
+      },
+      "rot": {
+        "x": 0,
+        "y": 270,
+        "z": 0
+      },
+      "size": [
+        9.437283749999999,
+        6.456507
+      ],
+      "attributes": {
+        "scale": 3,
+        "has_orientation": true,
+        "room_id": 3,
+        "orientation": "west"
+      }
+    },
+    {
+      "object_id": 3656138,
+      "model": "alarm_clock",
+      "name": "alarmclock",
+      "pos": {
+        "x": -4.0,
+        "y": 0.05,
+        "z": -5.0
+      },
+      "rot": {
+        "x": 0,
+        "y": 180,
+        "z": 0
+      },
+      "size": [
+        0.5665459500000001,
+        0.52468341
+      ],
+      "attributes": {
+        "scale": 3.0,
+        "has_orientation": true,
+        "room_id": 3,
+        "orientation": "south"
+      }
+    },
+    {
+      "object_id": 20047,
+      "model": "green_door",
+      "name": "green door",
+      "pos": {
+        "x": -3.0,
+        "y": 0,
         "z": -4.0
       },
       "rot": {
@@ -168,21 +254,24 @@
         "z": 0
       },
       "size": [
-        0.213037154,
-        0.21303717600000002
+        1,
+        2.0
       ],
       "attributes": {
-        "scale": 2.2,
-        "has_orientation": false,
-        "room_id": 3
+        "color": "green",
+        "orientation": "vertical",
+        "connected_rooms": [
+          2,
+          3
+        ]
       }
     },
     {
-      "object_id": 10000,
+      "object_id": 20193,
       "model": "blue_door",
       "name": "blue door",
       "pos": {
-        "x": 0.0,
+        "x": -6.0,
         "y": 0,
         "z": 1.0
       },
@@ -197,33 +286,6 @@
       ],
       "attributes": {
         "color": "blue",
-        "orientation": "vertical",
-        "connected_rooms": [
-          1,
-          2
-        ]
-      }
-    },
-    {
-      "object_id": 10001,
-      "model": "orange_door",
-      "name": "orange door",
-      "pos": {
-        "x": -4.0,
-        "y": 0,
-        "z": -2.0
-      },
-      "rot": {
-        "x": 0,
-        "y": 0,
-        "z": 0
-      },
-      "size": [
-        1,
-        2.0
-      ],
-      "attributes": {
-        "color": "orange",
         "orientation": "horizontal",
         "connected_rooms": [
           1,
@@ -239,103 +301,139 @@
       "position": {
         "x": -4.0,
         "y": 0.85,
-        "z": 3.0
-      },
-      "rotation": {
-        "y": 0.0
-      }
-    },
-    {
-      "id": "6664789",
-      "label": "1",
-      "position": {
-        "x": -5.0,
-        "y": 0.8,
-        "z": 0.0
-      },
-      "rotation": {
-        "y": 90.0
-      }
-    },
-    {
-      "id": "6499720",
-      "label": "2",
-      "position": {
-        "x": 2.0,
-        "y": 0.8,
         "z": 4.0
       },
       "rotation": {
-        "y": -153.434948822922
+        "y": 0.0
       }
     },
     {
-      "id": "1068148",
+      "id": "5721339",
+      "label": "1",
+      "position": {
+        "x": -2.0,
+        "y": 0.8,
+        "z": 7.0
+      },
+      "rotation": {
+        "y": 164.05460409907712
+      }
+    },
+    {
+      "id": "4275709",
+      "label": "2",
+      "position": {
+        "x": -3.0,
+        "y": 0.8,
+        "z": 6.0
+      },
+      "rotation": {
+        "y": 153.434948822922
+      }
+    },
+    {
+      "id": "6147581",
       "label": "3",
+      "position": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": 6.0
+      },
+      "rotation": {
+        "y": 170.53767779197437
+      }
+    },
+    {
+      "id": "1996107",
+      "label": "4",
+      "position": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": -3.0
+      },
+      "rotation": {
+        "y": 18.43494882292201
+      }
+    },
+    {
+      "id": "8130144",
+      "label": "5",
+      "position": {
+        "x": 1.0,
+        "y": 0.8,
+        "z": -7.0
+      },
+      "rotation": {
+        "y": -8.13010235415598
+      }
+    },
+    {
+      "id": "4747389",
+      "label": "6",
+      "position": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": -7.0
+      },
+      "rotation": {
+        "y": 8.13010235415598
+      }
+    },
+    {
+      "id": "3558231",
+      "label": "7",
+      "position": {
+        "x": -7.0,
+        "y": 0.8,
+        "z": -3.0
+      },
+      "rotation": {
+        "y": 66.80140948635182
+      }
+    },
+    {
+      "id": "4080389",
+      "label": "8",
+      "position": {
+        "x": -9.0,
+        "y": 0.8,
+        "z": -4.0
+      },
+      "rotation": {
+        "y": 66.03751102542182
+      }
+    },
+    {
+      "id": "3656138",
+      "label": "9",
       "position": {
         "x": -4.0,
         "y": 0.8,
-        "z": -4.0
+        "z": -5.0
       },
       "rotation": {
-        "y": 45.0
+        "y": 38.65980825409009
       }
     },
     {
-      "id": "4584702",
-      "label": "4",
+      "id": "20047",
+      "label": "D20047",
       "position": {
-        "x": -2.0,
-        "y": 0.8,
-        "z": 0.0
-      },
-      "rotation": {
-        "y": 90.0
-      }
-    },
-    {
-      "id": "6517209",
-      "label": "5",
-      "position": {
-        "x": 4.0,
-        "y": 0.8,
-        "z": 1.0
-      },
-      "rotation": {
-        "y": -104.03624346792648
-      }
-    },
-    {
-      "id": "2425472",
-      "label": "6",
-      "position": {
-        "x": -2.0,
+        "x": -3.0,
         "y": 0.8,
         "z": -4.0
-      },
-      "rotation": {
-        "y": 26.56505117707799
-      }
-    },
-    {
-      "id": "10000",
-      "label": "D100",
-      "position": {
-        "x": 0.0,
-        "y": 0.8,
-        "z": 1.0
       },
       "rotation": {
         "y": 0.0
       }
     },
     {
-      "id": "10001",
-      "label": "D101",
+      "id": "20193",
+      "label": "D20193",
       "position": {
-        "x": -4.0,
+        "x": -6.0,
         "y": 0.8,
-        "z": -2.0
+        "z": 1.0
       },
       "rotation": {
         "y": 0.0
@@ -371,10 +469,23 @@
       "pos": {
         "x": -4.0,
         "y": 0.8,
-        "z": 3.0
+        "z": 4.0
       },
       "direction": "north",
-      "object_ratios": []
+      "object_ratios": [
+        {
+          "object_id": 5721339,
+          "model": "wood_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        },
+        {
+          "object_id": 4275709,
+          "model": "backpack3",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        }
+      ]
     },
     {
       "file": "agent_facing_east.png",
@@ -382,10 +493,17 @@
       "pos": {
         "x": -4.0,
         "y": 0.8,
-        "z": 3.0
+        "z": 4.0
       },
       "direction": "east",
-      "object_ratios": []
+      "object_ratios": [
+        {
+          "object_id": 6147581,
+          "model": "vase_01",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        }
+      ]
     },
     {
       "file": "agent_facing_south.png",
@@ -393,23 +511,10 @@
       "pos": {
         "x": -4.0,
         "y": 0.8,
-        "z": 3.0
+        "z": 4.0
       },
       "direction": "south",
-      "object_ratios": [
-        {
-          "object_id": 6664789,
-          "model": "cabinet_36_white_wood",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 0.0
-        },
-        {
-          "object_id": 4584702,
-          "model": "white_club_chair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 0.0
-        }
-      ]
+      "object_ratios": []
     },
     {
       "file": "agent_facing_west.png",
@@ -417,136 +522,118 @@
       "pos": {
         "x": -4.0,
         "y": 0.8,
-        "z": 3.0
+        "z": 4.0
       },
       "direction": "west",
       "object_ratios": []
     },
     {
-      "file": "6664789_facing_north.png",
-      "cam_id": "6664789",
+      "file": "5721339_facing_north.png",
+      "cam_id": "5721339",
       "pos": {
-        "x": -5.0,
+        "x": -2.0,
         "y": 0.8,
-        "z": 0.0
+        "z": 7.0
       },
       "direction": "north",
       "object_ratios": []
     },
     {
-      "file": "6664789_facing_east.png",
-      "cam_id": "6664789",
+      "file": "5721339_facing_east.png",
+      "cam_id": "5721339",
       "pos": {
-        "x": -5.0,
+        "x": -2.0,
         "y": 0.8,
-        "z": 0.0
+        "z": 7.0
       },
       "direction": "east",
       "object_ratios": [
         {
-          "object_id": 4584702,
-          "model": "white_club_chair",
-          "visibility_ratio": 1.0,
+          "object_id": 6147581,
+          "model": "vase_01",
+          "visibility_ratio": 0.5,
           "occlusion_ratio": 0.0
         }
       ]
     },
     {
-      "file": "6664789_facing_south.png",
-      "cam_id": "6664789",
+      "file": "5721339_facing_south.png",
+      "cam_id": "5721339",
       "pos": {
-        "x": -5.0,
+        "x": -2.0,
         "y": 0.8,
-        "z": 0.0
-      },
-      "direction": "south",
-      "object_ratios": []
-    },
-    {
-      "file": "6664789_facing_west.png",
-      "cam_id": "6664789",
-      "pos": {
-        "x": -5.0,
-        "y": 0.8,
-        "z": 0.0
-      },
-      "direction": "west",
-      "object_ratios": []
-    },
-    {
-      "file": "6499720_facing_north.png",
-      "cam_id": "6499720",
-      "pos": {
-        "x": 2.0,
-        "y": 0.8,
-        "z": 4.0
-      },
-      "direction": "north",
-      "object_ratios": []
-    },
-    {
-      "file": "6499720_facing_east.png",
-      "cam_id": "6499720",
-      "pos": {
-        "x": 2.0,
-        "y": 0.8,
-        "z": 4.0
-      },
-      "direction": "east",
-      "object_ratios": []
-    },
-    {
-      "file": "6499720_facing_south.png",
-      "cam_id": "6499720",
-      "pos": {
-        "x": 2.0,
-        "y": 0.8,
-        "z": 4.0
+        "z": 7.0
       },
       "direction": "south",
       "object_ratios": [
         {
-          "object_id": 6517209,
-          "model": "dining_room_table",
-          "visibility_ratio": 1.0,
+          "object_id": 4275709,
+          "model": "backpack3",
+          "visibility_ratio": 0.5,
+          "occlusion_ratio": 0.0
+        },
+        {
+          "object_id": 6147581,
+          "model": "vase_01",
+          "visibility_ratio": 0.5,
           "occlusion_ratio": 0.0
         }
       ]
     },
     {
-      "file": "6499720_facing_west.png",
-      "cam_id": "6499720",
+      "file": "5721339_facing_west.png",
+      "cam_id": "5721339",
       "pos": {
-        "x": 2.0,
+        "x": -2.0,
         "y": 0.8,
-        "z": 4.0
+        "z": 7.0
       },
       "direction": "west",
-      "object_ratios": []
+      "object_ratios": [
+        {
+          "object_id": 4275709,
+          "model": "backpack3",
+          "visibility_ratio": 0.5,
+          "occlusion_ratio": 0.0
+        }
+      ]
     },
     {
-      "file": "1068148_facing_north.png",
-      "cam_id": "1068148",
+      "file": "4275709_facing_north.png",
+      "cam_id": "4275709",
       "pos": {
-        "x": -4.0,
+        "x": -3.0,
         "y": 0.8,
-        "z": -4.0
+        "z": 6.0
       },
       "direction": "north",
-      "object_ratios": []
+      "object_ratios": [
+        {
+          "object_id": 5721339,
+          "model": "wood_chair",
+          "visibility_ratio": 0.5,
+          "occlusion_ratio": 0.0
+        }
+      ]
     },
     {
-      "file": "1068148_facing_east.png",
-      "cam_id": "1068148",
+      "file": "4275709_facing_east.png",
+      "cam_id": "4275709",
       "pos": {
-        "x": -4.0,
+        "x": -3.0,
         "y": 0.8,
-        "z": -4.0
+        "z": 6.0
       },
       "direction": "east",
       "object_ratios": [
         {
-          "object_id": 2425472,
+          "object_id": 5721339,
+          "model": "wood_chair",
+          "visibility_ratio": 0.5,
+          "occlusion_ratio": 0.0
+        },
+        {
+          "object_id": 6147581,
           "model": "vase_01",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 0.0
@@ -554,134 +641,334 @@
       ]
     },
     {
-      "file": "1068148_facing_south.png",
-      "cam_id": "1068148",
+      "file": "4275709_facing_south.png",
+      "cam_id": "4275709",
       "pos": {
-        "x": -4.0,
+        "x": -3.0,
         "y": 0.8,
-        "z": -4.0
+        "z": 6.0
       },
       "direction": "south",
       "object_ratios": []
     },
     {
-      "file": "1068148_facing_west.png",
-      "cam_id": "1068148",
+      "file": "4275709_facing_west.png",
+      "cam_id": "4275709",
       "pos": {
-        "x": -4.0,
+        "x": -3.0,
         "y": 0.8,
-        "z": -4.0
+        "z": 6.0
       },
       "direction": "west",
       "object_ratios": []
     },
     {
-      "file": "4584702_facing_north.png",
-      "cam_id": "4584702",
+      "file": "6147581_facing_north.png",
+      "cam_id": "6147581",
       "pos": {
-        "x": -2.0,
+        "x": -1.0,
         "y": 0.8,
-        "z": 0.0
+        "z": 6.0
       },
       "direction": "north",
-      "object_ratios": []
+      "object_ratios": [
+        {
+          "object_id": 5721339,
+          "model": "wood_chair",
+          "visibility_ratio": 0.5,
+          "occlusion_ratio": 0.0
+        }
+      ]
     },
     {
-      "file": "4584702_facing_east.png",
-      "cam_id": "4584702",
+      "file": "6147581_facing_east.png",
+      "cam_id": "6147581",
       "pos": {
-        "x": -2.0,
+        "x": -1.0,
         "y": 0.8,
-        "z": 0.0
+        "z": 6.0
       },
       "direction": "east",
       "object_ratios": []
     },
     {
-      "file": "4584702_facing_south.png",
-      "cam_id": "4584702",
+      "file": "6147581_facing_south.png",
+      "cam_id": "6147581",
       "pos": {
-        "x": -2.0,
+        "x": -1.0,
         "y": 0.8,
-        "z": 0.0
+        "z": 6.0
       },
       "direction": "south",
       "object_ratios": []
     },
     {
-      "file": "4584702_facing_west.png",
-      "cam_id": "4584702",
+      "file": "6147581_facing_west.png",
+      "cam_id": "6147581",
       "pos": {
-        "x": -2.0,
+        "x": -1.0,
         "y": 0.8,
-        "z": 0.0
+        "z": 6.0
       },
       "direction": "west",
       "object_ratios": [
         {
-          "object_id": 6664789,
-          "model": "cabinet_36_white_wood",
+          "object_id": 5721339,
+          "model": "wood_chair",
+          "visibility_ratio": 0.5,
+          "occlusion_ratio": 0.0
+        },
+        {
+          "object_id": 4275709,
+          "model": "backpack3",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 0.0
         }
       ]
     },
     {
-      "file": "6517209_facing_north.png",
-      "cam_id": "6517209",
+      "file": "1996107_facing_north.png",
+      "cam_id": "1996107",
       "pos": {
-        "x": 4.0,
+        "x": -1.0,
         "y": 0.8,
-        "z": 1.0
+        "z": -3.0
       },
       "direction": "north",
+      "object_ratios": []
+    },
+    {
+      "file": "1996107_facing_east.png",
+      "cam_id": "1996107",
+      "pos": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": -3.0
+      },
+      "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "1996107_facing_south.png",
+      "cam_id": "1996107",
+      "pos": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": -3.0
+      },
+      "direction": "south",
       "object_ratios": [
         {
-          "object_id": 6499720,
-          "model": "white_lamp",
+          "object_id": 8130144,
+          "model": "blue_rug",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        },
+        {
+          "object_id": 4747389,
+          "model": "kettle",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 0.0
         }
       ]
     },
     {
-      "file": "6517209_facing_east.png",
-      "cam_id": "6517209",
+      "file": "1996107_facing_west.png",
+      "cam_id": "1996107",
       "pos": {
-        "x": 4.0,
+        "x": -1.0,
         "y": 0.8,
-        "z": 1.0
-      },
-      "direction": "east",
-      "object_ratios": []
-    },
-    {
-      "file": "6517209_facing_south.png",
-      "cam_id": "6517209",
-      "pos": {
-        "x": 4.0,
-        "y": 0.8,
-        "z": 1.0
-      },
-      "direction": "south",
-      "object_ratios": []
-    },
-    {
-      "file": "6517209_facing_west.png",
-      "cam_id": "6517209",
-      "pos": {
-        "x": 4.0,
-        "y": 0.8,
-        "z": 1.0
+        "z": -3.0
       },
       "direction": "west",
       "object_ratios": []
     },
     {
-      "file": "2425472_facing_north.png",
-      "cam_id": "2425472",
+      "file": "8130144_facing_north.png",
+      "cam_id": "8130144",
       "pos": {
-        "x": -2.0,
+        "x": 1.0,
+        "y": 0.8,
+        "z": -7.0
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 1996107,
+          "model": "appliance-ge-profile-microwave3",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "file": "8130144_facing_east.png",
+      "cam_id": "8130144",
+      "pos": {
+        "x": 1.0,
+        "y": 0.8,
+        "z": -7.0
+      },
+      "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "8130144_facing_south.png",
+      "cam_id": "8130144",
+      "pos": {
+        "x": 1.0,
+        "y": 0.8,
+        "z": -7.0
+      },
+      "direction": "south",
+      "object_ratios": []
+    },
+    {
+      "file": "8130144_facing_west.png",
+      "cam_id": "8130144",
+      "pos": {
+        "x": 1.0,
+        "y": 0.8,
+        "z": -7.0
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 4747389,
+          "model": "kettle",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "file": "4747389_facing_north.png",
+      "cam_id": "4747389",
+      "pos": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": -7.0
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 1996107,
+          "model": "appliance-ge-profile-microwave3",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "file": "4747389_facing_east.png",
+      "cam_id": "4747389",
+      "pos": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": -7.0
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 8130144,
+          "model": "blue_rug",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "file": "4747389_facing_south.png",
+      "cam_id": "4747389",
+      "pos": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": -7.0
+      },
+      "direction": "south",
+      "object_ratios": []
+    },
+    {
+      "file": "4747389_facing_west.png",
+      "cam_id": "4747389",
+      "pos": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": -7.0
+      },
+      "direction": "west",
+      "object_ratios": []
+    },
+    {
+      "file": "3558231_facing_north.png",
+      "cam_id": "3558231",
+      "pos": {
+        "x": -7.0,
+        "y": 0.8,
+        "z": -3.0
+      },
+      "direction": "north",
+      "object_ratios": []
+    },
+    {
+      "file": "3558231_facing_east.png",
+      "cam_id": "3558231",
+      "pos": {
+        "x": -7.0,
+        "y": 0.8,
+        "z": -3.0
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 3656138,
+          "model": "alarm_clock",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "file": "3558231_facing_south.png",
+      "cam_id": "3558231",
+      "pos": {
+        "x": -7.0,
+        "y": 0.8,
+        "z": -3.0
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 4080389,
+          "model": "monitor1",
+          "visibility_ratio": 0.154,
+          "occlusion_ratio": 1.0
+        }
+      ]
+    },
+    {
+      "file": "3558231_facing_west.png",
+      "cam_id": "3558231",
+      "pos": {
+        "x": -7.0,
+        "y": 0.8,
+        "z": -3.0
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 4080389,
+          "model": "monitor1",
+          "visibility_ratio": 0.846,
+          "occlusion_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "file": "4080389_facing_north.png",
+      "cam_id": "4080389",
+      "pos": {
+        "x": -9.0,
         "y": 0.8,
         "z": -4.0
       },
@@ -689,21 +976,34 @@
       "object_ratios": []
     },
     {
-      "file": "2425472_facing_east.png",
-      "cam_id": "2425472",
+      "file": "4080389_facing_east.png",
+      "cam_id": "4080389",
       "pos": {
-        "x": -2.0,
+        "x": -9.0,
         "y": 0.8,
         "z": -4.0
       },
       "direction": "east",
-      "object_ratios": []
+      "object_ratios": [
+        {
+          "object_id": 3558231,
+          "model": "fire_extinguisher",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        },
+        {
+          "object_id": 3656138,
+          "model": "alarm_clock",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        }
+      ]
     },
     {
-      "file": "2425472_facing_south.png",
-      "cam_id": "2425472",
+      "file": "4080389_facing_south.png",
+      "cam_id": "4080389",
       "pos": {
-        "x": -2.0,
+        "x": -9.0,
         "y": 0.8,
         "z": -4.0
       },
@@ -711,225 +1011,231 @@
       "object_ratios": []
     },
     {
-      "file": "2425472_facing_west.png",
-      "cam_id": "2425472",
+      "file": "4080389_facing_west.png",
+      "cam_id": "4080389",
       "pos": {
-        "x": -2.0,
+        "x": -9.0,
+        "y": 0.8,
+        "z": -4.0
+      },
+      "direction": "west",
+      "object_ratios": []
+    },
+    {
+      "file": "3656138_facing_north.png",
+      "cam_id": "3656138",
+      "pos": {
+        "x": -4.0,
+        "y": 0.8,
+        "z": -5.0
+      },
+      "direction": "north",
+      "object_ratios": []
+    },
+    {
+      "file": "3656138_facing_east.png",
+      "cam_id": "3656138",
+      "pos": {
+        "x": -4.0,
+        "y": 0.8,
+        "z": -5.0
+      },
+      "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "3656138_facing_south.png",
+      "cam_id": "3656138",
+      "pos": {
+        "x": -4.0,
+        "y": 0.8,
+        "z": -5.0
+      },
+      "direction": "south",
+      "object_ratios": []
+    },
+    {
+      "file": "3656138_facing_west.png",
+      "cam_id": "3656138",
+      "pos": {
+        "x": -4.0,
+        "y": 0.8,
+        "z": -5.0
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 3558231,
+          "model": "fire_extinguisher",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        },
+        {
+          "object_id": 4080389,
+          "model": "monitor1",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "file": "20047_facing_north.png",
+      "cam_id": "20047",
+      "pos": {
+        "x": -3.0,
+        "y": 0.8,
+        "z": -4.0
+      },
+      "direction": "north",
+      "object_ratios": []
+    },
+    {
+      "file": "20047_facing_east.png",
+      "cam_id": "20047",
+      "pos": {
+        "x": -3.0,
+        "y": 0.8,
+        "z": -4.0
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 1996107,
+          "model": "appliance-ge-profile-microwave3",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        },
+        {
+          "object_id": 8130144,
+          "model": "blue_rug",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "file": "20047_facing_south.png",
+      "cam_id": "20047",
+      "pos": {
+        "x": -3.0,
+        "y": 0.8,
+        "z": -4.0
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 4747389,
+          "model": "kettle",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "file": "20047_facing_west.png",
+      "cam_id": "20047",
+      "pos": {
+        "x": -3.0,
+        "y": 0.8,
+        "z": -4.0
+      },
+      "direction": "west",
+      "object_ratios": []
+    },
+    {
+      "file": "20047_facing_north.png",
+      "cam_id": "20047",
+      "pos": {
+        "x": -3.0,
+        "y": 0.8,
+        "z": -4.0
+      },
+      "direction": "north",
+      "object_ratios": []
+    },
+    {
+      "file": "20047_facing_east.png",
+      "cam_id": "20047",
+      "pos": {
+        "x": -3.0,
+        "y": 0.8,
+        "z": -4.0
+      },
+      "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "20047_facing_south.png",
+      "cam_id": "20047",
+      "pos": {
+        "x": -3.0,
+        "y": 0.8,
+        "z": -4.0
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 3656138,
+          "model": "alarm_clock",
+          "visibility_ratio": 0.5,
+          "occlusion_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "file": "20047_facing_west.png",
+      "cam_id": "20047",
+      "pos": {
+        "x": -3.0,
         "y": 0.8,
         "z": -4.0
       },
       "direction": "west",
       "object_ratios": [
         {
-          "object_id": 1068148,
+          "object_id": 3558231,
+          "model": "fire_extinguisher",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        },
+        {
+          "object_id": 4080389,
+          "model": "monitor1",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        },
+        {
+          "object_id": 3656138,
+          "model": "alarm_clock",
+          "visibility_ratio": 0.5,
+          "occlusion_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "file": "20193_facing_north.png",
+      "cam_id": "20193",
+      "pos": {
+        "x": -6.0,
+        "y": 0.8,
+        "z": 1.0
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 5721339,
           "model": "wood_chair",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 0.0
-        }
-      ]
-    },
-    {
-      "file": "10000_facing_north.png",
-      "cam_id": "10000",
-      "pos": {
-        "x": 0.0,
-        "y": 0.8,
-        "z": 1.0
-      },
-      "direction": "north",
-      "object_ratios": []
-    },
-    {
-      "file": "10000_facing_east.png",
-      "cam_id": "10000",
-      "pos": {
-        "x": 0.0,
-        "y": 0.8,
-        "z": 1.0
-      },
-      "direction": "east",
-      "object_ratios": []
-    },
-    {
-      "file": "10000_facing_south.png",
-      "cam_id": "10000",
-      "pos": {
-        "x": 0.0,
-        "y": 0.8,
-        "z": 1.0
-      },
-      "direction": "south",
-      "object_ratios": []
-    },
-    {
-      "file": "10000_facing_west.png",
-      "cam_id": "10000",
-      "pos": {
-        "x": 0.0,
-        "y": 0.8,
-        "z": 1.0
-      },
-      "direction": "west",
-      "object_ratios": [
+        },
         {
-          "object_id": 6664789,
-          "model": "cabinet_36_white_wood",
+          "object_id": 4275709,
+          "model": "backpack3",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 0.0
         },
         {
-          "object_id": 4584702,
-          "model": "white_club_chair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 0.0
-        }
-      ]
-    },
-    {
-      "file": "10000_facing_north.png",
-      "cam_id": "10000",
-      "pos": {
-        "x": 0.0,
-        "y": 0.8,
-        "z": 1.0
-      },
-      "direction": "north",
-      "object_ratios": [
-        {
-          "object_id": 6499720,
-          "model": "white_lamp",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 0.0
-        }
-      ]
-    },
-    {
-      "file": "10000_facing_east.png",
-      "cam_id": "10000",
-      "pos": {
-        "x": 0.0,
-        "y": 0.8,
-        "z": 1.0
-      },
-      "direction": "east",
-      "object_ratios": [
-        {
-          "object_id": 6517209,
-          "model": "dining_room_table",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 0.0
-        }
-      ]
-    },
-    {
-      "file": "10000_facing_south.png",
-      "cam_id": "10000",
-      "pos": {
-        "x": 0.0,
-        "y": 0.8,
-        "z": 1.0
-      },
-      "direction": "south",
-      "object_ratios": []
-    },
-    {
-      "file": "10000_facing_west.png",
-      "cam_id": "10000",
-      "pos": {
-        "x": 0.0,
-        "y": 0.8,
-        "z": 1.0
-      },
-      "direction": "west",
-      "object_ratios": []
-    },
-    {
-      "file": "10001_facing_north.png",
-      "cam_id": "10001",
-      "pos": {
-        "x": -4.0,
-        "y": 0.8,
-        "z": -2.0
-      },
-      "direction": "north",
-      "object_ratios": [
-        {
-          "object_id": 6664789,
-          "model": "cabinet_36_white_wood",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 0.0
-        },
-        {
-          "object_id": 4584702,
-          "model": "white_club_chair",
-          "visibility_ratio": 0.5,
-          "occlusion_ratio": 0.0
-        }
-      ]
-    },
-    {
-      "file": "10001_facing_east.png",
-      "cam_id": "10001",
-      "pos": {
-        "x": -4.0,
-        "y": 0.8,
-        "z": -2.0
-      },
-      "direction": "east",
-      "object_ratios": [
-        {
-          "object_id": 4584702,
-          "model": "white_club_chair",
-          "visibility_ratio": 0.5,
-          "occlusion_ratio": 0.0
-        }
-      ]
-    },
-    {
-      "file": "10001_facing_south.png",
-      "cam_id": "10001",
-      "pos": {
-        "x": -4.0,
-        "y": 0.8,
-        "z": -2.0
-      },
-      "direction": "south",
-      "object_ratios": []
-    },
-    {
-      "file": "10001_facing_west.png",
-      "cam_id": "10001",
-      "pos": {
-        "x": -4.0,
-        "y": 0.8,
-        "z": -2.0
-      },
-      "direction": "west",
-      "object_ratios": []
-    },
-    {
-      "file": "10001_facing_north.png",
-      "cam_id": "10001",
-      "pos": {
-        "x": -4.0,
-        "y": 0.8,
-        "z": -2.0
-      },
-      "direction": "north",
-      "object_ratios": []
-    },
-    {
-      "file": "10001_facing_east.png",
-      "cam_id": "10001",
-      "pos": {
-        "x": -4.0,
-        "y": 0.8,
-        "z": -2.0
-      },
-      "direction": "east",
-      "object_ratios": [
-        {
-          "object_id": 2425472,
+          "object_id": 6147581,
           "model": "vase_01",
           "visibility_ratio": 0.5,
           "occlusion_ratio": 0.0
@@ -937,23 +1243,17 @@
       ]
     },
     {
-      "file": "10001_facing_south.png",
-      "cam_id": "10001",
+      "file": "20193_facing_east.png",
+      "cam_id": "20193",
       "pos": {
-        "x": -4.0,
+        "x": -6.0,
         "y": 0.8,
-        "z": -2.0
+        "z": 1.0
       },
-      "direction": "south",
+      "direction": "east",
       "object_ratios": [
         {
-          "object_id": 1068148,
-          "model": "wood_chair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 0.0
-        },
-        {
-          "object_id": 2425472,
+          "object_id": 6147581,
           "model": "vase_01",
           "visibility_ratio": 0.5,
           "occlusion_ratio": 0.0
@@ -961,12 +1261,86 @@
       ]
     },
     {
-      "file": "10001_facing_west.png",
-      "cam_id": "10001",
+      "file": "20193_facing_south.png",
+      "cam_id": "20193",
       "pos": {
-        "x": -4.0,
+        "x": -6.0,
         "y": 0.8,
-        "z": -2.0
+        "z": 1.0
+      },
+      "direction": "south",
+      "object_ratios": []
+    },
+    {
+      "file": "20193_facing_west.png",
+      "cam_id": "20193",
+      "pos": {
+        "x": -6.0,
+        "y": 0.8,
+        "z": 1.0
+      },
+      "direction": "west",
+      "object_ratios": []
+    },
+    {
+      "file": "20193_facing_north.png",
+      "cam_id": "20193",
+      "pos": {
+        "x": -6.0,
+        "y": 0.8,
+        "z": 1.0
+      },
+      "direction": "north",
+      "object_ratios": []
+    },
+    {
+      "file": "20193_facing_east.png",
+      "cam_id": "20193",
+      "pos": {
+        "x": -6.0,
+        "y": 0.8,
+        "z": 1.0
+      },
+      "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "20193_facing_south.png",
+      "cam_id": "20193",
+      "pos": {
+        "x": -6.0,
+        "y": 0.8,
+        "z": 1.0
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 3558231,
+          "model": "fire_extinguisher",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        },
+        {
+          "object_id": 4080389,
+          "model": "monitor1",
+          "visibility_ratio": 0.994,
+          "occlusion_ratio": 0.0
+        },
+        {
+          "object_id": 3656138,
+          "model": "alarm_clock",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "file": "20193_facing_west.png",
+      "cam_id": "20193",
+      "pos": {
+        "x": -6.0,
+        "y": 0.8,
+        "z": 1.0
       },
       "direction": "west",
       "object_ratios": []
@@ -976,73 +1350,73 @@
     "1": {
       "center": [
         -3.5,
-        2.0
+        4.5
       ],
       "bounds": [
         -6.5,
         -0.5,
-        -1.5,
-        5.5
+        1.5,
+        7.5
       ],
-      "area": 42,
+      "area": 36,
       "connected_rooms": [
-        2,
         3
       ]
     },
     "2": {
       "center": [
-        3.0,
-        2.0
+        0.5,
+        -5.5
       ],
       "bounds": [
-        0.5,
-        5.5,
-        -1.5,
-        5.5
+        -2.5,
+        3.5,
+        -8.5,
+        -2.5
       ],
-      "area": 35,
+      "area": 36,
       "connected_rooms": [
-        1
+        3
       ]
     },
     "3": {
       "center": [
-        -3.5,
-        -4.5
-      ],
-      "bounds": [
-        -6.5,
-        -0.5,
         -6.5,
         -2.5
       ],
-      "area": 24,
+      "bounds": [
+        -9.5,
+        -3.5,
+        -5.5,
+        0.5
+      ],
+      "area": 36,
       "connected_rooms": [
-        1
+        1,
+        2
       ]
     }
   },
   "doors": {
     "100": {
       "center": [
-        0.0,
-        1.0
+        -3.0,
+        -4.0
       ],
-      "color": "blue",
+      "color": "green",
       "connected_rooms": [
-        1,
-        2
+        2,
+        3
       ],
       "orientation": "vertical",
       "width": 1
     },
     "101": {
       "center": [
-        -4.0,
-        -2.0
+        -6.0,
+        1.0
       ],
-      "color": "orange",
+      "color": "blue",
       "connected_rooms": [
         1,
         3
@@ -1054,38 +1428,53 @@
   "room_object_assignments": {
     "1": [
       {
-        "object_id": 6664789,
-        "name": "white cabinet",
+        "object_id": 5721339,
+        "name": "blue_chair",
         "label": "1"
       },
       {
-        "object_id": 4584702,
-        "name": "green chair",
-        "label": "4"
+        "object_id": 4275709,
+        "name": "backpack",
+        "label": "2"
+      },
+      {
+        "object_id": 6147581,
+        "name": "vase",
+        "label": "3"
       }
     ],
     "2": [
       {
-        "object_id": 6499720,
-        "name": "white lamp",
-        "label": "2"
+        "object_id": 1996107,
+        "name": "microwave",
+        "label": "4"
       },
       {
-        "object_id": 6517209,
-        "name": "wooden table",
+        "object_id": 8130144,
+        "name": "rug",
         "label": "5"
+      },
+      {
+        "object_id": 4747389,
+        "name": "kettle",
+        "label": "6"
       }
     ],
     "3": [
       {
-        "object_id": 1068148,
-        "name": "yellow chair",
-        "label": "3"
+        "object_id": 3558231,
+        "name": "fire_extinguisher",
+        "label": "7"
       },
       {
-        "object_id": 2425472,
-        "name": "vase",
-        "label": "6"
+        "object_id": 4080389,
+        "name": "monitor",
+        "label": "8"
+      },
+      {
+        "object_id": 3656138,
+        "name": "alarmclock",
+        "label": "9"
       }
     ]
   },
@@ -1095,10 +1484,14 @@
       -1,
       -1,
       -1,
-      -1,
-      -1,
-      -1,
-      -1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
       -1,
       -1,
       -1,
@@ -1110,12 +1503,60 @@
     ],
     [
       -1,
+      -1,
+      -1,
+      -1,
       0,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
       0,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1
+    ],
+    [
+      -1,
+      -1,
+      -1,
+      -1,
       0,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
       0,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1
+    ],
+    [
+      -1,
+      -1,
+      -1,
+      -1,
       0,
-      0,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
       0,
       0,
       0,
@@ -1128,43 +1569,12 @@
     ],
     [
       -1,
-      0,
-      3,
-      3,
-      3,
-      3,
-      0,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      0,
-      -1
-    ],
-    [
+      -1,
+      -1,
       -1,
       0,
       3,
       3,
-      3,
-      3,
-      0,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      0,
-      -1
-    ],
-    [
-      -1,
-      0,
       3,
       3,
       3,
@@ -1176,37 +1586,22 @@
       1,
       1,
       1,
-      1,
       0,
       -1
     ],
     [
+      -1,
+      -1,
+      -1,
       -1,
       0,
       3,
       3,
       3,
       3,
-      0,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      0,
-      -1
-    ],
-    [
-      -1,
-      0,
-      3,
-      3,
       3,
       3,
       0,
-      1,
       1,
       1,
       1,
@@ -1218,13 +1613,17 @@
     ],
     [
       -1,
+      -1,
+      -1,
+      -1,
       0,
       3,
       3,
       3,
       3,
+      3,
+      3,
       0,
-      1,
       1,
       1,
       1,
@@ -1236,9 +1635,6 @@
     ],
     [
       -1,
-      0,
-      0,
-      0,
       0,
       0,
       0,
@@ -1250,33 +1646,17 @@
       0,
       0,
       0,
-      -1
-    ],
-    [
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      0,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
       0,
       -1
     ],
     [
       -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
       0,
       2,
       2,
@@ -1284,35 +1664,21 @@
       2,
       2,
       2,
-      2,
       0,
-      -1
-    ],
-    [
-      -1,
-      -1,
-      -1,
-      -1,
       -1,
       -1,
       0,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
       0,
       -1
     ],
     [
       -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
       0,
       2,
       2,
@@ -1320,36 +1686,31 @@
       2,
       2,
       2,
-      2,
       0,
-      -1
-    ],
-    [
-      -1,
-      -1,
-      -1,
-      -1,
       -1,
       -1,
       0,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
       0,
       -1
     ],
     [
       -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
       0,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      0,
+      -1,
+      -1,
       0,
       0,
       0,
@@ -1361,6 +1722,186 @@
       -1
     ],
     [
+      -1,
+      0,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      0,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1
+    ],
+    [
+      -1,
+      0,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      0,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1
+    ],
+    [
+      -1,
+      0,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      0,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1
+    ],
+    [
+      -1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1
+    ],
+    [
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1
+    ],
+    [
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1
+    ],
+    [
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1
+    ],
+    [
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1
+    ],
+    [
+      -1,
+      -1,
+      -1,
+      -1,
       -1,
       -1,
       -1,
@@ -1380,7 +1921,7 @@
     ]
   ],
   "offset": [
-    8,
-    8
+    10,
+    10
   ]
 }

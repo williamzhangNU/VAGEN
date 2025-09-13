@@ -1,21 +1,28 @@
-# First, import the modules that are assumed to be always available
-from .sokoban import SokobanEnv, SokobanEnvConfig, SokobanService, SokobanServiceConfig
-from .frozenlake import FrozenLakeEnv, FrozenLakeEnvConfig, FrozenLakeService, FrozenLakeServiceConfig
+REGISTERED_ENV = {}
 
-REGISTERED_ENV = {
-    "sokoban": {
+# Try to import sokoban (optional)
+try:
+    from .sokoban import SokobanEnv, SokobanEnvConfig, SokobanService, SokobanServiceConfig
+    REGISTERED_ENV["sokoban"] = {
         "env_cls": SokobanEnv,
         "config_cls": SokobanEnvConfig,
         "service_cls": SokobanService,
         "service_config_cls": SokobanServiceConfig
-    },
-    "frozenlake": {
+    }
+except ImportError:
+    pass
+
+# Try to import frozenlake (optional)
+try:
+    from .frozenlake import FrozenLakeEnv, FrozenLakeEnvConfig, FrozenLakeService, FrozenLakeServiceConfig
+    REGISTERED_ENV["frozenlake"] = {
         "env_cls": FrozenLakeEnv,
         "config_cls": FrozenLakeEnvConfig,
         "service_cls": FrozenLakeService,
         "service_config_cls": FrozenLakeServiceConfig
     }
-}
+except ImportError:
+    pass
 
 try:
     from .navigation import NavigationEnv, NavigationEnvConfig, NavigationServiceConfig, NavigationService
