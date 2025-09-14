@@ -49,6 +49,13 @@ class SpatialGymConfig(BaseEnvConfig):
     max_exp_steps: int = 100
     kwargs: Dict = None
     proxy_agent_config: dict = field(default_factory=lambda: {"type": "analyst", "delegate": "oracle"})
+    
+    # Text-based mode support (for RAGEN integration)
+    text_based_mode: bool = False
+    
+    # Vision alignment support (for RAGEN integration)
+    align_with_vision: bool = False
+    vision_data_path: Optional[str] = None
     # Evaluation configuration
     eval_tasks: List[Dict[str, Any]] = field(default_factory=lambda: [{"task_type": "rot", "task_kwargs": {"turn_direction": "counterclockwise"}}])
 
@@ -164,6 +171,9 @@ class SpatialGymConfig(BaseEnvConfig):
             'image_size': self.image_size,
             'prompt_config': self.prompt_config,
             'field_of_view': self.field_of_view,
+            'text_based_mode': self.text_based_mode,  # RAGEN integration
+            'align_with_vision': self.align_with_vision,  # RAGEN vision alignment
+            'vision_data_path': self.vision_data_path,  # RAGEN vision alignment
         }
         
         # Common config (inherited from BaseEnvConfig)

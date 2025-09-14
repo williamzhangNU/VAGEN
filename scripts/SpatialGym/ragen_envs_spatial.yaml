@@ -1,0 +1,264 @@
+_common: &common
+  env_type: SpatialGym
+  max_actions_per_traj: 1
+  env_instruction: "You are solving a spatial question."
+  max_tokens: 256
+
+# prompt
+_prompt_standard: &prompt_standard
+  prompt_config:
+    topdown: false
+    cogmap: false
+    type: standard
+
+_prompt_topdown: &prompt_topdown
+  prompt_config:
+    topdown: true
+    cogmap: false
+    type: standard
+
+# exp_type
+
+# _passive: &passive
+#   exp_type: passive
+#   n_objects: 10
+#   proportional_to_area: true
+#   level: 2 # 0, 1, 2
+#   main: 5 # 12, 7, 5
+#   #   fix_room_size: [[8, 8], [6, 6], [4, 4]]
+#   #   fix_object_n: [4, 3, 1]
+#   room_size: [20, 20]
+#   same_room_size: true
+#   proxy_agent_config:
+#     type: analyst
+#     delegate: observer_analyst
+#     observer_delegate: strategist
+
+_passive: &passive
+  exp_type: passive
+  n_objects: 10
+  proportional_to_area: true
+  level: 2
+  main: 5
+  room_size: [20, 20]
+  room_sizes: [7, 6, 5]  # Square rooms: 7x7, 6x6, 5x5
+  # align_with_vision: true     
+  # vision_data_path: "ragen/env/spatial/room_data/" 
+  # same_room_size: true
+  proxy_agent_config:
+    type: analyst
+    delegate: observer_analyst
+    observer_delegate: strategist
+# _active: &active
+#   exp_type: active
+#   n_objects: 8
+#   max_exp_steps: 15
+#   room_size: [20, 20]
+#   level: 2
+#   main: 6
+#   same_room_size: true
+
+_active: &active
+  exp_type: active
+  n_objects: 8
+  proportional_to_area: true
+  max_exp_steps: 15
+  room_size: [15, 15]
+  level: 1
+  main: 6
+  room_sizes: [6, 5]  # Square rooms: 6x6, 5x5
+  calculate_information_gain: false
+  align_with_vision: true   
+  vision_data_path: "../../vagen/env/spatial/room_data/"
+  
+# _active: &active
+#   exp_type: active
+#   n_objects: 8
+#   proportional_to_area: true
+#   max_exp_steps: 15
+#   room_size: [15, 15]
+#   level: 1
+#   main: 6
+#   same_room_size: true
+#   calculate_information_gain: false
+  # fix_room_size: [[6, 6], [4, 5], [3, 4]]
+  # fix_object_n: [3, 2, 1]
+
+
+
+
+
+
+custom_envs:
+  PassiveDir:
+    <<: *common
+    env_config:
+      <<: *prompt_standard
+      <<: *passive
+      name: "passive_dir"
+      eval_tasks: [{task_type: "dir", task_kwargs: {}}]
+
+  PassiveRot:
+    <<: *common
+    env_config:
+      <<: *prompt_standard
+      <<: *passive
+      name: "passive_rot"
+      eval_tasks: [{task_type: "rot", task_kwargs: {}}]
+
+  PassiveRotDual:
+    <<: *common
+    env_config:
+      <<: *prompt_standard
+      <<: *passive
+      name: "passive_rot_dual"
+      eval_tasks: [{task_type: "rot_dual", task_kwargs: {}}]
+
+  PassiveE2A:
+    <<: *common
+    env_config:
+      <<: *prompt_standard
+      <<: *passive
+      name: "passive_e2a"
+      eval_tasks: [{task_type: "e2a", task_kwargs: {}}]
+
+  PassivePoV:
+    <<: *common
+    env_config:
+      <<: *prompt_standard
+      <<: *passive
+      name: "passive_pov"
+      eval_tasks: [{task_type: "pov", task_kwargs: {}}]
+
+  PassiveFalseBelief:
+    <<: *common
+    env_config:
+      <<: *prompt_standard
+      <<: *passive
+      name: "passive_false_belief"
+      eval_tasks: [{task_type: "false_belief", task_kwargs: {}}]
+
+  PassiveFwdLoc:
+    <<: *common
+    env_config:
+      <<: *prompt_standard
+      <<: *passive
+      name: "passive_fwd_loc"
+      eval_tasks: [{task_type: "fwd_loc", task_kwargs: {}}]
+  
+  PassiveBwdLoc:
+    <<: *common
+    env_config:
+      <<: *prompt_standard
+      <<: *passive
+      name: "passive_bwd_loc"
+      eval_tasks: [{task_type: "bwd_loc", task_kwargs: {}}]
+
+  PassiveBwdNav:
+    <<: *common
+    env_config:
+      <<: *prompt_standard
+      <<: *passive
+      name: "passive_bwd_nav"
+      eval_tasks: [{task_type: "bwd_nav", task_kwargs: {}}]
+
+  PassiveFwdFov:
+    <<: *common
+    env_config:
+      <<: *prompt_standard
+      <<: *passive
+      name: "passive_fwd_fov"
+      eval_tasks: [{task_type: "fwd_fov", task_kwargs: {}}]
+
+  ActiveDir:
+    <<: *common
+    max_actions_per_traj: 20
+    env_config:
+      <<: *prompt_standard
+      <<: *active
+      name: "active_dir"
+      eval_tasks: [{task_type: "dir", task_kwargs: {}}]
+
+  ActiveRot:
+    <<: *common
+    max_actions_per_traj: 20
+    env_config:
+      <<: *prompt_standard
+      <<: *active
+      name: "active_rot"
+      eval_tasks: [{task_type: "rot", task_kwargs: {}}]
+
+  ActiveRotDual:
+    <<: *common
+    max_actions_per_traj: 20
+    env_config:
+      <<: *prompt_standard
+      <<: *active
+      name: "active_rot_dual"
+      eval_tasks: [{task_type: "rot_dual", task_kwargs: {}}]
+
+  ActivePoV:
+    <<: *common
+    max_actions_per_traj: 20
+    env_config:
+      <<: *prompt_standard
+      <<: *active
+      name: "active_pov"
+      eval_tasks: [{task_type: "pov", task_kwargs: {}}]
+
+  ActiveLoc:
+    <<: *common
+    max_actions_per_traj: 25
+    env_config:
+      <<: *prompt_standard
+      <<: *active
+      name: "active_loc"
+      eval_tasks: [{task_type: "loc", task_kwargs: {}}]
+
+  ActiveFalseBelief:
+    <<: *common
+    max_actions_per_traj: 20
+    env_config:
+      <<: *prompt_standard
+      <<: *active
+      name: "active_false_belief"
+      eval_tasks: [{task_type: "false_belief", task_kwargs: {}}]
+
+  ActiveFwdLoc:
+    <<: *common
+    max_actions_per_traj: 25
+    env_config:
+      <<: *prompt_standard
+      <<: *active
+      name: "active_fwd_loc"
+      eval_tasks: [{task_type: "fwd_loc", task_kwargs: {}}]
+    
+  ActiveBwdLoc:
+    <<: *common
+    max_actions_per_traj: 25
+    env_config:
+      <<: *prompt_standard
+      <<: *active
+      name: "active_bwd_loc"
+      eval_tasks: [{task_type: "bwd_loc", task_kwargs: {}}] 
+
+  ActiveBwdNav:
+    <<: *common
+    max_actions_per_traj: 25
+    env_config:
+      <<: *prompt_standard
+      <<: *active
+      name: "active_bwd_nav"
+      eval_tasks: [{task_type: "bwd_nav", task_kwargs: {}}]
+
+  ActiveFwdFov:
+    <<: *common
+    max_actions_per_traj: 25
+    env_config:
+      <<: *prompt_standard
+      <<: *active
+      name: "active_fwd_fov"
+      eval_tasks: [{task_type: "fwd_fov", task_kwargs: {}}]
+
+
+

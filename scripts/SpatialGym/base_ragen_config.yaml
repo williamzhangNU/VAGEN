@@ -1,0 +1,51 @@
+# Base RAGEN configuration for VAGEN2
+# Adapted from RAGEN's evaluate_spatial.yaml
+
+tags:
+  - ActiveRot
+
+num_per_task: 1
+
+override: false
+evaluate_cogmap: false
+
+output_dir: results/default
+
+eval_model_type: api
+
+# API model configuration
+api_model_info:
+  model_name: gpt-4o-mini
+  max_concurrency: 32
+
+# VLLM model configuration (fallback)
+model_path: Qwen/Qwen2.5-3B-Instruct
+actor_rollout_ref:
+  rollout:
+    max_model_len: 10000
+    gpu_memory_utilization: 0.8
+    val_kwargs:
+      temperature: 0
+      top_p: 1
+
+# Agent proxy configuration
+agent_proxy:
+  max_turn: 20
+  action_sep: "||"
+  max_actions_per_turn: 1
+  enable_think: true
+
+# Environment manager configuration
+es_manager:
+  val:
+    env_groups: 1
+    group_size: 1
+    env_configs:
+      tags: ${tags}
+      n_groups: ${num_per_task}
+      group_seeds: 42
+
+# Vision alignment configuration
+vision_alignment:
+  enabled: true
+  data_path: "/Users/songshe/ToS/VAGEN2/vagen/env/spatial/dataset3room9obj_0913/"

@@ -20,6 +20,7 @@ from vagen.env.spatial.Base.tos_base.utils.env_logger import EnvTurnLog
 from vagen.env.spatial.Base.tos_base.utils.utils import parse_llm_response
 from vagen.env.spatial.utils.image_handler import ImageHandler
 from vagen.env.spatial.Base.tos_base.actions.actions import ForcedTermAction, ActionSequence
+from vagen.env.spatial.ragen_adapter import RAGENSpatialAdapter
 
 
 class SpatialGym(gym.Env):
@@ -32,6 +33,15 @@ class SpatialGym(gym.Env):
     def __init__(self, config: SpatialGymConfig):
         super().__init__()
         self.config = config
+        
+        # Check if we should use RAGEN's text-based mode
+        if getattr(config, 'text_based_mode', False):
+            self.ragen_adapter = RAGENSpatialAdapter(config.to_dict())
+            self.text_based_mode = True
+        else:
+            self.ragen_adapter = None
+            self.text_based_mode = False
+            
         self.prompter: Prompter = None
 
         self.is_exploration_phase = None
@@ -79,11 +89,19 @@ class SpatialGym(gym.Env):
         )
 
     def system_prompt(self) -> str:
+        if self.text_based_mode:
+            return self.ragen_adapter.system_prompt()
         return "You are an AI assistant that answers visual questions based on images."
 
     def reset(self, seed: int = None):
         """Reset environment for a new episode."""
         super().reset(seed=seed)
+
+        # If in text-based mode, delegate to RAGEN adapter
+        if self.text_based_mode:
+            obs, info = self.ragen_adapter.reset(seed=seed)
+            self.render_cache = obs
+            return obs, info
 
         self.image_handler = ImageHandler(self.config.base_dir, seed, self.config.image_size)
         self.image_dir = self.image_handler.image_dir
@@ -194,6 +212,13 @@ class SpatialGym(gym.Env):
 
     def step(self, llm_response: str):
         """Process agent actions in the spatial gym environment."""
+        
+        # If in text-based mode, delegate to RAGEN adapter
+        if self.text_based_mode:
+            obs, reward, done, step_info = self.ragen_adapter.step(llm_response)
+            self.render_cache = obs
+            return obs, reward, done, step_info
+            
         self.current_turn_number += 1
         exp_log, eval_log = None, None
         think_content, action, parsed_ok = parse_llm_response(
@@ -250,9 +275,13 @@ class SpatialGym(gym.Env):
         return obs, reward, done, step_info
 
     def render(self):
+        if self.text_based_mode:
+            return self.ragen_adapter.render()
         return self.render_cache
 
     def close(self):
+        if self.text_based_mode:
+            return self.ragen_adapter.close()
         return
 
 
@@ -263,14 +292,20 @@ class SpatialGym(gym.Env):
     
     def get_exp_summary(self):
         """Get exploration efficiency metrics."""
+        if self.text_based_mode:
+            return self.ragen_adapter.get_exp_summary()
         return self.exploration_manager.get_exp_summary() if self.exploration_manager else ExplorationManager.DEFAULT_EXP_SUMMARY
     
     def get_eval_summary(self):
         """Get evaluation performance metrics."""
+        if self.text_based_mode:
+            return self.ragen_adapter.get_eval_summary()
         return self.evaluation_manager.get_eval_summary() if self.evaluation_manager else EvaluationManager.DEFAULT_EVAL_SUMMARY.copy()
     
     def get_env_summary(self) -> Dict[str, Any]:
         """Aggregate environment metrics from all turns."""
+        if self.text_based_mode:
+            return self.ragen_adapter.get_env_summary()
 
         return {
             'env_info': self._get_env_info(),
