@@ -21,8 +21,9 @@ def parse_args():
     p.add_argument("--tasks", nargs="+", default=['ActiveRot'],
                    help="Tasks (space or comma separated). Examples: ActiveRot PassiveRot or 'ActiveRot,PassiveLoc'. Default: ActiveRot")
     p.add_argument("--num", type=int, default=1, help="Number of samples per task. Default: 1")
-    p.add_argument("--model_name", type=str, default="gpt-5-mini",
-                   help="Model identifier. Default: gpt-5-mini")
+    p.add_argument("--model_name", type=str, default="gpt-4.1-mini",
+                   help="Model identifier. Default: gpt-4.1-mini")
+    p.add_argument("--render_mode", type=str, default="vision", help="Environment render mode (vision or text). Default: vision")
     p.add_argument("--output_root", type=str, default="results", help="Root dir for inference output_dir. Default: results")
     p.add_argument("--override", action="store_true", help="If set, will override the active exploration history")
     p.add_argument("--cogmap", action="store_true", help="If set, will enable cognitive map evaluation")
@@ -78,7 +79,7 @@ def build_tmp_paths(run_id: str, task_key: str) -> Dict[str, Path]:
 
 
 
-def patch_env_yaml(env_cfg: Dict[str, Any], task_key: str, num: int) -> Dict[str, Any]:
+def patch_env_yaml(env_cfg: Dict[str, Any], task_key: str, num: int, render_mode = "vision") -> Dict[str, Any]:
     """Return {TaskKey: {...}} by selecting the entry from custom_envs and overriding sizes.
 
     Behavior:
@@ -89,6 +90,7 @@ def patch_env_yaml(env_cfg: Dict[str, Any], task_key: str, num: int) -> Dict[str
     custom_envs = env_cfg.get("custom_envs", {}) or {}
     selected = dict(custom_envs[task_key])
     selected["test_size"] = int(num)
+    selected["env_config"]['render_mode'] = render_mode
     return {task_key: selected}
 
 
@@ -118,10 +120,10 @@ def patch_model_yaml(model_cfg: Dict[str, Any], model_name: str) -> Dict[str, An
     sys.exit(2)
 
 
-def patch_infer_yaml(infer_cfg: Dict[str, Any], output_dir: Path, override: bool, evaluate_cogmap: bool, override_cogmap: bool, server_url: str | None = None) -> Dict[str, Any]:
+def patch_infer_yaml(infer_cfg: Dict[str, Any], output_dir: str, override: bool, evaluate_cogmap: bool, override_cogmap: bool, server_url: str | None = None) -> Dict[str, Any]:
     """Patch inference yaml to set output directory and optional server_url. Split remains as in base config."""
     infer_cfg = dict(infer_cfg or {})
-    infer_cfg["output_dir"] = str(output_dir)
+    infer_cfg["output_dir"] = output_dir
     if override:
         infer_cfg["override"] = True
     if server_url:
@@ -217,7 +219,7 @@ def main():
     data_train = f"data/{exp_name}/train.parquet"
     data_test = f"data/{exp_name}/test.parquet"
 
-    output_root = Path(args.output_root)
+    output_root = args.output_root
 
     created_tmp_dirs: List[Path] = []
     server_proc: subprocess.Popen | None = None
@@ -235,11 +237,9 @@ def main():
             infer_cfg = load_yaml(base_infer)
             model_cfg = load_yaml(base_model)
 
-            env_cfg = patch_env_yaml(env_cfg, task, args.num)
+            env_cfg = patch_env_yaml(env_cfg, task, args.num, args.render_mode)
             model_cfg = patch_model_yaml(model_cfg, args.model_name)
-            model_name = next(iter(model_cfg['models']))
-            task_output_dir = output_root / model_name / task
-            infer_cfg = patch_infer_yaml(infer_cfg, task_output_dir, args.override, args.cogmap, args.override_cogmap, server_url)
+            infer_cfg = patch_infer_yaml(infer_cfg, output_root, args.override, args.cogmap, args.override_cogmap, server_url)
 
             dump_yaml(env_cfg, tmp_paths["env"])
             dump_yaml(infer_cfg, tmp_paths["infer"])

@@ -101,7 +101,8 @@ class InferenceRolloutService(BaseRollout):
             if cfg["env_name"] == "spatial":
                 kwargs = {
                     "model_config": self.model_interface.config.to_dict(),
-                    "override": self.config.get('override', False)  
+                    "override": self.config.get('override', False),
+                    "output_dir": self.config.get('output_dir'),
                 }
                 cfg["env_config"]['kwargs'] = kwargs
 

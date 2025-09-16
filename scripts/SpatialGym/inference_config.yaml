@@ -10,12 +10,12 @@ split: "test"
 debug: false
 
 # Output configuration
-output_dir: "results/passive_rot/without_instruction"
+output_dir: "results"
 override: false
 evaluate_cogmap: false
 cogmap_config:
   cogmap_type: standard
-  pos_allow_scale: True
+  pos_allow_scale: False
   scope: all
 override_cogmap: false
 

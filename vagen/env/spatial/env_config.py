@@ -24,7 +24,6 @@ class SpatialGymConfig(BaseEnvConfig):
 
     # common configuration
     env_name: str = field(default="SpatialGym", init=False)
-    render_mode: str = field(default="vision", init=False)
     max_actions_per_step: int = field(default=1, init=False)    
     prompt_format: str = field(default="free_think", init=False)
     action_sep: str = field(default="|", init=False)
@@ -32,6 +31,7 @@ class SpatialGymConfig(BaseEnvConfig):
     
     # Environment specific configuration
     name: str = 'unnamed_env'
+    render_mode: str = field(default="vision")
 
     # Room configuration (minimal additions from RAGEN)
     room_size: List[int] = field(default_factory=lambda: [10, 10])
@@ -45,16 +45,15 @@ class SpatialGymConfig(BaseEnvConfig):
     # Exploration configuration
     exp_type: str = 'passive'
     perspective: str = 'ego'
-    observation_mode: str = "full"  # New from RAGEN
     max_exp_steps: int = 100
     kwargs: Dict = None
     proxy_agent_config: dict = field(default_factory=lambda: {"type": "analyst", "delegate": "oracle"})
     # Evaluation configuration
     eval_tasks: List[Dict[str, Any]] = field(default_factory=lambda: [{"task_type": "rot", "task_kwargs": {"turn_direction": "counterclockwise"}}])
 
-    prompt_config: Dict[str, Any] = field(default_factory=lambda: {"topdown": False, "oblique": False, "cogmap": False, "type": "shorter"})
+    prompt_config: Dict[str, Any] = field(default_factory=lambda: {"topdown": False, "oblique": False, "type": "shorter"})
 
-    cogmap_config: dict = field(default_factory=lambda: {"cogmap_type": "standard", "pos_allow_scale": True, "scope": "all"})
+    calculate_information_gain: bool = False
     
     def config_id(self) -> str:
         eval_task_str = ", ".join([f"{task['task_type']}" for task in self.eval_tasks])
@@ -134,9 +133,10 @@ class SpatialGymConfig(BaseEnvConfig):
     def get_observation_config(self) -> Dict[str, Any]:
         return {
             'field_of_view': self.field_of_view,
-            'observation_mode': self.observation_mode,
+            'prompt_config': self.prompt_config,
             'render_mode': self.render_mode,
             'exp_type': self.exp_type,
+            "proxy_agent": self.proxy_agent_config["type"]
         }        
     def get_model_config(self) -> Dict[str, Any]:
         return  self.kwargs['model_config']
@@ -152,18 +152,19 @@ class SpatialGymConfig(BaseEnvConfig):
             'main': self.main,  # New from RAGEN
             'exp_type': self.exp_type,
             'perspective': self.perspective,  # VAGEN specific
-            'observation_config': self.get_observation_config(),
-            'model_config': self.get_model_config(),
             'eval_tasks': self.eval_tasks,
             'max_exp_steps': self.max_exp_steps,
+            'calculate_information_gain': self.calculate_information_gain,
+            'output_dir': self.kwargs['output_dir'],
             'image_size': self.image_size,
             'prompt_config': self.prompt_config,
+            'observation_config': self.get_observation_config(),
+            'model_config': self.get_model_config(),
             'field_of_view': self.field_of_view,
         }
         
         # Common config (inherited from BaseEnvConfig)
         common_config = {
-            'action_sep': self.action_sep,
             'format_reward': self.format_reward,
             'special_token_list': self.special_token_list,
             'image_placeholder': self.image_placeholder,

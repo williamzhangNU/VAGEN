@@ -30,9 +30,11 @@ _passive: &passive
   level: 2
   main: 6
   room_size: [15, 15]
+  render_mode: vision
   proxy_agent_config:
     type: analyst
-    delegate: oracle
+    delegate: observer_analyst
+    observer_delegate: strategist
 
 
 _active: &active
@@ -42,6 +44,8 @@ _active: &active
   room_size: [15, 15]
   level: 2
   main: 6
+  render_mode: vision
+  calculate_information_gain: false
 
 custom_envs:
   PassiveDir:
@@ -149,6 +153,14 @@ custom_envs:
       <<: *active
       name: "active_pov"
       eval_tasks: [{task_type: "pov"}]
+
+  ActiveBwdPoV:
+    <<: *common
+    env_config:
+      <<: *prompt_standard
+      <<: *active
+      name: "active_bwd_pov"
+      eval_tasks: [{task_type: "bwd_pov"}]
 
   ActiveFalseBelief:
     <<: *common
