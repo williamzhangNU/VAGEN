@@ -1,191 +1,277 @@
 {
   "room_size": [
-    16.0,
-    16.0
+    20.0,
+    20.0
   ],
   "screen_size": [
     768,
     768
   ],
-  "seed": 942,
-  "min_distance": 0.5,
+  "seed": 952,
+  "min_distance": 1.1,
   "objects": [
     {
-      "object_id": 2252160,
-      "model": "red_lamp",
-      "name": "red lamp",
+      "object_id": 6061851,
+      "model": "wood_chair",
+      "name": "blue_chair",
       "pos": {
-        "x": -2.0,
+        "x": -1.0,
         "y": 0.05,
         "z": 0.0
       },
       "rot": {
         "x": 0,
-        "y": 180,
+        "y": 270.0,
         "z": 0
       },
       "size": [
-        0.5249988,
-        1.08171015
+        0.34391456,
+        0.38231632
       ],
       "attributes": {
-        "scale": 1.5,
+        "scale": 0.8,
+        "has_orientation": true,
+        "room_id": 1,
+        "color": {
+          "name": "blue",
+          "r": 0.0,
+          "g": 0.0,
+          "b": 1.0,
+          "a": 1.0
+        },
+        "orientation": "west"
+      }
+    },
+    {
+      "object_id": 2906489,
+      "model": "appliance-ge-profile-microwave3",
+      "name": "microwave",
+      "pos": {
+        "x": -2.0,
+        "y": 0.05,
+        "z": -3.0
+      },
+      "rot": {
+        "x": 0,
+        "y": 0.0,
+        "z": 0
+      },
+      "size": [
+        0.9137831999999999,
+        0.5273385599999999
+      ],
+      "attributes": {
+        "scale": 1.2,
         "has_orientation": false,
         "room_id": 1
       }
     },
     {
-      "object_id": 7854977,
-      "model": "lapalma_stil_chair",
-      "name": "pink chair",
+      "object_id": 7870001,
+      "model": "4ft_shelf_metal",
+      "name": "shelf",
       "pos": {
-        "x": 2.0,
+        "x": 1.0,
         "y": 0.05,
-        "z": 0.0
+        "z": -4.0
       },
       "rot": {
         "x": 0,
-        "y": 180,
+        "y": 180.0,
         "z": 0
       },
       "size": [
-        0.4800618,
-        0.5100285
+        0.23146212,
+        0.56710092
       ],
       "attributes": {
-        "scale": 1.0,
+        "scale": 0.6,
+        "has_orientation": false,
+        "room_id": 1
+      }
+    },
+    {
+      "object_id": 4037357,
+      "model": "dining_room_table",
+      "name": "table",
+      "pos": {
+        "x": 3.0,
+        "y": 0.05,
+        "z": 5.0
+      },
+      "rot": {
+        "x": 0,
+        "y": 180.0,
+        "z": 0
+      },
+      "size": [
+        0.5461,
+        0.5461
+      ],
+      "attributes": {
+        "scale": 0.5,
+        "has_orientation": false,
+        "room_id": 2
+      }
+    },
+    {
+      "object_id": 9539686,
+      "model": "cabinet_36_white_wood",
+      "name": "cabinet",
+      "pos": {
+        "x": 1.0,
+        "y": 0.05,
+        "z": 3.0
+      },
+      "rot": {
+        "x": 0,
+        "y": 0.0,
+        "z": 0
+      },
+      "size": [
+        0.6369153699999999,
+        0.44971479
+      ],
+      "attributes": {
+        "scale": 0.7,
         "has_orientation": true,
         "room_id": 2,
-        "color": {
-          "name": "pink",
-          "r": 1.0,
-          "g": 0.0,
-          "b": 1.0,
-          "a": 1.0
-        },
         "orientation": "south"
       }
     },
     {
-      "object_id": 3311260,
-      "model": "white_club_chair",
-      "name": "green chair",
+      "object_id": 9500982,
+      "model": "kettle",
+      "name": "kettle",
       "pos": {
-        "x": -5.0,
+        "x": -1.0,
         "y": 0.05,
-        "z": -5.0
+        "z": 6.0
       },
       "rot": {
         "x": 0,
-        "y": 0,
+        "y": 0.0,
         "z": 0
       },
       "size": [
-        0.7982815,
-        0.9681153
+        0.53012865,
+        0.37114645
       ],
       "attributes": {
-        "scale": 1.0,
+        "scale": 2.5,
         "has_orientation": true,
-        "room_id": 3,
-        "color": {
-          "name": "green",
-          "r": 0.0,
-          "g": 1.0,
-          "b": 0.0,
-          "a": 1.0
-        },
-        "orientation": "north"
-      }
-    },
-    {
-      "object_id": 5400588,
-      "model": "white_club_chair",
-      "name": "white chair",
-      "pos": {
-        "x": -5.0,
-        "y": 0.05,
-        "z": 4.0
-      },
-      "rot": {
-        "x": 0,
-        "y": 270,
-        "z": 0
-      },
-      "size": [
-        0.7982815,
-        0.9681153
-      ],
-      "attributes": {
-        "scale": 1.0,
-        "has_orientation": true,
-        "room_id": 1,
-        "orientation": "west"
-      }
-    },
-    {
-      "object_id": 3216036,
-      "model": "cabinet_36_white_wood",
-      "name": "white cabinet",
-      "pos": {
-        "x": 3.0,
-        "y": 0.05,
-        "z": 2.0
-      },
-      "rot": {
-        "x": 0,
-        "y": 0,
-        "z": 0
-      },
-      "size": [
-        0.9098790999999999,
-        0.6424497
-      ],
-      "attributes": {
-        "scale": 1.0,
-        "has_orientation": false,
         "room_id": 2,
-        "color": {
-          "name": "white",
-          "r": 1.0,
-          "g": 1.0,
-          "b": 1.0,
-          "a": 1.0
-        }
+        "orientation": "east"
       }
     },
     {
-      "object_id": 3743750,
-      "model": "fridge_large",
-      "name": "fridge",
+      "object_id": 2529973,
+      "model": "spunlight_designermesh_lamp",
+      "name": "lamp",
       "pos": {
-        "x": -2.0,
+        "x": 8.0,
         "y": 0.05,
-        "z": -5.0
+        "z": -2.0
       },
       "rot": {
         "x": 0,
-        "y": 0,
+        "y": 180.0,
         "z": 0
       },
       "size": [
-        0.72946528,
-        0.62507816
+        0.3978088,
+        0.4
       ],
       "attributes": {
-        "scale": 0.8,
+        "scale": 1.0,
         "has_orientation": false,
         "room_id": 3
       }
     },
     {
-      "object_id": 10000,
+      "object_id": 6473028,
+      "model": "washing_machine3",
+      "name": "washing_machine",
+      "pos": {
+        "x": 3.0,
+        "y": 0.05,
+        "z": -4.0
+      },
+      "rot": {
+        "x": 0.0,
+        "y": 180.0,
+        "z": 0.0
+      },
+      "size": [
+        0.0048000000000000004,
+        0.0050689469944
+      ],
+      "attributes": {
+        "scale": 0.0008,
+        "has_orientation": true,
+        "room_id": 3,
+        "orientation": "south"
+      }
+    },
+    {
+      "object_id": 5322741,
+      "model": "b03_basket",
+      "name": "basket",
+      "pos": {
+        "x": 7.0,
+        "y": 0.05,
+        "z": -4.0
+      },
+      "rot": {
+        "x": 0,
+        "y": 90.0,
+        "z": 0
+      },
+      "size": [
+        0.4791392,
+        0.4832616
+      ],
+      "attributes": {
+        "scale": 1.0,
+        "has_orientation": false,
+        "room_id": 3
+      }
+    },
+    {
+      "object_id": 20076,
+      "model": "blue_door",
+      "name": "blue door",
+      "pos": {
+        "x": 2.0,
+        "y": 0,
+        "z": 0.0
+      },
+      "rot": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "size": [
+        1,
+        2.0
+      ],
+      "attributes": {
+        "color": "blue",
+        "orientation": "vertical",
+        "connected_rooms": [
+          1,
+          3
+        ]
+      }
+    },
+    {
+      "object_id": 20197,
       "model": "red_door",
       "name": "red door",
       "pos": {
-        "x": 0.0,
+        "x": -1.0,
         "y": 0,
-        "z": 1.0
+        "z": 2.0
       },
       "rot": {
         "x": 0,
@@ -198,37 +284,10 @@
       ],
       "attributes": {
         "color": "red",
-        "orientation": "vertical",
-        "connected_rooms": [
-          1,
-          2
-        ]
-      }
-    },
-    {
-      "object_id": 10001,
-      "model": "purple_door",
-      "name": "purple door",
-      "pos": {
-        "x": -4.0,
-        "y": 0,
-        "z": -2.0
-      },
-      "rot": {
-        "x": 0,
-        "y": 0,
-        "z": 0
-      },
-      "size": [
-        1,
-        2.0
-      ],
-      "attributes": {
-        "color": "purple",
         "orientation": "horizontal",
         "connected_rooms": [
           1,
-          3
+          2
         ]
       }
     }
@@ -238,19 +297,19 @@
       "id": "agent",
       "label": "A",
       "position": {
-        "x": -5.0,
+        "x": -2.0,
         "y": 0.85,
-        "z": 1.0
+        "z": -1.0
       },
       "rotation": {
         "y": 0.0
       }
     },
     {
-      "id": "2252160",
+      "id": "6061851",
       "label": "1",
       "position": {
-        "x": -2.0,
+        "x": -1.0,
         "y": 0.8,
         "z": 0.0
       },
@@ -259,84 +318,120 @@
       }
     },
     {
-      "id": "7854977",
+      "id": "2906489",
       "label": "2",
+      "position": {
+        "x": -2.0,
+        "y": 0.8,
+        "z": -3.0
+      },
+      "rotation": {
+        "y": 33.690067525979785
+      }
+    },
+    {
+      "id": "7870001",
+      "label": "3",
+      "position": {
+        "x": 1.0,
+        "y": 0.8,
+        "z": -4.0
+      },
+      "rotation": {
+        "y": -14.036243467926479
+      }
+    },
+    {
+      "id": "4037357",
+      "label": "4",
+      "position": {
+        "x": 3.0,
+        "y": 0.8,
+        "z": 5.0
+      },
+      "rotation": {
+        "y": -149.03624346792648
+      }
+    },
+    {
+      "id": "9539686",
+      "label": "5",
+      "position": {
+        "x": 1.0,
+        "y": 0.8,
+        "z": 3.0
+      },
+      "rotation": {
+        "y": -161.565051177078
+      }
+    },
+    {
+      "id": "9500982",
+      "label": "6",
+      "position": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": 6.0
+      },
+      "rotation": {
+        "y": 170.53767779197437
+      }
+    },
+    {
+      "id": "2529973",
+      "label": "7",
+      "position": {
+        "x": 8.0,
+        "y": 0.8,
+        "z": -2.0
+      },
+      "rotation": {
+        "y": -75.96375653207353
+      }
+    },
+    {
+      "id": "6473028",
+      "label": "8",
+      "position": {
+        "x": 3.0,
+        "y": 0.8,
+        "z": -4.0
+      },
+      "rotation": {
+        "y": -36.86989764584402
+      }
+    },
+    {
+      "id": "5322741",
+      "label": "9",
+      "position": {
+        "x": 7.0,
+        "y": 0.8,
+        "z": -4.0
+      },
+      "rotation": {
+        "y": -60.25511870305778
+      }
+    },
+    {
+      "id": "20076",
+      "label": "D20076",
       "position": {
         "x": 2.0,
         "y": 0.8,
         "z": 0.0
       },
       "rotation": {
-        "y": -90.0
-      }
-    },
-    {
-      "id": "3311260",
-      "label": "3",
-      "position": {
-        "x": -5.0,
-        "y": 0.8,
-        "z": -5.0
-      },
-      "rotation": {
-        "y": 45.0
-      }
-    },
-    {
-      "id": "5400588",
-      "label": "4",
-      "position": {
-        "x": -5.0,
-        "y": 0.8,
-        "z": 4.0
-      },
-      "rotation": {
-        "y": 128.6598082540901
-      }
-    },
-    {
-      "id": "3216036",
-      "label": "5",
-      "position": {
-        "x": 3.0,
-        "y": 0.8,
-        "z": 2.0
-      },
-      "rotation": {
-        "y": -123.69006752597979
-      }
-    },
-    {
-      "id": "3743750",
-      "label": "6",
-      "position": {
-        "x": -2.0,
-        "y": 0.8,
-        "z": -5.0
-      },
-      "rotation": {
-        "y": 21.80140948635181
-      }
-    },
-    {
-      "id": "10000",
-      "label": "D100",
-      "position": {
-        "x": 0.0,
-        "y": 0.8,
-        "z": 1.0
-      },
-      "rotation": {
         "y": 0.0
       }
     },
     {
-      "id": "10001",
-      "label": "D101",
+      "id": "20197",
+      "label": "D20197",
       "position": {
-        "x": -4.0,
+        "x": -1.0,
         "y": 0.8,
-        "z": -2.0
+        "z": 2.0
       },
       "rotation": {
         "y": 0.0
@@ -370,16 +465,16 @@
       "file": "agent_facing_north.png",
       "cam_id": "agent",
       "pos": {
-        "x": -5.0,
+        "x": -2.0,
         "y": 0.8,
-        "z": 1.0
+        "z": -1.0
       },
       "direction": "north",
       "object_ratios": [
         {
-          "object_id": 5400588,
-          "model": "white_club_chair",
-          "visibility_ratio": 1.0,
+          "object_id": 6061851,
+          "model": "wood_chair",
+          "visibility_ratio": 0.5,
           "occlusion_ratio": 0.0
         }
       ]
@@ -388,16 +483,22 @@
       "file": "agent_facing_east.png",
       "cam_id": "agent",
       "pos": {
-        "x": -5.0,
+        "x": -2.0,
         "y": 0.8,
-        "z": 1.0
+        "z": -1.0
       },
       "direction": "east",
       "object_ratios": [
         {
-          "object_id": 2252160,
-          "model": "red_lamp",
-          "visibility_ratio": 1.0,
+          "object_id": 6061851,
+          "model": "wood_chair",
+          "visibility_ratio": 0.5,
+          "occlusion_ratio": 0.0
+        },
+        {
+          "object_id": 7870001,
+          "model": "4ft_shelf_metal",
+          "visibility_ratio": 0.5,
           "occlusion_ratio": 0.0
         }
       ]
@@ -406,47 +507,53 @@
       "file": "agent_facing_south.png",
       "cam_id": "agent",
       "pos": {
-        "x": -5.0,
+        "x": -2.0,
         "y": 0.8,
-        "z": 1.0
+        "z": -1.0
       },
       "direction": "south",
-      "object_ratios": []
+      "object_ratios": [
+        {
+          "object_id": 2906489,
+          "model": "appliance-ge-profile-microwave3",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        },
+        {
+          "object_id": 7870001,
+          "model": "4ft_shelf_metal",
+          "visibility_ratio": 0.5,
+          "occlusion_ratio": 0.0
+        }
+      ]
     },
     {
       "file": "agent_facing_west.png",
       "cam_id": "agent",
       "pos": {
-        "x": -5.0,
+        "x": -2.0,
         "y": 0.8,
-        "z": 1.0
+        "z": -1.0
       },
       "direction": "west",
       "object_ratios": []
     },
     {
-      "file": "2252160_facing_north.png",
-      "cam_id": "2252160",
+      "file": "6061851_facing_north.png",
+      "cam_id": "6061851",
       "pos": {
-        "x": -2.0,
+        "x": -1.0,
         "y": 0.8,
         "z": 0.0
       },
       "direction": "north",
-      "object_ratios": [
-        {
-          "object_id": 5400588,
-          "model": "white_club_chair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 0.0
-        }
-      ]
+      "object_ratios": []
     },
     {
-      "file": "2252160_facing_east.png",
-      "cam_id": "2252160",
+      "file": "6061851_facing_east.png",
+      "cam_id": "6061851",
       "pos": {
-        "x": -2.0,
+        "x": -1.0,
         "y": 0.8,
         "z": 0.0
       },
@@ -454,21 +561,34 @@
       "object_ratios": []
     },
     {
-      "file": "2252160_facing_south.png",
-      "cam_id": "2252160",
+      "file": "6061851_facing_south.png",
+      "cam_id": "6061851",
       "pos": {
-        "x": -2.0,
+        "x": -1.0,
         "y": 0.8,
         "z": 0.0
       },
       "direction": "south",
-      "object_ratios": []
+      "object_ratios": [
+        {
+          "object_id": 2906489,
+          "model": "appliance-ge-profile-microwave3",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        },
+        {
+          "object_id": 7870001,
+          "model": "4ft_shelf_metal",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        }
+      ]
     },
     {
-      "file": "2252160_facing_west.png",
-      "cam_id": "2252160",
+      "file": "6061851_facing_west.png",
+      "cam_id": "6061851",
       "pos": {
-        "x": -2.0,
+        "x": -1.0,
         "y": 0.8,
         "z": 0.0
       },
@@ -476,17 +596,290 @@
       "object_ratios": []
     },
     {
-      "file": "7854977_facing_north.png",
-      "cam_id": "7854977",
+      "file": "2906489_facing_north.png",
+      "cam_id": "2906489",
       "pos": {
-        "x": 2.0,
+        "x": -2.0,
         "y": 0.8,
-        "z": 0.0
+        "z": -3.0
       },
       "direction": "north",
       "object_ratios": [
         {
-          "object_id": 3216036,
+          "object_id": 6061851,
+          "model": "wood_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "file": "2906489_facing_east.png",
+      "cam_id": "2906489",
+      "pos": {
+        "x": -2.0,
+        "y": 0.8,
+        "z": -3.0
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 7870001,
+          "model": "4ft_shelf_metal",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "file": "2906489_facing_south.png",
+      "cam_id": "2906489",
+      "pos": {
+        "x": -2.0,
+        "y": 0.8,
+        "z": -3.0
+      },
+      "direction": "south",
+      "object_ratios": []
+    },
+    {
+      "file": "2906489_facing_west.png",
+      "cam_id": "2906489",
+      "pos": {
+        "x": -2.0,
+        "y": 0.8,
+        "z": -3.0
+      },
+      "direction": "west",
+      "object_ratios": []
+    },
+    {
+      "file": "7870001_facing_north.png",
+      "cam_id": "7870001",
+      "pos": {
+        "x": 1.0,
+        "y": 0.8,
+        "z": -4.0
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 6061851,
+          "model": "wood_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "file": "7870001_facing_east.png",
+      "cam_id": "7870001",
+      "pos": {
+        "x": 1.0,
+        "y": 0.8,
+        "z": -4.0
+      },
+      "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "7870001_facing_south.png",
+      "cam_id": "7870001",
+      "pos": {
+        "x": 1.0,
+        "y": 0.8,
+        "z": -4.0
+      },
+      "direction": "south",
+      "object_ratios": []
+    },
+    {
+      "file": "7870001_facing_west.png",
+      "cam_id": "7870001",
+      "pos": {
+        "x": 1.0,
+        "y": 0.8,
+        "z": -4.0
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 2906489,
+          "model": "appliance-ge-profile-microwave3",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "file": "4037357_facing_north.png",
+      "cam_id": "4037357",
+      "pos": {
+        "x": 3.0,
+        "y": 0.8,
+        "z": 5.0
+      },
+      "direction": "north",
+      "object_ratios": []
+    },
+    {
+      "file": "4037357_facing_east.png",
+      "cam_id": "4037357",
+      "pos": {
+        "x": 3.0,
+        "y": 0.8,
+        "z": 5.0
+      },
+      "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "4037357_facing_south.png",
+      "cam_id": "4037357",
+      "pos": {
+        "x": 3.0,
+        "y": 0.8,
+        "z": 5.0
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 9539686,
+          "model": "cabinet_36_white_wood",
+          "visibility_ratio": 0.5,
+          "occlusion_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "file": "4037357_facing_west.png",
+      "cam_id": "4037357",
+      "pos": {
+        "x": 3.0,
+        "y": 0.8,
+        "z": 5.0
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 9539686,
+          "model": "cabinet_36_white_wood",
+          "visibility_ratio": 0.5,
+          "occlusion_ratio": 0.0
+        },
+        {
+          "object_id": 9500982,
+          "model": "kettle",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "file": "9539686_facing_north.png",
+      "cam_id": "9539686",
+      "pos": {
+        "x": 1.0,
+        "y": 0.8,
+        "z": 3.0
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 4037357,
+          "model": "dining_room_table",
+          "visibility_ratio": 0.5,
+          "occlusion_ratio": 0.0
+        },
+        {
+          "object_id": 9500982,
+          "model": "kettle",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "file": "9539686_facing_east.png",
+      "cam_id": "9539686",
+      "pos": {
+        "x": 1.0,
+        "y": 0.8,
+        "z": 3.0
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 4037357,
+          "model": "dining_room_table",
+          "visibility_ratio": 0.5,
+          "occlusion_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "file": "9539686_facing_south.png",
+      "cam_id": "9539686",
+      "pos": {
+        "x": 1.0,
+        "y": 0.8,
+        "z": 3.0
+      },
+      "direction": "south",
+      "object_ratios": []
+    },
+    {
+      "file": "9539686_facing_west.png",
+      "cam_id": "9539686",
+      "pos": {
+        "x": 1.0,
+        "y": 0.8,
+        "z": 3.0
+      },
+      "direction": "west",
+      "object_ratios": []
+    },
+    {
+      "file": "9500982_facing_north.png",
+      "cam_id": "9500982",
+      "pos": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": 6.0
+      },
+      "direction": "north",
+      "object_ratios": []
+    },
+    {
+      "file": "9500982_facing_east.png",
+      "cam_id": "9500982",
+      "pos": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": 6.0
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 4037357,
+          "model": "dining_room_table",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "file": "9500982_facing_south.png",
+      "cam_id": "9500982",
+      "pos": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": 6.0
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 9539686,
           "model": "cabinet_36_white_wood",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 0.0
@@ -494,328 +887,416 @@
       ]
     },
     {
-      "file": "7854977_facing_east.png",
-      "cam_id": "7854977",
+      "file": "9500982_facing_west.png",
+      "cam_id": "9500982",
       "pos": {
-        "x": 2.0,
+        "x": -1.0,
         "y": 0.8,
-        "z": 0.0
-      },
-      "direction": "east",
-      "object_ratios": []
-    },
-    {
-      "file": "7854977_facing_south.png",
-      "cam_id": "7854977",
-      "pos": {
-        "x": 2.0,
-        "y": 0.8,
-        "z": 0.0
-      },
-      "direction": "south",
-      "object_ratios": []
-    },
-    {
-      "file": "7854977_facing_west.png",
-      "cam_id": "7854977",
-      "pos": {
-        "x": 2.0,
-        "y": 0.8,
-        "z": 0.0
+        "z": 6.0
       },
       "direction": "west",
       "object_ratios": []
     },
     {
-      "file": "3311260_facing_north.png",
-      "cam_id": "3311260",
+      "file": "2529973_facing_north.png",
+      "cam_id": "2529973",
       "pos": {
-        "x": -5.0,
+        "x": 8.0,
         "y": 0.8,
-        "z": -5.0
+        "z": -2.0
       },
       "direction": "north",
       "object_ratios": []
     },
     {
-      "file": "3311260_facing_east.png",
-      "cam_id": "3311260",
+      "file": "2529973_facing_east.png",
+      "cam_id": "2529973",
       "pos": {
-        "x": -5.0,
+        "x": 8.0,
         "y": 0.8,
-        "z": -5.0
+        "z": -2.0
       },
       "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "2529973_facing_south.png",
+      "cam_id": "2529973",
+      "pos": {
+        "x": 8.0,
+        "y": 0.8,
+        "z": -2.0
+      },
+      "direction": "south",
       "object_ratios": [
         {
-          "object_id": 3743750,
-          "model": "fridge_large",
+          "object_id": 5322741,
+          "model": "b03_basket",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 0.0
         }
       ]
     },
     {
-      "file": "3311260_facing_south.png",
-      "cam_id": "3311260",
+      "file": "2529973_facing_west.png",
+      "cam_id": "2529973",
       "pos": {
-        "x": -5.0,
+        "x": 8.0,
         "y": 0.8,
-        "z": -5.0
-      },
-      "direction": "south",
-      "object_ratios": []
-    },
-    {
-      "file": "3311260_facing_west.png",
-      "cam_id": "3311260",
-      "pos": {
-        "x": -5.0,
-        "y": 0.8,
-        "z": -5.0
+        "z": -2.0
       },
       "direction": "west",
-      "object_ratios": []
-    },
-    {
-      "file": "5400588_facing_north.png",
-      "cam_id": "5400588",
-      "pos": {
-        "x": -5.0,
-        "y": 0.8,
-        "z": 4.0
-      },
-      "direction": "north",
-      "object_ratios": []
-    },
-    {
-      "file": "5400588_facing_east.png",
-      "cam_id": "5400588",
-      "pos": {
-        "x": -5.0,
-        "y": 0.8,
-        "z": 4.0
-      },
-      "direction": "east",
-      "object_ratios": []
-    },
-    {
-      "file": "5400588_facing_south.png",
-      "cam_id": "5400588",
-      "pos": {
-        "x": -5.0,
-        "y": 0.8,
-        "z": 4.0
-      },
-      "direction": "south",
       "object_ratios": [
         {
-          "object_id": 2252160,
-          "model": "red_lamp",
+          "object_id": 6473028,
+          "model": "washing_machine3",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 0.0
         }
       ]
     },
     {
-      "file": "5400588_facing_west.png",
-      "cam_id": "5400588",
-      "pos": {
-        "x": -5.0,
-        "y": 0.8,
-        "z": 4.0
-      },
-      "direction": "west",
-      "object_ratios": []
-    },
-    {
-      "file": "3216036_facing_north.png",
-      "cam_id": "3216036",
+      "file": "6473028_facing_north.png",
+      "cam_id": "6473028",
       "pos": {
         "x": 3.0,
         "y": 0.8,
-        "z": 2.0
+        "z": -4.0
       },
       "direction": "north",
       "object_ratios": []
     },
     {
-      "file": "3216036_facing_east.png",
-      "cam_id": "3216036",
+      "file": "6473028_facing_east.png",
+      "cam_id": "6473028",
       "pos": {
         "x": 3.0,
         "y": 0.8,
-        "z": 2.0
+        "z": -4.0
       },
       "direction": "east",
-      "object_ratios": []
-    },
-    {
-      "file": "3216036_facing_south.png",
-      "cam_id": "3216036",
-      "pos": {
-        "x": 3.0,
-        "y": 0.8,
-        "z": 2.0
-      },
-      "direction": "south",
       "object_ratios": [
         {
-          "object_id": 7854977,
-          "model": "lapalma_stil_chair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 0.0
-        }
-      ]
-    },
-    {
-      "file": "3216036_facing_west.png",
-      "cam_id": "3216036",
-      "pos": {
-        "x": 3.0,
-        "y": 0.8,
-        "z": 2.0
-      },
-      "direction": "west",
-      "object_ratios": []
-    },
-    {
-      "file": "3743750_facing_north.png",
-      "cam_id": "3743750",
-      "pos": {
-        "x": -2.0,
-        "y": 0.8,
-        "z": -5.0
-      },
-      "direction": "north",
-      "object_ratios": []
-    },
-    {
-      "file": "3743750_facing_east.png",
-      "cam_id": "3743750",
-      "pos": {
-        "x": -2.0,
-        "y": 0.8,
-        "z": -5.0
-      },
-      "direction": "east",
-      "object_ratios": []
-    },
-    {
-      "file": "3743750_facing_south.png",
-      "cam_id": "3743750",
-      "pos": {
-        "x": -2.0,
-        "y": 0.8,
-        "z": -5.0
-      },
-      "direction": "south",
-      "object_ratios": []
-    },
-    {
-      "file": "3743750_facing_west.png",
-      "cam_id": "3743750",
-      "pos": {
-        "x": -2.0,
-        "y": 0.8,
-        "z": -5.0
-      },
-      "direction": "west",
-      "object_ratios": [
-        {
-          "object_id": 3311260,
-          "model": "white_club_chair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 0.0
-        }
-      ]
-    },
-    {
-      "file": "10000_facing_north.png",
-      "cam_id": "10000",
-      "pos": {
-        "x": 0.0,
-        "y": 0.8,
-        "z": 1.0
-      },
-      "direction": "north",
-      "object_ratios": []
-    },
-    {
-      "file": "10000_facing_east.png",
-      "cam_id": "10000",
-      "pos": {
-        "x": 0.0,
-        "y": 0.8,
-        "z": 1.0
-      },
-      "direction": "east",
-      "object_ratios": []
-    },
-    {
-      "file": "10000_facing_south.png",
-      "cam_id": "10000",
-      "pos": {
-        "x": 0.0,
-        "y": 0.8,
-        "z": 1.0
-      },
-      "direction": "south",
-      "object_ratios": []
-    },
-    {
-      "file": "10000_facing_west.png",
-      "cam_id": "10000",
-      "pos": {
-        "x": 0.0,
-        "y": 0.8,
-        "z": 1.0
-      },
-      "direction": "west",
-      "object_ratios": [
-        {
-          "object_id": 2252160,
-          "model": "red_lamp",
+          "object_id": 2529973,
+          "model": "spunlight_designermesh_lamp",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 0.0
         },
         {
-          "object_id": 5400588,
-          "model": "white_club_chair",
+          "object_id": 5322741,
+          "model": "b03_basket",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 0.0
         }
       ]
     },
     {
-      "file": "10000_facing_north.png",
-      "cam_id": "10000",
+      "file": "6473028_facing_south.png",
+      "cam_id": "6473028",
       "pos": {
-        "x": 0.0,
+        "x": 3.0,
         "y": 0.8,
-        "z": 1.0
+        "z": -4.0
+      },
+      "direction": "south",
+      "object_ratios": []
+    },
+    {
+      "file": "6473028_facing_west.png",
+      "cam_id": "6473028",
+      "pos": {
+        "x": 3.0,
+        "y": 0.8,
+        "z": -4.0
+      },
+      "direction": "west",
+      "object_ratios": []
+    },
+    {
+      "file": "5322741_facing_north.png",
+      "cam_id": "5322741",
+      "pos": {
+        "x": 7.0,
+        "y": 0.8,
+        "z": -4.0
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 2529973,
+          "model": "spunlight_designermesh_lamp",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "file": "5322741_facing_east.png",
+      "cam_id": "5322741",
+      "pos": {
+        "x": 7.0,
+        "y": 0.8,
+        "z": -4.0
+      },
+      "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "5322741_facing_south.png",
+      "cam_id": "5322741",
+      "pos": {
+        "x": 7.0,
+        "y": 0.8,
+        "z": -4.0
+      },
+      "direction": "south",
+      "object_ratios": []
+    },
+    {
+      "file": "5322741_facing_west.png",
+      "cam_id": "5322741",
+      "pos": {
+        "x": 7.0,
+        "y": 0.8,
+        "z": -4.0
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 6473028,
+          "model": "washing_machine3",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "file": "20076_facing_north.png",
+      "cam_id": "20076",
+      "pos": {
+        "x": 2.0,
+        "y": 0.8,
+        "z": 0.0
       },
       "direction": "north",
       "object_ratios": []
     },
     {
-      "file": "10000_facing_east.png",
-      "cam_id": "10000",
+      "file": "20076_facing_east.png",
+      "cam_id": "20076",
       "pos": {
-        "x": 0.0,
+        "x": 2.0,
         "y": 0.8,
-        "z": 1.0
+        "z": 0.0
       },
       "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "20076_facing_south.png",
+      "cam_id": "20076",
+      "pos": {
+        "x": 2.0,
+        "y": 0.8,
+        "z": 0.0
+      },
+      "direction": "south",
       "object_ratios": [
         {
-          "object_id": 7854977,
-          "model": "lapalma_stil_chair",
+          "object_id": 7870001,
+          "model": "4ft_shelf_metal",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "file": "20076_facing_west.png",
+      "cam_id": "20076",
+      "pos": {
+        "x": 2.0,
+        "y": 0.8,
+        "z": 0.0
+      },
+      "direction": "west",
+      "object_ratios": [
+        {
+          "object_id": 6061851,
+          "model": "wood_chair",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 0.0
         },
         {
-          "object_id": 3216036,
+          "object_id": 2906489,
+          "model": "appliance-ge-profile-microwave3",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "file": "20076_facing_north.png",
+      "cam_id": "20076",
+      "pos": {
+        "x": 2.0,
+        "y": 0.8,
+        "z": 0.0
+      },
+      "direction": "north",
+      "object_ratios": []
+    },
+    {
+      "file": "20076_facing_east.png",
+      "cam_id": "20076",
+      "pos": {
+        "x": 2.0,
+        "y": 0.8,
+        "z": 0.0
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 2529973,
+          "model": "spunlight_designermesh_lamp",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        },
+        {
+          "object_id": 5322741,
+          "model": "b03_basket",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "file": "20076_facing_south.png",
+      "cam_id": "20076",
+      "pos": {
+        "x": 2.0,
+        "y": 0.8,
+        "z": 0.0
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 6473028,
+          "model": "washing_machine3",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "file": "20076_facing_west.png",
+      "cam_id": "20076",
+      "pos": {
+        "x": 2.0,
+        "y": 0.8,
+        "z": 0.0
+      },
+      "direction": "west",
+      "object_ratios": []
+    },
+    {
+      "file": "20197_facing_north.png",
+      "cam_id": "20197",
+      "pos": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": 2.0
+      },
+      "direction": "north",
+      "object_ratios": []
+    },
+    {
+      "file": "20197_facing_east.png",
+      "cam_id": "20197",
+      "pos": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": 2.0
+      },
+      "direction": "east",
+      "object_ratios": []
+    },
+    {
+      "file": "20197_facing_south.png",
+      "cam_id": "20197",
+      "pos": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": 2.0
+      },
+      "direction": "south",
+      "object_ratios": [
+        {
+          "object_id": 6061851,
+          "model": "wood_chair",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        },
+        {
+          "object_id": 2906489,
+          "model": "appliance-ge-profile-microwave3",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        },
+        {
+          "object_id": 7870001,
+          "model": "4ft_shelf_metal",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "file": "20197_facing_west.png",
+      "cam_id": "20197",
+      "pos": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": 2.0
+      },
+      "direction": "west",
+      "object_ratios": []
+    },
+    {
+      "file": "20197_facing_north.png",
+      "cam_id": "20197",
+      "pos": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": 2.0
+      },
+      "direction": "north",
+      "object_ratios": [
+        {
+          "object_id": 9500982,
+          "model": "kettle",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "file": "20197_facing_east.png",
+      "cam_id": "20197",
+      "pos": {
+        "x": -1.0,
+        "y": 0.8,
+        "z": 2.0
+      },
+      "direction": "east",
+      "object_ratios": [
+        {
+          "object_id": 4037357,
+          "model": "dining_room_table",
+          "visibility_ratio": 1.0,
+          "occlusion_ratio": 0.0
+        },
+        {
+          "object_id": 9539686,
           "model": "cabinet_36_white_wood",
           "visibility_ratio": 1.0,
           "occlusion_ratio": 0.0
@@ -823,144 +1304,23 @@
       ]
     },
     {
-      "file": "10000_facing_south.png",
-      "cam_id": "10000",
+      "file": "20197_facing_south.png",
+      "cam_id": "20197",
       "pos": {
-        "x": 0.0,
+        "x": -1.0,
         "y": 0.8,
-        "z": 1.0
+        "z": 2.0
       },
       "direction": "south",
       "object_ratios": []
     },
     {
-      "file": "10000_facing_west.png",
-      "cam_id": "10000",
+      "file": "20197_facing_west.png",
+      "cam_id": "20197",
       "pos": {
-        "x": 0.0,
+        "x": -1.0,
         "y": 0.8,
-        "z": 1.0
-      },
-      "direction": "west",
-      "object_ratios": []
-    },
-    {
-      "file": "10001_facing_north.png",
-      "cam_id": "10001",
-      "pos": {
-        "x": -4.0,
-        "y": 0.8,
-        "z": -2.0
-      },
-      "direction": "north",
-      "object_ratios": [
-        {
-          "object_id": 2252160,
-          "model": "red_lamp",
-          "visibility_ratio": 0.5,
-          "occlusion_ratio": 0.0
-        },
-        {
-          "object_id": 5400588,
-          "model": "white_club_chair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 0.0
-        }
-      ]
-    },
-    {
-      "file": "10001_facing_east.png",
-      "cam_id": "10001",
-      "pos": {
-        "x": -4.0,
-        "y": 0.8,
-        "z": -2.0
-      },
-      "direction": "east",
-      "object_ratios": [
-        {
-          "object_id": 2252160,
-          "model": "red_lamp",
-          "visibility_ratio": 0.5,
-          "occlusion_ratio": 0.0
-        }
-      ]
-    },
-    {
-      "file": "10001_facing_south.png",
-      "cam_id": "10001",
-      "pos": {
-        "x": -4.0,
-        "y": 0.8,
-        "z": -2.0
-      },
-      "direction": "south",
-      "object_ratios": []
-    },
-    {
-      "file": "10001_facing_west.png",
-      "cam_id": "10001",
-      "pos": {
-        "x": -4.0,
-        "y": 0.8,
-        "z": -2.0
-      },
-      "direction": "west",
-      "object_ratios": []
-    },
-    {
-      "file": "10001_facing_north.png",
-      "cam_id": "10001",
-      "pos": {
-        "x": -4.0,
-        "y": 0.8,
-        "z": -2.0
-      },
-      "direction": "north",
-      "object_ratios": []
-    },
-    {
-      "file": "10001_facing_east.png",
-      "cam_id": "10001",
-      "pos": {
-        "x": -4.0,
-        "y": 0.8,
-        "z": -2.0
-      },
-      "direction": "east",
-      "object_ratios": []
-    },
-    {
-      "file": "10001_facing_south.png",
-      "cam_id": "10001",
-      "pos": {
-        "x": -4.0,
-        "y": 0.8,
-        "z": -2.0
-      },
-      "direction": "south",
-      "object_ratios": [
-        {
-          "object_id": 3311260,
-          "model": "white_club_chair",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 0.0
-        },
-        {
-          "object_id": 3743750,
-          "model": "fridge_large",
-          "visibility_ratio": 1.0,
-          "occlusion_ratio": 0.0
-        }
-      ]
-    },
-    {
-      "file": "10001_facing_west.png",
-      "cam_id": "10001",
-      "pos": {
-        "x": -4.0,
-        "y": 0.8,
-        "z": -2.0
+        "z": 2.0
       },
       "direction": "west",
       "object_ratios": []
@@ -969,16 +1329,16 @@
   "rooms": {
     "1": {
       "center": [
-        -3.5,
-        2.0
+        -1.5,
+        -1.5
       ],
       "bounds": [
-        -6.5,
-        -0.5,
-        -1.5,
-        5.5
+        -4.5,
+        1.5,
+        -4.5,
+        1.5
       ],
-      "area": 42,
+      "area": 36,
       "connected_rooms": [
         2,
         3
@@ -986,32 +1346,32 @@
     },
     "2": {
       "center": [
-        3.0,
-        2.0
-      ],
-      "bounds": [
         0.5,
-        5.5,
-        -1.5,
         5.5
       ],
-      "area": 35,
+      "bounds": [
+        -2.5,
+        3.5,
+        2.5,
+        8.5
+      ],
+      "area": 36,
       "connected_rooms": [
         1
       ]
     },
     "3": {
       "center": [
-        -3.5,
-        -4.5
+        5.5,
+        -1.5
       ],
       "bounds": [
-        -6.5,
-        -0.5,
-        -6.5,
-        -2.5
+        2.5,
+        8.5,
+        -4.5,
+        1.5
       ],
-      "area": 24,
+      "area": 36,
       "connected_rooms": [
         1
       ]
@@ -1020,26 +1380,26 @@
   "doors": {
     "100": {
       "center": [
-        0.0,
-        1.0
+        2.0,
+        0.0
       ],
-      "color": "red",
+      "color": "blue",
       "connected_rooms": [
         1,
-        2
+        3
       ],
       "orientation": "vertical",
       "width": 1
     },
     "101": {
       "center": [
-        -4.0,
-        -2.0
+        -1.0,
+        2.0
       ],
-      "color": "purple",
+      "color": "red",
       "connected_rooms": [
         1,
-        3
+        2
       ],
       "orientation": "horizontal",
       "width": 1
@@ -1048,38 +1408,53 @@
   "room_object_assignments": {
     "1": [
       {
-        "object_id": 2252160,
-        "name": "red lamp",
+        "object_id": 6061851,
+        "name": "blue_chair",
         "label": "1"
       },
       {
-        "object_id": 5400588,
-        "name": "white chair",
-        "label": "4"
+        "object_id": 2906489,
+        "name": "microwave",
+        "label": "2"
+      },
+      {
+        "object_id": 7870001,
+        "name": "shelf",
+        "label": "3"
       }
     ],
     "2": [
       {
-        "object_id": 7854977,
-        "name": "pink chair",
-        "label": "2"
+        "object_id": 4037357,
+        "name": "table",
+        "label": "4"
       },
       {
-        "object_id": 3216036,
-        "name": "white cabinet",
+        "object_id": 9539686,
+        "name": "cabinet",
         "label": "5"
+      },
+      {
+        "object_id": 9500982,
+        "name": "kettle",
+        "label": "6"
       }
     ],
     "3": [
       {
-        "object_id": 3311260,
-        "name": "green chair",
-        "label": "3"
+        "object_id": 2529973,
+        "name": "lamp",
+        "label": "7"
       },
       {
-        "object_id": 3743750,
-        "name": "fridge",
-        "label": "6"
+        "object_id": 6473028,
+        "name": "washing_machine",
+        "label": "8"
+      },
+      {
+        "object_id": 5322741,
+        "name": "basket",
+        "label": "9"
       }
     ]
   },
@@ -1100,9 +1475,105 @@
       -1,
       -1,
       -1,
+      -1,
+      -1,
+      -1,
+      -1,
       -1
     ],
     [
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1
+    ],
+    [
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1
+    ],
+    [
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1
+    ],
+    [
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1
+    ],
+    [
+      -1,
+      -1,
+      -1,
+      -1,
       -1,
       0,
       0,
@@ -1112,23 +1583,21 @@
       0,
       0,
       0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
       -1
     ],
     [
       -1,
+      -1,
+      -1,
+      -1,
+      -1,
       0,
-      3,
-      3,
-      3,
-      3,
-      0,
-      1,
       1,
       1,
       1,
@@ -1136,17 +1605,21 @@
       1,
       1,
       0,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
       -1
     ],
     [
       -1,
+      -1,
+      -1,
+      -1,
+      -1,
       0,
-      3,
-      3,
-      3,
-      3,
-      0,
-      1,
       1,
       1,
       1,
@@ -1154,35 +1627,65 @@
       1,
       1,
       0,
-      -1
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
     ],
     [
       -1,
+      -1,
+      -1,
+      -1,
+      -1,
       0,
-      3,
-      3,
-      3,
-      3,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      0
+    ],
+    [
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
       101,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      0,
-      -1
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      0
     ],
     [
       -1,
+      -1,
+      -1,
+      -1,
+      -1,
       0,
-      3,
-      3,
-      3,
-      3,
-      0,
-      1,
       1,
       1,
       1,
@@ -1190,17 +1693,21 @@
       1,
       1,
       0,
-      -1
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      0
     ],
     [
       -1,
+      -1,
+      -1,
+      -1,
+      -1,
       0,
-      3,
-      3,
-      3,
-      3,
-      0,
-      1,
       1,
       1,
       1,
@@ -1208,31 +1715,20 @@
       1,
       1,
       0,
-      -1
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      0
     ],
     [
       -1,
-      0,
-      3,
-      3,
-      3,
-      3,
-      0,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      0,
-      -1
-    ],
-    [
       -1,
-      0,
-      0,
-      0,
+      -1,
+      -1,
+      -1,
       0,
       0,
       0,
@@ -1241,9 +1737,78 @@
       100,
       0,
       0,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      0
+    ],
+    [
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      0,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      0,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      0
+    ],
+    [
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      0,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
       0,
       0,
       0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      0,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      0,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
       -1
     ],
     [
@@ -1252,16 +1817,20 @@
       -1,
       -1,
       -1,
+      0,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      0,
       -1,
-      0,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      0,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
       -1
     ],
     [
@@ -1270,16 +1839,20 @@
       -1,
       -1,
       -1,
+      0,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      0,
       -1,
-      0,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      0,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
       -1
     ],
     [
@@ -1288,16 +1861,20 @@
       -1,
       -1,
       -1,
+      0,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      0,
       -1,
-      0,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      0,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
       -1
     ],
     [
@@ -1306,43 +1883,6 @@
       -1,
       -1,
       -1,
-      -1,
-      0,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      0,
-      -1
-    ],
-    [
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      0,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      0,
-      -1
-    ],
-    [
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
       0,
       0,
       0,
@@ -1351,19 +1891,6 @@
       0,
       0,
       0,
-      0,
-      -1
-    ],
-    [
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
       -1,
       -1,
       -1,
@@ -1374,7 +1901,7 @@
     ]
   ],
   "offset": [
-    8,
-    8
+    10,
+    10
   ]
 }
