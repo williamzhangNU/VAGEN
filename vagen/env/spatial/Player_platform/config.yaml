@@ -1,0 +1,36 @@
+# config.yaml
+name: demo_env
+room_size: [10, 10]
+n_objects: 3
+level: 0
+main: 6
+
+exp_type: active   # or passive
+perspective: ego
+observation_mode: full
+max_exp_steps: 20
+
+proxy_agent_config:
+  type: analyst
+  delegate: oracle
+
+eval_tasks:
+  - task_type: rot
+    task_kwargs:
+      turn_direction: clockwise
+
+prompt_config:
+  topdown: false
+  oblique: false
+  type: shorter
+  enable_think: true
+
+cogmap_config:
+  cogmap_type: standard
+  pos_allow_scale: true
+  scope: all
+
+kwargs:
+  model_config:
+    name: human_player
+    version: "1.0"
