@@ -45,6 +45,7 @@ class SpatialGym(gym.Env):
         self.exploration_manager = None
         self.evaluation_manager = None
         self.cognitive_map_manager = None
+        self.history_manager = None
 
         # Turn logging
         self.turn_logs: List[EnvTurnLog] = None
@@ -62,6 +63,7 @@ class SpatialGym(gym.Env):
                 self.agent,
                 delegate=self.config.proxy_agent_config.get("delegate"),
                 observer_delegate=self.config.proxy_agent_config.get("observer_delegate"), # TODO change name
+                grid_size=self.config.grid_size if hasattr(self.config, 'grid_size') else None,
             )            
             proxy.run()
             # Only collect multi-modal data if render_mode is vision
@@ -121,7 +123,9 @@ class SpatialGym(gym.Env):
         
         self.exploration_manager = ExplorationManager(
             self.initial_room, self.agent,
-            enable_information_gain=getattr(self.config, 'calculate_information_gain', False)
+            enable_information_gain=getattr(self.config, 'calculate_information_gain', False),
+            grid_size=(self.config.grid_size if hasattr(self.config, 'grid_size') else None),
+            enable_exploration_quality=getattr(self.config, 'calculate_exploration_quality', False)
         )
         self.evaluation_manager = EvaluationManager(self.config.eval_tasks, self.np_random, self.initial_room, self.agent) if len(self.config.eval_tasks) > 0 else None
         self.history_manager = HistoryManager(
@@ -216,7 +220,7 @@ class SpatialGym(gym.Env):
 
         # Log turn at start with current state
         current_obs = self.render_cache
-        is_exploration_phase = self.is_exploration_phase
+        is_exploration_phase = self.is_exploration_phase # so termiante action is included in exploration log
         # step the environment
         if parsed_ok:
             if self.is_exploration_phase:
