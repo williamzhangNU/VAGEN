@@ -34,6 +34,15 @@ class Prompter:
             if enable_think else
             "Always output: <answer> [your answer] </answer> with no extra text."
         )
+        
+    def _get_object_labels(self) -> dict:
+        """Get object labels from meta data."""
+        object_labels = {}
+        if hasattr(self.image_handler, 'json_data') and 'objects' in self.image_handler.json_data:
+            for obj in self.image_handler.json_data['objects']:
+                if 'label' in obj:
+                    object_labels[obj['name']] = obj['label']
+        return object_labels
 
     def _get_topdown_prompt(self, prompt_template: str, room) -> str:
         """Generate topdown view prompt with object information."""
@@ -91,25 +100,13 @@ class Prompter:
         room_desc = get_room_description(room, agent, with_topdown=self.config.prompt_config['topdown'])
         
         # Replace object list with numbered version using meta data labels
-        if hasattr(self.image_handler, 'json_data') and 'room_object_assignments' in self.image_handler.json_data:
-            object_labels = {}
-            for room_assignments in self.image_handler.json_data['room_object_assignments'].values():
-                for assignment in room_assignments:
-                    object_labels[assignment['name']] = assignment['label']
-            
-            # Get objects from room
-            objects = [o for o in room.all_objects if not hasattr(o, 'room_id') or not isinstance(getattr(o, 'room_id', None), list)]
-            numbered_objects = []
-            for obj in objects:
-                label = object_labels.get(obj.name, "?")
-                numbered_objects.append(f"{label}. {obj.name}")
-            
+        objects = [o for o in room.all_objects if not hasattr(o, 'room_id') or not isinstance(getattr(o, 'room_id', None), list)]
+        if objects:
+            object_labels = self._get_object_labels()
+            numbered_objects = [f"{object_labels.get(obj.name, '?')}. {obj.name}" for obj in objects]
             if numbered_objects:
-                # Replace the simple object list with numbered version
                 import re
-                old_objects_pattern = r"Objects: ([^\n]+)"
-                new_objects_line = f"Objects: {', '.join(numbered_objects)}"
-                room_desc = re.sub(old_objects_pattern, new_objects_line, room_desc)
+                room_desc = re.sub(r"Objects: ([^\n]+)", f"Objects: {', '.join(numbered_objects)}", room_desc)
 
         result = {}
 
