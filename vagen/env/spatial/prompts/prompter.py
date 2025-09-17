@@ -48,13 +48,8 @@ class Prompter:
         """Generate topdown view prompt with object information."""
         obj_info = "Each object in the room is labeled with a numerical marker for easy identification."
         
-        # Get object labels from meta data if available
-        if hasattr(self.image_handler, 'json_data') and 'room_object_assignments' in self.image_handler.json_data:
-            object_labels = {}
-            for room_assignments in self.image_handler.json_data['room_object_assignments'].values():
-                for assignment in room_assignments:
-                    object_labels[assignment['name']] = assignment['label']
-            
+        object_labels = self._get_object_labels()
+        if object_labels:
             for obj in room.objects:
                 label = object_labels.get(obj.name, "?")
                 obj_info += f"\nObject {label}: {obj.name}"
@@ -63,20 +58,14 @@ class Prompter:
             for idx, obj in enumerate(room.objects):
                 obj_info += f"\nObject {idx + 1}: {obj.name}"
                 
-        obj_info += "\nNote: All objects in the orientation instruction image are facing towardsthe camera and the labels match the objects listed below."
         return prompt_template.format(placeholder=self.config.image_placeholder, object_info=obj_info)
 
     def _get_oblique_prompt(self, prompt_template: str, room) -> str:
         """Generate oblique view prompt with object information."""
         obj_info = "Each object in the room is labeled with a numerical marker for easy identification."
         
-        # Get object labels from meta data if available
-        if hasattr(self.image_handler, 'json_data') and 'room_object_assignments' in self.image_handler.json_data:
-            object_labels = {}
-            for room_assignments in self.image_handler.json_data['room_object_assignments'].values():
-                for assignment in room_assignments:
-                    object_labels[assignment['name']] = assignment['label']
-            
+        object_labels = self._get_object_labels()
+        if object_labels:
             for obj in room.objects:
                 label = object_labels.get(obj.name, "?")
                 obj_info += f"\nObject {label}: {obj.name}"
