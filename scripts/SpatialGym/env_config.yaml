@@ -1,18 +1,18 @@
 env1:
   env_name: spatial
   env_config: 
-    name: passive_rot
-    exp_type: passive
+    name: active_rot
+    exp_type: active
     n_objects: 4
     level: 2
     main: 5
-    room_size: [15, 15]
-    max_exp_steps: 1
+    room_size: [20, 20]
+    max_exp_steps: 20
     prompt_config: {'topdown': false, 'oblique': false, 'cogmap': false, 'type': 'default'}
     eval_tasks:
       - task_type: rot
   train_size: 1
-  test_size: 1
+  test_size: 10
 
 # env1:
 #   env_name: spatial

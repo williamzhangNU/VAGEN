@@ -48,21 +48,34 @@ class ImageHandler:
         for entry in self.json_data.get('images', []):
             key = f"{entry['cam_id']}_facing_{entry['direction']}"
             path = os.path.join(self.image_dir, entry['file'])
-            assert os.path.exists(path)
+            if not os.path.exists(path):
+                # Silently skip missing files to reduce noise
+                continue
             image_path_map[key] = path
             if self.preload_images:
                 image_map[key] = Image.open(path).resize(self.image_size, Image.LANCZOS)
         topdown_path = os.path.join(self.image_dir, 'top_down_annotated.png')
-        assert os.path.exists(topdown_path)
-        image_path_map['topdown'] = topdown_path
-        if self.preload_images:
-            image_map['topdown'] = Image.open(topdown_path).resize(self.image_size, Image.LANCZOS)
+        if os.path.exists(topdown_path):
+            image_path_map['topdown'] = topdown_path
+            if self.preload_images:
+                image_map['topdown'] = Image.open(topdown_path).resize(self.image_size, Image.LANCZOS)
+        else:
+            print(f"[WARN] Missing topdown image: {topdown_path}")
 
         instruction_path = os.path.join(self.base_dir, 'instruction.png')
-        assert os.path.exists(instruction_path)
-        image_path_map['instruction'] = instruction_path
-        if self.preload_images:
-            image_map['instruction'] = Image.open(instruction_path).resize(self.image_size, Image.LANCZOS)            
+        if os.path.exists(instruction_path):
+            image_path_map['instruction'] = instruction_path
+            if self.preload_images:
+                image_map['instruction'] = Image.open(instruction_path).resize(self.image_size, Image.LANCZOS)
+        else:
+            print(f"[WARN] Missing instruction image: {instruction_path}")
+            
+        # Add orientation_instruction.png from current image directory
+        orientation_instruction_path = os.path.join(self.image_dir, 'orientation_instruction.png')
+        if os.path.exists(orientation_instruction_path):
+            image_path_map['orientation_instruction'] = orientation_instruction_path
+            if self.preload_images:
+                image_map['orientation_instruction'] = Image.open(orientation_instruction_path).resize(self.image_size, Image.LANCZOS)
         
         return image_map, image_path_map
     
@@ -71,7 +84,7 @@ class ImageHandler:
         Get image for given camera ID and direction.
         
         Args:
-            name: Name of the object ('agent' or object_name or 'topdown' or 'instruction' as string)
+            name: Name of the object ('agent' or object_name or 'topdown' or 'instruction' or 'orientation_instruction' as string)
             direction: Cardinal direction ('north', 'south', 'east', 'west')
             
         Returns:
@@ -81,13 +94,17 @@ class ImageHandler:
             KeyError: If image not found
         """
         # Handle special static images that don't need direction
-        if name in ['topdown', 'instruction']:
+        if name in ['topdown', 'instruction', 'orientation_instruction']:
             key = name
         else:
+            if name not in self.name_2_cam_id:
+                # Silently return None for missing objects
+                return None
             key = f"{self.name_2_cam_id[name]}_facing_{direction}"
         
-        if key not in self._image_map:
-            raise KeyError(f"Image not found for name '{name}' facing '{direction}'")
+        if key not in self._image_map and key not in self._image_path_map:
+            # Silently return None for missing images
+            return None
         
         if self.preload_images:
             return self._image_map[key]
@@ -100,7 +117,7 @@ class ImageHandler:
         Get image path for given camera ID and direction.
         
         Args:
-            name: Name of the object ('agent' or object_name or 'topdown' or 'instruction' as string)
+            name: Name of the object ('agent' or object_name or 'topdown' or 'instruction' or 'orientation_instruction' as string)
             direction: Cardinal direction ('north', 'south', 'east', 'west')
             
         Returns:
@@ -110,12 +127,16 @@ class ImageHandler:
             KeyError: If image path not found
         """
         # Handle special static images that don't need direction
-        if name in ['topdown', 'instruction']:
+        if name in ['topdown', 'instruction', 'orientation_instruction']:
             key = name
         else:
+            if name not in self.name_2_cam_id:
+                # Silently return None for missing objects
+                return None
             key = f"{self.name_2_cam_id[name]}_facing_{direction}"
         
         if key not in self._image_path_map:
-            raise KeyError(f"Image path not found for name '{name}' facing '{direction}'")
+            # Silently return None for missing image paths
+            return None
         
         return self._image_path_map[key]

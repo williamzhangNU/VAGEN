@@ -137,6 +137,14 @@ class SpatialGymConfig(BaseEnvConfig):
             'observation_mode': self.observation_mode,
             'render_mode': self.render_mode,
             'prompt_config': self.prompt_config,
+        }
+        
+    def get_model_config(self) -> Dict[str, Any]:
+        """Return model-related configuration for history manager."""
+        return {
+            'exp_type': self.exp_type,
+            'eval_tasks': self.eval_tasks,
+            'max_exp_steps': self.max_exp_steps,
         }        
 
     def to_dict(self) -> Dict[str, Any]:
