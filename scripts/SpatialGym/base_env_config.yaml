@@ -9,15 +9,6 @@ _prompt_standard: &prompt_standard
     topdown: false
     cogmap: false
 
-_prompt_cogmap: &prompt_cogmap
-  prompt_config:
-    topdown: false
-    cogmap: true
-  cogmap_config:
-    cogmap_type: standard
-    pos_allow_scale: true
-    scope: all
-
 _prompt_topdown: &prompt_topdown
   prompt_config:
     topdown: true
