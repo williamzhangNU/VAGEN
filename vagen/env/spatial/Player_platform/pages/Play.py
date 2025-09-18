@@ -92,8 +92,6 @@ elif action_type == "Answer (MCQ)":
     if not st.session_state.env.env.is_exploration_phase:
         # Suppose env provides current question + options in the last obs string
         obs_text = st.session_state.last_obs.get("obs_str", "")
-        # crude example: extract options from obs_text
-        # better: extend env to return structured choices
         choices = ["A", "B", "C", "D"]
         answer = st.radio("Select your answer:", choices, key="mcq_answer")
         if answer:
