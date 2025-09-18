@@ -49,7 +49,8 @@ class SpatialGymConfig(BaseEnvConfig):
     kwargs: Dict = None
     proxy_agent: str = 'scout'
     # Evaluation configuration
-    eval_tasks: List[Dict[str, Any]] = field(default_factory=lambda: [{"task_type": "rot", "task_kwargs": {"turn_direction": "counterclockwise"}}])
+    # Each eval task entry supports {task_type, num}; task_kwargs removed
+    eval_tasks: List[Dict[str, Any]] = field(default_factory=lambda: [{"task_type": "rot", "num": 1}])
 
     prompt_config: Dict[str, Any] = field(default_factory=lambda: {"topdown": False, "oblique": False, "type": "shorter"})
 
@@ -101,24 +102,11 @@ class SpatialGymConfig(BaseEnvConfig):
             task_type = task['task_type']
             if task_type not in valid_eval_tasks:
                 raise ValueError(f"task_type '{task_type}' must be one of {valid_eval_tasks}")
-            
-            # Validate task-specific parameters
-            task_kwargs = task['task_kwargs'] if 'task_kwargs' in task else {}
-            self._validate_task_kwargs(task_type, task_kwargs)
+            # default num
+            assert task.setdefault('num', 1) > 0, "num must be positive"
 
     def _validate_task_kwargs(self, task_type: str, kwargs: Dict[str, Any]):
-        """Validate task-specific parameters."""
-        # if task_type == 'dir':
-        #     movement = kwargs.get('movement', 'static')
-        #     valid_movements = ['static', 'object_move', 'agent_move', 'agent_turn']
-        #     if movement not in valid_movements:
-        #         raise ValueError(f"dir task movement must be one of {valid_movements}")
-        
-        # elif task_type == 'rot':
-        #     turn_direction = kwargs.get('turn_direction', 'clockwise')
-        #     valid_directions = ['clockwise', 'counterclockwise']
-        #     if turn_direction not in valid_directions:
-        #         raise ValueError(f"rot task turn_direction must be one of {valid_directions}")
+        """No task kwargs currently used."""
         return
 
     def get_room_config(self) -> Dict[str, Any]:

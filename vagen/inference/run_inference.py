@@ -123,12 +123,12 @@ def main():
 
             # save results to json and visualize (for spatial env)
             # save_results_to_disk([result['env_summary'] for result in results], [result['messages'] for result in results], inference_config.get('output_dir', 'results/inference_outputs'), model_name=model_name)
-            if inference_config['evaluate_cogmap']:
+            if inference_config.get('evaluate_cogmap'):
                 evaluate_cognitive_maps_from_turnlogs(
                     [result['env_summary'] for result in results], 
                     [result['messages'] for result in results], 
                     service.model_interface,
-                    override_cogmap=inference_config['override_cogmap'],
+                    override_cogmap=inference_config.get('cogmap_override', False),
                     cogmap_config=inference_config['cogmap_config'],
                     vagen=True)
             SpatialEnvLogger.log_each_env_info(

@@ -124,15 +124,27 @@ class SpatialGym(gym.Env):
             enable_information_gain=getattr(self.config, 'calculate_information_gain', False),
             grid_size=(self.config.grid_size if hasattr(self.config, 'grid_size') else None),
         )
-        self.evaluation_manager = EvaluationManager(self.config.eval_tasks, self.np_random, self.initial_room, self.agent) if len(self.config.eval_tasks) > 0 else None
         self.history_manager = HistoryManager(
-            self.config.get_observation_config(),self.config.get_model_config(), 
-            self.initial_room.to_dict(), self.agent.to_dict(), 
-            override=self.config.kwargs['override'], output_dir= self.config.kwargs['output_dir']
+            self.config.get_observation_config(), self.config.get_model_config(),
+            self.initial_room.to_dict(), self.agent.to_dict(),
+            output_dir=self.config.kwargs['output_dir'],
+            exp_override=self.config.kwargs.get('exp_override', False),
+            eval_override=self.config.kwargs.get('eval_override', False),
+            cogmap_override=self.config.kwargs.get('cogmap_override', False),
+            all_override=self.config.kwargs.get('all_override', False),
         )
+        # Initialize EvaluationManager with knowledge of existing eval counts
+        self.evaluation_manager = EvaluationManager(
+            self.config.eval_tasks, self.np_random, self.initial_room, self.agent, history_manager=self.history_manager
+        ) if len(self.config.eval_tasks) > 0 else None
         info = {}
         if self.history_manager and self.history_manager.is_history_exist():
             info['history'] = self.history_manager.get_responses()
+        # If evaluation tasks already fully completed per config, indicate finish
+        if self.evaluation_manager:
+            finish = self.evaluation_manager.check_and_prune_completed_tasks()
+            if finish:
+                info['finish'] = True
             
         obs = self._generate_initial_observation()
         self.render_cache = obs

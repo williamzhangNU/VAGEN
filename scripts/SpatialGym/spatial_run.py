@@ -25,9 +25,12 @@ def parse_args():
                    help="Model identifier. Default: gpt-4.1-mini")
     p.add_argument("--render_mode", type=str, default="vision", help="Environment render mode (vision or text). Default: vision")
     p.add_argument("--output_root", type=str, default="results", help="Root dir for inference output_dir. Default: results")
-    p.add_argument("--override", action="store_true", help="If set, will override the active exploration history")
+    # New granular override flags
+    p.add_argument("--exp-override", action="store_true", dest="exp_override", help="Override exploration history (delete active path)")
+    p.add_argument("--eval-override", action="store_true", dest="eval_override", help="Override evaluation history (delete evaluation json only)")
+    p.add_argument("--cogmap-override", action="store_true", dest="cogmap_override", help="Override cognitive map cache")
+    p.add_argument("--all-override", action="store_true", dest="all_override", help="Override all history (delete whole sample path)")
     p.add_argument("--cogmap", action="store_true", help="If set, will enable cognitive map evaluation")
-    p.add_argument("--override-cogmap", action="store_true", help="If set, will enable cognitive map evaluation")
     # Optional: override base yaml paths (env/model now default to base_*.yaml)
     p.add_argument("--base_env", type=str, default=str(SCRIPT_DIR / "base_env_config.yaml"))
     p.add_argument("--base_infer", type=str, default=str(SCRIPT_DIR / "inference_config.yaml"))
@@ -120,18 +123,22 @@ def patch_model_yaml(model_cfg: Dict[str, Any], model_name: str) -> Dict[str, An
     sys.exit(2)
 
 
-def patch_infer_yaml(infer_cfg: Dict[str, Any], output_dir: str, override: bool, evaluate_cogmap: bool, override_cogmap: bool, server_url: str | None = None) -> Dict[str, Any]:
-    """Patch inference yaml to set output directory and optional server_url. Split remains as in base config."""
+def patch_infer_yaml(infer_cfg: Dict[str, Any], output_dir: str, exp_override: bool, eval_override: bool, cogmap_override: bool, all_override: bool, evaluate_cogmap: bool, server_url: str | None = None) -> Dict[str, Any]:
+    """Patch inference yaml to set output directory and override flags and optional server_url. Split remains as in base config."""
     infer_cfg = dict(infer_cfg or {})
     infer_cfg["output_dir"] = output_dir
-    if override:
-        infer_cfg["override"] = True
+    if exp_override:
+        infer_cfg["exp_override"] = True
+    if eval_override:
+        infer_cfg["eval_override"] = True
+    if cogmap_override:
+        infer_cfg["cogmap_override"] = True
+    if all_override:
+        infer_cfg["all_override"] = True
     if server_url:
         infer_cfg["server_url"] = server_url
     if evaluate_cogmap:
         infer_cfg["evaluate_cogmap"] = True
-    if override_cogmap:
-        infer_cfg["override_cogmap"] = True
     return infer_cfg
 
 
@@ -239,7 +246,16 @@ def main():
 
             env_cfg = patch_env_yaml(env_cfg, task, args.num, args.render_mode)
             model_cfg = patch_model_yaml(model_cfg, args.model_name)
-            infer_cfg = patch_infer_yaml(infer_cfg, output_root, args.override, args.cogmap, args.override_cogmap, server_url)
+            infer_cfg = patch_infer_yaml(
+                infer_cfg,
+                output_root,
+                args.exp_override,
+                args.eval_override,
+                args.cogmap_override,
+                args.all_override,
+                args.cogmap,
+                server_url,
+            )
 
             dump_yaml(env_cfg, tmp_paths["env"])
             dump_yaml(infer_cfg, tmp_paths["infer"])

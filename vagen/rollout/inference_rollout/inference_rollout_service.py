@@ -101,7 +101,11 @@ class InferenceRolloutService(BaseRollout):
             if cfg["env_name"] == "spatial":
                 kwargs = {
                     "model_config": self.model_interface.config.to_dict(),
-                    "override": self.config.get('override', False),
+                    # granular overrides propagated to env
+                    "exp_override": self.config.get('exp_override', False),
+                    "eval_override": self.config.get('eval_override', False),
+                    "cogmap_override": self.config.get('cogmap_override', False),
+                    "all_override": self.config.get('all_override', False),
                     "output_dir": self.config.get('output_dir'),
                 }
                 cfg["env_config"]['kwargs'] = kwargs
@@ -111,7 +115,8 @@ class InferenceRolloutService(BaseRollout):
         if self.debug:
             print(f"Creating {len(env_configs)} environments...")
         
-        # Create and reset environments
+        # Create and reset environments (skip those marked finish)
+        # Filter out envs where reset would immediately signal finish; this requires env to tell us via info
         self.env_client.create_environments_batch(ids2configs)
         reset_results = self.env_client.reset_batch(ids2seeds)
         
@@ -122,6 +127,10 @@ class InferenceRolloutService(BaseRollout):
         
         # Initialize recordings and state tracking
         for env_id, (obs, info) in reset_results.items():
+            if info.get('finish'):
+                # exclude finished envs from active set
+                self.envs.pop(env_id, None)
+                continue
             # Initialize recording with system prompt and first observation
             self.recordings[env_id] = [
                 {"role": "system", "content": self.system_prompts[env_id]},
@@ -149,24 +158,24 @@ class InferenceRolloutService(BaseRollout):
                 }
             }
         
-        if env_histories:
+        if env_histories: # replay history for spatial active exploration
             if self.debug:
                 print(f"Replaying history for {len(env_histories)} environments...")
             
-            # 循环直到所有 env 的 history 均为空
+            # Loop until all environments' history is empty
             while True:
-                # 选取当前仍有待回放 history 的环境（不再判断 done）
+                # Select environments that still have history to replay (no longer check done status)
                 ready_envs = [eid for eid, hist in env_histories.items() if hist]
                 if not ready_envs:
                     break
                 
-                # 构造本步的 actions：各自取队首一条
+                # Construct actions for this step: take the first item from each queue
                 ids2actions = {eid: env_histories[eid].pop(0) for eid in ready_envs}
                 
-                # 批量 step
+                # Batch step
                 step_results = self.env_client.step_batch(ids2actions)
                 
-                # 统一处理 step 结果（history 回放阶段强制追加 user 观测）
+                # Process step results uniformly (force append user observations during history replay)
                 self._apply_step_results(step_results, ids2actions)
                 
                 env_histories = {eid: hist for eid, hist in env_histories.items() if hist}
