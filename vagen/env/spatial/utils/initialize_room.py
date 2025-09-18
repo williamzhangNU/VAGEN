@@ -21,7 +21,8 @@ def initialize_room_from_json(json_data: Dict[str, Any]) ->  Tuple[Room, Agent]:
                 name=obj['name'],
                 pos=np.array([obj["pos"]["x"], obj["pos"]["z"]]),
                 ori=rotation_map.get(obj["rot"]["y"]) if obj["attributes"]["has_orientation"] else np.array([1, 0]),
-                has_orientation=obj["attributes"]["has_orientation"]
+                has_orientation=obj["attributes"]["has_orientation"],
+                label=obj['label'],
             ))
         
     # 2) Room size metadata
