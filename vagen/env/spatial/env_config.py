@@ -47,7 +47,7 @@ class SpatialGymConfig(BaseEnvConfig):
     perspective: str = 'ego'
     max_exp_steps: int = 100
     kwargs: Dict = None
-    proxy_agent_config: dict = field(default_factory=lambda: {"type": "analyst", "delegate": "oracle"})
+    proxy_agent: str = 'scout'
     # Evaluation configuration
     eval_tasks: List[Dict[str, Any]] = field(default_factory=lambda: [{"task_type": "rot", "task_kwargs": {"turn_direction": "counterclockwise"}}])
 
@@ -136,7 +136,7 @@ class SpatialGymConfig(BaseEnvConfig):
             'prompt_config': self.prompt_config,
             'render_mode': self.render_mode,
             'exp_type': self.exp_type,
-            "proxy_agent": self.proxy_agent_config["type"]
+            "proxy_agent": self.proxy_agent
         }        
     def get_model_config(self) -> Dict[str, Any]:
         return  self.kwargs['model_config']

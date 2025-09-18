@@ -58,11 +58,9 @@ class SpatialGym(gym.Env):
         images = []
         if self.config.exp_type == 'passive' and not self.config.prompt_config['topdown']:
             proxy = get_agent_proxy(
-                self.config.proxy_agent_config["type"],
+                self.config.proxy_agent,
                 self.initial_room,
                 self.agent,
-                delegate=self.config.proxy_agent_config.get("delegate"),
-                observer_delegate=self.config.proxy_agent_config.get("observer_delegate"), # TODO change name
                 grid_size=self.config.grid_size if hasattr(self.config, 'grid_size') else None,
             )            
             proxy.run()
@@ -125,7 +123,6 @@ class SpatialGym(gym.Env):
             self.initial_room, self.agent,
             enable_information_gain=getattr(self.config, 'calculate_information_gain', False),
             grid_size=(self.config.grid_size if hasattr(self.config, 'grid_size') else None),
-            enable_exploration_quality=getattr(self.config, 'calculate_exploration_quality', False)
         )
         self.evaluation_manager = EvaluationManager(self.config.eval_tasks, self.np_random, self.initial_room, self.agent) if len(self.config.eval_tasks) > 0 else None
         self.history_manager = HistoryManager(

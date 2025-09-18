@@ -22,10 +22,7 @@ _passive: &passive
   main: 6
   room_size: [15, 15]
   render_mode: vision
-  proxy_agent_config:
-    type: analyst
-    delegate: observer_analyst
-    observer_delegate: strategist
+  proxy_agent: scout
 
 
 _active: &active
