@@ -64,6 +64,12 @@ class ImageHandler:
         if self.preload_images:
             image_map['instruction'] = Image.open(instruction_path).resize(self.image_size, Image.LANCZOS)            
         
+        label_path = os.path.join(self.image_dir, 'orientation_instruction.png')
+        assert os.path.exists(label_path)
+        image_path_map['label'] = label_path
+        if self.preload_images:
+            image_map['label'] = Image.open(label_path).resize(self.image_size, Image.LANCZOS)
+
         return image_map, image_path_map
     
     def get_image(self, name: str = 'agent', direction: str = 'north') -> Image.Image:
@@ -81,7 +87,7 @@ class ImageHandler:
             KeyError: If image not found
         """
         # Handle special static images that don't need direction
-        if name in ['topdown', 'instruction']:
+        if name in ['topdown', 'instruction', 'label']:
             key = name
         else:
             key = f"{self.name_2_cam_id[name]}_facing_{direction}"
@@ -110,7 +116,7 @@ class ImageHandler:
             KeyError: If image path not found
         """
         # Handle special static images that don't need direction
-        if name in ['topdown', 'instruction']:
+        if name in ['topdown', 'instruction', 'label']:
             key = name
         else:
             key = f"{self.name_2_cam_id[name]}_facing_{direction}"
