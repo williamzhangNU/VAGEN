@@ -14,10 +14,10 @@ from vagen.env.spatial.Base.tos_base import (
 from vagen.env.spatial.Base.tos_base.managers.agent_proxy import get_agent_proxy
 from vagen.env.spatial.Base.tos_base.prompts import Prompter
 from vagen.env.spatial.Base.tos_base.utils.action_utils import action_results_to_text
-from vagen.env.spatial.utils.initialize_room import initialize_room_from_json
+from vagen.env.spatial.Base.tos_base.utils.room_utils import initialize_room_from_json
 from vagen.env.spatial.Base.tos_base.utils.env_logger import EnvTurnLog
 from vagen.env.spatial.Base.tos_base.utils.utils import parse_llm_response
-from vagen.env.spatial.utils.image_handler import ImageHandler
+from vagen.env.spatial.Base.tos_base.utils.image_handler import ImageHandler
 from vagen.env.spatial.Base.tos_base.actions.actions import ForcedTermAction, ActionSequence
 
 
