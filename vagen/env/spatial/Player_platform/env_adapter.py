@@ -163,7 +163,7 @@ class SpatialEnvAdapter:
         env_summary = self.env.get_env_summary()
         env_summary["exploration_summary"] = self.env.get_exp_summary()
         env_summary["evaluation_summary"] = self.env.get_eval_summary()
-        return self.env.get_env_summary()
+        return env_summary
     def render_cache(self) -> Dict[str, Any]:
         return self.env.render()  # returns last obs dict per your impl
 
