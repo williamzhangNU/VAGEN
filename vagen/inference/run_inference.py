@@ -133,7 +133,7 @@ def main():
                     vagen=True)
             SpatialEnvLogger.log_each_env_info(
                 output_dir=inference_config.get('output_dir'),
-                model_config=model_cfg,
+                model_config=model_interface.config.to_dict(),
                 save_images=True,
             )
             

@@ -50,7 +50,7 @@ custom_envs:
       <<: *prompt_standard
       <<: *passive
       name: "passive_rot"
-      eval_tasks: [{task_type: "rot"}]
+      eval_tasks: [{task_type: "rot", num: 3}]
 
   PassiveRotDual:
     <<: *common
