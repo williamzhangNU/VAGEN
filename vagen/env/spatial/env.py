@@ -135,7 +135,7 @@ class SpatialGym(gym.Env):
         )
         # Initialize EvaluationManager with knowledge of existing eval counts
         self.evaluation_manager = EvaluationManager(
-            self.config.eval_tasks, self.np_random, self.initial_room, self.agent, history_manager=self.history_manager
+            self.config.eval_tasks, self.np_random, self.initial_room, self.agent, history_manager=self.history_manager, seed=seed
         ) if len(self.config.eval_tasks) > 0 else None
         info = {}
         if self.history_manager and self.history_manager.is_history_exist():
