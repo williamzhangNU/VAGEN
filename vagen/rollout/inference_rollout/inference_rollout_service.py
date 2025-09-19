@@ -59,6 +59,7 @@ class InferenceRolloutService(BaseRollout):
         self.env_states = {}  # Maps env_id to environment state
         self.recordings = {}  # Maps env_id to recorded trajectory
         self.system_prompts = {}  # Maps env_id to system prompt
+        self.active_envs = set()  # Set of currently active environment IDs
         
         # Max number of steps from config
         self.max_steps = config.get("max_steps", 10)
@@ -89,7 +90,7 @@ class InferenceRolloutService(BaseRollout):
         self.env_states = {}
         self.recordings = {}
         self.system_prompts = {}
-        
+        self.active_envs = set()
         # Prepare environment configurations
         ids2configs = {}
         ids2seeds = {}
@@ -111,7 +112,7 @@ class InferenceRolloutService(BaseRollout):
                 cfg["env_config"]['kwargs'] = kwargs
 
             self.envs[env_id] = REGISTERED_ENV[cfg["env_name"]]["config_cls"](**cfg["env_config"])
-        
+            self.active_envs.add(env_id)
         if self.debug:
             print(f"Creating {len(env_configs)} environments...")
         
@@ -127,10 +128,6 @@ class InferenceRolloutService(BaseRollout):
         
         # Initialize recordings and state tracking
         for env_id, (obs, info) in reset_results.items():
-            if info.get('finish'):
-                # exclude finished envs from active set
-                self.envs.pop(env_id, None)
-                continue
             # Initialize recording with system prompt and first observation
             self.recordings[env_id] = [
                 {"role": "system", "content": self.system_prompts[env_id]},
@@ -157,6 +154,10 @@ class InferenceRolloutService(BaseRollout):
                     "traj_metrics": defaultdict(list)  # Changed to defaultdict to accumulate all metrics
                 }
             }
+            if info.get('finish'):
+                # exclude finished envs from active set
+                self.active_envs.remove(env_id)
+                continue
         
         if env_histories: # replay history for spatial active exploration
             if self.debug:
@@ -176,7 +177,7 @@ class InferenceRolloutService(BaseRollout):
                 step_results = self.env_client.step_batch(ids2actions)
                 
                 # Process step results uniformly (force append user observations during history replay)
-                self._apply_step_results(step_results, ids2actions)
+                self.active_envs = self._apply_step_results(step_results, ids2actions)
                 
                 env_histories = {eid: hist for eid, hist in env_histories.items() if hist}
         
@@ -249,9 +250,7 @@ class InferenceRolloutService(BaseRollout):
         if max_steps is None:
             max_steps = self.max_steps
         
-        # Track active environments
-        active_envs = set(self.envs.keys())
-        
+
         # Progress bar
         progress_iter = range(max_steps)
         if self.show_progress:
@@ -259,15 +258,15 @@ class InferenceRolloutService(BaseRollout):
         
         # Main inference loop
         for step in progress_iter:
-            if not active_envs:
+            if not self.active_envs:
                 if self.debug:
                     print(f"All environments completed after {step} steps")
                 break
             
             # Collect prompts for active environments
             env_messages = {}
-            
-            for env_id in active_envs:
+
+            for env_id in self.active_envs:
                 # Get conversation history for this environment
                 env_messages[env_id] = self.recordings[env_id]
             
@@ -276,9 +275,6 @@ class InferenceRolloutService(BaseRollout):
             responses = self._generate_batch_responses(env_messages)
             gen_time = time.time() - start_time
             
-            # Step environments with responses
-            next_active_envs = set()
-            
             # Group responses for batch step
             ids2actions = {env_id: response for env_id, response in responses.items()}
             
@@ -286,14 +282,14 @@ class InferenceRolloutService(BaseRollout):
             step_results = self.env_client.step_batch(ids2actions)
             
             # Update active environments for next iteration
-            active_envs = self._apply_step_results(step_results, responses)
+            self.active_envs = self._apply_step_results(step_results, responses)
         
             if self.debug or (step % 5 == 0 and self.show_progress):
                 # Print progress stats every 5 steps
-                completion_rate = (len(self.envs) - len(active_envs)) / len(self.envs) * 100
+                completion_rate = (len(self.envs) - len(self.active_envs)) / len(self.envs) * 100
                 avg_steps = sum(self.env_states[env_id]["step"] for env_id in self.env_states) / len(self.env_states)
-                print(f"Step {step+1}: {completion_rate:.1f}% environments completed, {len(active_envs)} active, avg steps: {avg_steps:.1f}, gen time: {gen_time:.3f}s")
-    
+                print(f"Step {step+1}: {completion_rate:.1f}% environments completed, {len(self.active_envs)} active, avg steps: {avg_steps:.1f}, gen time: {gen_time:.3f}s")
+
     def _generate_batch_responses(self, env_messages: Dict[str, List[Dict]]) -> Dict[str, str]:
         """
         Generate responses for multiple environments.

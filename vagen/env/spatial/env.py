@@ -9,7 +9,8 @@ from vagen.env.spatial.Base.tos_base import (
     ExplorationManager,
     HistoryManager,
     RoomGenerator,
-    BaseAction
+    BaseAction,
+    EvalTaskType,
 )
 from vagen.env.spatial.Base.tos_base.managers.agent_proxy import get_agent_proxy
 from vagen.env.spatial.Base.tos_base.prompts import Prompter
@@ -132,6 +133,7 @@ class SpatialGym(gym.Env):
             eval_override=self.config.kwargs.get('eval_override', False),
             cogmap_override=self.config.kwargs.get('cogmap_override', False),
             all_override=self.config.kwargs.get('all_override', False),
+            task_type=EvalTaskType.from_short_name(self.config.eval_tasks[0]['task_type']).class_name
         )
         # Initialize EvaluationManager with knowledge of existing eval counts
         self.evaluation_manager = EvaluationManager(
@@ -141,12 +143,10 @@ class SpatialGym(gym.Env):
         if self.history_manager and self.history_manager.is_history_exist():
             info['history'] = self.history_manager.get_responses()
         # If evaluation tasks already fully completed per config, indicate finish
-        if self.evaluation_manager:
-            finish = self.evaluation_manager.check_and_prune_completed_tasks()
-            if finish:
-                info['finish'] = True
+        if self.evaluation_manager and self.config.exp_type == 'passive':
+            info['finish'] = self.evaluation_manager.check_and_prune_completed_tasks()
             
-        obs = self._generate_initial_observation()
+        obs = self._generate_initial_observation() if not info.get('finish', False) else {"obs_str":"Task finished"}
         self.render_cache = obs
         return obs, info
 
@@ -174,6 +174,9 @@ class SpatialGym(gym.Env):
             exp_log = self.exploration_manager.turn_logs[-1]
             if action_sequence.final_action and action_sequence.final_action.is_term():
                 self.is_exploration_phase = False
+                # to ensure cogmap override working correctly
+                if self.evaluation_manager.check_and_prune_completed_tasks():
+                    return {'obs_str': "Task finished"}, 0, True, {"finish": True}, exp_log
                 obs_str += self.prompter.get_evaluation_prompt(self.evaluation_manager)
             else:
                 obs_str += f"\nYou have a maximum of {self.remaining_exp_steps} exploration steps left."
@@ -257,6 +260,7 @@ class SpatialGym(gym.Env):
             assistant_think_message=think_content,
             assistant_parsed_message=action,
             is_exploration_phase=is_exploration_phase,
+            is_last_exp=is_exploration_phase != self.is_exploration_phase,
             observed_items=list(self.exploration_manager.observed_items),
             exploration_log=exp_log,
             evaluation_log=eval_log,

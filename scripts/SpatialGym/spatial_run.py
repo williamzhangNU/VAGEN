@@ -237,7 +237,7 @@ def main():
             server_url = f"http://{args.server_host}:{args.server_port}"
 
         for task in tasks:
-            tmp_paths = build_tmp_paths(run_id.replace('/', '-'), task)
+            tmp_paths = build_tmp_paths(run_id.replace('/', '-'), f"{task}")
             created_tmp_dirs.append(tmp_paths["base"])
 
             env_cfg = load_yaml(base_env)
@@ -246,6 +246,21 @@ def main():
 
             env_cfg = patch_env_yaml(env_cfg, task, args.num, args.render_mode)
             model_cfg = patch_model_yaml(model_cfg, args.model_name)
+            dump_yaml(env_cfg, tmp_paths["env"])
+            dump_yaml(model_cfg, tmp_paths["model"])
+            rc = run_cmd([
+                sys.executable, "-m", "vagen.env.create_dataset",
+                "--yaml_path", str(tmp_paths["env"]),
+                "--train_path", data_train,
+                "--test_path", data_test,
+                "--force_gen",
+            ])
+            if rc != 0:
+                sys.exit(rc)
+            num_questions = env_cfg[task]['env_config']['eval_tasks'][0].get('num', 1)
+            # for question_idx in range(num_questions):
+            # Only pass eval_override on first question when num_question > 1
+
             infer_cfg = patch_infer_yaml(
                 infer_cfg,
                 output_root,
@@ -256,21 +271,7 @@ def main():
                 args.cogmap,
                 server_url,
             )
-
-            dump_yaml(env_cfg, tmp_paths["env"])
             dump_yaml(infer_cfg, tmp_paths["infer"])
-            dump_yaml(model_cfg, tmp_paths["model"])
-
-            # Create dataset
-            rc = run_cmd([
-                sys.executable, "-m", "vagen.env.create_dataset",
-                "--yaml_path", str(tmp_paths["env"]),
-                "--train_path", data_train,
-                "--test_path", data_test,
-                "--force_gen",
-            ])
-            if rc != 0:
-                sys.exit(rc)
 
             # Run inference
             val_path = data_test
