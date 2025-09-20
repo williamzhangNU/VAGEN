@@ -163,13 +163,18 @@ class SpatialGym(gym.Env):
         action_sequence = ActionSequence.parse(action)
         if self.remaining_exp_steps < 0:
             action_sequence = ActionSequence(motion_actions=[], final_action=ForcedTermAction())
-        if not action_sequence:
+        
+        if not action:
+            obs_str += "Invalid output format.\n"
+            info['is_valid_action'] = False
+            reward += -0.5 # invalid action penalty
+        elif not action_sequence:
             obs_str += "Invalid action\n"
             reward += -0.5 # invalid action penalty
             info['is_valid_action'] = False
         else:
             # execute action
-            _ , action_results = self.exploration_manager.execute_action_sequence(action_sequence)
+            action_results = self.exploration_manager.execute_action_sequence(action_sequence)
             obs_str += action_results_to_text(action_results, self.config.image_placeholder if self.config.render_mode == 'vision' else None)
             exp_log = self.exploration_manager.turn_logs[-1]
             if action_sequence.final_action and action_sequence.final_action.is_term():
@@ -213,11 +218,6 @@ class SpatialGym(gym.Env):
         eval_log = self.evaluation_manager.turn_logs[-1]
         reward = 1 if correct else 0
 
-        if self.evaluation_manager.next_task():
-            next_question = self.evaluation_manager.get_current_question()
-            assert next_question, "No question found after evaluation phase"
-            return {'obs_str': next_question}, reward, False, {}, eval_log
-
         return {'obs_str': "Task finished"}, reward, True, {}, eval_log
 
     def step(self, llm_response: str):
@@ -226,7 +226,7 @@ class SpatialGym(gym.Env):
         exp_log, eval_log = None, None
         think_content, action, parsed_ok = parse_llm_response(
             llm_response, enable_think=bool(self.config.prompt_config.get('enable_think', True))
-        )
+        ) 
         print(f'[DEBUG] think_content: {think_content}, action: {action}, parsed_ok: {parsed_ok}')
         room_state = None
         agent_state = None
@@ -235,21 +235,17 @@ class SpatialGym(gym.Env):
         current_obs = self.render_cache
         is_exploration_phase = self.is_exploration_phase # so termiante action is included in exploration log
         # step the environment
-        if parsed_ok:
-            if self.is_exploration_phase:
-                obs, reward, done, step_info, exp_log = self._step_exploration(action)
-                if exp_log:
-                    room_state, agent_state = exp_log.room_state, exp_log.agent_state
-                    exp_log.room_state = None
-                    exp_log.agent_state = None
-            else:
-                obs, reward, done, step_info, eval_log = self._step_evaluation(action)
-                room_state, agent_state = eval_log.room_state, eval_log.agent_state
-                eval_log.room_state = None
-                eval_log.agent_state = None
+        if self.is_exploration_phase:
+            obs, reward, done, step_info, exp_log = self._step_exploration(action)
+            if exp_log:
+                room_state, agent_state = exp_log.room_state, exp_log.agent_state
+                exp_log.room_state = None
+                exp_log.agent_state = None
         else:
-            reward, obs, done, step_info = -0.5, {'obs_str': "Invalid input format.\n"}, False, {}
-
+            obs, reward, done, step_info, eval_log = self._step_evaluation(action)
+            room_state, agent_state = eval_log.room_state, eval_log.agent_state
+            eval_log.room_state = None
+            eval_log.agent_state = None
 
         obs['obs_str'] += '\n' + self.prompter.FORMAT_PROMPT
         self.render_cache = obs
