@@ -1,12 +1,12 @@
 # pages/01_🎮_Play.py
 import streamlit as st
-from env_adapter import SpatialEnvAdapter, summarize_turn, format_obs, save_episode, make_cfg, load_cfg_from_yaml
+from env_adapter import SpatialEnvAdapter, summarize_turn, format_obs, save_episode, load_cfg_from_yaml
 
 st.set_page_config(page_title="Play", layout="wide", page_icon="🎮")
 
 st.title("🎮 Exploration (Chat Mode)")
 config_path = "vagen/env/spatial/Player_platform/config.yaml"
-# ---- Step 2: Bootstrap env once ----
+# ---- Bootstrap env once ----
 if "env" not in st.session_state or st.session_state.get("loaded_config_path") != config_path:
     cfg = load_cfg_from_yaml(config_path)
     st.session_state.env = SpatialEnvAdapter(cfg)
@@ -33,11 +33,15 @@ if "env" not in st.session_state or st.session_state.get("loaded_config_path") !
     st.session_state.episode_id = 1
     st.session_state.turn = 0
 
-# ---- Step 3: Render chat history ----
+# ---- Render chat history ----
 for rec in st.session_state.history:
     if rec.action == "(system)":
         with st.chat_message("assistant", avatar="🛠️"):
             st.markdown(rec.obs_text)
+            if rec.obs_raw and "multi_modal_data" in rec.obs_raw:
+                imgs = rec.obs_raw["multi_modal_data"].get("<image>", [])
+                if imgs:
+                    st.image(imgs, clamp=True, use_container_width=True)
     else:
         with st.chat_message("user"):
             st.markdown(rec.action)
@@ -47,7 +51,7 @@ for rec in st.session_state.history:
                 imgs = rec.obs_raw["multi_modal_data"].get("<image>", [])
                 if imgs:
                     st.image(imgs, clamp=True, use_container_width=True)
-# ---- Step 4: Chat input ----
+# ---- Chat input ----
 if "action_buffer" not in st.session_state:
     st.session_state.action_buffer = []
 
@@ -62,8 +66,6 @@ action_type = st.selectbox(
 built_action = None
 if action_type == "Move":
     room_objects = st.session_state.env.env.initial_room.all_objects
-    for object in room_objects:
-        print(object.has_orientation)
         
     obj_names = [o.name for o in room_objects]
     target = st.selectbox("Move to object", obj_names, key="move_target")
@@ -99,7 +101,7 @@ elif action_type == "Answer (MCQ)":
     else:
         st.info("MCQ answers are only available during evaluation phase.")
 
-# --- Always render buttons ---
+# --- Render buttons ---
 add_clicked = st.button("➕ Add to Action Sequence", key="add_to_buffer")
 send_clicked = st.button("🚀 Send Action Sequence", key="send_buffer")
 clear_clicked = st.button("🗑️ Clear Action Sequence", key="clear_buffer")

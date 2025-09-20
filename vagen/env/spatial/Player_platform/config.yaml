@@ -1,32 +1,29 @@
 # config.yaml
 name: demo_env
+render_mode: vision
 room_size: [10, 10]
 n_objects: 3
 level: 0
 main: 6
 
-exp_type: active   # or passive
+exp_type: active 
 perspective: ego
 max_exp_steps: 20
-
-proxy_agent_config:
-  type: analyst
-  delegate: oracle
 
 eval_tasks:
   - task_type: rot
     task_kwargs:
       turn_direction: clockwise
-  - task_type: dir 
-  - task_type: rot_dual
-  - task_type: pov
-  - task_type: e2a
-  - task_type: fwd_loc
-  - task_type: bwd_loc
-  - task_type: false_belief
-  - task_type: fwd_fov
-  - task_type: bwd_nav
-  - task_type: bwd_pov
+  #- task_type: dir 
+  #- task_type: rot_dual
+  #- task_type: pov
+  #- task_type: e2a
+  #- task_type: fwd_loc
+  #- task_type: bwd_loc
+  #- task_type: false_belief
+  #- task_type: fwd_fov
+  #- task_type: bwd_nav
+  #- task_type: bwd_pov
 
 prompt_config:
   topdown: false
