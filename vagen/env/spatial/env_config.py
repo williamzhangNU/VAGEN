@@ -61,7 +61,14 @@ class SpatialGymConfig(BaseEnvConfig):
         return f"SpatialGymConfig(mode={self.render_mode},format={self.prompt_format},eval_tasks={eval_task_str})"
 
     def generate_seeds(self, size, seed=0, n_candidate = 20000):
-        return [i for i in range(size)]
+        ks = self.kwargs or {}
+        start = int(ks.get('seed_start', 0))
+        end = ks.get('seed_end')
+        if end is None:
+            return [start + i for i in range(size)]
+        end = int(end)
+        count = max(0, min(size, end - start + 1))
+        return [start + i for i in range(count)]
 
     def __post_init__(self):
         """Validate configuration parameters."""

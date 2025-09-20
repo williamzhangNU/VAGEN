@@ -9,7 +9,7 @@ class OpenAIModelConfig(BaseModelConfig):
     
     # OpenAI specific parameters
     api_key: Optional[str] = None  # If None, will use environment variable
-    organization: Optional[str] = None
+    organization: Optional[str] = None # like google, intern, ... all use openai sdk
     base_url: Optional[str] = None  # For custom endpoints
     
     # Model parameters
@@ -47,7 +47,9 @@ class OpenAIModelConfig(BaseModelConfig):
                 "gpt-4o-mini",
                 "gpt-4-turbo", 
                 "gpt-4-vision-preview",
-                "gpt-3.5-turbo"
+                "gpt-3.5-turbo",
+                "internvl3.5-241b-a28b",
+
             ],
             "default_model": "gpt-4o"
         }

@@ -2,6 +2,7 @@
 import base64
 import logging
 import re
+import os
 from typing import List, Dict, Any
 from concurrent.futures import ThreadPoolExecutor
 from openai import OpenAI
@@ -21,8 +22,15 @@ class OpenAIModelInterface(BaseModelInterface):
         self.config = config
         
         # Initialize OpenAI client
+        if config.organization == "intern":
+            api_key = config.api_key or os.getenv("INTERN_API_KEY")
+        elif config.organization == "google":
+            api_key = config.api_key or os.getenv("GOOGLE_API_KEY")
+        else:
+            api_key = config.api_key or os.getenv("OPENAI_API_KEY")
+        print(f'[DEBUG] Initializing OpenAI client with organization {config.organization} and base url {config.base_url}, api_key {api_key}')
         self.client = OpenAI(
-            api_key=config.api_key,
+            api_key=api_key,
             organization=config.organization,
             base_url=config.base_url
         )
@@ -166,6 +174,9 @@ class OpenAIModelInterface(BaseModelInterface):
             else:
                 msg_kwargs["max_tokens"] = kwargs.get("max_tokens", self.config.max_tokens)
             response = self.client.chat.completions.create(**msg_kwargs)
+            print(f'[DEBUG] Response: {response}')
+            print(f'[DEBUG] msg_kwargs: {msg_kwargs}')
+            
             
             # Extract text response
             response_text = response.choices[0].message.content

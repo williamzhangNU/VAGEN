@@ -25,6 +25,8 @@ def parse_args():
                    help="Model identifier. Default: gpt-4.1-mini")
     p.add_argument("--render_mode", type=str, default="vision", help="Environment render mode (vision or text). Default: vision")
     p.add_argument("--output_root", type=str, default="results", help="Root dir for inference output_dir. Default: results")
+    p.add_argument("--seed_range", type=str, default=None, help="Seed range 'start-end' (0-based), e.g., 0-24")
+    p.add_argument("--enable_think", type=int, choices=[0,1], default=None, help="1 to enable think, 0 to disable (default: 1)")
     # New granular override flags
     p.add_argument("--exp-override", action="store_true", dest="exp_override", help="Override exploration history (delete active path)")
     p.add_argument("--eval-override", action="store_true", dest="eval_override", help="Override evaluation history (delete evaluation json only)")
@@ -82,7 +84,7 @@ def build_tmp_paths(run_id: str, task_key: str) -> Dict[str, Path]:
 
 
 
-def patch_env_yaml(env_cfg: Dict[str, Any], task_key: str, num: int, render_mode = "vision") -> Dict[str, Any]:
+def patch_env_yaml(env_cfg: Dict[str, Any], task_key: str, num: int, render_mode = "vision", seed_opts: tuple[int, int] | None = None, enable_think: int | None = None) -> Dict[str, Any]:
     """Return {TaskKey: {...}} by selecting the entry from custom_envs and overriding sizes.
 
     Behavior:
@@ -94,6 +96,14 @@ def patch_env_yaml(env_cfg: Dict[str, Any], task_key: str, num: int, render_mode
     selected = dict(custom_envs[task_key])
     selected["test_size"] = int(num)
     selected["env_config"]['render_mode'] = render_mode
+    if seed_opts:
+        selected["env_config"].setdefault("kwargs", {})
+        selected["env_config"]["kwargs"]["seed_start"] = int(seed_opts[0])
+        selected["env_config"]["kwargs"]["seed_end"] = int(seed_opts[1])
+        selected["test_size"] = int(seed_opts[1] - seed_opts[0] + 1)
+    if enable_think is not None:
+        selected["env_config"].setdefault("prompt_config", {})
+        selected["env_config"]["prompt_config"]["enable_think"] = bool(enable_think)
     return {task_key: selected}
 
 
@@ -227,6 +237,16 @@ def main():
     data_test = f"data/{exp_name}/test.parquet"
 
     output_root = args.output_root
+    seed_opts = None
+    if args.seed_range:
+        try:
+            s, e = [int(x) for x in args.seed_range.split('-', 1)]
+            s0 = max(0, s - 1)
+            e0 = max(s0, e - 1)
+            seed_opts = (s0, e0)
+        except Exception:
+            print(f"[ERROR] Bad --seed_range '{args.seed_range}'. Use 'start-end', e.g., 1-25.", file=sys.stderr)
+            sys.exit(2)
 
     created_tmp_dirs: List[Path] = []
     server_proc: subprocess.Popen | None = None
@@ -244,7 +264,7 @@ def main():
             infer_cfg = load_yaml(base_infer)
             model_cfg = load_yaml(base_model)
 
-            env_cfg = patch_env_yaml(env_cfg, task, args.num, args.render_mode)
+            env_cfg = patch_env_yaml(env_cfg, task, args.num, args.render_mode, seed_opts, args.enable_think)
             model_cfg = patch_model_yaml(model_cfg, args.model_name)
             dump_yaml(env_cfg, tmp_paths["env"])
             dump_yaml(model_cfg, tmp_paths["model"])
