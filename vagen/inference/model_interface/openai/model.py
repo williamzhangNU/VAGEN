@@ -174,8 +174,8 @@ class OpenAIModelInterface(BaseModelInterface):
             else:
                 msg_kwargs["max_tokens"] = kwargs.get("max_tokens", self.config.max_tokens)
             response = self.client.chat.completions.create(**msg_kwargs)
-            print(f'[DEBUG] Response: {response}')
-            print(f'[DEBUG] msg_kwargs: {msg_kwargs}')
+            # print(f'[DEBUG] Response: {response}')
+            # print(f'[DEBUG] msg_kwargs: {msg_kwargs}')
             
             
             # Extract text response
