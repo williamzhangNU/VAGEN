@@ -33,6 +33,9 @@ def parse_args():
     p.add_argument("--cogmap-override", action="store_true", dest="cogmap_override", help="Override cognitive map cache")
     p.add_argument("--all-override", action="store_true", dest="all_override", help="Override all history (delete whole sample path)")
     p.add_argument("--cogmap", action="store_true", help="If set, will enable cognitive map evaluation")
+    # Eval repetition controls: CLI overrides YAML eval_task_counts
+    p.add_argument("--eval_counts", type=str, default=None,
+                   help="Per-task eval run counts, e.g., 'PassiveRot=3,ActiveDir=2'. If omitted, use inference_config.yaml eval_task_counts or default 1")
     # Optional: override base yaml paths (env/model now default to base_*.yaml)
     p.add_argument("--base_env", type=str, default=str(SCRIPT_DIR / "base_env_config.yaml"))
     p.add_argument("--base_infer", type=str, default=str(SCRIPT_DIR / "inference_config.yaml"))
@@ -84,7 +87,46 @@ def build_tmp_paths(run_id: str, task_key: str) -> Dict[str, Path]:
 
 
 
-def patch_env_yaml(env_cfg: Dict[str, Any], task_key: str, num: int, render_mode = "vision", seed_opts: tuple[int, int] | None = None, enable_think: int | None = None) -> Dict[str, Any]:
+def parse_eval_counts_arg(arg: str | None) -> Dict[str, int]:
+    """Parse CLI eval counts string into a dict, e.g., 'PassiveRot=3,ActiveDir=2'."""
+    result: Dict[str, int] = {}
+    if not arg:
+        return result
+    # Split by comma or spaces
+    parts: List[str] = []
+    for token in arg.replace(" ", ",").split(","):
+        t = token.strip()
+        if t:
+            parts.append(t)
+    for item in parts:
+        if "=" not in item:
+            continue
+        k, v = item.split("=", 1)
+        k = k.strip()
+        try:
+            result[k] = int(v.strip())
+        except Exception:
+            continue
+    return result
+
+
+def resolve_eval_runs_count(task_key: str, infer_cfg: Dict[str, Any], eval_counts_cli: Dict[str, int] | None) -> int:
+    """Decide how many times to run inference for a given task.
+
+    Priority: CLI --eval_counts > inference_config.yaml eval_task_counts > 1.
+    """
+    if eval_counts_cli and task_key in eval_counts_cli:
+        return max(1, int(eval_counts_cli[task_key]))
+    yaml_counts = (infer_cfg or {}).get("eval_task_counts") or {}
+    if isinstance(yaml_counts, dict) and task_key in yaml_counts:
+        try:
+            return max(1, int(yaml_counts[task_key]))
+        except Exception:
+            pass
+    return 1
+
+
+def patch_env_yaml(env_cfg: Dict[str, Any], task_key: str, num: int, render_mode = "vision", seed_opts: tuple[int, int] | None = None, enable_think: int | None = None, eval_num: int | None = None) -> Dict[str, Any]:
     """Return {TaskKey: {...}} by selecting the entry from custom_envs and overriding sizes.
 
     Behavior:
@@ -104,6 +146,11 @@ def patch_env_yaml(env_cfg: Dict[str, Any], task_key: str, num: int, render_mode
     if enable_think is not None:
         selected["env_config"].setdefault("prompt_config", {})
         selected["env_config"]["prompt_config"]["enable_think"] = bool(enable_think)
+    if eval_num is not None:
+        # Pass desired evaluation repetitions to EvaluationManager via env config
+        tasks = selected["env_config"].get("eval_tasks") or []
+        if tasks:
+            tasks[0]["num"] = int(eval_num)
     return {task_key: selected}
 
 
@@ -217,6 +264,7 @@ def stop_env_server(proc: subprocess.Popen) -> None:
 def main():
     args = parse_args()
     tasks = normalize_tasks(args.tasks)
+    eval_counts_cli = parse_eval_counts_arg(args.eval_counts)
 
     # Environment variables similar to run.sh
     os.environ.setdefault("VLLM_ATTENTION_BACKEND", "XFORMERS")
@@ -264,7 +312,11 @@ def main():
             infer_cfg = load_yaml(base_infer)
             model_cfg = load_yaml(base_model)
 
-            env_cfg = patch_env_yaml(env_cfg, task, args.num, args.render_mode, seed_opts, args.enable_think)
+            # Decide repetition count per task and embed into env config for EvaluationManager
+            repeat = resolve_eval_runs_count(task, infer_cfg, eval_counts_cli)
+            print(f'[DEBUG] repeat: {repeat}')
+
+            env_cfg = patch_env_yaml(env_cfg, task, args.num, args.render_mode, seed_opts, args.enable_think, eval_num=repeat)
             model_cfg = patch_model_yaml(model_cfg, args.model_name)
             dump_yaml(env_cfg, tmp_paths["env"])
             dump_yaml(model_cfg, tmp_paths["model"])
@@ -277,34 +329,35 @@ def main():
             ])
             if rc != 0:
                 sys.exit(rc)
-            num_questions = env_cfg[task]['env_config']['eval_tasks'][0].get('num', 1)
             # for question_idx in range(num_questions):
             # Only pass eval_override on first question when num_question > 1
 
-            infer_cfg = patch_infer_yaml(
-                infer_cfg,
-                output_root,
-                args.exp_override,
-                args.eval_override,
-                args.cogmap_override,
-                args.all_override,
-                args.cogmap,
-                server_url,
-            )
-            dump_yaml(infer_cfg, tmp_paths["infer"])
+            for i in range(repeat):
+                # Apply overrides only on the first repetition to avoid wiping between repeats
+                patched_infer_cfg = patch_infer_yaml(
+                    infer_cfg,
+                    output_root,
+                    bool(args.exp_override and i == 0),
+                    bool(args.eval_override and i == 0),
+                    bool(args.cogmap_override and i == 0),
+                    bool(args.all_override and i == 0),
+                    args.cogmap,
+                    server_url,
+                )
+                dump_yaml(patched_infer_cfg, tmp_paths["infer"])
 
-            # Run inference
-            val_path = data_test
-            wandb_path_name = "spatial_gym"
-            rc = run_cmd([
-                sys.executable, "-m", "vagen.inference.run_inference",
-                f"--inference_config_path={tmp_paths['infer']}",
-                f"--model_config_path={tmp_paths['model']}",
-                f"--val_files_path={val_path}",
-                f"--wandb_path_name={wandb_path_name}",
-            ])
-            if rc != 0:
-                sys.exit(rc)
+                # Run inference
+                val_path = data_test
+                wandb_path_name = "spatial_gym"
+                rc = run_cmd([
+                    sys.executable, "-m", "vagen.inference.run_inference",
+                    f"--inference_config_path={tmp_paths['infer']}",
+                    f"--model_config_path={tmp_paths['model']}",
+                    f"--val_files_path={val_path}",
+                    f"--wandb_path_name={wandb_path_name}",
+                ])
+                if rc != 0:
+                    sys.exit(rc)
 
     finally:
         # Always clean up tmp dir
