@@ -129,9 +129,7 @@ class SpatialGym(gym.Env):
             self.config.get_observation_config(), self.config.get_model_config(),
             self.initial_room.to_dict(), self.agent.to_dict(),
             output_dir=self.config.kwargs['output_dir'],
-            exp_override=self.config.kwargs.get('exp_override', False),
             eval_override=self.config.kwargs.get('eval_override', False),
-            cogmap_override=self.config.kwargs.get('cogmap_override', False),
             all_override=self.config.kwargs.get('all_override', False),
             task_type=EvalTaskType.from_short_name(self.config.eval_tasks[0]['task_type']).class_name
         )
@@ -177,7 +175,7 @@ class SpatialGym(gym.Env):
                 self.is_exploration_phase = False
                 # to ensure cogmap override working correctly
                 if self.evaluation_manager.check_and_prune_completed_tasks():
-                    return {'obs_str': "Task finished"}, 0, True, {"finish": True}, exp_log
+                    return {'obs_str': "Task finished"}, 0, True, info, exp_log
                 obs_str += self.prompter.get_evaluation_prompt(self.evaluation_manager)
             else:
                 obs_str += f"\nYou have a maximum of {self.remaining_exp_steps} exploration steps left."
