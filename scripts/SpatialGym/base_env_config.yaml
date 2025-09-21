@@ -33,7 +33,7 @@ _active: &active
   level: 2
   main: 6
   render_mode: vision
-  calculate_information_gain: false
+  calculate_information_gain: True
 
 custom_envs:
   PassiveDir:
@@ -50,7 +50,7 @@ custom_envs:
       <<: *prompt_standard
       <<: *passive
       name: "passive_rot"
-      eval_tasks: [{task_type: "rot", num: 3}]
+      eval_tasks: [{task_type: "rot"}]
 
   PassiveRotDual:
     <<: *common

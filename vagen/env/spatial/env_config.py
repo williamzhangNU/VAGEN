@@ -49,8 +49,8 @@ class SpatialGymConfig(BaseEnvConfig):
     kwargs: Dict = None
     proxy_agent: str = 'scout'
     # Evaluation configuration
-    # Each eval task entry supports {task_type, num}; task_kwargs removed
-    eval_tasks: List[Dict[str, Any]] = field(default_factory=lambda: [{"task_type": "rot", "num": 1}])
+    # Each eval task entry supports {task_type, task_kwargs}
+    eval_tasks: List[Dict[str, Any]] = field(default_factory=lambda: [{"task_type": "rot", "task_kwargs": {}}])
 
     prompt_config: Dict[str, Any] = field(default_factory=lambda: {"topdown": False, "oblique": False, "type": "shorter"})
 
@@ -61,7 +61,14 @@ class SpatialGymConfig(BaseEnvConfig):
         return f"SpatialGymConfig(mode={self.render_mode},format={self.prompt_format},eval_tasks={eval_task_str})"
 
     def generate_seeds(self, size, seed=0, n_candidate = 20000):
-        return [i for i in range(size)]
+        ks = self.kwargs or {}
+        start = int(ks.get('seed_start', 0))
+        end = ks.get('seed_end')
+        if end is None:
+            return [start + i for i in range(size)]
+        end = int(end)
+        count = max(0, min(size, end - start + 1))
+        return [start + i for i in range(count)]
 
     def __post_init__(self):
         """Validate configuration parameters."""
@@ -84,6 +91,7 @@ class SpatialGymConfig(BaseEnvConfig):
     def _validate_eval_tasks(self):
         """Validate eval_tasks parameter."""
         valid_eval_tasks = EvalTaskType.get_short_names()
+        assert len(self.eval_tasks) == 1, "Only one evaluation task is supported"
 
         if isinstance(self.eval_tasks, ListConfig):
             self.eval_tasks = OmegaConf.to_container(self.eval_tasks, resolve=True)
@@ -102,12 +110,9 @@ class SpatialGymConfig(BaseEnvConfig):
             task_type = task['task_type']
             if task_type not in valid_eval_tasks:
                 raise ValueError(f"task_type '{task_type}' must be one of {valid_eval_tasks}")
-            # default num
-            assert task.setdefault('num', 1) > 0, "num must be positive"
-
-    def _validate_task_kwargs(self, task_type: str, kwargs: Dict[str, Any]):
-        """No task kwargs currently used."""
-        return
+            # validate task_kwargs if present
+            if 'task_kwargs' in task and task['task_kwargs'] is not None:
+                assert isinstance(task['task_kwargs'], dict), "task_kwargs must be a dict"
 
     def get_room_config(self) -> Dict[str, Any]:
         """Get configuration for room generation (updated from RAGEN)."""

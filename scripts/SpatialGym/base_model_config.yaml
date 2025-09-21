@@ -49,6 +49,14 @@ models:
     max_retries: 3
     timeout: 60
 
+  Internvl3.5:
+    provider: openai
+    organization: intern
+    model_name: internvl3.5-241b-a28b
+    max_tokens: 32768
+    temperature: 0
+    base_url: https://chat.intern-ai.org.cn/api/v1/
+
   # claude_4_sonnet:
   #   provider: claude
   #   model_name: claude-4-sonnet-20250514
