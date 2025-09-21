@@ -37,7 +37,7 @@ class ClaudeModelInterface(BaseModelInterface):
         self.api_key = api_key
         
         # Thread pool for standard API calls
-        self.executor = ThreadPoolExecutor(max_workers=10)
+        self.executor = ThreadPoolExecutor(max_workers=self.config.max_workers)
         
         logger.info(f"Initialized Claude interface with model {config.model_name}")
     

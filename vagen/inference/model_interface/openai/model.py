@@ -35,7 +35,7 @@ class OpenAIModelInterface(BaseModelInterface):
         )
         
         # Thread pool for batch processing
-        self.executor = ThreadPoolExecutor(max_workers=10)
+        self.executor = ThreadPoolExecutor(max_workers=self.config.max_workers)
         
         logger.info(f"Initialized OpenAI interface with model {config.model_name}")
     

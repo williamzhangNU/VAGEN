@@ -1,19 +1,10 @@
 models:
-  gpt4.1-nano:
-    provider: openai
-    model_name: gpt-4.1-nano
-    max_tokens: 1024
-    temperature: 0.0
-    presence_penalty: 0.0
-    frequency_penalty: 0.0
-    max_retries: 3
-    timeout: 60
-
   gpt-4.1-mini:
     provider: openai
     model_name: gpt-4.1-mini
     max_tokens: 8192
     temperature: 0.0
+    max_workers: 10
     presence_penalty: 0.0
     frequency_penalty: 0.0
     max_retries: 3
@@ -24,6 +15,7 @@ models:
     model_name: gpt-4.1
     max_tokens: 8192
     temperature: 0.0
+    max_workers: 10
     presence_penalty: 0.0
     frequency_penalty: 0.0
     max_retries: 3
@@ -34,6 +26,7 @@ models:
     model_name: o4-mini
     max_completion_tokens: 8192
     temperature: 1.0
+    max_workers: 10
     presence_penalty: 0.0
     frequency_penalty: 0.0
     max_retries: 3
@@ -44,16 +37,18 @@ models:
     model_name: gpt-5-mini
     max_completion_tokens: 32768
     temperature: 1.0
+    max_workers: 10
     presence_penalty: 0.0
     frequency_penalty: 0.0
     max_retries: 3
     timeout: 60
 
-  gpt-4o:
+  gpt-5:
     provider: openai
-    model_name: gpt-4o
-    max_tokens: 8192
-    temperature: 0.0
+    model_name: gpt-5-mini
+    max_completion_tokens: 32768
+    temperature: 1.0
+    max_workers: 10
     presence_penalty: 0.0
     frequency_penalty: 0.0
     max_retries: 3
@@ -65,7 +60,17 @@ models:
     model_name: internvl3.5-241b-a28b
     max_tokens: 32768
     temperature: 0
+    max_workers: 10
     base_url: https://chat.intern-ai.org.cn/api/v1/
+
+  gemini-2.5-pro:
+    provider: openai
+    organization: google
+    model_name: gemini-2.5-pro
+    max_tokens: 32768
+    temperature: 0
+    max_workers: 5
+    base_url: https://generativelanguage.googleapis.com/v1beta/openai/
 
   # claude_4_sonnet:
   #   provider: claude

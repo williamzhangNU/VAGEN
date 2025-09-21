@@ -49,6 +49,7 @@ class OpenAIModelConfig(BaseModelConfig):
                 "gpt-4-vision-preview",
                 "gpt-3.5-turbo",
                 "internvl3.5-241b-a28b",
+                "gemini-2.5-pro",
 
             ],
             "default_model": "gpt-4o"

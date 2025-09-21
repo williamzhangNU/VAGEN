@@ -6,7 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 from openai import OpenAI
 from PIL import Image
 
-from vagen.mllm_agent.model_interface.base_model import BaseModelInterface
+from vagen.inference.model_interface.base_model import BaseModelInterface
 from .model_config import RouterAPIModelConfig
 
 logger = logging.getLogger(__name__)
@@ -25,7 +25,7 @@ class RouterAPIModelInterface(BaseModelInterface):
         )
         
         # Thread pool for batch processing
-        self.executor = ThreadPoolExecutor(max_workers=10)
+        self.executor = ThreadPoolExecutor(max_workers=self.config.max_workers)
         
         logger.info(f"Initialized RouterAPI interface with model {config.model_name}")
     
