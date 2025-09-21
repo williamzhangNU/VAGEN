@@ -157,7 +157,4 @@ if send_clicked and st.session_state.action_buffer:
         correct_answers = st.session_state.env.get_eval_answers()
         out_path = save_episode(user_id, episode_id, trajectory, analytics, correct_answers)
 
-        if reward > 0:
-            st.success(f"✅ Correct answer! Saved to {out_path}")
-        else:
-            st.error(f"❌ Incorrect answer. Saved to {out_path}")
+        st.success(f"✅ Evaluation complete. Saved to {out_path}")
