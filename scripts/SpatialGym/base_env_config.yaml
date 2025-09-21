@@ -91,7 +91,15 @@ custom_envs:
       <<: *prompt_standard
       <<: *passive
       name: "passive_false_belief"
-      eval_tasks: [{task_type: "false_belief"}]
+      eval_tasks: [{task_type: "false_belief"}]  
+
+  PassiveDirAnchor: # base evaluation task of false belief
+    <<: *common
+    env_config:
+      <<: *prompt_standard
+      <<: *passive
+      name: "passive_dir_anchor"
+      eval_tasks: [{task_type: "dir_anchor"}]
 
   ActiveDir:
     <<: *common
@@ -157,5 +165,13 @@ custom_envs:
       <<: *active
       name: "active_false_belief"
       eval_tasks: [{task_type: "false_belief"}]
+
+  ActiveDirAnchor:
+    <<: *common
+    env_config:
+      <<: *prompt_standard
+      <<: *active
+      name: "active_dir_anchor"
+      eval_tasks: [{task_type: "dir_anchor"}]
 
   

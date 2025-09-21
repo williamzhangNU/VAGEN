@@ -20,6 +20,7 @@ eval_task_counts:
   PassiveE2A: 1
   PassivePov: 3
   PassiveFalseBelief: 1
+  PassiveDirAnchor: 1
   ActiveDir: 5
   ActiveRot: 3
   ActiveLoc: 3
@@ -28,6 +29,7 @@ eval_task_counts:
   ActivePov: 3
   ActiveBwdPoV: 3
   ActiveFalseBelief: 1
+  ActiveDirAnchor: 1
 
 # Output configuration
 output_dir: "results"
