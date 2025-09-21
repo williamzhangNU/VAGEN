@@ -103,10 +103,7 @@ class InferenceRolloutService(BaseRollout):
             if cfg["env_name"] == "spatial":
                 kwargs = {
                     "model_config": self.model_interface.config.to_dict(),
-                    # granular overrides propagated to env
-                    "exp_override": self.config.get('exp_override', False),
                     "eval_override": self.config.get('eval_override', False),
-                    "cogmap_override": self.config.get('cogmap_override', False),
                     "all_override": self.config.get('all_override', False),
                     "output_dir": self.config.get('output_dir'),
                 }

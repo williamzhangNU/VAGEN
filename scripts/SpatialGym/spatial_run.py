@@ -28,7 +28,6 @@ def parse_args():
     p.add_argument("--seed_range", type=str, default=None, help="Seed range 'start-end' (0-based), e.g., 0-24")
     p.add_argument("--enable_think", type=int, choices=[0,1], default=None, help="1 to enable think, 0 to disable (default: 1)")
     # New granular override flags
-    p.add_argument("--exp-override", action="store_true", dest="exp_override", help="Override exploration history (delete active path)")
     p.add_argument("--eval-override", action="store_true", dest="eval_override", help="Override evaluation history (delete evaluation json only)")
     p.add_argument("--cogmap-override", action="store_true", dest="cogmap_override", help="Override cognitive map cache")
     p.add_argument("--all-override", action="store_true", dest="all_override", help="Override all history (delete whole sample path)")
@@ -180,12 +179,10 @@ def patch_model_yaml(model_cfg: Dict[str, Any], model_name: str) -> Dict[str, An
     sys.exit(2)
 
 
-def patch_infer_yaml(infer_cfg: Dict[str, Any], output_dir: str, exp_override: bool, eval_override: bool, cogmap_override: bool, all_override: bool, evaluate_cogmap: bool, server_url: str | None = None) -> Dict[str, Any]:
+def patch_infer_yaml(infer_cfg: Dict[str, Any], output_dir: str, eval_override: bool, cogmap_override: bool, all_override: bool, evaluate_cogmap: bool, server_url: str | None = None) -> Dict[str, Any]:
     """Patch inference yaml to set output directory and override flags and optional server_url. Split remains as in base config."""
     infer_cfg = dict(infer_cfg or {})
     infer_cfg["output_dir"] = output_dir
-    if exp_override:
-        infer_cfg["exp_override"] = True
     if eval_override:
         infer_cfg["eval_override"] = True
     if cogmap_override:
@@ -336,7 +333,6 @@ def main():
                 patched_infer_cfg = patch_infer_yaml(
                     infer_cfg,
                     output_root,
-                    bool(args.exp_override and i == 0),
                     bool(args.eval_override and i == 0),
                     bool(args.cogmap_override and i == 0),
                     bool(args.all_override and i == 0),
