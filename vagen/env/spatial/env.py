@@ -177,7 +177,7 @@ class SpatialGym(gym.Env):
                 self.is_exploration_phase = False
                 # to ensure cogmap override working correctly
                 if self.evaluation_manager.check_and_prune_completed_tasks():
-                    return {'obs_str': "Task finished"}, 0, True, {"finish": True}, exp_log
+                    return {'obs_str': "Task finished"}, 0, True, info, exp_log
                 obs_str += self.prompter.get_evaluation_prompt(self.evaluation_manager)
             else:
                 obs_str += f"\nYou have a maximum of {self.remaining_exp_steps} exploration steps left."
