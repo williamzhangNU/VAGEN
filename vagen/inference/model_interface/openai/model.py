@@ -28,7 +28,6 @@ class OpenAIModelInterface(BaseModelInterface):
             api_key = config.api_key or os.getenv("GOOGLE_API_KEY")
         else:
             api_key = config.api_key or os.getenv("OPENAI_API_KEY")
-        print(f'[DEBUG] Initializing OpenAI client with organization {config.organization} and base url {config.base_url}, api_key {api_key}')
         self.client = OpenAI(
             api_key=api_key,
             organization=config.organization,

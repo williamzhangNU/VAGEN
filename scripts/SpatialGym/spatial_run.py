@@ -314,7 +314,6 @@ def main():
 
             # Decide repetition count per task and embed into env config for EvaluationManager
             repeat = resolve_eval_runs_count(task, infer_cfg, eval_counts_cli)
-            print(f'[DEBUG] repeat: {repeat}')
 
             env_cfg = patch_env_yaml(env_cfg, task, args.num, args.render_mode, seed_opts, args.enable_think, eval_num=repeat)
             model_cfg = patch_model_yaml(model_cfg, args.model_name)

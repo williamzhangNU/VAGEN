@@ -227,7 +227,6 @@ class SpatialGym(gym.Env):
         think_content, action, parsed_ok = parse_llm_response(
             llm_response, enable_think=bool(self.config.prompt_config.get('enable_think', True))
         ) 
-        print(f'[DEBUG] think_content: {think_content}, action: {action}, parsed_ok: {parsed_ok}')
         room_state = None
         agent_state = None
 
