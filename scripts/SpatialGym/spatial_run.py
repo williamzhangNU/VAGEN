@@ -358,6 +358,9 @@ def main():
                 if rc != 0:
                     sys.exit(rc)
 
+    except Exception as e:
+        raise e
+
     finally:
         # Always clean up tmp dir
         top_tmp = SCRIPT_DIR / "tmp" / run_id.replace('/', '-')

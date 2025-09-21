@@ -164,14 +164,10 @@ class SpatialGym(gym.Env):
         if self.remaining_exp_steps < 0:
             action_sequence = ActionSequence(motion_actions=[], final_action=ForcedTermAction())
         
-        if not action:
+        if not action or not action_sequence:
             obs_str += "Invalid output format.\n"
             info['is_valid_action'] = False
             reward += -0.5 # invalid action penalty
-        elif not action_sequence:
-            obs_str += "Invalid action\n"
-            reward += -0.5 # invalid action penalty
-            info['is_valid_action'] = False
         else:
             # execute action
             action_results = self.exploration_manager.execute_action_sequence(action_sequence)
@@ -190,7 +186,6 @@ class SpatialGym(gym.Env):
                     image, image_path = self._get_multi_modal_data(self.exploration_manager, self.exploration_manager.agent.pos, self.exploration_manager.agent.ori)
                     obs = {'multi_modal_data': {self.config.image_placeholder: [image]}}
                     self.observed_image_paths.append(image_path)
-
         return {**obs, 'obs_str': obs_str}, reward, False, info, exp_log
 
     def _get_multi_modal_data(self, room: ExplorationManager, pos: np.ndarray, ori: np.ndarray):
@@ -213,7 +208,6 @@ class SpatialGym(gym.Env):
 
     def _step_evaluation(self, action: str):
         """Handle evaluation phase step with parsed result and shared info."""
-
         correct, _ = self.evaluation_manager.evaluate_answer(action)
         eval_log = self.evaluation_manager.turn_logs[-1]
         reward = 1 if correct else 0
