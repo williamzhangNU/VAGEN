@@ -26,7 +26,7 @@ def parse_args():
     p.add_argument("--render_mode", type=str, default="vision", help="Environment render mode (vision or text). Default: vision")
     p.add_argument("--output_root", type=str, default="results", help="Root dir for inference output_dir. Default: results")
     p.add_argument("--seed_range", type=str, default=None, help="Seed range 'start-end' (0-based), e.g., 0-24")
-    p.add_argument("--enable_think", type=int, choices=[0,1], default=None, help="1 to enable think, 0 to disable (default: 1)")
+    p.add_argument("--enable_think", type=int, choices=[0,1], default=1, help="1 to enable think, 0 to disable (default: 1)")
     # New granular override flags
     p.add_argument("--eval-override", action="store_true", dest="eval_override", help="Override evaluation history (delete evaluation json only)")
     p.add_argument("--cogmap-override", action="store_true", dest="cogmap_override", help="Override cognitive map cache")
