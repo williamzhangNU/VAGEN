@@ -240,7 +240,7 @@ class SpatialGym(gym.Env):
             eval_log.room_state = None
             eval_log.agent_state = None
 
-        obs['obs_str'] += '\n' + self.prompter.FORMAT_PROMPT
+        obs['obs_str'] += '\n' + self.prompter.get_format_footer(self.is_exploration_phase)
         self.render_cache = obs
 
         turn_log = EnvTurnLog(
