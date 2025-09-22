@@ -9,9 +9,9 @@ if you want to run multiple spatial_run.py, you need to switch server-port for e
 - **NOTE** seed-range: corresponds to run: seed 0 corresponds to run00
 
 ```bash
-python scripts/SpatialGym/spatial_run.py --tasks ActiveRot,ActiveDir --model_name gpt-5-mini --seed-range 0-4 --server-port 5000 --render-mode text --cogmap
+python scripts/SpatialGym/spatial_run.py --tasks ActiveRot --model_name gpt-5-mini --seed-range 0-4 --server-port 5000 --render-mode text --cogmap
 ```
-- cogmap: to run cogmap extraction and evaluation.
+- cogmap: to run cogmap extraction and evaluation, only need to run cogmap on one active task.
 
 ```bash
 python scripts/SpatialGym/spatial_run.py --tasks PassiveRot,PassiveDir --model_name gpt-5-mini --seed-range 0-4 --server-port 5000 --render-mode text --proxy-agent strategist
