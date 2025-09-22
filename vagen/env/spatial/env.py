@@ -95,7 +95,7 @@ class SpatialGym(gym.Env):
         """Reset environment for a new episode."""
         super().reset(seed=seed)
 
-        self.image_handler = ImageHandler(self.config.base_dir, seed, self.config.image_size)
+        self.image_handler = ImageHandler(self.config.data_dir, seed, self.config.image_size)
         self.json_data = self.image_handler.json_data
 
         self.prompter = Prompter(self.config, self.np_random, self.image_handler)
@@ -122,12 +122,12 @@ class SpatialGym(gym.Env):
         
         self.exploration_manager = ExplorationManager(
             self.initial_room, self.agent,
-            enable_information_gain=getattr(self.config, 'calculate_information_gain', False),
             grid_size=(self.config.grid_size if hasattr(self.config, 'grid_size') else None),
         )
         self.history_manager = HistoryManager(
             self.config.get_observation_config(), self.config.get_model_config(),
             self.initial_room.to_dict(), self.agent.to_dict(),
+            image_dir=self.image_handler.image_dir,
             output_dir=self.config.kwargs['output_dir'],
             eval_override=self.config.kwargs.get('eval_override', False),
             all_override=self.config.kwargs.get('all_override', False),
@@ -161,8 +161,11 @@ class SpatialGym(gym.Env):
         action_sequence = ActionSequence.parse(action)
         if self.remaining_exp_steps < 0:
             action_sequence = ActionSequence(motion_actions=[], final_action=ForcedTermAction())
-        
-        if not action or not action_sequence:
+        if not action:
+            obs_str += "Invalid action. You should provide only one final action\n"
+            info['is_valid_action'] = False
+            reward += -0.5 # invalid action penalty
+        elif not action_sequence:
             obs_str += "Invalid output format.\n"
             info['is_valid_action'] = False
             reward += -0.5 # invalid action penalty
@@ -249,7 +252,6 @@ class SpatialGym(gym.Env):
             assistant_parsed_message=action,
             is_exploration_phase=is_exploration_phase,
             is_last_exp=is_exploration_phase != self.is_exploration_phase,
-            observed_items=list(self.exploration_manager.observed_items),
             exploration_log=exp_log,
             evaluation_log=eval_log,
             room_state=room_state,
@@ -293,12 +295,6 @@ class SpatialGym(gym.Env):
         return {
             'env_info': self._get_env_info(),
             'env_turn_logs': [turn_log.to_dict() for turn_log in self.turn_logs],
-            # 'summary': {
-            #     'total_turns': len(self.turn_logs),
-            #     'exp_summary': self.get_exp_summary(),
-            #     'eval_summary': self.get_eval_summary(),
-            #     'cogmap_summary': {},
-            # }
         }
 
     def _get_env_info(self):

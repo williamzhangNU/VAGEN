@@ -130,7 +130,9 @@ def main():
                     service.model_interface,
                     override_cogmap=inference_config.get('cogmap_override', False),
                     cogmap_config=inference_config['cogmap_config'],
-                    vagen=True)
+                    vagen=True,
+                    reevaluate=inference_config.get('cogmap_reevaluate', False)
+                )
             SpatialEnvLogger.log_each_env_info(
                 output_dir=inference_config.get('output_dir'),
                 model_config=model_interface.config.to_dict(),

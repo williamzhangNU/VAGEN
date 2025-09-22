@@ -40,6 +40,7 @@ cogmap_config:
   pos_allow_scale: False
   scope: all
 override_cogmap: false
+cogmap_reevaluate: false
 
 # WandB configuration
 use_wandb: false
