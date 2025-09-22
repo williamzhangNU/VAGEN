@@ -11,6 +11,7 @@ import io
 
 from vagen.inference.model_interface.base_model import BaseModelInterface
 from .model_config import OpenAIModelConfig
+from vagen.utils.parallel_retry import run_parallel_with_retries
 
 logger = logging.getLogger(__name__)
 
@@ -40,38 +41,22 @@ class OpenAIModelInterface(BaseModelInterface):
         logger.info(f"Initialized OpenAI interface with model {config.model_name}")
     
     def generate(self, prompts: List[Any], **kwargs) -> List[Dict[str, Any]]:
-        """Generate responses using OpenAI API."""
-        # Process prompts into OpenAI message format
+        """Generate responses using OpenAI API with parallel retries and stable ordering.
+        All calls must succeed; otherwise an error is raised."""
         formatted_requests = []
-        
         for prompt in prompts:
             messages = self._convert_qwen_to_openai_format(prompt)
             formatted_requests.append(messages)
-        
-        # Make parallel API calls
-        futures = []
-        for messages in formatted_requests:
-            future = self.executor.submit(
-                self._single_api_call,
-                messages,
-                **kwargs
-            )
-            futures.append(future)
-        
-        # Collect results
-        results = []
-        for future in futures:
-            try:
-                result = future.result()
-                results.append(result)
-            except Exception as e:
-                logger.error(f"API call failed: {e}")
-                results.append({
-                    "text": f"Error: {str(e)}",
-                    "error": str(e)
-                })
-        
-        return results
+
+        def worker(messages: List[Dict]) -> Dict[str, Any]:
+            return self._single_api_call(messages, **kwargs)
+
+        return run_parallel_with_retries(
+            formatted_requests,
+            worker,
+            max_workers=self.config.max_workers,
+            max_attempt_rounds=self.config.max_retries,
+        )
     
     def _convert_qwen_to_openai_format(self, prompt: List[Dict]) -> List[Dict]:
         """
@@ -164,9 +149,9 @@ class OpenAIModelInterface(BaseModelInterface):
                 "model": self.config.model_name,
                 "messages": messages,
                 "temperature": kwargs.get("temperature", self.config.temperature),
-                "presence_penalty": kwargs.get("presence_penalty", self.config.presence_penalty),
-                "frequency_penalty": kwargs.get("frequency_penalty", self.config.frequency_penalty),
-                "seed": kwargs.get("seed", self.config.seed),
+                # "presence_penalty": kwargs.get("presence_penalty", self.config.presence_penalty),
+                # "frequency_penalty": kwargs.get("frequency_penalty", self.config.frequency_penalty),
+                # "seed": kwargs.get("seed", self.config.seed),
             }
             if self.config.model_name.startswith("o") or 'gpt-5' in self.config.model_name:
                 msg_kwargs["max_completion_tokens"] = kwargs.get("max_completion_tokens", self.config.max_completion_tokens)

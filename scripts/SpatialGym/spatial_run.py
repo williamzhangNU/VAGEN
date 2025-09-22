@@ -165,8 +165,7 @@ def patch_model_yaml(model_cfg: Dict[str, Any], model_name: str) -> Dict[str, An
     models = model_cfg.get("models", {}) or {}
 
     if model_name in models:
-        picked_key = model_name
-        model_cfg["models"] = {picked_key: dict(models[picked_key])}
+        model_cfg["models"] = {model_name: dict(models[model_name])}
         return model_cfg
 
     for k, v in models.items():
@@ -286,11 +285,9 @@ def main():
     if args.seed_range:
         try:
             s, e = [int(x) for x in args.seed_range.split('-', 1)]
-            s0 = max(0, s - 1)
-            e0 = max(s0, e - 1)
-            seed_opts = (s0, e0)
+            seed_opts = (s, e)
         except Exception:
-            print(f"[ERROR] Bad --seed_range '{args.seed_range}'. Use 'start-end', e.g., 1-25.", file=sys.stderr)
+            print(f"[ERROR] Bad --seed_range '{args.seed_range}'. Use 'start-end', e.g., 2-5.", file=sys.stderr)
             sys.exit(2)
 
     created_tmp_dirs: List[Path] = []

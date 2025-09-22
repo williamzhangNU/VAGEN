@@ -12,6 +12,7 @@ import io
 
 from vagen.inference.model_interface.base_model import BaseModelInterface
 from .model_config import TogetherModelConfig
+from vagen.utils.parallel_retry import run_parallel_with_retries, NonRetryableError
 
 logger = logging.getLogger(__name__)
 
@@ -27,10 +28,9 @@ class TogetherModelInterface(BaseModelInterface):
         
         # Check if API key is available
         if not self.api_key:
-            error_msg = "ERROR: Together API key not set. Please set the TOGETHER_API_KEY environment variable or provide api_key in config."
+            error_msg = "Together API key not set. Set TOGETHER_API_KEY or provide api_key in config."
             logger.error(error_msg)
-            print(error_msg, file=sys.stderr)
-            sys.exit(1)
+            raise RuntimeError(error_msg)
             
         # Base URL
         self.base_url = config.base_url
@@ -41,41 +41,16 @@ class TogetherModelInterface(BaseModelInterface):
         logger.info(f"Initialized Together AI interface with model {config.model_name}")
     
     def generate(self, prompts: List[Any], **kwargs) -> List[Dict[str, Any]]:
-        """Generate responses using Together AI API."""
-        # Make parallel API calls
-        futures = []
-        
-        for prompt in prompts:
-            # Keep original Qwen format for processing
-            future = self.executor.submit(
-                self._single_api_call,
-                prompt,
-                **kwargs
-            )
-            futures.append(future)
-        
-        # Collect results
-        results = []
-        for future in futures:
-            try:
-                result = future.result()
-                results.append(result)
-            except Exception as e:
-                # Check if error is related to API key
-                error_str = str(e)
-                if "401" in error_str or "api_key" in error_str.lower() or "unauthorized" in error_str.lower():
-                    error_msg = f"ERROR: API key invalid or unauthorized: {error_str}"
-                    logger.error(error_msg)
-                    print(error_msg, file=sys.stderr)
-                    sys.exit(1)
-                
-                logger.error(f"API call failed: {e}")
-                results.append({
-                    "text": f"Error: {str(e)}",
-                    "error": str(e)
-                })
-        
-        return results
+        """Generate responses using Together AI API with parallel retries and stable ordering."""
+        def worker(prompt: List[Dict]) -> Dict[str, Any]:
+            return self._single_api_call(prompt, **kwargs)
+
+        return run_parallel_with_retries(
+            list(prompts),
+            worker,
+            max_workers=self.config.max_workers,
+            max_attempt_rounds=self.config.max_retries,
+        )
     
     def _prepare_together_request(self, prompt: List[Dict], **kwargs) -> Dict:
         """
@@ -91,19 +66,19 @@ class TogetherModelInterface(BaseModelInterface):
             "messages": messages,
             "max_tokens": kwargs.get("max_tokens", self.config.max_tokens),
             "temperature": kwargs.get("temperature", self.config.temperature),
-            "top_p": kwargs.get("top_p", self.config.top_p),
-            "top_k": kwargs.get("top_k", self.config.top_k),
+            # "top_p": kwargs.get("top_p", self.config.top_p),
+            # "top_k": kwargs.get("top_k", self.config.top_k),
         }
         
         # Add optional parameters if provided
-        if self.config.seed is not None:
-            request_data["seed"] = kwargs.get("seed", self.config.seed)
+        # if self.config.seed is not None:
+        #     request_data["seed"] = kwargs.get("seed", self.config.seed)
         
-        if self.config.presence_penalty != 0:
-            request_data["presence_penalty"] = kwargs.get("presence_penalty", self.config.presence_penalty)
+        # if self.config.presence_penalty != 0:
+        #     request_data["presence_penalty"] = kwargs.get("presence_penalty", self.config.presence_penalty)
         
-        if self.config.frequency_penalty != 0:
-            request_data["frequency_penalty"] = kwargs.get("frequency_penalty", self.config.frequency_penalty)
+        # if self.config.frequency_penalty != 0:
+        #     request_data["frequency_penalty"] = kwargs.get("frequency_penalty", self.config.frequency_penalty)
         
         return request_data
     
@@ -223,10 +198,9 @@ class TogetherModelInterface(BaseModelInterface):
             
             # Check for API key errors specifically
             if response.status_code == 401:
-                error_msg = f"ERROR: API key invalid or unauthorized. Status code: {response.status_code}, Response: {response.text}"
+                error_msg = f"API key invalid or unauthorized. Status code: {response.status_code}, Response: {response.text}"
                 logger.error(error_msg)
-                print(error_msg, file=sys.stderr)
-                sys.exit(1)
+                raise NonRetryableError(error_msg)
             
             # Check for other errors
             response.raise_for_status()
@@ -250,20 +224,18 @@ class TogetherModelInterface(BaseModelInterface):
             
         except requests.exceptions.HTTPError as e:
             if hasattr(e, 'response') and e.response.status_code == 401:
-                error_msg = f"ERROR: API key invalid or unauthorized: {e}"
+                error_msg = f"API key invalid or unauthorized: {e}"
                 logger.error(error_msg)
-                print(error_msg, file=sys.stderr)
-                sys.exit(1)
+                raise NonRetryableError(error_msg)
             logger.error(f"HTTP error: {e}")
             raise
         except Exception as e:
             error_str = str(e)
             # Check for API key related errors in the exception message
             if "401" in error_str or "api_key" in error_str.lower() or "unauthorized" in error_str.lower():
-                error_msg = f"ERROR: API key invalid or unauthorized: {error_str}"
+                error_msg = f"API key invalid or unauthorized: {error_str}"
                 logger.error(error_msg)
-                print(error_msg, file=sys.stderr)
-                sys.exit(1)
+                raise NonRetryableError(error_msg)
                 
             logger.error(f"Together AI API error: {e}")
             if 'response' in locals():

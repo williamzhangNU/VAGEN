@@ -37,6 +37,8 @@ class TogetherModelConfig(BaseModelConfig):
             "supports_multimodal": True,
             "supported_models": [
                 "Qwen/Qwen2.5-VL-72B-Instruct",
+                "openai/gpt-oss-20b",
+                "openai/gpt-oss-120b"
             ],
             "default_model": "Qwen/Qwen2.5-VL-72B-Instruct"
         }

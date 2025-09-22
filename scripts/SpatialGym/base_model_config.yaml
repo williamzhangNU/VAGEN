@@ -45,7 +45,7 @@ models:
 
   gpt-5:
     provider: openai
-    model_name: gpt-5-mini
+    model_name: gpt-5
     max_completion_tokens: 32768
     temperature: 1.0
     max_workers: 10
@@ -71,6 +71,29 @@ models:
     temperature: 0
     max_workers: 5
     base_url: https://generativelanguage.googleapis.com/v1beta/openai/
+
+  gemini-2.5-flash:
+    provider: openai
+    organization: google
+    model_name: gemini-2.5-flash
+    max_tokens: 32768
+    temperature: 0
+    max_workers: 5
+    base_url: https://generativelanguage.googleapis.com/v1beta/openai/
+
+  gpt-oss-20b:
+    provider: together
+    model_name: openai/gpt-oss-20b
+    max_tokens: 8192
+    temperature: 0
+    max_workers: 5
+
+  gpt-oss-120b:
+    provider: together
+    model_name: openai/gpt-oss-120b
+    max_tokens: 8192
+    temperature: 0
+    max_workers: 5
 
   # claude_4_sonnet:
   #   provider: claude
