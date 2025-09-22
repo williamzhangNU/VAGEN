@@ -27,6 +27,8 @@ class OpenAIModelInterface(BaseModelInterface):
             api_key = config.api_key or os.getenv("INTERN_API_KEY")
         elif config.organization == "google":
             api_key = config.api_key or os.getenv("GOOGLE_API_KEY")
+        elif config.organization == "self-hosted":
+            api_key = config.api_key or os.getenv("SELF_HOSTED_API_KEY")
         else:
             api_key = config.api_key or os.getenv("OPENAI_API_KEY")
         self.client = OpenAI(

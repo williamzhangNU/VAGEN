@@ -54,15 +54,6 @@ models:
     max_retries: 3
     timeout: 60
 
-  internvl3.5:
-    provider: openai
-    organization: intern
-    model_name: internvl3.5-241b-a28b
-    max_tokens: 32768
-    temperature: 0
-    max_workers: 10
-    base_url: https://chat.intern-ai.org.cn/api/v1/
-
   gemini-2.5-pro:
     provider: openai
     organization: google
@@ -76,10 +67,17 @@ models:
     provider: openai
     organization: google
     model_name: gemini-2.5-flash
-    max_tokens: 32768
+    max_tokens: 8192
     temperature: 0
     max_workers: 5
     base_url: https://generativelanguage.googleapis.com/v1beta/openai/
+
+  claude-4-sonnet:
+    provider: anthropic
+    model_name: claude-sonnet-4-20250514
+    max_tokens: 8192
+    temperature: 0
+    max_workers: 10
 
   gpt-oss-20b:
     provider: together
@@ -95,15 +93,21 @@ models:
     temperature: 0
     max_workers: 5
 
-  # claude_4_sonnet:
-  #   provider: claude
-  #   model_name: claude-4-sonnet-20250514
-  #   max_tokens: 1024
-  #   temperature: 0.0
+  internvl3.5:
+    provider: openai
+    organization: self-hosted
+    model_name: internvl3.5-241b-a28b
+    max_tokens: 8192
+    temperature: 0
+    max_workers: 10
+    base_url: https://api.revered.me/v1
 
+  glm-4.5v:
+    provider: openai
+    organization: self-hosted
+    model_name: GLM-4.5V
+    max_tokens: 8192
+    temperature: 0
+    max_workers: 10
+    base_url: https://api.revered.me/v1
 
-  # Gemini_2.5_flask:
-  #     provider: gemini
-  #     model_name: gemini
-  #     max_tokens: 1024
-  #     temperature: 0.7

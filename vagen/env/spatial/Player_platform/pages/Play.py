@@ -55,20 +55,20 @@ st.subheader("Action Builder")
 
 action_type = st.selectbox(
     "Action type",
-    ["-- select --", "Move", "Rotate", "Observe", "Query", "Term", "Answer (MCQ)"],
+    ["-- select --", "JumpTo", "Rotate", "Observe", "Query", "Term", "Answer (MCQ)"],
     key="action_type"
 )
 
 built_action = None
-if action_type == "Move":
+if action_type == "JumpTo":
     room_objects = st.session_state.env.env.initial_room.all_objects
     for object in room_objects:
         print(object.has_orientation)
         
     obj_names = [o.name for o in room_objects]
-    target = st.selectbox("Move to object", obj_names, key="move_target")
+    target = st.selectbox("Jump to object", obj_names, key="jumpto_target")
     if target:
-        built_action = f"Move({target})"
+        built_action = f"JumpTo({target})"
 
 elif action_type == "Rotate":
     deg = st.selectbox("Degrees", [-270, -180, -90, 0, 90, 180, 270], key="rotate_deg")

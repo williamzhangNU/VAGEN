@@ -24,12 +24,12 @@ def parse_args():
     p.add_argument("--num", type=int, default=1, help="Number of samples per task. Default: 1")
     p.add_argument("--model_name", type=str, default="gpt-4.1-mini",
                    help="Model identifier. Default: gpt-4.1-mini")
-    p.add_argument("--data-dir", type=str, default=None, help="Data directory root. Default: data")
-    p.add_argument("--render-mode", type=str, default="vision", help="Environment render mode (vision or text). Default: vision")
-    p.add_argument("--output-root", type=str, default="results", help="Root dir for inference output_dir. Default: results")
-    p.add_argument("--seed-range", type=str, default=None, help="Seed range 'start-end' (0-based), e.g., 0-24")
-    p.add_argument("--enable-think", type=int, choices=[0,1], default=1, help="1 to enable think, 0 to disable (default: 1)")
-    p.add_argument("--cogmap-reevaluate", action="store_true", help="If set, will re-evaluate existing cognitive maps")
+    p.add_argument("--data-dir", type=str, dest="data_dir", default=None, help="Data directory root. Default: data")
+    p.add_argument("--render-mode", type=str, dest="render_mode", default="vision", help="Environment render mode (vision or text). Default: vision")
+    p.add_argument("--output-root", type=str, dest="output_root", default="results", help="Root dir for inference output_dir. Default: results")
+    p.add_argument("--seed-range", type=str, dest="seed_range", default=None, help="Seed range 'start-end' (0-based), e.g., 0-24")
+    p.add_argument("--enable-think", type=int, dest="enable_think", choices=[0,1], default=1, help="1 to enable think, 0 to disable (default: 1)")
+    p.add_argument("--cogmap-reevaluate", action="store_true", dest="cogmap_reevaluate", help="If set, will re-evaluate existing cognitive maps")
     # New granular override flags
     p.add_argument("--eval-override", action="store_true", dest="eval_override", help="Override evaluation history (delete evaluation json only)")
     p.add_argument("--cogmap-override", action="store_true", dest="cogmap_override", help="Override cognitive map cache")
@@ -39,13 +39,15 @@ def parse_args():
     p.add_argument("--eval_counts", type=str, default=None,
                    help="Per-task eval run counts, e.g., 'PassiveRot=3,ActiveDir=2'. If omitted, use inference_config.yaml eval_task_counts or default 1")
     # Optional: override base yaml paths (env/model now default to base_*.yaml)
-    p.add_argument("--base_env", type=str, default=str(SCRIPT_DIR / "base_env_config.yaml"))
-    p.add_argument("--base_infer", type=str, default=str(SCRIPT_DIR / "inference_config.yaml"))
-    p.add_argument("--base_model", type=str, default=str(SCRIPT_DIR / "base_model_config.yaml"))
+    p.add_argument("--base_env", type=str, dest="base_env", default=str(SCRIPT_DIR / "base_env_config.yaml"))
+    p.add_argument("--base_infer", type=str, dest="base_infer", default=str(SCRIPT_DIR / "inference_config.yaml"))
+    p.add_argument("--base_model", type=str, dest="base_model", default=str(SCRIPT_DIR / "base_model_config.yaml"))
     # Server options: server is ON by default, use --no_server to skip starting it
-    p.add_argument("--no-server", action="store_true", help="Do not start internal env server (assume an external server is running)")
-    p.add_argument("--server-host", type=str, default="127.0.0.1", help="Server host to bind/connect")
-    p.add_argument("--server-port", type=int, default=5000, help="Server port to bind/connect")
+    p.add_argument("--no-server", action="store_true", dest="no_server", help="Do not start internal env server (assume an external server is running)")
+    p.add_argument("--server-host", type=str, dest="server_host", default="127.0.0.1", help="Server host to bind/connect")
+    p.add_argument("--server-port", type=int, dest="server_port", default=5000, help="Server port to bind/connect")
+    # Proxy agent selection (for passive tasks)
+    p.add_argument("--proxy-agent", type=str, dest="proxy_agent", default=None, choices=["scout","strategist","oracle"], help="Proxy agent for passive tasks")
     return p.parse_args()
 
 
@@ -318,6 +320,9 @@ def main():
             repeat = resolve_eval_runs_count(task, infer_cfg, eval_counts_cli)
 
             env_cfg = patch_env_yaml(env_cfg, task, args.num, args.render_mode, seed_opts, args.enable_think, eval_num=repeat, data_dir=args.data_dir)
+            if args.proxy_agent:
+                if (env_cfg[task]["env_config"].get("exp_type") == "passive"):
+                    env_cfg[task]["env_config"]["proxy_agent"] = args.proxy_agent
             model_cfg = patch_model_yaml(model_cfg, args.model_name)
             dump_yaml(env_cfg, tmp_paths["env"])
             dump_yaml(model_cfg, tmp_paths["model"])
