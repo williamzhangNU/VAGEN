@@ -23,7 +23,8 @@ def parse_args():
     p.add_argument("--num", type=int, default=1, help="Number of samples per task. Default: 1")
     p.add_argument("--model_name", type=str, default="gpt-4.1-mini",
                    help="Model identifier. Default: gpt-4.1-mini")
-    p.add_argument("--render_mode", type=str, default="vision", help="Environment render mode (vision or text). Default: vision")
+    p.add_argument("--data-dir", type=str, default=None, help="Data directory root. Default: data")
+    p.add_argument("--render-mode", type=str, default="vision", help="Environment render mode (vision or text). Default: vision")
     p.add_argument("--output_root", type=str, default="results", help="Root dir for inference output_dir. Default: results")
     p.add_argument("--seed_range", type=str, default=None, help="Seed range 'start-end' (0-based), e.g., 0-24")
     p.add_argument("--enable_think", type=int, choices=[0,1], default=1, help="1 to enable think, 0 to disable (default: 1)")
@@ -125,7 +126,8 @@ def resolve_eval_runs_count(task_key: str, infer_cfg: Dict[str, Any], eval_count
     return 1
 
 
-def patch_env_yaml(env_cfg: Dict[str, Any], task_key: str, num: int, render_mode = "vision", seed_opts: tuple[int, int] | None = None, enable_think: int | None = None, eval_num: int | None = None) -> Dict[str, Any]:
+def patch_env_yaml(env_cfg: Dict[str, Any], task_key: str, num: int, render_mode = "vision", seed_opts: tuple[int, int] | None = None, 
+                   enable_think: int | None = None, eval_num: int | None = None, data_dir: str | None = None) -> Dict[str, Any]:
     """Return {TaskKey: {...}} by selecting the entry from custom_envs and overriding sizes.
 
     Behavior:
@@ -137,6 +139,8 @@ def patch_env_yaml(env_cfg: Dict[str, Any], task_key: str, num: int, render_mode
     selected = dict(custom_envs[task_key])
     selected["test_size"] = int(num)
     selected["env_config"]['render_mode'] = render_mode
+    if data_dir:
+        selected["env_config"]["data_dir"] = data_dir
     if seed_opts:
         selected["env_config"].setdefault("kwargs", {})
         selected["env_config"]["kwargs"]["seed_start"] = int(seed_opts[0])
@@ -309,7 +313,7 @@ def main():
             # Decide repetition count per task and embed into env config for EvaluationManager
             repeat = resolve_eval_runs_count(task, infer_cfg, eval_counts_cli)
 
-            env_cfg = patch_env_yaml(env_cfg, task, args.num, args.render_mode, seed_opts, args.enable_think, eval_num=repeat)
+            env_cfg = patch_env_yaml(env_cfg, task, args.num, args.render_mode, seed_opts, args.enable_think, eval_num=repeat, data_dir=args.data_dir)
             model_cfg = patch_model_yaml(model_cfg, args.model_name)
             dump_yaml(env_cfg, tmp_paths["env"])
             dump_yaml(model_cfg, tmp_paths["model"])

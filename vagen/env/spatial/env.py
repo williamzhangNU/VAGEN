@@ -95,7 +95,7 @@ class SpatialGym(gym.Env):
         """Reset environment for a new episode."""
         super().reset(seed=seed)
 
-        self.image_handler = ImageHandler(self.config.base_dir, seed, self.config.image_size)
+        self.image_handler = ImageHandler(self.config.data_dir, seed, self.config.image_size)
         self.json_data = self.image_handler.json_data
 
         self.prompter = Prompter(self.config, self.np_random, self.image_handler)
@@ -161,8 +161,11 @@ class SpatialGym(gym.Env):
         action_sequence = ActionSequence.parse(action)
         if self.remaining_exp_steps < 0:
             action_sequence = ActionSequence(motion_actions=[], final_action=ForcedTermAction())
-        
-        if not action or not action_sequence:
+        if not action:
+            obs_str += "Invalid action. You should provide only one final action\n"
+            info['is_valid_action'] = False
+            reward += -0.5 # invalid action penalty
+        elif not action_sequence:
             obs_str += "Invalid output format.\n"
             info['is_valid_action'] = False
             reward += -0.5 # invalid action penalty
