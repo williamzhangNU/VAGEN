@@ -28,6 +28,7 @@ def parse_args():
     p.add_argument("--output_root", type=str, default="results", help="Root dir for inference output_dir. Default: results")
     p.add_argument("--seed_range", type=str, default=None, help="Seed range 'start-end' (0-based), e.g., 0-24")
     p.add_argument("--enable_think", type=int, choices=[0,1], default=1, help="1 to enable think, 0 to disable (default: 1)")
+    p.add_argument("--cogmap-reevaluate", action="store_true", help="If set, will re-evaluate existing cognitive maps")
     # New granular override flags
     p.add_argument("--eval-override", action="store_true", dest="eval_override", help="Override evaluation history (delete evaluation json only)")
     p.add_argument("--cogmap-override", action="store_true", dest="cogmap_override", help="Override cognitive map cache")
@@ -182,7 +183,7 @@ def patch_model_yaml(model_cfg: Dict[str, Any], model_name: str) -> Dict[str, An
     sys.exit(2)
 
 
-def patch_infer_yaml(infer_cfg: Dict[str, Any], output_dir: str, eval_override: bool, cogmap_override: bool, all_override: bool, evaluate_cogmap: bool, server_url: str | None = None) -> Dict[str, Any]:
+def patch_infer_yaml(infer_cfg: Dict[str, Any], output_dir: str, eval_override: bool, cogmap_override: bool, all_override: bool, evaluate_cogmap: bool, cogmap_reevaluate: bool = False, server_url: str | None = None) -> Dict[str, Any]:
     """Patch inference yaml to set output directory and override flags and optional server_url. Split remains as in base config."""
     infer_cfg = dict(infer_cfg or {})
     infer_cfg["output_dir"] = output_dir
@@ -196,6 +197,8 @@ def patch_infer_yaml(infer_cfg: Dict[str, Any], output_dir: str, eval_override: 
         infer_cfg["server_url"] = server_url
     if evaluate_cogmap:
         infer_cfg["evaluate_cogmap"] = True
+    if cogmap_reevaluate:
+        infer_cfg["cogmap_reevaluate"] = True
     return infer_cfg
 
 
@@ -338,6 +341,7 @@ def main():
                     bool(args.cogmap_override and i == 0),
                     bool(args.all_override and i == 0),
                     args.cogmap,
+                    args.cogmap_reevaluate,
                     server_url,
                 )
                 dump_yaml(patched_infer_cfg, tmp_paths["infer"])

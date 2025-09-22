@@ -54,7 +54,7 @@ models:
     max_retries: 3
     timeout: 60
 
-  Internvl3.5:
+  internvl3.5:
     provider: openai
     organization: intern
     model_name: internvl3.5-241b-a28b

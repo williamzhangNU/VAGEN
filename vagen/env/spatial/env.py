@@ -122,7 +122,6 @@ class SpatialGym(gym.Env):
         
         self.exploration_manager = ExplorationManager(
             self.initial_room, self.agent,
-            enable_information_gain=getattr(self.config, 'calculate_information_gain', False),
             grid_size=(self.config.grid_size if hasattr(self.config, 'grid_size') else None),
         )
         self.history_manager = HistoryManager(
@@ -252,7 +251,6 @@ class SpatialGym(gym.Env):
             assistant_parsed_message=action,
             is_exploration_phase=is_exploration_phase,
             is_last_exp=is_exploration_phase != self.is_exploration_phase,
-            observed_items=list(self.exploration_manager.observed_items),
             exploration_log=exp_log,
             evaluation_log=eval_log,
             room_state=room_state,
@@ -296,12 +294,6 @@ class SpatialGym(gym.Env):
         return {
             'env_info': self._get_env_info(),
             'env_turn_logs': [turn_log.to_dict() for turn_log in self.turn_logs],
-            # 'summary': {
-            #     'total_turns': len(self.turn_logs),
-            #     'exp_summary': self.get_exp_summary(),
-            #     'eval_summary': self.get_eval_summary(),
-            #     'cogmap_summary': {},
-            # }
         }
 
     def _get_env_info(self):
