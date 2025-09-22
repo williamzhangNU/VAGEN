@@ -10,6 +10,7 @@ from typing import Dict, Any, List
 import yaml as pyyaml
 import urllib.request
 import threading
+from datetime import datetime
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 
@@ -25,9 +26,9 @@ def parse_args():
                    help="Model identifier. Default: gpt-4.1-mini")
     p.add_argument("--data-dir", type=str, default=None, help="Data directory root. Default: data")
     p.add_argument("--render-mode", type=str, default="vision", help="Environment render mode (vision or text). Default: vision")
-    p.add_argument("--output_root", type=str, default="results", help="Root dir for inference output_dir. Default: results")
-    p.add_argument("--seed_range", type=str, default=None, help="Seed range 'start-end' (0-based), e.g., 0-24")
-    p.add_argument("--enable_think", type=int, choices=[0,1], default=1, help="1 to enable think, 0 to disable (default: 1)")
+    p.add_argument("--output-root", type=str, default="results", help="Root dir for inference output_dir. Default: results")
+    p.add_argument("--seed-range", type=str, default=None, help="Seed range 'start-end' (0-based), e.g., 0-24")
+    p.add_argument("--enable-think", type=int, choices=[0,1], default=1, help="1 to enable think, 0 to disable (default: 1)")
     p.add_argument("--cogmap-reevaluate", action="store_true", help="If set, will re-evaluate existing cognitive maps")
     # New granular override flags
     p.add_argument("--eval-override", action="store_true", dest="eval_override", help="Override evaluation history (delete evaluation json only)")
@@ -42,9 +43,9 @@ def parse_args():
     p.add_argument("--base_infer", type=str, default=str(SCRIPT_DIR / "inference_config.yaml"))
     p.add_argument("--base_model", type=str, default=str(SCRIPT_DIR / "base_model_config.yaml"))
     # Server options: server is ON by default, use --no_server to skip starting it
-    p.add_argument("--no_server", action="store_true", help="Do not start internal env server (assume an external server is running)")
-    p.add_argument("--server_host", type=str, default="127.0.0.1", help="Server host to bind/connect")
-    p.add_argument("--server_port", type=int, default=5000, help="Server port to bind/connect")
+    p.add_argument("--no-server", action="store_true", help="Do not start internal env server (assume an external server is running)")
+    p.add_argument("--server-host", type=str, default="127.0.0.1", help="Server host to bind/connect")
+    p.add_argument("--server-port", type=int, default=5000, help="Server port to bind/connect")
     return p.parse_args()
 
 
@@ -282,10 +283,10 @@ def main():
         sys.exit(2)
 
     # Compute run id and experiment/data paths
-    run_id = time.strftime("%Y-%m-%d/%H-%M-%S")
+    run_id = datetime.now().strftime("%Y-%m-%d-%H-%M-%S-%f")
     exp_name = compute_experiment_name(SCRIPT_DIR)
-    data_train = f"data/{exp_name}/train.parquet"
-    data_test = f"data/{exp_name}/test.parquet"
+    data_train = f"data/{run_id}/train.parquet"
+    data_test = f"data/{run_id}/test.parquet"
 
     output_root = args.output_root
     seed_opts = None
@@ -306,7 +307,7 @@ def main():
             server_url = f"http://{args.server_host}:{args.server_port}"
 
         for task in tasks:
-            tmp_paths = build_tmp_paths(run_id.replace('/', '-'), f"{task}")
+            tmp_paths = build_tmp_paths(run_id, f"{task}")
             created_tmp_dirs.append(tmp_paths["base"])
 
             env_cfg = load_yaml(base_env)
@@ -363,14 +364,13 @@ def main():
         raise e
 
     finally:
-        # Always clean up tmp dir
-        top_tmp = SCRIPT_DIR / "tmp" / run_id.replace('/', '-')
-        if top_tmp.exists():
-            import shutil
-            try:
-                shutil.rmtree(top_tmp)
-            except Exception as e:
-                print(f"[WARN] Failed to remove tmp dir {top_tmp}: {e}")
+        # top_tmp = SCRIPT_DIR / "tmp" / run_id
+        # if top_tmp.exists():
+        #     import shutil
+        #     try:
+        #         shutil.rmtree(top_tmp)
+        #     except Exception as e:
+        #         print(f"[WARN] Failed to remove tmp dir {top_tmp}: {e}")
 
         if server_proc is not None:
             stop_env_server(server_proc)
