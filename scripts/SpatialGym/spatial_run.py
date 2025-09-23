@@ -5,6 +5,7 @@ import sys
 import shlex
 import subprocess
 import time
+import socket
 from pathlib import Path
 from typing import Dict, Any, List
 import yaml as pyyaml
@@ -14,6 +15,37 @@ from datetime import datetime
 from tqdm import tqdm
 
 SCRIPT_DIR = Path(__file__).resolve().parent
+
+
+def is_port_available(port: int, host: str = '0.0.0.0') -> bool:
+    """Check if a port is available for binding."""
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            sock.bind((host, port))
+            return True
+    except (socket.error, OSError):
+        return False
+
+
+def find_available_port(start_port: int = 5000, max_attempts: int = 100) -> int:
+    """Find an available port starting from start_port."""
+    for port in range(start_port, start_port + max_attempts):
+        if is_port_available(port):
+            return port
+    raise RuntimeError(f"No available port found in range {start_port}-{start_port + max_attempts - 1}")
+
+
+def get_adaptive_port(user_port: int = None, default_start: int = 5000) -> int:
+    """Get a port for the server. If user_port is specified and available, use it.
+    Otherwise, find an available port starting from default_start."""
+    if user_port is not None:
+        if is_port_available(user_port):
+            return user_port
+        else:
+            print(f"Warning: User-specified port {user_port} is not available, finding alternative...")
+            return find_available_port(default_start)
+    return find_available_port(default_start)
 
 
 def parse_args():
@@ -307,8 +339,12 @@ def main():
     try:
         server_url: str | None = None
         if not args.no_server:
-            server_proc = start_env_server(args.server_host, args.server_port)
-            server_url = f"http://{args.server_host}:{args.server_port}"
+            # Use adaptive port selection
+            actual_port = get_adaptive_port(args.server_port, 5000)
+            if actual_port != args.server_port:
+                print(f"Using port {actual_port} instead of requested {args.server_port}")
+            server_proc = start_env_server(args.server_host, actual_port)
+            server_url = f"http://{args.server_host}:{actual_port}"
 
         for task in tqdm(tasks, desc="Running tasks"):
             tmp_paths = build_tmp_paths(run_id, f"{task}")
