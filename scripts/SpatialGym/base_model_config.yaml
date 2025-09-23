@@ -1,19 +1,21 @@
 models:
-  gpt4.1-nano:
-    provider: openai
-    model_name: gpt-4.1-nano
-    max_tokens: 1024
-    temperature: 0.0
-    presence_penalty: 0.0
-    frequency_penalty: 0.0
-    max_retries: 3
-    timeout: 60
-
   gpt-4.1-mini:
     provider: openai
     model_name: gpt-4.1-mini
     max_tokens: 8192
     temperature: 0.0
+    max_workers: 64
+    presence_penalty: 0.0
+    frequency_penalty: 0.0
+    max_retries: 3
+    timeout: 60
+
+  gpt-4.1:
+    provider: openai
+    model_name: gpt-4.1
+    max_tokens: 8192
+    temperature: 0.0
+    max_workers: 64
     presence_penalty: 0.0
     frequency_penalty: 0.0
     max_retries: 3
@@ -24,48 +26,105 @@ models:
     model_name: o4-mini
     max_completion_tokens: 8192
     temperature: 1.0
+    max_workers: 64
     presence_penalty: 0.0
     frequency_penalty: 0.0
     max_retries: 3
-    timeout: 60
+    timeout: 100
 
   gpt-5-mini:
     provider: openai
     model_name: gpt-5-mini
     max_completion_tokens: 32768
     temperature: 1.0
+    max_workers: 64
     presence_penalty: 0.0
     frequency_penalty: 0.0
     max_retries: 3
-    timeout: 60
+    timeout: 100
 
-  gpt-4o:
+  gpt-5:
     provider: openai
-    model_name: gpt-4o
-    max_tokens: 8192
-    temperature: 0.0
+    model_name: gpt-5
+    max_completion_tokens: 32768
+    temperature: 1.0
+    max_workers: 64
     presence_penalty: 0.0
     frequency_penalty: 0.0
     max_retries: 3
-    timeout: 60
+    timeout: 100
 
-  Internvl3.5:
+  gemini-2.5-pro:
     provider: openai
-    organization: intern
-    model_name: internvl3.5-241b-a28b
+    organization: google
+    model_name: gemini-2.5-pro
     max_tokens: 32768
     temperature: 0
-    base_url: https://chat.intern-ai.org.cn/api/v1/
+    max_workers: 10
+    base_url: https://generativelanguage.googleapis.com/v1beta/openai/
 
-  # claude_4_sonnet:
-  #   provider: claude
-  #   model_name: claude-4-sonnet-20250514
-  #   max_tokens: 1024
-  #   temperature: 0.0
+  gemini-2.5-flash:
+    provider: openai
+    organization: google
+    model_name: gemini-2.5-flash
+    max_tokens: 8192
+    temperature: 0
+    max_workers: 5
+    base_url: https://generativelanguage.googleapis.com/v1beta/openai/
 
+  claude-4-sonnet:
+    provider: anthropic
+    model_name: claude-sonnet-4-20250514
+    max_tokens: 8192
+    temperature: 0
+    max_workers: 10
 
-  # Gemini_2.5_flask:
-  #     provider: gemini
-  #     model_name: gemini
-  #     max_tokens: 1024
-  #     temperature: 0.7
+  gpt-oss-20b:
+    provider: together
+    model_name: openai/gpt-oss-20b
+    max_tokens: 8192
+    temperature: 0
+    max_workers: 10
+
+  gpt-oss-120b:
+    provider: together
+    model_name: openai/gpt-oss-120b
+    max_tokens: 8192
+    temperature: 0
+    max_workers: 10 
+
+  qwen3-235b-a22b-thinking:
+    provider: together
+    model_name:  Qwen/Qwen3-235B-A22B-Thinking-2507
+    max_tokens: 8192
+    temperature: 0
+    max_workers: 10
+    timeout: 180
+
+  qwen3-235b-a22b-instruct:
+    provider: together
+    model_name:  Qwen/Qwen3-235B-A22B-Instruct-2507-tput
+    max_tokens: 8192
+    temperature: 0
+    max_workers: 10
+    timeout: 180
+
+  internvl3.5:
+    provider: openai
+    organization: self-hosted
+    model_name: internvl3.5-241b-a28b
+    max_tokens: 8192
+    temperature: 0
+    max_workers: 10
+    base_url: https://api.revered.me/v1
+    timeout: 180
+
+  glm-4.5v:
+    provider: openai
+    organization: self-hosted
+    model_name: GLM-4.5V
+    max_tokens: 8192
+    temperature: 0
+    max_workers: 10
+    base_url: https://api.revered.me/v1
+

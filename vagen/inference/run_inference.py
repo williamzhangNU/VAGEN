@@ -32,7 +32,9 @@ def parse_args():
                        help="Path to validation dataset parquet file")
     parser.add_argument("--wandb_path_name", type=str, required=True,
                         help="For clearify wandb run's name")
-    
+    parser.add_argument("--inference-only", action="store_true",
+                        help="If set, skip SpatialEnvLogger logging after inference")
+
     return parser.parse_args()
 
 def load_yaml_config(config_path: str) -> Dict[str, Any]:
@@ -130,12 +132,15 @@ def main():
                     service.model_interface,
                     override_cogmap=inference_config.get('cogmap_override', False),
                     cogmap_config=inference_config['cogmap_config'],
-                    vagen=True)
-            SpatialEnvLogger.log_each_env_info(
-                output_dir=inference_config.get('output_dir'),
-                model_config=model_interface.config.to_dict(),
-                save_images=True,
-            )
+                    vagen=True,
+                    reevaluate=inference_config.get('cogmap_reevaluate', False)
+                )
+            if not args.inference_only:
+                SpatialEnvLogger.log_each_env_info(
+                    output_dir=inference_config.get('output_dir'),
+                    model_config=model_interface.config.to_dict(),
+                    save_images=True,
+                )
             
             # Log results to wandb (using the combined logging function)
             if inference_config.get('use_wandb', True):

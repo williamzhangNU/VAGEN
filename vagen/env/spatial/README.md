@@ -13,7 +13,7 @@ env = SpatialGym(config)
 obs, info = env.reset(seed=42)
 
 # Explore the room
-action = "Movement: [Move(table)]; Final: Observe()"
+action = "Movement: [JumpTo(table)]; Final: Observe()"
 obs, reward, done, info = env.step(action)
 
 # End exploration  
@@ -45,7 +45,7 @@ The environment has two phases:
 Format: `Movement: [action1, action2]; Final: final_action`
 
 **Movement Actions:**
-- `Move(object_name)` - Move to an object
+- `JumpTo(object_name)` - Jump to an object
 - `Rotate(90)` - Rotate 90°, 180°, or 270°
 - `Return()` - Return to start
 
@@ -55,7 +55,7 @@ Format: `Movement: [action1, action2]; Final: final_action`
 
 **Examples:**
 ```
-Movement: [Move(table), Rotate(90)]; Final: Observe()
+Movement: [JumpTo(table), Rotate(90)]; Final: Observe()
 Movement: []; Final: Observe()
 Movement: []; Final: Term()
 ```

@@ -6,6 +6,7 @@ import os, json
 import yaml
 import re
 from omegaconf import OmegaConf
+from vagen.env.spatial.Base.tos_base.utils.utils import THINK_LABEL, ANSWER_LABEL, format_llm_output
 from vagen.env.spatial.env import SpatialGym                  
 from vagen.env.spatial.env_config import SpatialGymConfig     
 @dataclass
@@ -33,17 +34,18 @@ def load_cfg_from_yaml(path: str) -> SpatialGymConfig:
 
 def _wrap_user_action_for_env(user_text: str, enable_think: bool = True) -> str:
     """
-    Convert human input into the expected LLM-style format.
+    Convert human input into the expected LLM-style format (header-based).
     """
     action = user_text.strip()
+    think_content = "Placeholder" if enable_think else ""
     # Case 1: single letter answer (A, B, C, etc.)
     if re.fullmatch(r"[A-Za-z]", action):
-        return f"<think>Placeholder</think>\n<answer>{action}</answer>"
+        return format_llm_output(think_content, action, enable_think=enable_think)
 
     # Case 2: action sequence (contains "()")
     if "(" in action and ")" in action:
-        return f"<think>Placeholder</think>\n<answer>Actions: [{action}]</answer>"
-    return f"<think>Placeholder</think>\n<answer>{action}</answer>"
+        return format_llm_output(think_content, f"Actions: [{action}]", enable_think=enable_think)
+    return format_llm_output(think_content, action, enable_think=enable_think)
 
 def save_episode(user_id: str, episode_id: int, trajectory: list, analytics: dict, correct_answers: dict = None):
     log_dir = os.path.join("vagen/env/spatial/Player_platform/logs", user_id)

@@ -14,7 +14,7 @@ REGISTERED_MODEL = {
         "model_cls": OpenAIModelInterface,
         "config_cls": OpenAIModelConfig
     },
-    "claude": {
+    "anthropic": {
         "model_cls": ClaudeModelInterface,
         "config_cls": ClaudeModelConfig
     },

@@ -32,7 +32,7 @@ class GeminiModelInterface(BaseModelInterface):
         self.model = genai.GenerativeModel(config.model_name)
         
         # Thread pool for batch processing
-        self.executor = ThreadPoolExecutor(max_workers=10)
+        self.executor = ThreadPoolExecutor(max_workers=self.config.max_workers)
         
         logger.info(f"Initialized Gemini interface with model {config.model_name}")
     

@@ -41,7 +41,7 @@ class SpatialGymConfig(BaseEnvConfig):
 
     # Field of view and base directory
     field_of_view: int = field(default=90, init=False)
-    base_dir: str = os.path.join(os.path.dirname(__file__), "room_data/")
+    data_dir: str = os.path.join(os.path.dirname(__file__), "room_data/")
     # Exploration configuration
     exp_type: str = 'passive'
     perspective: str = 'ego'

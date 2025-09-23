@@ -14,12 +14,17 @@ debug: false
 # You may also use the env name (e.g., passive_rot). If both provided, env name wins.
 eval_task_counts:
   PassiveDir: 5
+  PassivePov: 3
+  PassiveBwdPov: 3
+  PassiveFwdFov: 3
+  PassiveBwdNav: 3
+  PassiveE2A: 1
   PassiveRot: 3
   PassiveRotDual: 3
+  PassiveFwdLoc: 3
   PassiveBwdLoc: 3
-  PassiveE2A: 1
-  PassivePov: 3
   PassiveFalseBelief: 1
+  PassiveDirAnchor: 1
   ActiveDir: 5
   ActiveRot: 3
   ActiveLoc: 3
@@ -28,6 +33,7 @@ eval_task_counts:
   ActivePov: 3
   ActiveBwdPoV: 3
   ActiveFalseBelief: 1
+  ActiveDirAnchor: 1
 
 # Output configuration
 output_dir: "results"
@@ -38,6 +44,7 @@ cogmap_config:
   pos_allow_scale: False
   scope: all
 override_cogmap: false
+cogmap_reevaluate: false
 
 # WandB configuration
 use_wandb: false

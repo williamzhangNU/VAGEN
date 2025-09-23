@@ -12,6 +12,7 @@ import requests as http_requests
 
 from vagen.inference.model_interface.base_model import BaseModelInterface
 from .model_config import ClaudeModelConfig
+from vagen.utils.parallel_retry import run_parallel_with_retries
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +38,7 @@ class ClaudeModelInterface(BaseModelInterface):
         self.api_key = api_key
         
         # Thread pool for standard API calls
-        self.executor = ThreadPoolExecutor(max_workers=10)
+        self.executor = ThreadPoolExecutor(max_workers=self.config.max_workers)
         
         logger.info(f"Initialized Claude interface with model {config.model_name}")
     
@@ -52,39 +53,22 @@ class ClaudeModelInterface(BaseModelInterface):
             return self._generate_standard(prompts, **kwargs)
     
     def _generate_standard(self, prompts: List[Any], **kwargs) -> List[Dict[str, Any]]:
-        """Generate responses using standard Claude API (realtime)."""
-        # Process prompts into Claude message format
+        """Generate responses using standard Claude API (realtime) with retries and stable ordering."""
         formatted_requests = []
-        
         for prompt in prompts:
             messages, system_prompt = self._convert_qwen_to_claude_format(prompt)
             formatted_requests.append((messages, system_prompt))
-        
-        # Make parallel API calls
-        futures = []
-        for messages, system_prompt in formatted_requests:
-            future = self.executor.submit(
-                self._single_api_call,
-                messages,
-                system_prompt,
-                **kwargs
-            )
-            futures.append(future)
-        
-        # Collect results
-        results = []
-        for future in futures:
-            try:
-                result = future.result()
-                results.append(result)
-            except Exception as e:
-                logger.error(f"API call failed: {e}")
-                results.append({
-                    "text": f"Error: {str(e)}",
-                    "error": str(e)
-                })
-        
-        return results
+
+        def worker(item: tuple) -> Dict[str, Any]:
+            messages, system_prompt = item
+            return self._single_api_call(messages, system_prompt, **kwargs)
+
+        return run_parallel_with_retries(
+            formatted_requests,
+            worker,
+            max_workers=self.config.max_workers,
+            max_attempt_rounds=self.config.max_retries,
+        )
     
     def _generate_batch(self, prompts: List[Any], **kwargs) -> List[Dict[str, Any]]:
         """Generate responses using Claude Batch API."""
@@ -145,7 +129,7 @@ class ClaudeModelInterface(BaseModelInterface):
         
         results = self._poll_batch_completion(batch_id, max_wait_time, poll_interval)
         
-        # Map results back to original order
+        # Map results back to original order; if any failed, raise
         ordered_results = []
         result_map = {r["custom_id"]: r for r in results}
         
@@ -166,15 +150,9 @@ class ClaudeModelInterface(BaseModelInterface):
                     })
                 else:
                     error_msg = result["result"].get("error", {}).get("message", "Unknown error")
-                    ordered_results.append({
-                        "text": f"Error: {error_msg}",
-                        "error": error_msg
-                    })
+                    raise RuntimeError(f"Batch item {i} failed: {error_msg}")
             else:
-                ordered_results.append({
-                    "text": "Error: Result not found",
-                    "error": "Result not found for request"
-                })
+                raise RuntimeError(f"Batch result not found for request index {i}")
         
         return ordered_results
     

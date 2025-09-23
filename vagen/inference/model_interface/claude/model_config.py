@@ -52,7 +52,7 @@ class ClaudeModelConfig(BaseModelConfig):
                 "claude-3-5-sonnet-20241022",
                 "claude-3-5-sonnet-latest",
                 "claude-3-7-sonnet-20250219",
-                "claude-4-sonnet-20250514"
+                "claude-sonnet-4-20250514"
             ],
             "default_model": "claude-3-haiku-20240307",
             "batch_api_info": {
