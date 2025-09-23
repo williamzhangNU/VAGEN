@@ -71,6 +71,9 @@ def parse_args():
     # Eval repetition controls: CLI overrides YAML eval_task_counts
     p.add_argument("--eval_counts", type=str, default=None,
                    help="Per-task eval run counts, e.g., 'PassiveRot=3,ActiveDir=2'. If omitted, use inference_config.yaml eval_task_counts or default 1")
+    # Choose which evaluation tasks to override
+    p.add_argument("--eval-override-tasks", type=str, dest="eval_override_tasks", default=None,
+                   help="Comma/space separated eval task keys to override (short names or class names), e.g., 'dir,RotEvaluationTask'")
     # Optional: override base yaml paths (env/model now default to base_*.yaml)
     p.add_argument("--base_env", type=str, dest="base_env", default=str(SCRIPT_DIR / "base_env_config.yaml"))
     p.add_argument("--base_infer", type=str, dest="base_infer", default=str(SCRIPT_DIR / "inference_config.yaml"))
@@ -148,6 +151,18 @@ def parse_eval_counts_arg(arg: str | None) -> Dict[str, int]:
     return result
 
 
+def parse_task_list_arg(arg: str | None) -> List[str]:
+    """Parse CLI list string into a list, splitting on commas/spaces."""
+    if not arg:
+        return []
+    parts: List[str] = []
+    for token in arg.replace(" ", ",").split(","):
+        t = token.strip()
+        if t:
+            parts.append(t)
+    return parts
+
+
 def resolve_eval_runs_count(task_key: str, infer_cfg: Dict[str, Any], eval_counts_cli: Dict[str, int] | None) -> int:
     """Decide how many times to run inference for a given task.
 
@@ -220,7 +235,7 @@ def patch_model_yaml(model_cfg: Dict[str, Any], model_name: str) -> Dict[str, An
     sys.exit(2)
 
 
-def patch_infer_yaml(infer_cfg: Dict[str, Any], output_dir: str, eval_override: bool, cogmap_override: bool, all_override: bool, evaluate_cogmap: bool, cogmap_reevaluate: bool = False, server_url: str | None = None) -> Dict[str, Any]:
+def patch_infer_yaml(infer_cfg: Dict[str, Any], output_dir: str, eval_override: bool, cogmap_override: bool, all_override: bool, evaluate_cogmap: bool, cogmap_reevaluate: bool = False, server_url: str | None = None, eval_override_tasks: List[str] | None = None) -> Dict[str, Any]:
     """Patch inference yaml to set output directory and override flags and optional server_url. Split remains as in base config."""
     infer_cfg = dict(infer_cfg or {})
     infer_cfg["output_dir"] = output_dir
@@ -236,6 +251,8 @@ def patch_infer_yaml(infer_cfg: Dict[str, Any], output_dir: str, eval_override: 
         infer_cfg["evaluate_cogmap"] = True
     if cogmap_reevaluate:
         infer_cfg["cogmap_reevaluate"] = True
+    if eval_override_tasks:
+        infer_cfg["eval_override_tasks"] = list(eval_override_tasks)
     return infer_cfg
 
 
@@ -305,6 +322,7 @@ def main():
     args = parse_args()
     tasks = normalize_tasks(args.tasks)
     eval_counts_cli = parse_eval_counts_arg(args.eval_counts)
+    eval_override_tasks_cli = parse_task_list_arg(args.eval_override_tasks)
 
     # Environment variables similar to run.sh
     os.environ.setdefault("VLLM_ATTENTION_BACKEND", "XFORMERS")
@@ -387,6 +405,7 @@ def main():
                     args.cogmap,
                     args.cogmap_reevaluate,
                     server_url,
+                    eval_override_tasks=(eval_override_tasks_cli if i == 0 else None),
                 )
                 dump_yaml(patched_infer_cfg, tmp_paths["infer"])
 

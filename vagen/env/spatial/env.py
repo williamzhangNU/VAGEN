@@ -128,7 +128,7 @@ class SpatialGym(gym.Env):
             self.initial_room.to_dict(), self.agent.to_dict(),
             image_dir=self.image_handler.image_dir,
             output_dir=self.config.kwargs['output_dir'],
-            eval_override=self.config.kwargs.get('eval_override', False),
+            eval_override=self._should_eval_override(),
             all_override=self.config.kwargs.get('all_override', False),
             task_type=EvalTaskType.from_short_name(self.config.eval_tasks[0]['task_type']).class_name
         )
@@ -146,6 +146,19 @@ class SpatialGym(gym.Env):
         obs = self._generate_initial_observation() if not info.get('finish', False) else {"obs_str":"Task finished"}
         self.render_cache = obs
         return obs, info
+
+    def _should_eval_override(self) -> bool:
+        """Decide if we should override evaluation logs for this specific task."""
+        override_flag = self.config.kwargs.get('eval_override', False)
+        if not override_flag:
+            return False
+        selected = set(self.config.kwargs.get('eval_override_tasks', []) or [])
+        if not selected:
+            return True
+        # Accept both short names and class names
+        current_short = self.config.eval_tasks[0]['task_type']
+        current_class = EvalTaskType.from_short_name(current_short).class_name
+        return (current_short in selected) or (current_class in selected)
 
     def _step_exploration(self, action: str):
         """
