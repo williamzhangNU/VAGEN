@@ -36,6 +36,7 @@ python scripts/SpatialGym/spatial_run.py \
 if you want to run multiple spatial_run.py, you need to switch server-port for each run.
 - **NOTE** seed-range: corresponds to run: seed 0 corresponds to run00, change it to your share
 - **NOTE** for passive or active, different evaluation tasks can NOT be run in parallel (if same model, same render, same passive/active). E.g., no two parallel spatial run of PassiveRot and PassiveE2A for gpt-5, text.
+- **NOTE** strategist for text, scout for vision.
 - Run different models, different render mode (can be in parallel)
 
 ```bash

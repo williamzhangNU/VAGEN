@@ -1,5 +1,5 @@
 models:
-  gpt-4.1-mini:
+  gpt-4_1-mini:
     provider: openai
     model_name: gpt-4.1-mini
     max_tokens: 8192
@@ -10,7 +10,7 @@ models:
     max_retries: 3
     timeout: 60
 
-  gpt-4.1:
+  gpt-4_1:
     provider: openai
     model_name: gpt-4.1
     max_tokens: 8192
@@ -54,7 +54,7 @@ models:
     max_retries: 10
     timeout: 300
 
-  gemini-2.5-pro:
+  gemini-2_5-pro:
     provider: openai
     organization: google
     model_name: gemini-2.5-pro
@@ -65,7 +65,7 @@ models:
     timeout: 180
     max_retries: 5
 
-  gemini-2.5-flash:
+  gemini-2_5-flash:
     provider: openai
     organization: google
     model_name: gemini-2.5-flash
@@ -101,7 +101,7 @@ models:
     max_tokens: 8192
     temperature: 0
     max_workers: 32
-    timeout: 180
+    timeout: 300
 
   qwen3-235b-a22b-instruct:
     provider: together
@@ -111,7 +111,7 @@ models:
     max_workers: 32
     timeout: 180
 
-  internvl3.5:
+  internvl3_5:
     provider: openai
     organization: self-hosted
     model_name: internvl3.5-241b-a28b
@@ -119,9 +119,9 @@ models:
     temperature: 0
     max_workers: 10
     base_url: https://api.revered.me/v1
-    timeout: 300
+    timeout: 500
 
-  glm-4.5v:
+  glm-4_5v:
     provider: openai
     organization: self-hosted
     model_name: GLM-4.5V
@@ -129,5 +129,5 @@ models:
     temperature: 0
     max_workers: 10
     base_url: https://api.revered.me/v1
-    timeout: 120
+    timeout: 180
 
