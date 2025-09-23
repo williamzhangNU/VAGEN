@@ -119,7 +119,7 @@ models:
     temperature: 0
     max_workers: 10
     base_url: https://api.revered.me/v1
-    timeout: 180
+    timeout: 300
 
   glm-4.5v:
     provider: openai

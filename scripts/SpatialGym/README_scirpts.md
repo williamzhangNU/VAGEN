@@ -21,7 +21,6 @@ python scripts/SpatialGym/spatial_run.py \
     --tasks PassiveDir,PassivePov,PassiveBwdPov,PassiveFwdFov,PassiveBwdNav,PassiveE2A,PassiveRot,PassiveRotDual,PassiveFwdLoc,PassiveBwdLoc \
     --model_name gpt-5 \
     --seed-range 75-99 \
-    --server-port 5000 \
     --render-mode text \
     --inference-only \
     --proxy-agent strategist 2>&1 | tee logs/gpt-5-passive-text.log
@@ -30,7 +29,6 @@ python scripts/SpatialGym/spatial_run.py \
     --tasks PassiveDir,PassivePov,PassiveBwdPov,PassiveFwdFov,PassiveBwdNav,PassiveE2A,PassiveRot,PassiveRotDual,PassiveFwdLoc,PassiveBwdLoc \
     --model_name gpt-5 \
     --seed-range 75-99 \
-    --server-port 5001 \
     --render-mode vision \
     --inference-only \
     --proxy-agent scout 2>&1 | tee logs/gpt-5-passive-vision.log
@@ -45,7 +43,6 @@ python scripts/SpatialGym/spatial_run.py \
     --tasks ActiveDir,ActivePov,ActiveBwdPov,ActiveFwdFov,ActiveBwdNav,ActiveE2A,ActiveRot,ActiveRotDual,ActiveFwdLoc,ActiveBwdLoc \
     --model_name gpt-5 \
     --seed-range 75-99 \
-    --server-port 5002 \
     --inference-only \
     --render-mode text 2>&1 | tee logs/gpt-5-active-text.log
 
@@ -53,7 +50,6 @@ python scripts/SpatialGym/spatial_run.py \
     --tasks ActiveDir,ActivePov,ActiveBwdPov,ActiveFwdFov,ActiveBwdNav,ActiveE2A,ActiveRot,ActiveRotDual,ActiveFwdLoc,ActiveBwdLoc \
     --model_name gpt-5 \
     --seed-range 75-99 \
-    --server-port 5003 \
     --inference-only \
     --render-mode vision 2>&1 | tee logs/gpt-5-active-vision.log
 ```
@@ -64,7 +60,6 @@ python scripts/SpatialGym/spatial_run.py \
     --tasks ActiveDir \
     --model_name gpt-5 \
     --seed-range 75-99 \
-    --server-port 5004 \
     --render-mode text \
     --inference-only \
     --cogmap 2>&1 | tee logs/gpt-5-active-text.log
