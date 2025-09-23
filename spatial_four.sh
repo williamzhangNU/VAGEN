@@ -10,7 +10,7 @@ launch() {
   TYPE="$1"; MODE="$2"; AGT="$3"
   [ "$TYPE" = "active" ] && TASKS="$AT" || TASKS="$PT"
   EXTRA=""; if [ "$TYPE" = "passive" ]; then if [ -n "$AGT" ]; then EXTRA="--proxy-agent $AGT"; else [ "$MODE" = "text" ] && EXTRA="--proxy-agent strategist" || EXTRA="--proxy-agent scout"; fi; fi
-  if [ -n "$AGT" ]; then SESS="${MODEL}_${TYPE}_${MODE}_${AGT}_${SEED}"; LOG="logs/${MODEL}-${TYPE}-${MODE}-${AGT}.log"; else SESS="${MODEL}_${TYPE}_${MODE}_${SEED}"; LOG="logs/${MODEL}-${TYPE}-${MODE}.log"; fi
+  if [ -n "$AGT" ]; then SESS="${MODEL}_${TYPE}_${MODE}_${AGT}_${SEED}"; LOG="logs/${MODEL}-${TYPE}-${MODE}-${AGT}-${SEED}.log"; else SESS="${MODEL}_${TYPE}_${MODE}_${SEED}"; LOG="logs/${MODEL}-${TYPE}-${MODE}-${SEED}.log"; fi
   CMD="python scripts/SpatialGym/spatial_run.py --eval-override --eval-override-tasks dir --tasks $TASKS --model_name $MODEL --seed-range $SEED --render-mode $MODE --inference-only $EXTRA 2>&1 | tee $LOG"
   echo "[run CMD]: $CMD"; echo "[tmux session]: $SESS"; echo "run tmux command to attach to session: tmux a -t $SESS"
   if tmux has-session -t "$SESS" 2>/dev/null; then return; fi
