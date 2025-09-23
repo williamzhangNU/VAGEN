@@ -95,6 +95,16 @@ models:
     temperature: 0
     max_workers: 32 
 
+  qwen2_5-vl-72b:
+    provider: openai
+    organization: self-hosted
+    model_name:  Qwen/Qwen2.5-VL-72B-Instruct
+    max_tokens: 8192
+    temperature: 0
+    max_workers: 10
+    base_url: https://api.revered.me/v1
+    timeout: 180
+
   qwen3-235b-a22b-thinking:
     provider: together
     model_name:  Qwen/Qwen3-235B-A22B-Thinking-2507
@@ -115,7 +125,7 @@ models:
     provider: openai
     organization: self-hosted
     model_name: internvl3.5-241b-a28b
-    max_tokens: 8192
+    max_tokens: 16384
     temperature: 0
     max_workers: 10
     base_url: https://api.revered.me/v1
@@ -125,7 +135,7 @@ models:
     provider: openai
     organization: self-hosted
     model_name: GLM-4.5V
-    max_tokens: 8192
+    max_tokens: 16384
     temperature: 0
     max_workers: 10
     base_url: https://api.revered.me/v1
