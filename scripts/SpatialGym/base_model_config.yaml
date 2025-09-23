@@ -30,28 +30,28 @@ models:
     presence_penalty: 0.0
     frequency_penalty: 0.0
     max_retries: 3
-    timeout: 100
+    timeout: 120
 
   gpt-5-mini:
     provider: openai
     model_name: gpt-5-mini
     max_completion_tokens: 32768
     temperature: 1.0
-    max_workers: 64
+    max_workers: 32
     presence_penalty: 0.0
     frequency_penalty: 0.0
     max_retries: 3
-    timeout: 120
+    timeout: 180
 
   gpt-5:
     provider: openai
     model_name: gpt-5
     max_completion_tokens: 32768
     temperature: 1.0
-    max_workers: 64
+    max_workers: 32
     presence_penalty: 0.0
     frequency_penalty: 0.0
-    max_retries: 10
+    max_retries: 5
     timeout: 300
 
   gemini-2_5-pro:
@@ -62,7 +62,7 @@ models:
     temperature: 0
     max_workers: 20
     base_url: https://generativelanguage.googleapis.com/v1beta/openai/
-    timeout: 300
+    timeout: 500
     max_retries: 5
 
   gemini-2_5-flash:
@@ -73,6 +73,8 @@ models:
     temperature: 0
     max_workers: 20
     base_url: https://generativelanguage.googleapis.com/v1beta/openai/
+    timeout: 180
+    max_retries: 3
 
   claude-4-sonnet:
     provider: anthropic
@@ -86,14 +88,14 @@ models:
     model_name: openai/gpt-oss-20b
     max_tokens: 8192
     temperature: 0
-    max_workers: 32
+    max_workers: 16
 
   gpt-oss-120b:
     provider: together
     model_name: openai/gpt-oss-120b
     max_tokens: 8192
     temperature: 0
-    max_workers: 32 
+    max_workers: 16
 
   qwen2_5-vl-72b:
     provider: openai
@@ -110,7 +112,7 @@ models:
     model_name:  Qwen/Qwen3-235B-A22B-Thinking-2507
     max_tokens: 8192
     temperature: 0
-    max_workers: 32
+    max_workers: 16
     timeout: 300
 
   qwen3-235b-a22b-instruct:
@@ -118,7 +120,7 @@ models:
     model_name:  Qwen/Qwen3-235B-A22B-Instruct-2507-tput
     max_tokens: 8192
     temperature: 0
-    max_workers: 32
+    max_workers: 16
     timeout: 180
 
   internvl3_5:
