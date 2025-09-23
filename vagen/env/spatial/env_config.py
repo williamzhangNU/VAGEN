@@ -45,7 +45,7 @@ class SpatialGymConfig(BaseEnvConfig):
     # Exploration configuration
     exp_type: str = 'passive'
     perspective: str = 'ego'
-    max_exp_steps: int = 100
+    max_exp_steps: int = 20
     kwargs: Dict = None
     proxy_agent: str = 'scout'
     # Evaluation configuration

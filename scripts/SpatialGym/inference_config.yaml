@@ -1,11 +1,11 @@
 # Server configuration
 server_url: "http://localhost:5001"
 server_timeout: 600
-server_max_workers: 48
+server_max_workers: 64
 
 # Inference parameters
 batch_size: 32
-max_steps: 20
+max_steps: 25
 split: "test"
 debug: false
 
