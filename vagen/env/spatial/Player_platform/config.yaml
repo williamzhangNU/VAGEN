@@ -9,6 +9,7 @@ main: 6
 exp_type: active 
 perspective: ego
 max_exp_steps: 20
+calculate_information_gain: true
 
 eval_tasks:
   - task_type: rot
@@ -29,6 +30,7 @@ prompt_config:
   topdown: false
   oblique: false
   type: shorter
+  enable_think: true
 
 
 kwargs:
