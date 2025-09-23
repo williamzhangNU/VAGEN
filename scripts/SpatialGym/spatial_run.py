@@ -18,14 +18,14 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 
 
 def is_port_available(port: int, host: str = '0.0.0.0') -> bool:
-    """Check if a port is available for binding."""
+    """Check if a port is available (not in use)."""
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            sock.bind((host, port))
-            return True
+            sock.settimeout(1)
+            result = sock.connect_ex((host, port))
+            return result != 0
     except (socket.error, OSError):
-        return False
+        return True
 
 
 def find_available_port(start_port: int = 5000, max_attempts: int = 100) -> int:

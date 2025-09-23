@@ -109,7 +109,7 @@ ENV/
 
 # vscode
 .vscode
-
+CLAUDE.md
 # Mac
 .DS_Store
 

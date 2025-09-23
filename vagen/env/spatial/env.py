@@ -137,7 +137,7 @@ class SpatialGym(gym.Env):
             self.config.eval_tasks, self.np_random, self.initial_room, self.agent, history_manager=self.history_manager, seed=seed
         ) if len(self.config.eval_tasks) > 0 else None
         info = {}
-        if self.history_manager and self.history_manager.is_history_exist():
+        if self.history_manager:
             info['history'] = self.history_manager.get_responses()
         # If evaluation tasks already fully completed per config, indicate finish
         if self.evaluation_manager and self.config.exp_type == 'passive':
@@ -259,8 +259,9 @@ class SpatialGym(gym.Env):
             info={"reward": reward, "is_done": done, **step_info}
         )
         if is_exploration_phase:
-            if not self.history_manager.is_history_exist():
+            if not self.history_manager.has_exploration(self.current_turn_number - 1):
                 self.history_manager.update_turn_log(turn_log.to_dict())
+                self.history_manager.save_exploration()
         else:
             self.history_manager.update_turn_log(turn_log.to_dict())
             self.history_manager.save()
