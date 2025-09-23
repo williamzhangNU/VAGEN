@@ -151,6 +151,7 @@ class OpenAIModelInterface(BaseModelInterface):
                 "model": self.config.model_name,
                 "messages": messages,
                 "temperature": kwargs.get("temperature", self.config.temperature),
+                "timeout": kwargs.get("timeout", self.config.timeout),
                 # "presence_penalty": kwargs.get("presence_penalty", self.config.presence_penalty),
                 # "frequency_penalty": kwargs.get("frequency_penalty", self.config.frequency_penalty),
                 # "seed": kwargs.get("seed", self.config.seed),

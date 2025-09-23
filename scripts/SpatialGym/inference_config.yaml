@@ -14,11 +14,15 @@ debug: false
 # You may also use the env name (e.g., passive_rot). If both provided, env name wins.
 eval_task_counts:
   PassiveDir: 5
+  PassivePov: 3
+  PassiveBwdPov: 3
+  PassiveFwdFov: 3
+  PassiveBwdNav: 3
+  PassiveE2A: 1
   PassiveRot: 3
   PassiveRotDual: 3
+  PassiveFwdLoc: 3
   PassiveBwdLoc: 3
-  PassiveE2A: 1
-  PassivePov: 3
   PassiveFalseBelief: 1
   PassiveDirAnchor: 1
   ActiveDir: 5

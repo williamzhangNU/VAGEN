@@ -11,6 +11,7 @@ import yaml as pyyaml
 import urllib.request
 import threading
 from datetime import datetime
+from tqdm import tqdm
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 
@@ -48,6 +49,7 @@ def parse_args():
     p.add_argument("--server-port", type=int, dest="server_port", default=5000, help="Server port to bind/connect")
     # Proxy agent selection (for passive tasks)
     p.add_argument("--proxy-agent", type=str, dest="proxy_agent", default=None, choices=["scout","strategist","oracle"], help="Proxy agent for passive tasks")
+    p.add_argument("--inference-only", action="store_true", dest="inference_only", help="If set, skip SpatialEnvLogger logging after inference")
     return p.parse_args()
 
 
@@ -308,7 +310,7 @@ def main():
             server_proc = start_env_server(args.server_host, args.server_port)
             server_url = f"http://{args.server_host}:{args.server_port}"
 
-        for task in tasks:
+        for task in tqdm(tasks, desc="Running tasks"):
             tmp_paths = build_tmp_paths(run_id, f"{task}")
             created_tmp_dirs.append(tmp_paths["base"])
 
@@ -355,13 +357,16 @@ def main():
                 # Run inference
                 val_path = data_test
                 wandb_path_name = "spatial_gym"
-                rc = run_cmd([
+                cmd = [
                     sys.executable, "-m", "vagen.inference.run_inference",
                     f"--inference_config_path={tmp_paths['infer']}",
                     f"--model_config_path={tmp_paths['model']}",
                     f"--val_files_path={val_path}",
                     f"--wandb_path_name={wandb_path_name}",
-                ])
+                ]
+                if args.inference_only:
+                    cmd.append("--inference-only")
+                rc = run_cmd(cmd)
                 if rc != 0:
                     sys.exit(rc)
 

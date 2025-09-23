@@ -4,7 +4,7 @@ models:
     model_name: gpt-4.1-mini
     max_tokens: 8192
     temperature: 0.0
-    max_workers: 10
+    max_workers: 64
     presence_penalty: 0.0
     frequency_penalty: 0.0
     max_retries: 3
@@ -15,7 +15,7 @@ models:
     model_name: gpt-4.1
     max_tokens: 8192
     temperature: 0.0
-    max_workers: 10
+    max_workers: 64
     presence_penalty: 0.0
     frequency_penalty: 0.0
     max_retries: 3
@@ -26,33 +26,33 @@ models:
     model_name: o4-mini
     max_completion_tokens: 8192
     temperature: 1.0
-    max_workers: 10
+    max_workers: 64
     presence_penalty: 0.0
     frequency_penalty: 0.0
     max_retries: 3
-    timeout: 60
+    timeout: 100
 
   gpt-5-mini:
     provider: openai
     model_name: gpt-5-mini
     max_completion_tokens: 32768
     temperature: 1.0
-    max_workers: 10
+    max_workers: 64
     presence_penalty: 0.0
     frequency_penalty: 0.0
     max_retries: 3
-    timeout: 60
+    timeout: 100
 
   gpt-5:
     provider: openai
     model_name: gpt-5
     max_completion_tokens: 32768
     temperature: 1.0
-    max_workers: 10
+    max_workers: 64
     presence_penalty: 0.0
     frequency_penalty: 0.0
     max_retries: 3
-    timeout: 60
+    timeout: 100
 
   gemini-2.5-pro:
     provider: openai
@@ -60,7 +60,7 @@ models:
     model_name: gemini-2.5-pro
     max_tokens: 32768
     temperature: 0
-    max_workers: 5
+    max_workers: 10
     base_url: https://generativelanguage.googleapis.com/v1beta/openai/
 
   gemini-2.5-flash:
@@ -84,14 +84,30 @@ models:
     model_name: openai/gpt-oss-20b
     max_tokens: 8192
     temperature: 0
-    max_workers: 5
+    max_workers: 10
 
   gpt-oss-120b:
     provider: together
     model_name: openai/gpt-oss-120b
     max_tokens: 8192
     temperature: 0
-    max_workers: 5
+    max_workers: 10 
+
+  qwen3-235b-a22b-thinking:
+    provider: together
+    model_name:  Qwen/Qwen3-235B-A22B-Thinking-2507
+    max_tokens: 8192
+    temperature: 0
+    max_workers: 10
+    timeout: 180
+
+  qwen3-235b-a22b-instruct:
+    provider: together
+    model_name:  Qwen/Qwen3-235B-A22B-Instruct-2507-tput
+    max_tokens: 8192
+    temperature: 0
+    max_workers: 10
+    timeout: 180
 
   internvl3.5:
     provider: openai
@@ -101,6 +117,7 @@ models:
     temperature: 0
     max_workers: 10
     base_url: https://api.revered.me/v1
+    timeout: 180
 
   glm-4.5v:
     provider: openai
