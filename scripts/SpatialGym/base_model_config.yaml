@@ -65,6 +65,17 @@ models:
     timeout: 500
     max_retries: 5
 
+  gemini-2_5-pro-2:
+    provider: openai
+    organization: google-2
+    model_name: gemini-2.5-pro
+    max_tokens: 32768
+    temperature: 0
+    max_workers: 20
+    base_url: https://generativelanguage.googleapis.com/v1beta/openai/
+    timeout: 500
+    max_retries: 5
+
   gemini-2_5-flash:
     provider: openai
     organization: google
@@ -96,6 +107,7 @@ models:
     max_tokens: 8192
     temperature: 0
     max_workers: 8
+    timeout: 120
 
   qwen2_5-vl-72b:
     provider: openai
@@ -143,3 +155,11 @@ models:
     base_url: https://api.revered.me/v1
     timeout: 180
 
+  azure-gpt-5:
+    provider: azure_openai
+    model_name: o3
+    max_completion_tokens: 32768
+    temperature: 1.0
+    max_workers: 32
+    max_retries: 5
+    timeout: 300
