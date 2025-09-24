@@ -85,6 +85,8 @@ def parse_args():
     # Proxy agent selection (for passive tasks)
     p.add_argument("--proxy-agent", type=str, dest="proxy_agent", default=None, choices=["scout","strategist","oracle"], help="Proxy agent for passive tasks")
     p.add_argument("--inference-only", action="store_true", dest="inference_only", help="If set, skip SpatialEnvLogger logging after inference")
+    p.add_argument("--aggregate-only", action="store_true", dest="aggregate_only", help="If set, skip individual task logging and only log aggregate results")
+
     return p.parse_args()
 
 
@@ -421,6 +423,8 @@ def main():
                 ]
                 if args.inference_only:
                     cmd.append("--inference-only")
+                if args.aggregate_only:
+                    cmd.append("--aggregate-only")
                 rc = run_cmd(cmd)
                 if rc != 0:
                     sys.exit(rc)

@@ -34,6 +34,8 @@ def parse_args():
                         help="For clearify wandb run's name")
     parser.add_argument("--inference-only", action="store_true",
                         help="If set, skip SpatialEnvLogger logging after inference")
+    parser.add_argument("--aggregate-only", action="store_true",
+                        help="If set, skip individual task logging and only log aggregate results")
 
     return parser.parse_args()
 
@@ -106,23 +108,24 @@ def main():
         try:
             # Create model interface
             model_interface = ModelFactory.create(model_cfg)
-            
-            # Create inference service with all config parameters
-            service = InferenceRolloutService(
-                config=inference_config,
-                model_interface=model_interface,
-                base_url=inference_config.get('server_url', 'http://localhost:5000'),
-                timeout=inference_config.get('server_timeout', 600),
-                max_workers=inference_config.get('server_max_workers', 48),
-                split=inference_config.get('split', 'test'),
-                debug=inference_config.get('debug', False)
-            )
-            
-            # Reset environments and run inference
-            service.reset(env_configs)
-            service.run(max_steps=inference_config.get('max_steps', 10))
-            results = service.recording_to_log()
-
+            if not args.aggregate_only:
+                # Create inference service with all config parameters
+                service = InferenceRolloutService(
+                    config=inference_config,
+                    model_interface=model_interface,
+                    base_url=inference_config.get('server_url', 'http://localhost:5000'),
+                    timeout=inference_config.get('server_timeout', 600),
+                    max_workers=inference_config.get('server_max_workers', 48),
+                    split=inference_config.get('split', 'test'),
+                    debug=inference_config.get('debug', False)
+                )
+                
+                # Reset environments and run inference
+                service.reset(env_configs)
+                service.run(max_steps=inference_config.get('max_steps', 10))
+                results = service.recording_to_log()
+            else:
+                results = []
             # save results to json and visualize (for spatial env)
             # save_results_to_disk([result['env_summary'] for result in results], [result['messages'] for result in results], inference_config.get('output_dir', 'results/inference_outputs'), model_name=model_name)
             if inference_config.get('evaluate_cogmap'):
