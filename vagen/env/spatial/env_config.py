@@ -55,7 +55,6 @@ class SpatialGymConfig(BaseEnvConfig):
     prompt_config: Dict[str, Any] = field(default_factory=lambda: {"topdown": False, "oblique": False, "type": "shorter"})
 
     calculate_information_gain: bool = False
-    is_human_eval: bool = False
     
     def config_id(self) -> str:
         eval_task_str = ", ".join([f"{task['task_type']}" for task in self.eval_tasks])
@@ -92,8 +91,7 @@ class SpatialGymConfig(BaseEnvConfig):
     def _validate_eval_tasks(self):
         """Validate eval_tasks parameter."""
         valid_eval_tasks = EvalTaskType.get_short_names()
-        if not self.is_human_eval:
-            assert len(self.eval_tasks) == 1, "Only one evaluation task is supported"
+        assert len(self.eval_tasks) == 1, "Only one evaluation task is supported"
 
         if isinstance(self.eval_tasks, ListConfig):
             self.eval_tasks = OmegaConf.to_container(self.eval_tasks, resolve=True)

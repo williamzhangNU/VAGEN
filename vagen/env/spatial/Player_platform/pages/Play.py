@@ -13,7 +13,7 @@ if "env" not in st.session_state or st.session_state.get("loaded_config_path") !
     st.session_state.loaded_config_path = config_path
 
     # Reset env and get initial observation
-    obs, info = st.session_state.env.env.reset(seed=0)  # you can also pull a seed from cfg
+    obs, info = st.session_state.env.env.reset(seed=75)  # you can also pull a seed from cfg
     if isinstance(obs, str):
         init_obs = {"obs_str": obs}
     else:

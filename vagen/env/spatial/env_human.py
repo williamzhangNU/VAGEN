@@ -4,7 +4,6 @@ from typing import List, Dict, Any
 
 from vagen.env.spatial.env_config import SpatialGymConfig
 from vagen.env.spatial.Base.tos_base import (
-    EvaluationManager,
     ActionSequence,
     ExplorationManager,
     HistoryManager,
@@ -12,6 +11,7 @@ from vagen.env.spatial.Base.tos_base import (
     BaseAction,
     EvalTaskType,
 )
+from vagen.env.spatial.Base.tos_base.managers.evaluation_manager_human import EvaluationManagerHuman
 from vagen.env.spatial.Base.tos_base.managers.agent_proxy import get_agent_proxy
 from vagen.env.spatial.Base.tos_base.prompts import Prompter
 from vagen.env.spatial.Base.tos_base.utils.action_utils import action_results_to_text
@@ -133,7 +133,7 @@ class SpatialGym(gym.Env):
             task_type=EvalTaskType.from_short_name(self.config.eval_tasks[0]['task_type']).class_name
         )
         # Initialize EvaluationManager with knowledge of existing eval counts
-        self.evaluation_manager = EvaluationManager(
+        self.evaluation_manager = EvaluationManagerHuman(
             self.config.eval_tasks, self.np_random, self.initial_room, self.agent, self.is_human_eval, history_manager=self.history_manager, seed=seed
         ) if len(self.config.eval_tasks) > 0 else None
         info = {}
@@ -343,4 +343,3 @@ if __name__ == "__main__":
 
     # TODO: add test cases
     pass
-
