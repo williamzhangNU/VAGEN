@@ -245,31 +245,33 @@ class InferenceRolloutService(BaseRollout):
 
             # Separate environments with history from those without
             responses = {}
-            env_messages = {}
+            pending_env_messages = {}
 
             for env_id in active_envs:
                 if env_id in self.env_histories and self.env_histories[env_id]:
                     # Pop the first action from history
                     responses[env_id] = self.env_histories[env_id].pop(0)
                 else:
-                    env_messages[env_id] = self.recordings[env_id]
+                    # Store environments without history for later batch processing
+                    pending_env_messages[env_id] = self.recordings[env_id]
 
-            # Generate responses for environments without history
-            if env_messages:
+            # Only step environments with history responses first
+            if responses:
+                step_results = self.env_client.step_batch(responses)
+                # Update active_envs but keep pending environments in the active set
+                stepped_active_envs = self._apply_step_results(step_results, responses)
+                # Merge with pending environments to maintain active status
+                active_envs = stepped_active_envs | set(pending_env_messages.keys())
+                gen_time = 0.0
+            else:
                 start_time = time.time()
-                generated_responses = self._generate_batch_responses(env_messages)
+                generated_responses = self._generate_batch_responses(pending_env_messages)
                 gen_time = time.time() - start_time
 
-                # Merge generated responses with history responses
-                responses.update(generated_responses)
-            else:
-                gen_time = 0.0  # No generation time if all responses from history
+                # Step all environments together
+                step_results = self.env_client.step_batch(generated_responses)
+                active_envs = self._apply_step_results(step_results, generated_responses)
 
-            # Step environments using service
-            step_results = self.env_client.step_batch(responses)
-            
-            # Update active environments for next iteration
-            active_envs = self._apply_step_results(step_results, responses)
         
             if self.debug or (step % 5 == 0 and self.show_progress):
                 # Print progress stats every 5 steps
