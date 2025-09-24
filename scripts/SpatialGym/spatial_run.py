@@ -428,6 +428,8 @@ def main():
                 rc = run_cmd(cmd)
                 if rc != 0:
                     sys.exit(rc)
+                if args.aggregate_only:
+                    break
 
     except Exception as e:
         raise e
