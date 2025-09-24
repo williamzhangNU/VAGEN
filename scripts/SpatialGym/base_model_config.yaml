@@ -79,7 +79,7 @@ models:
   claude-4-sonnet:
     provider: anthropic
     model_name: claude-sonnet-4-20250514
-    max_tokens: 8192
+    max_tokens: 16384
     temperature: 0
     max_workers: 64
 
@@ -95,7 +95,7 @@ models:
     model_name: openai/gpt-oss-120b
     max_tokens: 8192
     temperature: 0
-    max_workers: 16
+    max_workers: 8
 
   qwen2_5-vl-72b:
     provider: openai
@@ -129,7 +129,7 @@ models:
     model_name: internvl3.5-241b-a28b
     max_tokens: 16384
     temperature: 0
-    max_workers: 10
+    max_workers: 64
     base_url: https://api.revered.me/v1
     timeout: 500
 
@@ -139,7 +139,7 @@ models:
     model_name: GLM-4.5V
     max_tokens: 16384
     temperature: 0
-    max_workers: 10
+    max_workers: 32
     base_url: https://api.revered.me/v1
     timeout: 180
 
