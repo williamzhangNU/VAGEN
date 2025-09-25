@@ -129,6 +129,6 @@ temp/
 benchmark_results/
 env_benchmark_results/
 results/
-results-bak/
+results*/
 room_data/
 logs/

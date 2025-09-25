@@ -3,7 +3,8 @@ if [ $# -ne 3 ]; then echo "Usage: $0 seed_range model_name parallel(y|n)"; exit
 SEED="$1"; MODEL="$2"; PAR="$(echo "$3" | tr A-Z a-z)"
 cd "$(dirname "$0")" || exit 1
 mkdir -p logs
-AT="ActiveDir,ActivePov,ActiveBwdPov,ActiveFwdFov,ActiveBwdNav,ActiveE2A,ActiveRot,ActiveRotDual,ActiveFwdLoc,ActiveBwdLoc"
+# AT="ActiveDir,ActivePov,ActiveBwdPov,ActiveFwdFov,ActiveBwdNav,ActiveE2A,ActiveRot,ActiveRotDual,ActiveFwdLoc,ActiveBwdLoc"
+AT="ActiveFwdFov,ActiveBwdNav,ActiveE2A"
 PT="PassiveDir,PassivePov,PassiveBwdPov,PassiveFwdFov,PassiveBwdNav,PassiveE2A,PassiveRot,PassiveRotDual,PassiveFwdLoc,PassiveBwdLoc"
 
 launch() {
@@ -21,24 +22,24 @@ launch() {
 wait_session() { while tmux has-session -t "$1" 2>/dev/null; do sleep 5; done; }
 
 if [ "$PAR" = "y" ] || [ "$PAR" = "yes" ] || [ "$PAR" = "1" ]; then
-  launch active text
-  sleep 10
+  # launch active text
+  # sleep 10
   if [ "$MODEL" != "internvl3_5" ] && [ "$MODEL" != "gpt-oss-120b" ] && [ "$MODEL" != "gpt-oss-20b" ]; then
     launch active vision
     sleep 10
   fi
-  launch passive text
-  sleep 10
-  if [ "$MODEL" = "gpt-5" ]; then
-    launch passive text oracle
-    sleep 10
-    launch passive text scout
-    sleep 10
-  fi
-  if [ "$MODEL" != "gpt-oss-120b" ] && [ "$MODEL" != "gpt-oss-20b" ]; then
-    launch passive vision
-  fi
-  echo "launched runs in tmux (logs under VAGEN/logs)"
+  # launch passive text
+  # sleep 10
+  # if [ "$MODEL" = "gpt-5" ]; then
+  #   launch passive text oracle
+  #   sleep 10
+  #   launch passive text scout
+  #   sleep 10
+  # fi
+  # if [ "$MODEL" != "gpt-oss-120b" ] && [ "$MODEL" != "gpt-oss-20b" ]; then
+  #   launch passive vision
+  # fi
+  # echo "launched runs in tmux (logs under VAGEN/logs)"
 else
   launch active text; wait_session "${MODEL}_active_text_${SEED}"
   if [ "$MODEL" != "internvl3_5" ] && [ "$MODEL" != "gpt-oss-120b" ] && [ "$MODEL" != "gpt-oss-20b" ]; then

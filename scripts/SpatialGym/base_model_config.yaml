@@ -48,7 +48,7 @@ models:
     model_name: gpt-5
     max_completion_tokens: 32768
     temperature: 1.0
-    max_workers: 32
+    max_workers: 128
     presence_penalty: 0.0
     frequency_penalty: 0.0
     max_retries: 5
@@ -60,7 +60,7 @@ models:
     model_name: gemini-2.5-pro
     max_tokens: 32768
     temperature: 0
-    max_workers: 20
+    max_workers: 64
     base_url: https://generativelanguage.googleapis.com/v1beta/openai/
     timeout: 500
     max_retries: 5
@@ -71,7 +71,7 @@ models:
     model_name: gemini-2.5-pro
     max_tokens: 32768
     temperature: 0
-    max_workers: 20
+    max_workers: 64
     base_url: https://generativelanguage.googleapis.com/v1beta/openai/
     timeout: 500
     max_retries: 5
@@ -92,7 +92,7 @@ models:
     model_name: claude-sonnet-4-20250514
     max_tokens: 16384
     temperature: 0
-    max_workers: 64
+    max_workers: 128
 
   gpt-oss-20b:
     provider: together
@@ -149,7 +149,7 @@ models:
     provider: openai
     organization: self-hosted
     model_name: GLM-4.5V
-    max_tokens: 16384
+    max_tokens: 32768
     temperature: 0
     max_workers: 32
     base_url: https://api.revered.me/v1
