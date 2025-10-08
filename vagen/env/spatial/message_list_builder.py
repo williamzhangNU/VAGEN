@@ -8,7 +8,6 @@ import argparse
 # Reuse existing components
 from vagen.env.spatial.Base.tos_base import Room, Agent
 from vagen.env.spatial.Base.tos_base.evaluation.task_types import EvalTaskType
-from vagen.env.spatial.Base.tos_base.evaluation.tasks import BaseEvaluationTask
 from vagen.env.spatial.Base.tos_base.prompts.cogmap_prompts import get_cogmap_prompt
 from vagen.env.spatial.Base.tos_base.utils.utils import hash
 
@@ -59,16 +58,7 @@ def _clone_until_inclusive(messages: List[Dict], end_idx: int) -> List[Dict]:
     return [m.copy() for m in messages[: end_idx + 1]]
 
 
-def _format_eval_question(task: BaseEvaluationTask) -> Tuple[str, str]:
-    q = task.generate_question()
-    choices = getattr(task, "choices", []) or getattr(task.eval_data, "choices", []) or []
-    if choices:
-        lines = [f"{chr(65+i)}. {c}" for i, c in enumerate(choices)]
-        q_text = q + "\n" + "\n".join(lines)
-    else:
-        q_text = q
-    qid = hash(q)
-    return q_text, qid
+"""Builder utilities for evaluation and cogmap message lists."""
 
 
 def _add_message(out_msgs: List[List[Dict]], out_meta: List[Dict], msgs: List[Dict], meta: Dict[str, Any]) -> None:
@@ -95,20 +85,33 @@ def build_evaluation_from_combo(
     out_msgs: List[List[Dict]] = []
     meta: List[Dict] = []
 
+    # Select passive/active composition behavior
+    is_passive = hm.exp_type == "passive"
+
     for task_short, count in (eval_task_counts or {}).items():
         for i in range(int(count)):
             room = Room.from_dict(sample_cfg["room_dict"]).copy()
             agent = Agent.from_dict(sample_cfg["agent_dict"]).copy()
             task = EvalTaskType.create_task(task_short, np.random.default_rng(None if run_seed is None else int(run_seed)), room, agent, {}, None)
-            q_text, qid = _format_eval_question(task)
-            msg = {"role": "user", "content": q_text}
-            new_list = [m.copy() for m in base_msgs] + [msg]
+            q_text = task.generate_question()
+
+            if is_passive:
+                # Passive must be exactly [system, user]
+                assert len(base_msgs) == 2 and base_msgs[0].get("role") == "system" and base_msgs[1].get("role") == "user", "Passive combos must contain exactly [system, user] messages"
+                seq = [base_msgs[0].copy(), base_msgs[1].copy()]
+                seq[1]["content"] = seq[1]["content"] + "\n" + q_text
+                new_list = seq
+            else:
+                new_list = [m.copy() for m in base_msgs] + [{"role": "user", "content": q_text}]
+
             meta_obj = {
                 "type": "evaluation",
                 "sample_id": sample_id,
                 "task_type": task_short,
-                "question_id": qid,
+                "task_class": task.__class__.__name__,
+                "question_id": task.eval_data.id,
                 "combo_dir": os.path.abspath(combo_dir),
+                "evaluation_data": task.eval_data.to_dict(),
             }
             meta_obj["message_id"] = generate_message_id(meta_obj)
             _add_message(out_msgs, meta, new_list, meta_obj)
@@ -120,8 +123,9 @@ def build_cogmap_from_combo(combo_dir: str) -> Tuple[List[List[Dict]], List[Dict
     """Create cogmap message lists strictly following cog_utils logic (local/global only)."""
     messages, turn_logs, sample_cfg = _load_exploration_artifacts(combo_dir)
     sample_id = os.path.basename(sample_cfg.get("image_dir", "sample"))
-    enable_think = ("think" in os.path.abspath(combo_dir).split(os.sep))
-    exp_type = _detect_exp_type(combo_dir)
+    hm = load_history_manager(combo_dir)
+    enable_think = hm.get_enable_think()
+    exp_type = getattr(hm, "exp_type", _detect_exp_type(combo_dir))
 
     out_msgs: List[List[Dict]] = []
     meta: List[Dict] = []
@@ -173,11 +177,17 @@ def build_cogmap_from_combo(combo_dir: str) -> Tuple[List[List[Dict]], List[Dict
     return out_msgs, meta
 
 
-def save_messages_jsonl(messages_list: List[List[Dict]], out_path: str) -> None:
+def save_messages_jsonl(messages_list: List[List[Dict]], out_path: str, meta_list: List[Dict] | None = None) -> None:
     os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
     with open(out_path, "w") as f:
-        for msgs in messages_list:
-            f.write(json.dumps({"messages": msgs}, ensure_ascii=False) + "\n")
+        for i, msgs in enumerate(messages_list):
+            mid = None
+            if meta_list and i < len(meta_list):
+                mid = (meta_list[i] or {}).get("message_id")
+            obj = {"messages": msgs}
+            if mid is not None:
+                obj["message_id"] = mid
+            f.write(json.dumps(obj, ensure_ascii=False) + "\n")
 
 
 def save_meta_jsonl(meta_list: List[Dict], out_path: str) -> None:
@@ -215,7 +225,7 @@ def build_all_under_root(
     built_root = resolve_built_root(root_dir, out)
     os.makedirs(built_root, exist_ok=True)
     msg_path, meta_path = paths_for_mode(built_root, mode)
-    save_messages_jsonl(all_msgs, msg_path)
+    save_messages_jsonl(all_msgs, msg_path, all_meta)
     save_meta_jsonl(all_meta, meta_path)
     return all_msgs, all_meta
 

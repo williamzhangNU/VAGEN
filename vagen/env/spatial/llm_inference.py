@@ -10,6 +10,7 @@ from openai import OpenAI
 from vagen.env.spatial.Base.tos_base.managers.history_manager import HistoryManager
 from vagen.env.spatial.Base.tos_base.managers.cognitive_map_manager import CognitiveMapManager
 from vagen.env.spatial.Base.tos_base.utils.cog_utils import _evaluate_cogmaps
+from vagen.env.spatial.Base.tos_base.evaluation.tasks import evaluate_from_dict
 from vagen.inference.model_interface.openai.model import OpenAIModelInterface
 from vagen.inference.model_interface.openai.model_config import OpenAIModelConfig
 
@@ -216,11 +217,18 @@ def map_llm_responses(
             qid = meta["question_id"]
             if history.has_question(qid):
                 continue
+            eval_data = (meta.get("evaluation_data") or {})
+            # Evaluate using same logic as in env runtime
+            is_correct, info = evaluate_from_dict(eval_data, text)
+            task_class = meta.get("task_class") or meta.get("task_type")
             turn_log = {
                 "is_exploration_phase": False,
                 "evaluation_log": {
-                    "task_type": meta.get("task_type"),
-                    "evaluation_data": {"id": qid},
+                    "task_type": task_class,
+                    "user_answer": text,
+                    "is_correct": bool(is_correct),
+                    "evaluation_info": info or {},
+                    "evaluation_data": eval_data,
                 },
                 "assistant_raw_message": text,
                 "room_state": sample_cfg["room_dict"],
@@ -279,11 +287,10 @@ def main_infer() -> None:
 
     # Use message_id from builder meta directly
     metas_with_ids: List[Dict[str, Any]] = []
-    for m in all_meta:
-        mm = dict(m)
-        if "message_id" not in mm:
-            continue
-        metas_with_ids.append(mm)
+    for meta in all_meta:
+        meta = dict(meta)
+        assert "message_id" in meta, "Message ID is required in meta"
+        metas_with_ids.append(meta)
 
     # Skip already processed unless override
     if not args.override:

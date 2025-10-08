@@ -125,11 +125,14 @@ class SpatialGym(gym.Env):
         info = {}
         if self.history_manager:
             info['history'] = self.history_manager.get_responses()
+        # For passive experiments, signal finish so rollout service skips stepping
+        if self.config.exp_type == 'passive':
+            info['finish'] = True
 
         obs = self._generate_initial_observation()
         self.render_cache = obs
 
-        # initialize message list (system + initial env feedback)
+        # initialize message list (system + initial env feedback only; no evaluation question)
         self.history_manager.init_messages(self.prompter.system_prompt())
         self.history_manager.append_env_feedback(obs.get('obs_str', ''), self.observed_image_paths or [])
         self.history_manager.save_messages()
