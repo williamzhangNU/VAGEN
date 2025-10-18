@@ -154,6 +154,7 @@ def save_outputs_jsonl(outputs: List[Dict[str, Any]], out_path: str) -> None:
 
 # ========================= Input Loading (prebuilt) =========================
 def load_prebuilt_inputs(built_root: str) -> Tuple[List[List[Dict[str, Any]]], List[Dict[str, Any]]]:
+    """Load prebuilt inputs from built root directory."""
     pairs = list_built_pairs(built_root)
     messages_list: List[List[Dict[str, Any]]] = []
     metas: List[Dict[str, Any]] = []
@@ -165,6 +166,7 @@ def load_prebuilt_inputs(built_root: str) -> Tuple[List[List[Dict[str, Any]]], L
 
 
 def load_prebuilt_inputs_under_root(root_dir: str, out_dir: str | None) -> Tuple[List[List[Dict[str, Any]]], List[Dict[str, Any]]]:
+    """Load prebuilt inputs from root directory."""
     built_root = resolve_built_root(root_dir, out_dir)
     return load_prebuilt_inputs(built_root)
 
@@ -264,6 +266,86 @@ def map_llm_responses(
             })
 
     history.save()
+
+
+# ========================= Combo-level inference =========================
+
+def run_inference_for_combo_dirs(
+    combo_dirs: List[str],
+    model_name: str,
+    mode: str = "eval",
+    eval_task_counts: Dict[str, int] | None = None,
+    seed: int | None = 0,
+    inference_mode: str = "direct",
+    eval_override: bool = False,
+    cogmap_override: bool = False,
+    cogmap_reevaluate: bool = False,
+) -> None:
+    """Run inference for a specific list of combo directories.
+    
+    Args:
+        combo_dirs: List of combo directory paths
+        model_name: Model name for inference
+        mode: 'eval' or 'cogmap'
+        eval_task_counts: Evaluation task counts (for eval mode)
+        seed: Seed for task generation (for eval mode)
+        inference_mode: 'batch' or 'direct'
+        eval_override: If True, ignore existing evaluation history and regenerate all
+        cogmap_override: If True, regenerate all cogmaps; if False, skip existing cogmaps
+        cogmap_reevaluate: If True, re-evaluate existing cognitive maps (passed to CognitiveMapManager)
+    """
+    from vagen.env.spatial.message_list_builder import build_all_for_combo_dirs
+    
+    # Build messages for the specified combos (override logic handled in builder)
+    all_msgs, all_meta = build_all_for_combo_dirs(
+        combo_dirs=combo_dirs,
+        mode=mode,
+        eval_task_counts=eval_task_counts,
+        seed=seed,
+        eval_override=eval_override,
+        cogmap_override=cogmap_override,
+    )
+    
+    if not all_msgs or not all_meta:
+        print(f"No messages generated for {mode} mode")
+        return
+    
+    # Run inference
+    if inference_mode == "batch":
+        client = OpenAI()
+        # Use a temporary directory for batch files
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmpdir:
+            batch_jsonl = os.path.join(tmpdir, "batch_input.jsonl")
+            batch_id = submit_openai_batch(client, all_msgs, all_meta, model_name, batch_jsonl)
+            print(f"Submitted batch: {batch_id}")
+            outputs = collect_openai_batch(client, batch_id)
+    else:
+        outputs = generate_with_model_interface(model_name, all_msgs, all_meta)
+    
+    # Map responses back to histories
+    meta_by_id = index_meta_by_id(all_meta)
+    combo_to_outputs: Dict[str, List[Dict[str, Any]]] = {}
+    combo_to_metas: Dict[str, List[Dict[str, Any]]] = {}
+    
+    for out in outputs:
+        mid = str(out.get("message_id"))
+        m = meta_by_id.get(mid)
+        if not m:
+            continue
+        cdir = m.get("combo_dir")
+        combo_to_outputs.setdefault(cdir, []).append(out)
+        combo_to_metas.setdefault(cdir, []).append(m)
+    
+    # Update history for each combo
+    # Pass cogmap_reevaluate to CognitiveMapManager if in cogmap mode
+    cogmap_config = {"cogmap_reevaluate": cogmap_reevaluate} if cogmap_reevaluate and mode == "cogmap" else None
+    for cdir, outs in combo_to_outputs.items():
+        metas = combo_to_metas.get(cdir, [])
+        if metas:
+            map_llm_responses(cdir, metas, outs, cogmap_config=cogmap_config)
+    
+    print(f"Completed {mode} inference for {len(combo_to_outputs)} combos, processed {len(outputs)} responses.")
 
 
 # ========================= __main__ demos =========================

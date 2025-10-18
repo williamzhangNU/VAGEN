@@ -108,42 +108,41 @@ def main():
         try:
             # Create model interface
             model_interface = ModelFactory.create(model_cfg)
-            if not args.aggregate_only:
-                # Create inference service with all config parameters
-                service = InferenceRolloutService(
-                    config=inference_config,
-                    model_interface=model_interface,
-                    base_url=inference_config.get('server_url', 'http://localhost:5000'),
-                    timeout=inference_config.get('server_timeout', 600),
-                    max_workers=inference_config.get('server_max_workers', 48),
-                    split=inference_config.get('split', 'test'),
-                    debug=inference_config.get('debug', False)
-                )
-                
-                # Reset environments and run inference
-                service.reset(env_configs)
-                service.run(max_steps=inference_config.get('max_steps', 10))
-                results = service.recording_to_log()
-            else:
-                results = []
+            # if not args.aggregate_only:
+            # Create inference service with all config parameters
+            service = InferenceRolloutService(
+                config=inference_config,
+                model_interface=model_interface,
+                base_url=inference_config.get('server_url', 'http://localhost:5000'),
+                timeout=inference_config.get('server_timeout', 600),
+                max_workers=inference_config.get('server_max_workers', 48),
+                split=inference_config.get('split', 'test'),
+                debug=inference_config.get('debug', False)
+            )
+            
+            # Reset environments and run inference
+            service.reset(env_configs)
+            service.run(max_steps=inference_config.get('max_steps', 10))
+            results = service.recording_to_log()
+
             # save results to json and visualize (for spatial env)
             # save_results_to_disk([result['env_summary'] for result in results], [result['messages'] for result in results], inference_config.get('output_dir', 'results/inference_outputs'), model_name=model_name)
-            if inference_config.get('evaluate_cogmap'):
-                evaluate_cognitive_maps_from_turnlogs(
-                    [result['env_summary'] for result in results], 
-                    [result['messages'] for result in results], 
-                    service.model_interface,
-                    override_cogmap=inference_config.get('cogmap_override', False),
-                    cogmap_config=inference_config['cogmap_config'],
-                    vagen=True,
-                    reevaluate=inference_config.get('cogmap_reevaluate', False)
-                )
-            if not args.inference_only:
-                SpatialEnvLogger.log_each_env_info(
-                    output_dir=inference_config.get('output_dir'),
-                    model_config=model_interface.config.to_dict(),
-                    save_images=True,
-                )
+            # if inference_config.get('evaluate_cogmap'):
+            #     evaluate_cognitive_maps_from_turnlogs(
+            #         [result['env_summary'] for result in results], 
+            #         [result['messages'] for result in results], 
+            #         service.model_interface,
+            #         override_cogmap=inference_config.get('cogmap_override', False),
+            #         cogmap_config=inference_config['cogmap_config'],
+            #         vagen=True,
+            #         reevaluate=inference_config.get('cogmap_reevaluate', False)
+            #     )
+            # if not args.inference_only:
+            #     SpatialEnvLogger.log_each_env_info(
+            #         output_dir=inference_config.get('output_dir'),
+            #         model_config=model_interface.config.to_dict(),
+            #         save_images=True,
+            #     )
             
             # Log results to wandb (using the combined logging function)
             if inference_config.get('use_wandb', True):

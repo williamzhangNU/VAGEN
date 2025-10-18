@@ -70,31 +70,50 @@ def build_evaluation_from_combo(
     combo_dir: str,
     eval_task_counts: Dict[str, int],
     seed: int | None = None,
+    eval_override: bool = False,
 ) -> Tuple[List[List[Dict]], List[Dict]]:
     """Create evaluation message lists from exploration history for one sample combo dir.
 
     Returns (messages_list, meta_list) with meta including sample_id, task_type, question_id, message_id.
+    
+    Args:
+        combo_dir: Directory containing exploration history
+        eval_task_counts: Dict mapping task types to count
+        seed: Seed for task generation
+        eval_override: If True, ignore existing evaluation history and regenerate all questions
     """
     messages, _turn_logs, sample_cfg = _load_exploration_artifacts(combo_dir)
     sample_id = os.path.basename(sample_cfg.get("image_dir", "sample"))
+    
     base_msgs = [m.copy() for m in messages]
 
-    # Prefer the saved run seed for reproducibility
-    hm = load_history_manager(combo_dir)
-    run_seed = hm.run_seed if hm and hm.run_seed is not None else seed
+    # Load history manager with eval_override flag
+    hm = load_history_manager(combo_dir, eval_override=eval_override)
+    run_seed = hm.run_seed 
     out_msgs: List[List[Dict]] = []
     meta: List[Dict] = []
 
     # Select passive/active composition behavior
     is_passive = hm.exp_type == "passive"
 
-    for task_short, count in (eval_task_counts or {}).items():
-        for i in range(int(count)):
-            room = Room.from_dict(sample_cfg["room_dict"]).copy()
-            agent = Agent.from_dict(sample_cfg["agent_dict"]).copy()
-            task = EvalTaskType.create_task(task_short, np.random.default_rng(None if run_seed is None else int(run_seed)), room, agent, {}, None)
-            q_text = task.generate_question()
+    # Get existing eval counts (will be empty if eval_override=True)
+    existing_counts = hm.get_eval_counts()
+    room = Room.from_dict(sample_cfg["room_dict"]).copy()
+    agent = Agent.from_dict(sample_cfg["agent_dict"]).copy()
 
+    for task_short, count in (eval_task_counts or {}).items():
+        # Get task class name for comparison
+        task = EvalTaskType.create_task(task_short, np.random.default_rng(None if run_seed is None else int(run_seed)), room, agent, {}, None)
+        task_class_name = task.__class__.__name__
+
+        # Calculate how many questions still needed
+        existing_for_task = existing_counts.get(task_class_name, 0)
+
+        for i in range(count):
+            q_text = task.generate_question()
+            if i < existing_for_task:
+                print(f"  Skipping existing question {i + 1}/{count}: {task_short}")
+                continue
             if is_passive:
                 # Passive must be exactly [system, user]
                 assert len(base_msgs) == 2 and base_msgs[0].get("role") == "system" and base_msgs[1].get("role") == "user", "Passive combos must contain exactly [system, user] messages"
@@ -119,10 +138,19 @@ def build_evaluation_from_combo(
     return out_msgs, meta
 
 
-def build_cogmap_from_combo(combo_dir: str) -> Tuple[List[List[Dict]], List[Dict]]:
-    """Create cogmap message lists strictly following cog_utils logic (local/global only)."""
+def build_cogmap_from_combo(
+    combo_dir: str,
+    cogmap_override: bool = False,
+) -> Tuple[List[List[Dict]], List[Dict]]:
+    """Create cogmap message lists strictly following cog_utils logic (local/global only).
+    
+    Args:
+        combo_dir: Directory containing exploration history
+        cogmap_override: If True, regenerate all cogmaps; if False, skip turns with existing cogmaps
+    """
     messages, turn_logs, sample_cfg = _load_exploration_artifacts(combo_dir)
     sample_id = os.path.basename(sample_cfg.get("image_dir", "sample"))
+    
     hm = load_history_manager(combo_dir)
     enable_think = hm.get_enable_think()
     exp_type = getattr(hm, "exp_type", _detect_exp_type(combo_dir))
@@ -138,6 +166,14 @@ def build_cogmap_from_combo(combo_dir: str) -> Tuple[List[List[Dict]], List[Dict
             t_idx = i - 1
             if t_idx >= len(user_idxs):
                 break
+            
+            # Check if cogmap already exists for this turn (unless override)
+            if not cogmap_override:
+                existing_cogmap = hm.get_cogmap(t_idx)
+                if existing_cogmap:
+                    print(f"Skipping turn {t_idx} in {combo_dir}: cogmap already exists")
+                    continue
+            
             types = ["local", "global"] if (turn_logs[t_idx].get("exploration_log", {}) or {}).get("visible_objects") else ["global"]
             end_idx = user_idxs[t_idx]
             seq = _clone_until_inclusive(messages, end_idx)
@@ -159,6 +195,13 @@ def build_cogmap_from_combo(combo_dir: str) -> Tuple[List[List[Dict]], List[Dict
 
     else:  # passive
         if user_idxs:
+            # Check if cogmap already exists (unless override)
+            if not cogmap_override:
+                existing_cogmap = hm.get_cogmap(0)
+                if existing_cogmap:
+                    print(f"Skipping passive cogmap in {combo_dir}: cogmap already exists")
+                    return out_msgs, meta
+            
             end_idx = user_idxs[0]
             seq = _clone_until_inclusive(messages, end_idx)
             base_user = re.sub(r"You have a maximum of\s*\d+\s*exploration steps left.*", "", seq[-1]["content"], flags=re.DOTALL)
@@ -204,6 +247,46 @@ def save_meta_jsonl(meta_list: List[Dict], out_path: str) -> None:
 
 # ========================= Root-level Builders =========================
 
+def build_all_for_combo_dirs(
+    combo_dirs: List[str],
+    mode: str = "eval",
+    eval_task_counts: Dict[str, int] | None = None,
+    seed: int | None = 0,
+    eval_override: bool = False,
+    cogmap_override: bool = False,
+) -> Tuple[List[List[Dict]], List[Dict]]:
+    """Build messages/meta for a specific list of combo directories.
+    
+    Args:
+        combo_dirs: List of combo directory paths to process
+        mode: 'eval' or 'cogmap'
+        eval_task_counts: Dict mapping task types to count (for eval mode)
+        seed: Seed for task generation (for eval mode)
+        eval_override: If True, ignore existing evaluation history and regenerate all
+        cogmap_override: If True, regenerate all cogmaps; if False, skip existing cogmaps
+    
+    Returns:
+        Tuple of (messages_list, meta_list)
+    """
+    all_msgs: List[List[Dict]] = []
+    all_meta: List[Dict] = []
+    
+    for combo in combo_dirs:
+        if mode == "eval":
+            assert eval_task_counts is not None, "eval_task_counts must be provided for eval mode"
+            msgs, meta = build_evaluation_from_combo(
+                combo, eval_task_counts, 
+                seed=seed,
+                eval_override=eval_override
+            )
+        else:
+            msgs, meta = build_cogmap_from_combo(combo, cogmap_override=cogmap_override)
+        all_msgs.extend(msgs)
+        all_meta.extend(meta)
+    
+    return all_msgs, all_meta
+
+
 def build_all_under_root(
     root_dir: str,
     mode: str = "eval",
@@ -211,7 +294,15 @@ def build_all_under_root(
     out: str | None = None,
     seed: int | None = 0,
 ) -> Tuple[List[List[Dict]], List[Dict]]:
-    """Aggregate and write messages/meta for all combo dirs into a single built folder under root_dir."""
+    """Aggregate and write messages/meta for all combo dirs into a single built folder under root_dir.
+    
+    Args:
+        root_dir: Root directory to scan for combo dirs
+        mode: 'eval' or 'cogmap'
+        eval_task_counts: Dict mapping task types to count (for eval mode)
+        out: Output directory path
+        seed: Seed for task generation (for eval mode)
+    """
     all_msgs: List[List[Dict]] = []
     all_meta: List[Dict] = []
     for combo in iter_combo_dirs(root_dir):
