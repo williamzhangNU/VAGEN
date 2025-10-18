@@ -86,7 +86,7 @@ def parse_args():
                    help="Seed range 'start-end' (0-based), e.g., 0-24")
     p.add_argument("--enable-think", type=int, dest="enable_think", choices=[0,1], default=1, 
                    help="1 to enable think, 0 to disable (default: 1)")
-    p.add_argument("--proxy-agent", type=str, dest="proxy_agent", default=None, 
+    p.add_argument("--proxy-agent", type=str, dest="proxy_agent", default="scout", 
                    choices=["scout","strategist","oracle"], 
                    help="Proxy agent for passive tasks (required if exp-type is passive)")
     p.add_argument("--all-override", action="store_true", dest="all_override", 
@@ -97,6 +97,8 @@ def parse_args():
                    help='JSON string for eval task counts, e.g., {"qa": 2, "dir": 1}. If omitted, use inference_config.yaml eval_task_counts or default {"qa": 1}')
     p.add_argument("--inference-seed", type=int, dest="inference_seed", default=0,
                    help="Seed for evaluation task generation. Default: 0")
+    p.add_argument("--cogmap", action="store_true", dest="cogmap",
+                   help="Run cognitive map phase")
     p.add_argument("--eval-override", action="store_true", dest="eval_override", 
                    help="Override evaluation history (delete evaluation json only)")
     p.add_argument("--cogmap-override", action="store_true", dest="cogmap_override", 
@@ -374,7 +376,7 @@ def compute_combo_paths(
     return combo_paths
 
 
-def run_exploration_phase(args, run_id: str, server_url: str | None):
+def run_exploration_phase(args, seed_opts, run_id: str, server_url: str | None):
     """Run exploration phase: create dataset and run inference once.
     
     Note: All seeds are processed in a single run via seed_opts.
@@ -390,20 +392,6 @@ def run_exploration_phase(args, run_id: str, server_url: str | None):
     base_env = Path(args.base_env)
     base_infer = Path(args.base_infer)
     base_model = Path(args.base_model)
-    
-    seed_opts = None
-    if args.seed_range:
-        try:
-            s, e = [int(x) for x in args.seed_range.split('-', 1)]
-            seed_opts = (s, e)
-        except Exception:
-            print(f"[ERROR] Bad --seed_range '{args.seed_range}'. Use 'start-end'.", file=sys.stderr)
-            sys.exit(2)
-    
-    # Validate passive mode requires proxy_agent
-    if args.exp_type == "passive" and not args.proxy_agent:
-        print(f"[ERROR] --proxy-agent is required when --exp-type is passive", file=sys.stderr)
-        sys.exit(2)
     
     # Use exp_type for env config setup
     tmp_paths = build_tmp_paths(run_id, "exploration")
@@ -611,15 +599,16 @@ def main():
         
         # Run requested phase(s)
         if args.phase == 'exploration':
-            run_exploration_phase(args, run_id, server_url)
+            run_exploration_phase(args, seed_opts, run_id, server_url)
         elif args.phase == 'evaluation':
             run_evaluation_phase(args, seed_opts)
         elif args.phase == 'cogmap':
             run_cogmap_phase(args, seed_opts)
         elif args.phase == 'all':
-            run_exploration_phase(args, run_id, server_url)
+            run_exploration_phase(args, seed_opts, run_id, server_url)
             run_evaluation_phase(args, seed_opts)
-            run_cogmap_phase(args, seed_opts)
+            if args.exp_type == 'active' and args.cogmap:
+                run_cogmap_phase(args, seed_opts)
     
     except Exception as e:
         raise e

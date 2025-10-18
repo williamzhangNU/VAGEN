@@ -93,9 +93,6 @@ def build_evaluation_from_combo(
     out_msgs: List[List[Dict]] = []
     meta: List[Dict] = []
 
-    # Select passive/active composition behavior
-    is_passive = hm.exp_type == "passive"
-
     # Get existing eval counts (will be empty if eval_override=True)
     existing_counts = hm.get_eval_counts()
     room = Room.from_dict(sample_cfg["room_dict"]).copy()
@@ -114,15 +111,9 @@ def build_evaluation_from_combo(
             if i < existing_for_task:
                 print(f"  Skipping existing question {i + 1}/{count}: {task_short}")
                 continue
-            if is_passive:
-                # Passive must be exactly [system, user]
-                assert len(base_msgs) == 2 and base_msgs[0].get("role") == "system" and base_msgs[1].get("role") == "user", "Passive combos must contain exactly [system, user] messages"
-                seq = [base_msgs[0].copy(), base_msgs[1].copy()]
-                seq[1]["content"] = seq[1]["content"] + "\n" + q_text
-                new_list = seq
-            else:
-                new_list = [m.copy() for m in base_msgs] + [{"role": "user", "content": q_text}]
-
+            assert base_msgs[-1]["role"] == "user"
+            new_list = [m.copy() for m in base_msgs]
+            new_list[-1]['content'] = new_list[-1]['content'] + "\n" + q_text
             meta_obj = {
                 "type": "evaluation",
                 "sample_id": sample_id,
