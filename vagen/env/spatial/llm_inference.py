@@ -13,7 +13,8 @@ from vagen.env.spatial.Base.tos_base.utils.cog_utils import _evaluate_cogmaps
 from vagen.env.spatial.Base.tos_base.evaluation.tasks import evaluate_from_dict
 from vagen.inference.model_interface.openai.model import OpenAIModelInterface
 from vagen.inference.model_interface.openai.model_config import OpenAIModelConfig
-
+import dotenv
+dotenv.load_dotenv()
 
 from vagen.env.spatial.common import (
     resolve_built_root,
@@ -119,7 +120,7 @@ def generate_with_model_interface(
     messages_list: List[List[Dict[str, Any]]],
     metas: List[Dict[str, Any]],
     temperature: float = 0.0,
-    max_tokens: int = 512,
+    max_tokens: int = 16384,
 ) -> List[Dict[str, Any]]:
     cfg = OpenAIModelConfig(
         model_name=model_name,
