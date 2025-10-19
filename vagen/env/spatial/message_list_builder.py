@@ -92,7 +92,7 @@ def build_evaluation_from_combo(
     meta: List[Dict] = []
 
     # Get existing eval counts (will be empty if eval_override=True)
-    existing_counts = hm.get_eval_counts()
+    existing_ids = hm.get_eval_ids()
     room = Room.from_dict(sample_cfg["room_dict"]).copy()
     agent = Agent.from_dict(sample_cfg["agent_dict"]).copy()
 
@@ -102,11 +102,11 @@ def build_evaluation_from_combo(
         task_class_name = task.__class__.__name__
 
         # Calculate how many questions still needed
-        existing_for_task = existing_counts.get(task_class_name, 0)
-
+        existing_id_for_task = existing_ids.get(task_class_name, [])
+        
         for i in range(count):
             q_text = task.generate_question()
-            if i < existing_for_task:
+            if task.eval_data.id in existing_id_for_task:
                 print(f"  Skipping existing question {i + 1}/{count}: {task_short}")
                 continue
             assert base_msgs[-1]["role"] == "user"
