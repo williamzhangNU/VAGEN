@@ -275,7 +275,6 @@ def run_inference_for_combo_dirs(
     model_name: str,
     mode: str = "eval",
     eval_task_counts: Dict[str, int] | None = None,
-    seed: int | None = 0,
     inference_mode: str = "direct",
     eval_override: bool = False,
     cogmap_override: bool = False,
@@ -301,7 +300,6 @@ def run_inference_for_combo_dirs(
         combo_dirs=combo_dirs,
         mode=mode,
         eval_task_counts=eval_task_counts,
-        seed=seed,
         eval_override=eval_override,
         cogmap_override=cogmap_override,
     )

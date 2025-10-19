@@ -22,6 +22,10 @@ import urllib.request
 import threading
 from datetime import datetime
 from tqdm import tqdm
+from vagen.env.spatial.Base.tos_base.utils.utils import hash as compute_hash
+from vagen.env.spatial.Base.tos_base.utils.image_handler import ImageHandler
+from vagen.env.spatial.Base.tos_base.utils.room_utils import initialize_room_from_json
+from vagen.env.spatial.llm_inference import run_inference_for_combo_dirs
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 
@@ -94,9 +98,7 @@ def parse_args():
     
     # Evaluation/Cogmap phase parameters
     p.add_argument("--eval-task-counts", type=str, dest="eval_task_counts", default=None,
-                   help='JSON string for eval task counts, e.g., {"qa": 2, "dir": 1}. If omitted, use inference_config.yaml eval_task_counts or default {"qa": 1}')
-    p.add_argument("--inference-seed", type=int, dest="inference_seed", default=0,
-                   help="Seed for evaluation task generation. Default: 0")
+                   help='JSON string for eval task counts, e.g., {"dir": 1}. If omitted, use inference_config.yaml eval_task_counts')
     p.add_argument("--cogmap", action="store_true", dest="cogmap",
                    help="Run cognitive map phase")
     p.add_argument("--eval-override", action="store_true", dest="eval_override", 
@@ -155,13 +157,13 @@ def build_tmp_paths(run_id: str, task_key: str) -> Dict[str, Path]:
     }
 
 
-def patch_env_yaml(env_cfg: Dict[str, Any], exp_type: str, num: int, render_mode="vision", 
+def patch_env_yaml(exp_type: str, render_mode="vision", 
                    seed_opts: tuple[int, int] | None = None, enable_think: int | None = None, 
                    data_dir: str | None = None, proxy_agent: str | None = None) -> Dict[str, Any]:
-    """Return env config by selecting based on exp_type from custom_envs.
+    """Build env config directly without relying on custom_envs.
     
     Args:
-        env_cfg: Base environment config
+        env_cfg: Base environment config (not used, kept for compatibility)
         exp_type: 'active' or 'passive'
         num: Number of samples
         render_mode: Render mode
@@ -171,35 +173,42 @@ def patch_env_yaml(env_cfg: Dict[str, Any], exp_type: str, num: int, render_mode
         proxy_agent: Proxy agent for passive mode
         
     Returns:
-        Dict with selected task config
+        Dict with task config
     """
-    custom_envs = env_cfg.get("custom_envs", {}) or {}
     
-    # Select a default task based on exp_type
-    # For active: use ActiveRot, for passive: use PassiveRot
-    task_key = "ActiveRot" if exp_type == "active" else "PassiveRot"
+    # Use a generic task key
+    task_key = "SpatialTask"
     
-    if task_key not in custom_envs:
-        raise ValueError(f"Task {task_key} not found in custom_envs")
+    # Build environment config directly
+    env_config = {
+        'exp_type': exp_type,
+        'max_exp_steps': 1 if exp_type == 'passive' else 20,
+        'render_mode': render_mode,
+        'prompt_config': {}
+    }
     
-    selected = dict(custom_envs[task_key])
-    selected["test_size"] = int(num)
-    selected["env_config"]['render_mode'] = render_mode
-    selected["env_config"]['exp_type'] = exp_type
-    
+    # Add optional configurations
     if data_dir:
-        selected["env_config"]["data_dir"] = data_dir
-    if seed_opts:
-        selected["env_config"].setdefault("kwargs", {})
-        selected["env_config"]["kwargs"]["seed_start"] = int(seed_opts[0])
-        selected["env_config"]["kwargs"]["seed_end"] = int(seed_opts[1])
-        selected["test_size"] = int(seed_opts[1] - seed_opts[0] + 1)
+        env_config["data_dir"] = data_dir
+    
+    env_config.setdefault("kwargs", {})
+    env_config["kwargs"]["seed_start"] = int(seed_opts[0])
+    env_config["kwargs"]["seed_end"] = int(seed_opts[1])
+    
     if enable_think is not None:
-        selected["env_config"].setdefault("prompt_config", {})
-        selected["env_config"]["prompt_config"]["enable_think"] = bool(enable_think)
+        env_config["prompt_config"]["enable_think"] = bool(enable_think)
+    
     if proxy_agent and exp_type == "passive":
-        selected["env_config"]["proxy_agent"] = proxy_agent
-        
+        env_config["proxy_agent"] = proxy_agent
+    
+    # Build the complete task config
+    selected = {
+        "env_name": "spatial",
+        "env_config": env_config,
+        "train_size": 1,
+        "test_size": int(seed_opts[1] - seed_opts[0] + 1)
+    }
+    
     return {task_key: selected}
 
 
@@ -324,9 +333,7 @@ def compute_combo_paths(
     Returns:
         List of combo directory paths
     """
-    from vagen.env.spatial.Base.tos_base.utils.utils import hash as compute_hash
-    from vagen.env.spatial.Base.tos_base.utils.image_handler import ImageHandler
-    from vagen.env.spatial.Base.tos_base.utils.room_utils import initialize_room_from_json
+
     
     # Determine seed list
     if seed_range:
@@ -339,9 +346,9 @@ def compute_combo_paths(
     for seed in seeds:
         # Load room/agent data to compute hash
         try:
-            image_handler = ImageHandler(data_dir, seed, image_size=(512, 512), preload_images=False)
-            room, agent = initialize_room_from_json(image_handler.json_data)
-            
+            _ , json_data = ImageHandler.load_data(data_dir, seed)
+            room, agent = initialize_room_from_json(json_data)
+
             # Compute room hash (same as HistoryManager._generate_room_key)
             room_str = json.dumps(
                 {**room.to_dict(), **agent.to_dict()},
@@ -401,7 +408,7 @@ def run_exploration_phase(args, seed_opts, run_id: str, server_url: str | None):
     model_cfg = load_yaml(base_model)
     
     # Create env config with seed range (all seeds processed together)
-    env_cfg = patch_env_yaml(env_cfg, args.exp_type, args.num, args.render_mode, 
+    env_cfg = patch_env_yaml(args.exp_type, args.render_mode, 
                              seed_opts, args.enable_think, data_dir=args.data_dir,
                              proxy_agent=args.proxy_agent)
     
@@ -449,110 +456,72 @@ def run_exploration_phase(args, seed_opts, run_id: str, server_url: str | None):
     print(f"\nExploration completed. Results in: {args.output_root}")
 
 
-def run_evaluation_phase(args, seed_opts: tuple[int, int] | None = None):
-    """Run evaluation phase: build eval messages and run inference."""
+def run_inference_phase(args, mode: str, seed_opts: tuple[int, int] | None = None):
+    """Run inference phase: build messages and run inference for evaluation or cogmap.
+    
+    Args:
+        args: Command line arguments
+        mode: 'eval' or 'cogmap'
+        seed_opts: Seed range tuple
+    """
+    phase_name = "EVALUATION" if mode == "eval" else "COGNITIVE MAP"
     print("\n" + "="*60)
-    print("PHASE: EVALUATION")
+    print(f"PHASE: {phase_name}")
     print("="*60 + "\n")
+
+    # Get model name and compute combo paths
+    model_name = load_yaml(Path(args.base_model))['models'][args.model_name]['model_name']
+    print("Computing combo directory paths...")
+    combo_paths = compute_combo_paths(
+        output_root=args.output_root,
+        model_name=model_name,
+        exp_type=args.exp_type,
+        seed_range=seed_opts,
+        render_mode=args.render_mode,
+        enable_think=bool(args.enable_think),
+        data_dir=args.data_dir,
+        proxy_agent=args.proxy_agent,
+    )
     
-    # Parse eval_task_counts from CLI argument or use inference_config.yaml default
-    eval_task_counts = None
-    if args.eval_task_counts:
-        try:
+    if not combo_paths:
+        print("[ERROR] No valid combo paths computed", file=sys.stderr)
+        sys.exit(2)
+    
+    print(f"Found {len(combo_paths)} combo directories to process")
+    
+    # Build kwargs for run_inference_for_combo_dirs based on mode
+    inference_kwargs = {
+        "combo_dirs": combo_paths,
+        "model_name": model_name,
+        "mode": mode,
+        "inference_mode": args.inference_mode,
+    }
+    
+    if mode == "eval":
+        if args.eval_task_counts:
             eval_task_counts = json.loads(args.eval_task_counts)
-        except json.JSONDecodeError as e:
-            print(f"[ERROR] Invalid JSON for --eval-task-counts: {e}", file=sys.stderr)
-            sys.exit(2)
-    
-    # If not provided via CLI, load from inference_config.yaml
-    if eval_task_counts is None:
-        base_infer = Path(args.base_infer)
-        if base_infer.exists():
+        else:
+            base_infer = Path(args.base_infer)
             infer_cfg = load_yaml(base_infer)
             eval_task_counts = infer_cfg.get("eval_task_counts")
             if eval_task_counts:
                 print(f"Using eval_task_counts from inference_config.yaml: {eval_task_counts}")
             else:
-                # Default fallback
                 raise FileNotFoundError("eval_task_counts not found in inference_config.yaml")
-        else:
-            raise FileNotFoundError(f"Base inference config not found: {base_infer}")
-
-    model_name = load_yaml(Path(args.base_model))['models'][args.model_name]['model_name']
-    # Compute combo paths from parameters
-    print("Computing combo directory paths...")
-    combo_paths = compute_combo_paths(
-        output_root=args.output_root,
-        model_name=model_name,
-        exp_type=args.exp_type,
-        seed_range=seed_opts,
-        render_mode=args.render_mode,
-        enable_think=bool(args.enable_think),
-        data_dir=args.data_dir,
-        proxy_agent=args.proxy_agent,
-    )
+        inference_kwargs.update({
+            "eval_task_counts": eval_task_counts,
+            "eval_override": args.eval_override,
+        })
+    else:  # cogmap
+        inference_kwargs.update({
+            "cogmap_override": args.cogmap_override,
+            "cogmap_reevaluate": args.cogmap_reevaluate,
+        })
     
-    if not combo_paths:
-        print("[ERROR] No valid combo paths computed", file=sys.stderr)
-        sys.exit(2)
+    # Run inference
+    run_inference_for_combo_dirs(**inference_kwargs)
     
-    print(f"Found {len(combo_paths)} combo directories to evaluate")
-    
-    # Run inference using the function interface with override flags
-    from vagen.env.spatial.llm_inference import run_inference_for_combo_dirs
-    
-    run_inference_for_combo_dirs(
-        combo_dirs=combo_paths,
-        model_name=model_name,
-        mode="eval",
-        eval_task_counts=eval_task_counts,
-        seed=args.inference_seed,
-        inference_mode=args.inference_mode,
-        eval_override=args.eval_override,  # Use override flag
-    )
-    
-    print("\nEvaluation completed.")
-
-
-def run_cogmap_phase(args, seed_opts: tuple[int, int] | None = None):
-    """Run cogmap phase: build cogmap messages and run inference."""
-    print("\n" + "="*60)
-    print("PHASE: COGNITIVE MAP")
-    print("="*60 + "\n")
-    
-    # Compute combo paths from parameters
-    print("Computing combo directory paths...")
-    model_name = load_yaml(Path(args.base_model))['models'][args.model_name]['model_name']
-    combo_paths = compute_combo_paths(
-        output_root=args.output_root,
-        model_name=model_name,
-        exp_type=args.exp_type,
-        seed_range=seed_opts,
-        render_mode=args.render_mode,
-        enable_think=bool(args.enable_think),
-        data_dir=args.data_dir,
-        proxy_agent=args.proxy_agent,
-    )
-    
-    if not combo_paths:
-        print("[ERROR] No valid combo paths computed", file=sys.stderr)
-        sys.exit(2)
-    
-    print(f"Found {len(combo_paths)} combo directories for cogmap")
-    
-    # Run inference using the function interface with override flags
-    from vagen.env.spatial.llm_inference import run_inference_for_combo_dirs
-    
-    run_inference_for_combo_dirs(
-        combo_dirs=combo_paths,
-        model_name=model_name,                                             
-        mode="cogmap",
-        inference_mode=args.inference_mode,
-        cogmap_override=args.cogmap_override,  # Regenerate cogmap prompts
-        cogmap_reevaluate=args.cogmap_reevaluate,  # Re-evaluate existing cogmaps
-    )
-    
-    print("\nCognitive map evaluation completed.")
+    print(f"\n{phase_name.capitalize()} completed.")
 
 
 def main():
@@ -601,14 +570,14 @@ def main():
         if args.phase == 'exploration':
             run_exploration_phase(args, seed_opts, run_id, server_url)
         elif args.phase == 'evaluation':
-            run_evaluation_phase(args, seed_opts)
+            run_inference_phase(args, mode="eval", seed_opts=seed_opts)
         elif args.phase == 'cogmap':
-            run_cogmap_phase(args, seed_opts)
+            run_inference_phase(args, mode="cogmap", seed_opts=seed_opts)
         elif args.phase == 'all':
             run_exploration_phase(args, seed_opts, run_id, server_url)
-            run_evaluation_phase(args, seed_opts)
+            run_inference_phase(args, mode="eval", seed_opts=seed_opts)
             if args.exp_type == 'active' and args.cogmap:
-                run_cogmap_phase(args, seed_opts)
+                run_inference_phase(args, mode="cogmap", seed_opts=seed_opts)
     
     except Exception as e:
         raise e

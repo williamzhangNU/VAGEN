@@ -69,7 +69,6 @@ def _add_message(out_msgs: List[List[Dict]], out_meta: List[Dict], msgs: List[Di
 def build_evaluation_from_combo(
     combo_dir: str,
     eval_task_counts: Dict[str, int],
-    seed: int | None = None,
     eval_override: bool = False,
 ) -> Tuple[List[List[Dict]], List[Dict]]:
     """Create evaluation message lists from exploration history for one sample combo dir.
@@ -89,7 +88,6 @@ def build_evaluation_from_combo(
 
     # Load history manager with eval_override flag
     hm = load_history_manager(combo_dir, eval_override=eval_override)
-    run_seed = hm.run_seed 
     out_msgs: List[List[Dict]] = []
     meta: List[Dict] = []
 
@@ -100,7 +98,7 @@ def build_evaluation_from_combo(
 
     for task_short, count in (eval_task_counts or {}).items():
         # Get task class name for comparison
-        task = EvalTaskType.create_task(task_short, np.random.default_rng(None if run_seed is None else int(run_seed)), room, agent, {}, None)
+        task = EvalTaskType.create_task(task_short, np.random.default_rng(hm.seed), room, agent, {}, None)
         task_class_name = task.__class__.__name__
 
         # Calculate how many questions still needed
@@ -242,7 +240,6 @@ def build_all_for_combo_dirs(
     combo_dirs: List[str],
     mode: str = "eval",
     eval_task_counts: Dict[str, int] | None = None,
-    seed: int | None = 0,
     eval_override: bool = False,
     cogmap_override: bool = False,
 ) -> Tuple[List[List[Dict]], List[Dict]]:
@@ -267,7 +264,6 @@ def build_all_for_combo_dirs(
             assert eval_task_counts is not None, "eval_task_counts must be provided for eval mode"
             msgs, meta = build_evaluation_from_combo(
                 combo, eval_task_counts, 
-                seed=seed,
                 eval_override=eval_override
             )
         else:
@@ -298,7 +294,7 @@ def build_all_under_root(
     all_meta: List[Dict] = []
     for combo in iter_combo_dirs(root_dir):
         if mode == "eval":
-            msgs, meta = build_evaluation_from_combo(combo, eval_task_counts or {"qa": 1}, seed=seed)
+            msgs, meta = build_evaluation_from_combo(combo, eval_task_counts or {"qa": 1})
         else:
             msgs, meta = build_cogmap_from_combo(combo)
         all_msgs.extend(msgs)

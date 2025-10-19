@@ -48,7 +48,7 @@ class SpatialGym(gym.Env):
         """Generate initial observation based on exploration type."""
         exp_history = {}
         images = []
-        if self.config.exp_type == 'passive' and not self.config.prompt_config['topdown']:
+        if self.config.exp_type == 'passive':
             proxy = get_agent_proxy(
                 self.config.proxy_agent,
                 self.initial_room,
@@ -75,7 +75,6 @@ class SpatialGym(gym.Env):
         return self.prompter.get_initial_observation_prompt(
             room=self.initial_room,
             agent=self.agent,
-            eval_manager=None,
             exp_history=exp_history,
         )
 
@@ -115,12 +114,12 @@ class SpatialGym(gym.Env):
             self.initial_room.to_dict(), self.agent.to_dict(),
             image_dir=self.image_handler.image_dir,
             output_dir=self.config.kwargs['output_dir'],
+            seed=seed,
             eval_override=False,
             all_override=self.config.kwargs.get('all_override', False),
             task_type=None,
         )
         # Persist the run seed so builders can reproduce evaluation tasks
-        self.history_manager.set_run_seed(seed)
         self.history_manager.save_state()
         info = {}
         if self.history_manager:

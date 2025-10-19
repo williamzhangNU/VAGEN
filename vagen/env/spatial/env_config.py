@@ -52,15 +52,15 @@ class SpatialGymConfig(BaseEnvConfig):
     # Each eval task entry supports {task_type, task_kwargs}
     eval_tasks: List[Dict[str, Any]] = field(default_factory=lambda: [{"task_type": "rot", "task_kwargs": {}}])
 
-    prompt_config: Dict[str, Any] = field(default_factory=lambda: {"topdown": False, "oblique": False, "type": "shorter"})
+    prompt_config: Dict[str, Any] = field(default_factory=lambda: {})
 
-    calculate_information_gain: bool = False
+    calculate_information_gain: bool = True
     
     def config_id(self) -> str:
         eval_task_str = ", ".join([f"{task['task_type']}" for task in self.eval_tasks])
         return f"SpatialGymConfig(mode={self.render_mode},format={self.prompt_format},eval_tasks={eval_task_str})"
 
-    def generate_seeds(self, size, seed=0, n_candidate = 20000):
+    def generate_seeds(self, size):
         ks = self.kwargs or {}
         start = int(ks.get('seed_start', 0))
         end = ks.get('seed_end')
@@ -172,7 +172,7 @@ class SpatialGymConfig(BaseEnvConfig):
 
 
 if __name__ == "__main__":
-    config = SpatialGymConfig(eval_tasks=[{"task_type": "rot", "task_kwargs": {"turn_direction": "clockwise"}}])
+    config = SpatialGymConfig(eval_tasks=[{"task_type": "rot"}])
     print(config)
     print(config.to_dict())
     print(config.config_id())
