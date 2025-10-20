@@ -218,7 +218,9 @@ def map_llm_responses(
         text = out.get("text", "")
         if (meta.get("type") or "").lower() == "evaluation":
             qid = meta["question_id"]
-            assert not history.has_question(qid)
+            if history.has_question(qid):
+                print("question repeated:", qid)
+                continue  # Skip existing
             eval_data = (meta.get("evaluation_data") or {})
             # Evaluate using same logic as in env runtime
             is_correct, info = evaluate_from_dict(eval_data, text)
