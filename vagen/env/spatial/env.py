@@ -117,7 +117,6 @@ class SpatialGym(gym.Env):
             seed=seed,
             eval_override=False,
             all_override=self.config.kwargs.get('all_override', False),
-            task_type=None,
         )
         # Persist the run seed so builders can reproduce evaluation tasks
         self.history_manager.save_state()

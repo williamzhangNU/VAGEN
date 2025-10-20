@@ -87,7 +87,7 @@ def build_evaluation_from_combo(
     base_msgs = [m.copy() for m in messages]
 
     # Load history manager with eval_override flag
-    hm = load_history_manager(combo_dir, eval_override=eval_override)
+    hm = load_history_manager(combo_dir, eval_override=eval_override, all_tasks=list(eval_task_counts.keys()))
     out_msgs: List[List[Dict]] = []
     meta: List[Dict] = []
 

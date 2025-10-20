@@ -26,7 +26,7 @@ from vagen.env.spatial.Base.tos_base.utils.utils import hash as compute_hash
 from vagen.env.spatial.Base.tos_base.utils.image_handler import ImageHandler
 from vagen.env.spatial.Base.tos_base.utils.room_utils import initialize_room_from_json
 from vagen.env.spatial.llm_inference import run_inference_for_combo_dirs
-
+from vagen.env.spatial.Base.tos_base.utils.env_logger import SpatialEnvLogger
 SCRIPT_DIR = Path(__file__).resolve().parent
 
 
@@ -67,7 +67,7 @@ def parse_args():
     )
     # Phase selection
     p.add_argument("--phase", type=str, default="all", 
-                   choices=['exploration', 'evaluation', 'cogmap', 'all'],
+                   choices=['exploration', 'evaluation', 'cogmap', 'all', 'aggregate'],
                    help="Which phase to run: exploration, evaluation, cogmap, or all")
     
     # Common parameters
@@ -523,6 +523,19 @@ def run_inference_phase(args, mode: str, seed_opts: tuple[int, int] | None = Non
     
     print(f"\n{phase_name.capitalize()} completed.")
 
+def run_aggregation_phase(args):
+    """Run aggregation phase: aggregate logs and images from previous runs."""
+    print("\n" + "="*60)
+    print("PHASE: AGGREGATION")
+    print("="*60 + "\n")
+    
+    SpatialEnvLogger.log_each_env_info(
+        output_dir= args.output_root,
+        model_name = load_yaml(Path(args.base_model))['models'][args.model_name]['model_name'],
+        save_images=True,
+    )
+    
+    print("\nAggregation completed.")
 
 def main():
     args = parse_args()
@@ -573,11 +586,14 @@ def main():
             run_inference_phase(args, mode="eval", seed_opts=seed_opts)
         elif args.phase == 'cogmap':
             run_inference_phase(args, mode="cogmap", seed_opts=seed_opts)
+        elif args.phase == 'aggregate':
+            run_aggregation_phase(args)
         elif args.phase == 'all':
             run_exploration_phase(args, seed_opts, run_id, server_url)
             run_inference_phase(args, mode="eval", seed_opts=seed_opts)
             if args.exp_type == 'active' and args.cogmap:
                 run_inference_phase(args, mode="cogmap", seed_opts=seed_opts)
+            run_aggregation_phase(args)
     
     except Exception as e:
         raise e
