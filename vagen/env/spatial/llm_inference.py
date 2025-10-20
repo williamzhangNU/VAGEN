@@ -119,7 +119,7 @@ def generate_with_model_interface(
     model_name: str,
     messages_list: List[List[Dict[str, Any]]],
     metas: List[Dict[str, Any]],
-    temperature: float = 0.0,
+    temperature: float = 1.0,
     max_tokens: int = 16384,
 ) -> List[Dict[str, Any]]:
     cfg = OpenAIModelConfig(

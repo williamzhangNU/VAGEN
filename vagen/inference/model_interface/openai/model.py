@@ -82,12 +82,15 @@ class OpenAIModelInterface(BaseModelInterface):
             }
             
             # Handle multimodal content
-            if "multi_modal_data" in message and "<image>" in content:
+            if ("multi_modal_data" in message or "images" in message) and "<image>" in content:
                 # Extract images from multi_modal_data
                 images = []
-                for key, values in message["multi_modal_data"].items():
-                    if key == "<image>" or "image" in key.lower():
-                        images.extend(values)
+                if "images" in message:
+                    images.extend(message["images"])
+                elif "multi_modal_data" in message:
+                    for key, values in message["multi_modal_data"].items():
+                        if key == "<image>" or "image" in key.lower():
+                            images.extend(values)
                 
                 # Split content by <image> placeholders
                 parts = content.split("<image>")
@@ -138,7 +141,22 @@ class OpenAIModelInterface(BaseModelInterface):
             buffered = io.BytesIO()
             image.save(buffered, format="JPEG", quality=85)
             return base64.b64encode(buffered.getvalue()).decode()
-            
+        elif isinstance(image, str):
+            # Assume it's a file path
+            with Image.open(image) as img:
+                if img.mode != "RGB":
+                    img = img.convert("RGB")
+                
+                # Resize if too large to save tokens
+                max_size = 1024
+                if max(img.size) > max_size:
+                    ratio = max_size / max(img.size)
+                    new_size = tuple(int(dim * ratio) for dim in img.size)
+                    img = img.resize(new_size, Image.Resampling.LANCZOS)
+                
+                buffered = io.BytesIO()
+                img.save(buffered, format="JPEG", quality=85)
+                return base64.b64encode(buffered.getvalue()).decode()
         elif isinstance(image, dict) and "__pil_image__" in image:
             from vagen.server.serial import deserialize_pil_image
             pil_image = deserialize_pil_image(image)
