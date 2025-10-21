@@ -72,8 +72,8 @@ def parse_args():
     
     # Common parameters
     p.add_argument("--exp-type", type=str, dest="exp_type", 
-                   choices=["active", "passive"], default="active",
-                   help="Experiment type: active or passive. Default: active")
+                   default="active",
+                   help="Experiment type: active, passive, or comma-separated for multiple (e.g., 'active,passive'). Default: active")
     p.add_argument("--model-name", type=str, default="gpt-4o-mini",
                    help="Model identifier. Default: gpt-4o-mini")
     p.add_argument("--data-dir", type=str, dest="data_dir", default=None, 
@@ -85,7 +85,7 @@ def parse_args():
     p.add_argument("--num", type=int, default=1, 
                    help="Number of samples per task (exploration phase). Default: 1")
     p.add_argument("--render-mode", type=str, dest="render_mode", default="vision", 
-                   help="Environment render mode (vision or text). Default: vision")
+                   help="Environment render mode: vision, text, or comma-separated for multiple (e.g., 'vision,text'). Default: vision")
     p.add_argument("--seed-range", type=str, dest="seed_range", default=None, 
                    help="Seed range 'start-end' (0-based), e.g., 0-24")
     p.add_argument("--enable-think", type=int, dest="enable_think", choices=[0,1], default=1, 
@@ -566,6 +566,9 @@ def main():
         seed_opts = (0, 0 + args.num - 1)
     
     run_id = datetime.now().strftime("%Y-%m-%d-%H-%M-%S-%f")
+    exp_types = [x.strip() for x in args.exp_type.split(',')]
+    render_modes = [x.strip() for x in args.render_mode.split(',')]
+    
     server_proc: subprocess.Popen | None = None
     
     try:
@@ -579,22 +582,26 @@ def main():
             server_proc = start_env_server(args.server_host, actual_port)
             server_url = f"http://{args.server_host}:{actual_port}"
         
-        # Run requested phase(s)
-        if args.phase == 'exploration':
-            run_exploration_phase(args, seed_opts, run_id, server_url)
-        elif args.phase == 'evaluation':
-            run_inference_phase(args, mode="eval", seed_opts=seed_opts)
-        elif args.phase == 'cogmap':
-            run_inference_phase(args, mode="cogmap", seed_opts=seed_opts)
-        elif args.phase == 'aggregate':
+        # Main loop: iterate over all combinations
+        for exp_type in exp_types:
+            for render_mode in render_modes:
+                # Directly assign values to args
+                args.exp_type = exp_type
+                args.render_mode = render_mode
+                if args.phase == 'exploration':
+                    run_exploration_phase(args, seed_opts, run_id, server_url)
+                elif args.phase == 'evaluation':
+                    run_inference_phase(args, mode="eval", seed_opts=seed_opts)
+                elif args.phase == 'cogmap':
+                    run_inference_phase(args, mode="cogmap", seed_opts=seed_opts)
+                elif args.phase == 'all':
+                    run_exploration_phase(args, seed_opts, run_id, server_url)
+                    run_inference_phase(args, mode="eval", seed_opts=seed_opts)
+                    if exp_type == 'active' and args.cogmap:
+                        run_inference_phase(args, mode="cogmap", seed_opts=seed_opts)
+        if args.phase == 'aggregate' or args.phase == 'all':
             run_aggregation_phase(args)
-        elif args.phase == 'all':
-            run_exploration_phase(args, seed_opts, run_id, server_url)
-            run_inference_phase(args, mode="eval", seed_opts=seed_opts)
-            if args.exp_type == 'active' and args.cogmap:
-                run_inference_phase(args, mode="cogmap", seed_opts=seed_opts)
-            run_aggregation_phase(args)
-    
+        
     except Exception as e:
         raise e
     

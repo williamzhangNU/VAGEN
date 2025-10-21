@@ -215,14 +215,14 @@ def map_llm_responses(
             eval_data = (meta.get("evaluation_data") or {})
             # Evaluate using same logic as in env runtime
             _, answer, _ = parse_llm_response(text)
-            is_correct, info = evaluate_from_dict(eval_data, answer)
+            score, info = evaluate_from_dict(eval_data, answer)
             task_class = meta.get("task_class") or meta.get("task_type")
             turn_log = {
                 "is_exploration_phase": False,
                 "evaluation_log": {
                     "task_type": task_class,
                     "user_answer": text,
-                    "is_correct": bool(is_correct),
+                    "score": score,
                     "evaluation_info": info or {},
                     "evaluation_data": eval_data,
                 },
