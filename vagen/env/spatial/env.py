@@ -59,24 +59,27 @@ class SpatialGym(gym.Env):
             # Only collect multi-modal data if render_mode is vision
             if self.config.render_mode == 'vision':
                 obs_str = proxy.to_text(self.config.image_placeholder)
+                image_paths = []
                 for t in proxy.turns:
                     if any('observe' in result.action_type for result in t.actions):
                         image, image_path = self._get_multi_modal_data(proxy.mgr, t.pos, t.ori)
                         images.append(image)
-                        self.observed_image_paths.append(image_path)
+                        image_paths.append(image_path)
                 assert images is not []
                 exp_history['multi_modal_data'] = {self.config.image_placeholder: images}
+                exp_history['multi_modal_data_paths'] = image_paths
             else:
                 obs_str = proxy.to_text()
             exp_history['obs_str'] = obs_str
             # expose proxy manager so metrics are available via env.get_exp_summary()
             self.exploration_manager = proxy.mgr
 
-        return self.prompter.get_initial_observation_prompt(
+        intial_prompt, self.observed_image_paths = self.prompter.get_initial_observation_prompt(
             room=self.initial_room,
             agent=self.agent,
             exp_history=exp_history,
         )
+        return intial_prompt
 
     def system_prompt(self) -> str:
         return self.prompter.system_prompt()
@@ -134,6 +137,7 @@ class SpatialGym(gym.Env):
         self.history_manager.init_messages(self.prompter.system_prompt())
         self.history_manager.append_env_feedback(obs.get('obs_str', ''), self.observed_image_paths or [])
         self.history_manager.save_messages()
+        self.observed_image_paths = []
         return obs, info
 
     def _get_multi_modal_data(self, room: ExplorationManager, pos: np.ndarray, ori: np.ndarray):

@@ -6,13 +6,12 @@ import argparse
 
 from openai import OpenAI
 
-# (no direct import from message_list_builder; we read prebuilt files via common)
-from vagen.env.spatial.Base.tos_base.managers.history_manager import HistoryManager
 from vagen.env.spatial.Base.tos_base.managers.cognitive_map_manager import CognitiveMapManager
 from vagen.env.spatial.Base.tos_base.utils.cog_utils import _evaluate_cogmaps
 from vagen.env.spatial.Base.tos_base.evaluation.tasks import evaluate_from_dict
 from vagen.inference.model_interface.openai.model import OpenAIModelInterface
 from vagen.inference.model_interface.openai.model_config import OpenAIModelConfig
+from vagen.env.spatial.Base.tos_base.utils.utils import parse_llm_response
 import dotenv
 dotenv.load_dotenv()
 
@@ -44,10 +43,8 @@ def submit_openai_batch(
     client: OpenAI,
     messages_list: List[List[Dict[str, Any]]],
     metas: List[Dict[str, Any]],
-    model_name: str,
-    jsonl_path: str,
-    max_tokens: int = 512,
-    temperature: float = 0.0,
+    model_config: dict,
+    jsonl_path: str
 ) -> str:
     """Create JSONL, upload file, and start a batch job. Returns batch_id."""
     os.makedirs(os.path.dirname(jsonl_path) or ".", exist_ok=True)
@@ -59,10 +56,10 @@ def submit_openai_batch(
                 "method": "POST",
                 "url": "/v1/chat/completions",
                 "body": {
-                    "model": model_name,
+                    "model": model_config["model_name"],
                     "messages": _to_openai_chat_messages(msgs),
-                    "max_tokens": max_tokens,
-                    "temperature": temperature,
+                    "max_tokens": model_config["max_tokens"],
+                    "temperature": model_config["temperature"],
                 },
             }
             f.write(json.dumps(line, ensure_ascii=False) + "\n")
@@ -116,17 +113,11 @@ def collect_openai_batch(client: OpenAI, batch_id: str, poll_seconds: int = 10) 
 # ========================= Direct Generate via Model Interface =========================
 
 def generate_with_model_interface(
-    model_name: str,
+    model_config: dict,
     messages_list: List[List[Dict[str, Any]]],
     metas: List[Dict[str, Any]],
-    temperature: float = 1.0,
-    max_tokens: int = 16384,
 ) -> List[Dict[str, Any]]:
-    cfg = OpenAIModelConfig(
-        model_name=model_name,
-        temperature=temperature,
-        max_tokens=max_tokens,
-    )
+    cfg = OpenAIModelConfig(**model_config)
     interface = OpenAIModelInterface(cfg)
     results = interface.generate(messages_list)
     outputs: List[Dict[str, Any]] = []
@@ -223,7 +214,8 @@ def map_llm_responses(
                 continue  # Skip existing
             eval_data = (meta.get("evaluation_data") or {})
             # Evaluate using same logic as in env runtime
-            is_correct, info = evaluate_from_dict(eval_data, text)
+            _, answer, _ = parse_llm_response(text)
+            is_correct, info = evaluate_from_dict(eval_data, answer)
             task_class = meta.get("task_class") or meta.get("task_type")
             turn_log = {
                 "is_exploration_phase": False,
@@ -273,7 +265,7 @@ def map_llm_responses(
 
 def run_inference_for_combo_dirs(
     combo_dirs: List[str],
-    model_name: str,
+    model_config: dict,
     mode: str = "eval",
     eval_task_counts: Dict[str, int] | None = None,
     inference_mode: str = "direct",
@@ -316,11 +308,11 @@ def run_inference_for_combo_dirs(
         import tempfile
         with tempfile.TemporaryDirectory() as tmpdir:
             batch_jsonl = os.path.join(tmpdir, "batch_input.jsonl")
-            batch_id = submit_openai_batch(client, all_msgs, all_meta, model_name, batch_jsonl)
+            batch_id = submit_openai_batch(client, all_msgs, all_meta, model_config, batch_jsonl)
             print(f"Submitted batch: {batch_id}")
             outputs = collect_openai_batch(client, batch_id)
     else:
-        outputs = generate_with_model_interface(model_name, all_msgs, all_meta)
+        outputs = generate_with_model_interface(model_config, all_msgs, all_meta)
     
     # Map responses back to histories
     meta_by_id = index_meta_by_id(all_meta)

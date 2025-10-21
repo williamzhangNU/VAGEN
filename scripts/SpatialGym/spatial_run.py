@@ -492,7 +492,7 @@ def run_inference_phase(args, mode: str, seed_opts: tuple[int, int] | None = Non
     # Build kwargs for run_inference_for_combo_dirs based on mode
     inference_kwargs = {
         "combo_dirs": combo_paths,
-        "model_name": model_name,
+        "model_config": load_yaml(Path(args.base_model))['models'][args.model_name],
         "mode": mode,
         "inference_mode": args.inference_mode,
     }

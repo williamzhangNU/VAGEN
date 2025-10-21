@@ -111,7 +111,7 @@ def build_evaluation_from_combo(
                 continue
             assert base_msgs[-1]["role"] == "user"
             new_list = [m.copy() for m in base_msgs]
-            new_list[-1]['content'] = new_list[-1]['content'] + "\n" + q_text
+            new_list[-1]['content'] = new_list[-1]['content'] + "\n" + q_text 
             meta_obj = {
                 "type": "evaluation",
                 "sample_id": sample_id,
