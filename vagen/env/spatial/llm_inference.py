@@ -58,7 +58,7 @@ def submit_openai_batch(
                 "body": {
                     "model": model_config["model_name"],
                     "messages": _to_openai_chat_messages(msgs),
-                    "max_tokens": model_config["max_tokens"],
+                    "max_completion_tokens": model_config["max_completion_tokens"],
                     "temperature": model_config["temperature"],
                 },
             }
