@@ -308,14 +308,14 @@ def stop_env_server(proc: subprocess.Popen) -> None:
 def compute_combo_paths(
     output_root: str,
     model_name: str,
-    exp_type: str,
+    exp_types: List[str],
     seed_range: tuple[int, int] | None,
-    render_mode: str,
+    render_modes: List[str],
     enable_think: bool,
     data_dir: str,
     proxy_agent: str | None = None,
 ) -> List[str]:
-    """Compute expected combo directory paths based on parameters.
+    """Compute expected combo directory paths for all combinations of parameters.
     
     This replicates the logic from HistoryManager to determine where
     exploration results should be stored.
@@ -323,17 +323,16 @@ def compute_combo_paths(
     Args:
         output_root: Base output directory
         model_name: Model name
-        exp_type: 'active' or 'passive'
+        exp_types: List of experiment types ('active', 'passive')
         seed_range: Tuple of (start_seed, end_seed) or None
-        render_mode: 'vision' or 'text'
+        render_modes: List of render modes ('vision', 'text')
         enable_think: Whether thinking is enabled
         data_dir: Data directory containing room data
         proxy_agent: Proxy agent for passive mode
         
     Returns:
-        List of combo directory paths
+        List of combo directory paths for all combinations
     """
-
     
     # Determine seed list
     if seed_range:
@@ -344,7 +343,7 @@ def compute_combo_paths(
     combo_paths = []
     
     for seed in seeds:
-        # Load room/agent data to compute hash
+        # Load room/agent data to compute hash once per seed
         try:
             _ , json_data = ImageHandler.load_data(data_dir, seed)
             room, agent = initialize_room_from_json(json_data)
@@ -356,64 +355,57 @@ def compute_combo_paths(
             )
             room_hash = compute_hash(room_str)
             
-            # Build path following HistoryManager structure
-            # model_name/room_hash/render_mode/exp_type/think_or_nothink/[proxy_agent]
-            think_str = "think" if enable_think else "nothink"
-            
-            path_parts = [
-                output_root,
-                model_name,
-                room_hash,
-                render_mode,
-                exp_type,
-                think_str,
-            ]
-            
-            if exp_type == "passive":
-                path_parts.append(proxy_agent if proxy_agent else "scout")
-            
-            combo_path = os.path.join(*path_parts)
-            combo_paths.append(combo_path)
-            
+            # Generate paths for all exp_type and render_mode combinations
+            for exp_type in exp_types:
+                for render_mode in render_modes:
+                    # Build path following HistoryManager structure
+                    # model_name/room_hash/render_mode/exp_type/think_or_nothink/[proxy_agent]
+                    think_str = "think" if enable_think else "nothink"
+                    
+                    path_parts = [
+                        output_root,
+                        model_name,
+                        room_hash,
+                        render_mode,
+                        exp_type,
+                        think_str,
+                    ]
+                    
+                    if exp_type == "passive":
+                        path_parts.append(proxy_agent if proxy_agent else "scout")
+                    
+                    combo_path = os.path.join(*path_parts)
+                    combo_paths.append(combo_path)
+                
         except Exception as e:
-            print(f"Warning: Failed to compute combo path for seed={seed}: {e}", 
+            print(f"Warning: Failed to compute combo paths for seed={seed}: {e}", 
                   file=sys.stderr)
             continue
     
     return combo_paths
 
 
-def run_exploration_phase(args, seed_opts, run_id: str, server_url: str | None):
+def run_exploration_phase(args, seed_opts, server_url: str | None, 
+                         exp_types: List[str], render_modes: List[str]):
     """Run exploration phase: create dataset and run inference once.
     
     Note: All seeds are processed in a single run via seed_opts.
-    Uses exp_type to determine environment configuration.
+    Loops through all exp_type and render_mode combinations.
     """
     print("\n" + "="*60)
     print("PHASE: EXPLORATION")
     print("="*60 + "\n")
     
-    data_train = f"data/{run_id}/train.parquet"
-    data_test = f"data/{run_id}/test.parquet"
-    
-    base_env = Path(args.base_env)
     base_infer = Path(args.base_infer)
     base_model = Path(args.base_model)
+    # Generate unique run_id for this combination
+    combo_run_id = datetime.now().strftime("%Y-%m-%d-%H-%M-%S-%f")
+    data_train = f"data/{combo_run_id}/train.parquet"
+    data_test = f"data/{combo_run_id}/test.parquet"
     
-    # Use exp_type for env config setup
-    tmp_paths = build_tmp_paths(run_id, "exploration")
-    
-    env_cfg = load_yaml(base_env)
+    tmp_paths = build_tmp_paths(combo_run_id, "exploration")
+
     infer_cfg = load_yaml(base_infer)
-    model_cfg = load_yaml(base_model)
-    
-    # Create env config with seed range (all seeds processed together)
-    env_cfg = patch_env_yaml(args.exp_type, args.render_mode, 
-                             seed_opts, args.enable_think, data_dir=args.data_dir,
-                             proxy_agent=args.proxy_agent)
-    
-    model_cfg = patch_model_yaml(model_cfg, args.model_name)
-    
     # Patch inference config with all_override flag if specified
     patched_infer_cfg = patch_infer_yaml(
         infer_cfg,
@@ -421,77 +413,96 @@ def run_exploration_phase(args, seed_opts, run_id: str, server_url: str | None):
         server_url=server_url,
         all_override=args.all_override,
     )
-    
-    dump_yaml(env_cfg, tmp_paths["env"])
+    model_cfg = load_yaml(base_model) 
+    model_cfg = patch_model_yaml(model_cfg, args.model_name)  
     dump_yaml(model_cfg, tmp_paths["model"])
-    dump_yaml(patched_infer_cfg, tmp_paths["infer"])
+    dump_yaml(patched_infer_cfg, tmp_paths["infer"]) 
+
+    # Loop through all combinations
+    for exp_type in exp_types:
+        for render_mode in render_modes:
+            print(f"\n--- Running exploration: exp_type={exp_type}, render_mode={render_mode} ---")
+            # Create env config with current combination
+            env_cfg = patch_env_yaml(exp_type, render_mode, 
+                                     seed_opts, args.enable_think, data_dir=args.data_dir,
+                                     proxy_agent=args.proxy_agent)
+            dump_yaml(env_cfg, tmp_paths["env"])
+            
+            # Create dataset
+            print(f"Creating dataset for {exp_type} exploration...")
+            rc = run_cmd([
+                sys.executable, "-m", "vagen.env.create_dataset",
+                "--yaml_path", str(tmp_paths["env"]),
+                "--train_path", data_train,
+                "--test_path", data_test,
+                "--force_gen",
+            ])
+            if rc != 0:
+                sys.exit(rc)
+            
+            # Run inference
+            print(f"Running exploration inference...")
+            val_path = data_test
+            wandb_path_name = "spatial_gym"
+            cmd = [
+                sys.executable, "-m", "vagen.inference.run_inference",
+                f"--inference_config_path={tmp_paths['infer']}",
+                f"--model_config_path={tmp_paths['model']}",
+                f"--val_files_path={val_path}",
+                f"--wandb_path_name={wandb_path_name}",
+            ]
+            rc = run_cmd(cmd)
+            if rc != 0:
+                sys.exit(rc)
+            
+            print(f"Exploration completed for {exp_type} + {render_mode}")
     
-    # Create dataset
-    print(f"Creating dataset for {args.exp_type} exploration...")
-    rc = run_cmd([
-        sys.executable, "-m", "vagen.env.create_dataset",
-        "--yaml_path", str(tmp_paths["env"]),
-        "--train_path", data_train,
-        "--test_path", data_test,
-        "--force_gen",
-    ])
-    if rc != 0:
-        sys.exit(rc)
-    
-    # Run inference
-    print(f"Running exploration inference...")
-    val_path = data_test
-    wandb_path_name = "spatial_gym"
-    cmd = [
-        sys.executable, "-m", "vagen.inference.run_inference",
-        f"--inference_config_path={tmp_paths['infer']}",
-        f"--model_config_path={tmp_paths['model']}",
-        f"--val_files_path={val_path}",
-        f"--wandb_path_name={wandb_path_name}",
-    ]
-    rc = run_cmd(cmd)
-    if rc != 0:
-        sys.exit(rc)
-    
-    print(f"\nExploration completed. Results in: {args.output_root}")
+    print(f"\nAll exploration combinations completed. Results in: {args.output_root}")
 
 
-def run_inference_phase(args, mode: str, seed_opts: tuple[int, int] | None = None):
+def run_inference_phase(args, mode: str, seed_opts: tuple[int, int] | None = None,
+                       exp_types: List[str] = None, render_modes: List[str] = None):
     """Run inference phase: build messages and run inference for evaluation or cogmap.
+    
+    Computes combo paths for all exp_type and render_mode combinations at once.
     
     Args:
         args: Command line arguments
         mode: 'eval' or 'cogmap'
         seed_opts: Seed range tuple
+        exp_types: List of experiment types
+        render_modes: List of render modes
     """
     phase_name = "EVALUATION" if mode == "eval" else "COGNITIVE MAP"
     print("\n" + "="*60)
     print(f"PHASE: {phase_name}")
     print("="*60 + "\n")
-
-    # Get model name and compute combo paths
+    
+    # Get model name
     model_name = load_yaml(Path(args.base_model))['models'][args.model_name]['model_name']
-    print("Computing combo directory paths...")
-    combo_paths = compute_combo_paths(
+    
+    # Compute combo paths for all combinations at once
+    print("Computing combo directory paths for all combinations...")
+    all_combo_paths = compute_combo_paths(
         output_root=args.output_root,
         model_name=model_name,
-        exp_type=args.exp_type,
+        exp_types=exp_types,
         seed_range=seed_opts,
-        render_mode=args.render_mode,
+        render_modes=render_modes,
         enable_think=bool(args.enable_think),
         data_dir=args.data_dir,
         proxy_agent=args.proxy_agent,
     )
     
-    if not combo_paths:
+    if not all_combo_paths:
         print("[ERROR] No valid combo paths computed", file=sys.stderr)
         sys.exit(2)
     
-    print(f"Found {len(combo_paths)} combo directories to process")
+    print(f"Found {len(all_combo_paths)} combo directories to process")
     
     # Build kwargs for run_inference_for_combo_dirs based on mode
     inference_kwargs = {
-        "combo_dirs": combo_paths,
+        "combo_dirs": all_combo_paths,
         "model_config": load_yaml(Path(args.base_model))['models'][args.model_name],
         "mode": mode,
         "inference_mode": args.inference_mode,
@@ -545,11 +556,10 @@ def main():
     os.environ.setdefault("PYTHONHASHSEED", "0")
     
     # Check base config files exist
-    base_env = Path(args.base_env)
     base_infer = Path(args.base_infer)
     base_model = Path(args.base_model)
-    if not base_env.exists() or not base_infer.exists() or not base_model.exists():
-        print(f"Base YAML missing: env={base_env.exists()} infer={base_infer.exists()} model={base_model.exists()}", 
+    if not base_infer.exists() or not base_model.exists():
+        print(f"Base YAML missing: infer={base_infer.exists()} model={base_model.exists()}",
               file=sys.stderr)
         sys.exit(2)
     
@@ -565,11 +575,8 @@ def main():
     else:
         seed_opts = (0, 0 + args.num - 1)
     
-    run_id = datetime.now().strftime("%Y-%m-%d-%H-%M-%S-%f")
     exp_types = [x.strip() for x in args.exp_type.split(',')]
     render_modes = [x.strip() for x in args.render_mode.split(',')]
-    
-    server_proc: subprocess.Popen | None = None
     
     try:
         server_url: str | None = None
@@ -582,31 +589,33 @@ def main():
             server_proc = start_env_server(args.server_host, actual_port)
             server_url = f"http://{args.server_host}:{actual_port}"
         
-        # Main loop: iterate over all combinations
-        for exp_type in exp_types:
-            for render_mode in render_modes:
-                # Directly assign values to args
-                args.exp_type = exp_type
-                args.render_mode = render_mode
-                if args.phase == 'exploration':
-                    run_exploration_phase(args, seed_opts, run_id, server_url)
-                elif args.phase == 'evaluation':
-                    run_inference_phase(args, mode="eval", seed_opts=seed_opts)
-                elif args.phase == 'cogmap':
-                    run_inference_phase(args, mode="cogmap", seed_opts=seed_opts)
-                elif args.phase == 'all':
-                    run_exploration_phase(args, seed_opts, run_id, server_url)
-                    run_inference_phase(args, mode="eval", seed_opts=seed_opts)
-                    if exp_type == 'active' and args.cogmap:
-                        run_inference_phase(args, mode="cogmap", seed_opts=seed_opts)
-        if args.phase == 'aggregate' or args.phase == 'all':
+        # Run requested phase(s)
+        if args.phase == 'exploration':
+            run_exploration_phase(args, seed_opts, server_url, exp_types, render_modes)
+        elif args.phase == 'evaluation':
+            run_inference_phase(args, mode="eval", seed_opts=seed_opts, 
+                              exp_types=exp_types, render_modes=render_modes)
+        elif args.phase == 'cogmap':
+            run_inference_phase(args, mode="cogmap", seed_opts=seed_opts,
+                              exp_types=exp_types, render_modes=render_modes)
+        elif args.phase == 'aggregate':
             run_aggregation_phase(args)
-        
+        elif args.phase == 'all':
+            run_exploration_phase(args, seed_opts, server_url, exp_types, render_modes)
+            run_inference_phase(args, mode="eval", seed_opts=seed_opts,
+                              exp_types=exp_types, render_modes=render_modes)
+            # Run cogmap only for active exp_types
+            if 'active' in exp_types and args.cogmap:
+                active_exp_types = [e for e in exp_types if e == 'active']
+                run_inference_phase(args, mode="cogmap", seed_opts=seed_opts,
+                                  exp_types=active_exp_types, render_modes=render_modes)
+            run_aggregation_phase(args)
+    
     except Exception as e:
         raise e
     
     finally:
-        if server_proc is not None:
+        if not args.no_server:
             stop_env_server(server_proc)
     
     print("\n" + "="*60)
