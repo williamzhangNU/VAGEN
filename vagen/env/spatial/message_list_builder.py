@@ -121,7 +121,7 @@ def build_evaluation_from_combo(
                 "combo_dir": os.path.abspath(combo_dir),
                 "evaluation_data": task.eval_data.to_dict(),
             }
-            meta_obj["message_id"] = generate_message_id(meta_obj)
+            meta_obj["message_id"] = hash(json.dumps(meta_obj, sort_keys=True))
             _add_message(out_msgs, meta, new_list, meta_obj)
 
     return out_msgs, meta
@@ -203,7 +203,7 @@ def build_cogmap_from_combo(
                 "map_type": "global",
                 "combo_dir": os.path.abspath(combo_dir),
             }
-            meta_obj["message_id"] = generate_message_id(meta_obj)
+            meta_obj["message_id"] = hash(json.dumps(meta_obj, sort_keys=True))
             _add_message(out_msgs, meta, mod_seq, meta_obj)
 
     return out_msgs, meta

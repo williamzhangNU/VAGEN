@@ -25,7 +25,7 @@ from tqdm import tqdm
 from vagen.env.spatial.Base.tos_base.utils.utils import hash as compute_hash
 from vagen.env.spatial.Base.tos_base.utils.image_handler import ImageHandler
 from vagen.env.spatial.Base.tos_base.utils.room_utils import initialize_room_from_json
-from vagen.env.spatial.llm_inference import run_inference_for_combo_dirs
+from vagen.env.spatial.llm_inference import run_inference_for_combo_dirs, reevaluate_combo_dirs
 from vagen.env.spatial.Base.tos_base.utils.env_logger import SpatialEnvLogger
 SCRIPT_DIR = Path(__file__).resolve().parent
 
@@ -67,9 +67,9 @@ def parse_args():
     )
     # Phase selection
     p.add_argument("--phase", type=str, default="all", 
-                   choices=['exploration', 'evaluation', 'cogmap', 'all', 'aggregate'],
-                   help="Which phase to run: exploration, evaluation, cogmap, or all")
-    
+                   choices=['explore', 'eval', 'cogmap', 'all', 'aggregate', 'reeval'],
+                   help="Which phase to run: explore, eval, cogmap, reeval, aggregate, or all")
+
     # Common parameters
     p.add_argument("--exp-type", type=str, dest="exp_type", 
                    default="active",
@@ -80,8 +80,6 @@ def parse_args():
                    help="Data directory root. Default: data")
     p.add_argument("--output-root", type=str, dest="output_root", default="results", 
                    help="Root dir for output. Default: results")
-    
-    # Exploration phase parameters
     p.add_argument("--num", type=int, default=1, 
                    help="Number of samples per task (exploration phase). Default: 1")
     p.add_argument("--render-mode", type=str, dest="render_mode", default="vision", 
@@ -468,14 +466,13 @@ def run_inference_phase(args, mode: str, seed_opts: tuple[int, int] | None = Non
     
     Args:
         args: Command line arguments
-        mode: 'eval' or 'cogmap'
+        mode: 'eval', 'cogmap', or 'reeval'
         seed_opts: Seed range tuple
         exp_types: List of experiment types
         render_modes: List of render modes
     """
-    phase_name = "EVALUATION" if mode == "eval" else "COGNITIVE MAP"
     print("\n" + "="*60)
-    print(f"PHASE: {phase_name}")
+    print(f"PHASE: {mode.upper()}")
     print("="*60 + "\n")
     
     # Get model name
@@ -499,6 +496,12 @@ def run_inference_phase(args, mode: str, seed_opts: tuple[int, int] | None = Non
         sys.exit(2)
     
     print(f"Found {len(all_combo_paths)} combo directories to process")
+    
+    # Special handling for reevaluate mode
+    if mode == "reeval":
+        reevaluate_combo_dirs(all_combo_paths)
+        print(f"\n{mode.capitalize()} completed.")
+        return
     
     # Build kwargs for run_inference_for_combo_dirs based on mode
     inference_kwargs = {
@@ -532,7 +535,7 @@ def run_inference_phase(args, mode: str, seed_opts: tuple[int, int] | None = Non
     # Run inference
     run_inference_for_combo_dirs(**inference_kwargs)
     
-    print(f"\n{phase_name.capitalize()} completed.")
+    print(f"\n{mode.capitalize()} completed.")
 
 def run_aggregation_phase(args):
     """Run aggregation phase: aggregate logs and images from previous runs."""
@@ -582,7 +585,7 @@ def main():
         server_url: str | None = None
         
         # Start server only for exploration phase
-        if args.phase in ['exploration', 'all'] and not args.no_server:
+        if args.phase in ['explore', 'all'] and not args.no_server:
             actual_port = get_adaptive_port(args.server_port, 5000)
             if actual_port != args.server_port:
                 print(f"Using port {actual_port} instead of requested {args.server_port}")
@@ -590,16 +593,17 @@ def main():
             server_url = f"http://{args.server_host}:{actual_port}"
         
         # Run requested phase(s)
-        if args.phase == 'exploration':
+        if args.phase == 'explore':
             run_exploration_phase(args, seed_opts, server_url, exp_types, render_modes)
-        elif args.phase == 'evaluation':
+        elif args.phase == 'eval':
             run_inference_phase(args, mode="eval", seed_opts=seed_opts, 
                               exp_types=exp_types, render_modes=render_modes)
         elif args.phase == 'cogmap':
             run_inference_phase(args, mode="cogmap", seed_opts=seed_opts,
                               exp_types=exp_types, render_modes=render_modes)
-        elif args.phase == 'aggregate':
-            run_aggregation_phase(args)
+        elif args.phase == 'reeval':
+            run_inference_phase(args, mode="reeval", seed_opts=seed_opts,
+                              exp_types=exp_types, render_modes=render_modes)
         elif args.phase == 'all':
             run_exploration_phase(args, seed_opts, server_url, exp_types, render_modes)
             run_inference_phase(args, mode="eval", seed_opts=seed_opts,
@@ -609,13 +613,13 @@ def main():
                 active_exp_types = [e for e in exp_types if e == 'active']
                 run_inference_phase(args, mode="cogmap", seed_opts=seed_opts,
                                   exp_types=active_exp_types, render_modes=render_modes)
-            run_aggregation_phase(args)
+        run_aggregation_phase(args)
     
     except Exception as e:
         raise e
     
     finally:
-        if not args.no_server:
+        if args.phase in ['explore', 'all'] and not args.no_server:
             stop_env_server(server_proc)
     
     print("\n" + "="*60)

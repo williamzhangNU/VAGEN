@@ -49,7 +49,7 @@ class OpenAIModelInterface(BaseModelInterface):
         All calls must succeed; otherwise an error is raised."""
         formatted_requests = []
         for prompt in prompts:
-            messages = self._convert_qwen_to_openai_format(prompt)
+            messages = OpenAIModelInterface._convert_qwen_to_openai_format(prompt)
             formatted_requests.append(messages)
 
         def worker(messages: List[Dict]) -> Dict[str, Any]:
@@ -61,8 +61,8 @@ class OpenAIModelInterface(BaseModelInterface):
             max_workers=self.config.max_workers,
             max_attempt_rounds=self.config.max_retries,
         )
-    
-    def _convert_qwen_to_openai_format(self, prompt: List[Dict]) -> List[Dict]:
+    @staticmethod
+    def _convert_qwen_to_openai_format(prompt: List[Dict]) -> List[Dict]:
         """
         Convert Qwen format messages to OpenAI format.
         
@@ -106,7 +106,7 @@ class OpenAIModelInterface(BaseModelInterface):
                     
                     # Add image if available (except for last part)
                     if i < len(parts) - 1 and i < len(images):
-                        image_data = self._process_image_for_openai(images[i])
+                        image_data = OpenAIModelInterface._process_image_for_openai(images[i])
                         openai_msg["content"].append({
                             "type": "image_url",
                             "image_url": {
@@ -124,7 +124,8 @@ class OpenAIModelInterface(BaseModelInterface):
         
         return openai_messages
     
-    def _process_image_for_openai(self, image: Any) -> str:
+    @staticmethod
+    def _process_image_for_openai(image: Any) -> str:
         """Convert image to base64 for OpenAI API."""
         if isinstance(image, Image.Image):
             # Ensure RGB mode
@@ -160,7 +161,7 @@ class OpenAIModelInterface(BaseModelInterface):
         elif isinstance(image, dict) and "__pil_image__" in image:
             from vagen.server.serial import deserialize_pil_image
             pil_image = deserialize_pil_image(image)
-            return self._process_image_for_openai(pil_image)
+            return OpenAIModelInterface._process_image_for_openai(pil_image)
         else:
             raise ValueError(f"Unsupported image type: {type(image)}")
     

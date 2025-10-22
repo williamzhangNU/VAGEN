@@ -151,7 +151,7 @@ models:
     model_name: GLM-4.5V
     max_tokens: 16384
     temperature: 0
-    max_workers: 32
+    max_workers: 64
     base_url: https://api.revered.me/v1
     timeout: 180
 

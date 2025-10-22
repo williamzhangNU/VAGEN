@@ -28,16 +28,6 @@ from vagen.env.spatial.common import (
 
 """Root-only inference runner: reads built files once and maps responses back via HistoryManager.load_from_dir."""
 
-# ========================= OpenAI Batch API (submit/collect) =========================
-
-def _to_openai_chat_messages(messages: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    out: List[Dict[str, Any]] = []
-    for m in messages:
-        role = m.get("role", "user")
-        content = m.get("content", "")
-        out.append({"role": role, "content": content})
-    return out
-
 
 def submit_openai_batch(
     client: OpenAI,
@@ -57,7 +47,7 @@ def submit_openai_batch(
                 "url": "/v1/chat/completions",
                 "body": {
                     "model": model_config["model_name"],
-                    "messages": _to_openai_chat_messages(msgs),
+                    "messages": OpenAIModelInterface._convert_qwen_to_openai_format(msgs),
                     "max_completion_tokens": model_config["max_completion_tokens"],
                     "temperature": model_config["temperature"],
                 },
@@ -78,7 +68,7 @@ def collect_openai_batch(client: OpenAI, batch_id: str, poll_seconds: int = 10) 
     while True:
         b = client.batches.retrieve(batch_id)
         if b.status in ("failed", "expired", "canceled"):
-            raise RuntimeError(f"Batch {batch_id} status={b.status}")
+            raise RuntimeError(f"Batch {batch_id} status={b.status} reason={b.errors}")
         if b.status == "completed":
             break
         time.sleep(poll_seconds)
@@ -261,6 +251,75 @@ def map_llm_responses(
     history.save()
 
 
+# ========================= Re-evaluation of existing answers =========================
+
+def reevaluate_combo_dir(combo_dir: str) -> int:
+    """Re-evaluate all existing evaluation answers in a combo directory.
+    
+    Args:
+        combo_dir: Path to combo directory
+        
+    Returns:
+        Number of answers re-evaluated
+    """
+    history = load_history_manager(combo_dir)
+    
+    # Get all evaluation turn logs
+    eval_logs = history.evaluation_turn_logs
+    if not eval_logs:
+        print(f"No evaluation logs found in {combo_dir}")
+        return 0
+    
+    count = 0
+    for questions in eval_logs.values():
+        for question in questions.values():
+            eval_log = question.get("evaluation_log", {})
+            if not eval_log:
+                continue
+
+            # Get existing data
+            eval_data = eval_log.get("evaluation_data")
+            user_answer_raw = eval_log.get("user_answer", "")
+            
+            if not eval_data:
+                continue
+            
+            # Parse answer from raw message (same as in map_llm_responses)
+            _, answer, _ = parse_llm_response(user_answer_raw)
+            
+            # Re-evaluate
+            score, info = evaluate_from_dict(eval_data, answer)
+            
+            # Update the log
+            eval_log["score"] = score
+            eval_log["evaluation_info"] = info or {}
+            
+            count += 1
+    
+    # Save updated history
+    history.save()
+    print(f"Re-evaluated {count} answers in {combo_dir}")
+    return count
+
+
+def reevaluate_combo_dirs(combo_dirs: List[str]) -> None:
+    """Re-evaluate all existing evaluation answers in multiple combo directories.
+    
+    Args:
+        combo_dirs: List of combo directory paths
+    """
+    total_count = 0
+    for combo_dir in combo_dirs:
+        try:
+            count = reevaluate_combo_dir(combo_dir)
+            total_count += count
+        except Exception as e:
+            print(f"Error re-evaluating {combo_dir}: {e}")
+            continue
+    
+    print(f"\nRe-evaluation completed: {total_count} answers re-evaluated across {len(combo_dirs)} combo directories.")
+
+
 # ========================= Combo-level inference =========================
 
 def run_inference_for_combo_dirs(
@@ -309,15 +368,14 @@ def run_inference_for_combo_dirs(
         with tempfile.TemporaryDirectory() as tmpdir:
             batch_jsonl = os.path.join(tmpdir, "batch_input.jsonl")
             batch_id = submit_openai_batch(client, all_msgs, all_meta, model_config, batch_jsonl)
-            print(f"Submitted batch: {batch_id}")
+            print(f"Submitted batch: {batch_id}, Messages: {len(all_msgs)}")
             outputs = collect_openai_batch(client, batch_id)
     else:
         outputs = generate_with_model_interface(model_config, all_msgs, all_meta)
     
     # Map responses back to histories
     meta_by_id = index_meta_by_id(all_meta)
-    combo_to_outputs: Dict[str, List[Dict[str, Any]]] = {}
-    combo_to_metas: Dict[str, List[Dict[str, Any]]] = {}
+    combo_data: Dict[str, Dict[str, List]] = {}
     
     for out in outputs:
         mid = str(out.get("message_id"))
@@ -325,18 +383,17 @@ def run_inference_for_combo_dirs(
         if not m:
             continue
         cdir = m.get("combo_dir")
-        combo_to_outputs.setdefault(cdir, []).append(out)
-        combo_to_metas.setdefault(cdir, []).append(m)
+        if cdir not in combo_data:
+            combo_data[cdir] = {"outputs": [], "metas": []}
+        combo_data[cdir]["outputs"].append(out)
+        combo_data[cdir]["metas"].append(m)
     
     # Update history for each combo
-    # Pass cogmap_reevaluate to CognitiveMapManager if in cogmap mode
     cogmap_config = {"cogmap_reevaluate": cogmap_reevaluate} if cogmap_reevaluate and mode == "cogmap" else None
-    for cdir, outs in combo_to_outputs.items():
-        metas = combo_to_metas.get(cdir, [])
-        if metas:
-            map_llm_responses(cdir, metas, outs, cogmap_config=cogmap_config)
+    for cdir, data in combo_data.items():
+        map_llm_responses(cdir, data["metas"], data["outputs"], cogmap_config=cogmap_config)
     
-    print(f"Completed {mode} inference for {len(combo_to_outputs)} combos, processed {len(outputs)} responses.")
+    print(f"Completed {mode} inference for {len(combo_data)} combos, processed {len(outputs)} responses.")
 
 
 # ========================= __main__ demos =========================
