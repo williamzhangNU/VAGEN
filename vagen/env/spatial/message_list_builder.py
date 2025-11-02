@@ -9,7 +9,7 @@ import argparse
 from vagen.env.spatial.Base.tos_base import Room, Agent
 from vagen.env.spatial.Base.tos_base.evaluation.task_types import EvalTaskType
 from vagen.env.spatial.Base.tos_base.prompts.cogmap_prompts import get_cogmap_prompt
-from vagen.env.spatial.Base.tos_base.utils.utils import hash
+from vagen.env.spatial.Base.tos_base.utils.utils import hash, numpy_to_python
 
 # Shared common utilities/constants
 from vagen.env.spatial.common import (
@@ -74,7 +74,7 @@ def build_evaluation_from_combo(
     """Create evaluation message lists from exploration history for one sample combo dir.
 
     Returns (messages_list, meta_list) with meta including sample_id, task_type, question_id, message_id.
-    
+
     Args:
         combo_dir: Directory containing exploration history
         eval_task_counts: Dict mapping task types to count
@@ -82,8 +82,7 @@ def build_evaluation_from_combo(
         eval_override: If True, ignore existing evaluation history and regenerate all questions
     """
     messages, _turn_logs, sample_cfg = _load_exploration_artifacts(combo_dir)
-    sample_id = os.path.basename(sample_cfg.get("image_dir", "sample"))
-    
+
     base_msgs = [m.copy() for m in messages]
 
     # Load history manager with eval_override flag
@@ -96,6 +95,9 @@ def build_evaluation_from_combo(
     room = Room.from_dict(sample_cfg["room_dict"]).copy()
     agent = Agent.from_dict(sample_cfg["agent_dict"]).copy()
 
+    # Track message_ids to ensure uniqueness
+    seen_message_ids = set()
+
     for task_short, count in (eval_task_counts or {}).items():
         # Get task class name for comparison
         task = EvalTaskType.create_task(task_short, np.random.default_rng(hm.seed), room, agent, {}, None)
@@ -103,18 +105,21 @@ def build_evaluation_from_combo(
 
         # Calculate how many questions still needed
         existing_id_for_task = existing_ids.get(task_class_name, [])
-        
-        for i in range(count):
-            q_text = task.generate_question()
-            if task.eval_data.id in existing_id_for_task:
-                print(f"  Skipping existing question {i + 1}/{count}: {task_short}")
-                continue
+
+        for _ in range(count - len(existing_id_for_task)):
+            # retry
+            for _ in range(20):
+                q_text = task.generate_question()
+                if task.eval_data.id in existing_id_for_task:
+                    continue
+                else:
+                    break
+            existing_id_for_task.append(task.eval_data.id)
             assert base_msgs[-1]["role"] == "user"
             new_list = [m.copy() for m in base_msgs]
-            new_list[-1]['content'] = new_list[-1]['content'] + "\n" + q_text 
+            new_list[-1]['content'] = new_list[-1]['content'] + "\n" + q_text
             meta_obj = {
                 "type": "evaluation",
-                "sample_id": sample_id,
                 "task_type": task_short,
                 "task_class": task.__class__.__name__,
                 "question_id": task.eval_data.id,
@@ -122,6 +127,9 @@ def build_evaluation_from_combo(
                 "evaluation_data": task.eval_data.to_dict(),
             }
             meta_obj["message_id"] = hash(json.dumps(meta_obj, sort_keys=True))
+            if meta_obj["message_id"] in seen_message_ids:
+                raise ValueError(f"Duplicate message_id detected: {meta_obj['message_id']} for combo_dir={combo_dir}, task={task_short}, question_id={task.eval_data.id}")
+            seen_message_ids.add(meta_obj["message_id"])
             _add_message(out_msgs, meta, new_list, meta_obj)
 
     return out_msgs, meta
@@ -132,13 +140,23 @@ def build_cogmap_from_combo(
     cogmap_override: bool = False,
 ) -> Tuple[List[List[Dict]], List[Dict]]:
     """Create cogmap message lists strictly following cog_utils logic (local/global only).
-    
+
     Args:
         combo_dir: Directory containing exploration history
         cogmap_override: If True, regenerate all cogmaps; if False, skip turns with existing cogmaps
     """
     messages, turn_logs, sample_cfg = _load_exploration_artifacts(combo_dir)
-    sample_id = os.path.basename(sample_cfg.get("image_dir", "sample"))
+    # Derive sample_id from combo_dir path instead of image_dir
+    # Format: room_hash (parent of vision/text directory)
+    combo_abs = os.path.abspath(combo_dir)
+    parts = combo_abs.split(os.sep)
+    try:
+        render_idx = max(i for i, p in enumerate(parts) if p in ("vision", "text"))
+        room_hash_idx = render_idx - 1
+        sample_id = parts[room_hash_idx]
+    except (ValueError, IndexError):
+        # Fallback if path structure is unexpected
+        sample_id = os.path.basename(sample_cfg.get("image_dir", "sample"))
     
     hm = load_history_manager(combo_dir)
     enable_think = hm.get_enable_think()
@@ -179,7 +197,7 @@ def build_cogmap_from_combo(
                     "map_type": mtype,
                     "combo_dir": os.path.abspath(combo_dir),
                 }
-                meta_obj["message_id"] = generate_message_id(meta_obj)
+                meta_obj["message_id"] = hash(json.dumps(meta_obj, sort_keys=True, default=numpy_to_python))
                 _add_message(out_msgs, meta, mod_seq, meta_obj)
 
     else:  # passive

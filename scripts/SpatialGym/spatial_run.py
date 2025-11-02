@@ -22,9 +22,6 @@ import urllib.request
 import threading
 from datetime import datetime
 from tqdm import tqdm
-from vagen.env.spatial.Base.tos_base.utils.utils import hash as compute_hash
-from vagen.env.spatial.Base.tos_base.utils.image_handler import ImageHandler
-from vagen.env.spatial.Base.tos_base.utils.room_utils import initialize_room_from_json
 from vagen.env.spatial.llm_inference import run_inference_for_combo_dirs, reevaluate_combo_dirs
 from vagen.env.spatial.Base.tos_base.utils.env_logger import SpatialEnvLogger
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -88,7 +85,7 @@ def parse_args():
                    help="Seed range 'start-end' (0-based), e.g., 0-24")
     p.add_argument("--enable-think", type=int, dest="enable_think", choices=[0,1], default=1, 
                    help="1 to enable think, 0 to disable (default: 1)")
-    p.add_argument("--proxy-agent", type=str, dest="proxy_agent", default="scout", 
+    p.add_argument("--proxy-agent", type=str, dest="proxy_agent", default="strategist", 
                    choices=["scout","strategist","oracle"], 
                    help="Proxy agent for passive tasks (required if exp-type is passive)")
     p.add_argument("--all-override", action="store_true", dest="all_override", 
@@ -155,11 +152,12 @@ def build_tmp_paths(run_id: str, task_key: str) -> Dict[str, Path]:
     }
 
 
-def patch_env_yaml(exp_type: str, render_mode="vision", 
-                   seed_opts: tuple[int, int] | None = None, enable_think: int | None = None, 
-                   data_dir: str | None = None, proxy_agent: str | None = None) -> Dict[str, Any]:
+def patch_env_yaml(exp_type: str, render_mode="vision",
+                   seed_opts: tuple[int, int] | None = None, enable_think: int | None = None,
+                   data_dir: str | None = None, proxy_agent: str | None = None,
+                   room_config: Dict[str, Any] | None = None) -> Dict[str, Any]:
     """Build env config directly without relying on custom_envs.
-    
+
     Args:
         env_cfg: Base environment config (not used, kept for compatibility)
         exp_type: 'active' or 'passive'
@@ -169,14 +167,15 @@ def patch_env_yaml(exp_type: str, render_mode="vision",
         enable_think: Enable thinking
         data_dir: Data directory
         proxy_agent: Proxy agent for passive mode
-        
+        room_config: Room configuration (n_objects, room_num, topology, room_size)
+
     Returns:
         Dict with task config
     """
-    
+
     # Use a generic task key
     task_key = "SpatialTask"
-    
+
     # Build environment config directly
     env_config = {
         'exp_type': exp_type,
@@ -184,21 +183,25 @@ def patch_env_yaml(exp_type: str, render_mode="vision",
         'render_mode': render_mode,
         'prompt_config': {}
     }
-    
+
     # Add optional configurations
     if data_dir:
         env_config["data_dir"] = data_dir
-    
+
     env_config.setdefault("kwargs", {})
     env_config["kwargs"]["seed_start"] = int(seed_opts[0])
     env_config["kwargs"]["seed_end"] = int(seed_opts[1])
-    
+
     if enable_think is not None:
         env_config["prompt_config"]["enable_think"] = bool(enable_think)
-    
+
     if proxy_agent and exp_type == "passive":
         env_config["proxy_agent"] = proxy_agent
-    
+
+    # Add room_config if provided
+    if room_config:
+        env_config["room_config"] = room_config
+
     # Build the complete task config
     selected = {
         "env_name": "spatial",
@@ -206,7 +209,7 @@ def patch_env_yaml(exp_type: str, render_mode="vision",
         "train_size": 1,
         "test_size": int(seed_opts[1] - seed_opts[0] + 1)
     }
-    
+
     return {task_key: selected}
 
 
@@ -313,11 +316,11 @@ def compute_combo_paths(
     data_dir: str,
     proxy_agent: str | None = None,
 ) -> List[str]:
-    """Compute expected combo directory paths for all combinations of parameters.
-    
-    This replicates the logic from HistoryManager to determine where
-    exploration results should be stored.
-    
+    """Find combo directory paths by constructing possible paths and filtering by seed.
+
+    This function constructs possible directory paths based on the given parameters,
+    then checks if config.json exists in those paths and filters by seed.
+
     Args:
         output_root: Base output directory
         model_name: Model name
@@ -325,82 +328,109 @@ def compute_combo_paths(
         seed_range: Tuple of (start_seed, end_seed) or None
         render_modes: List of render modes ('vision', 'text')
         enable_think: Whether thinking is enabled
-        data_dir: Data directory containing room data
+        data_dir: Data directory containing room data (kept for compatibility)
         proxy_agent: Proxy agent for passive mode
-        
-    Returns:
-        List of combo directory paths for all combinations
-    """
-    
-    # Determine seed list
-    if seed_range:
-        seeds = list(range(seed_range[0], seed_range[1] + 1))
-    else:
-        seeds = [0]  # Default single seed
-    
-    combo_paths = []
-    
-    for seed in seeds:
-        # Load room/agent data to compute hash once per seed
-        try:
-            _ , json_data = ImageHandler.load_data(data_dir, seed)
-            room, agent = initialize_room_from_json(json_data)
 
-            # Compute room hash (same as HistoryManager._generate_room_key)
-            room_str = json.dumps(
-                {**room.to_dict(), **agent.to_dict()},
-                sort_keys=True
-            )
-            room_hash = compute_hash(room_str)
-            
-            # Generate paths for all exp_type and render_mode combinations
+    Returns:
+        List of combo directory paths that match the criteria
+    """
+    # data_dir is kept for backward compatibility but not used in new logic
+    _ = data_dir
+
+    # Determine seed range
+    if seed_range:
+        seed_start, seed_end = seed_range
+    else:
+        seed_start, seed_end = None, None
+
+    combo_paths = []
+    model_dir = os.path.join(output_root, model_name)
+
+    # Check if model directory exists
+    if not os.path.exists(model_dir):
+        print(f"Warning: Model directory does not exist: {model_dir}", file=sys.stderr)
+        return combo_paths
+
+    # Build think string based on enable_think
+    think_str = "think" if enable_think else "nothink"
+
+    # Get all room_hash directories (first level under model_dir)
+    try:
+        room_hash_dirs = [d for d in os.listdir(model_dir)
+                         if os.path.isdir(os.path.join(model_dir, d))]
+    except Exception as e:
+        print(f"Warning: Failed to list directories in {model_dir}: {e}", file=sys.stderr)
+        return combo_paths
+
+    # Construct possible paths based on parameters
+    for room_hash in room_hash_dirs:
+        for render_mode in render_modes:
             for exp_type in exp_types:
-                for render_mode in render_modes:
-                    # Build path following HistoryManager structure
-                    # model_name/room_hash/render_mode/exp_type/think_or_nothink/[proxy_agent]
-                    think_str = "think" if enable_think else "nothink"
-                    
-                    path_parts = [
-                        output_root,
-                        model_name,
-                        room_hash,
-                        render_mode,
-                        exp_type,
-                        think_str,
-                    ]
-                    
-                    if exp_type == "passive":
-                        path_parts.append(proxy_agent if proxy_agent else "scout")
-                    
-                    combo_path = os.path.join(*path_parts)
+                # Build path: model_dir/room_hash/render_mode/exp_type/think_str/[proxy_agent]
+                if exp_type == "passive" and proxy_agent:
+                    combo_path = os.path.join(model_dir, room_hash, render_mode,
+                                             exp_type, think_str, proxy_agent)
+                else:
+                    combo_path = os.path.join(model_dir, room_hash, render_mode,
+                                             exp_type, think_str)
+
+                # Check if this path exists and has config.json
+                config_path = os.path.join(combo_path, "config.json")
+                if not os.path.exists(config_path):
+                    continue
+
+                # Read config and check seed
+                try:
+                    with open(config_path, 'r') as f:
+                        config = json.load(f)
+
+                    # Check if seed exists in config
+                    seed = config.get("seed")
+                    if seed is None:
+                        continue
+
+                    # Filter by seed range if specified
+                    if seed_range is not None:
+                        if not (seed_start <= seed <= seed_end):
+                            continue
+
+                    # Add this path to results
                     combo_paths.append(combo_path)
-                
-        except Exception as e:
-            print(f"Warning: Failed to compute combo paths for seed={seed}: {e}", 
-                  file=sys.stderr)
-            continue
-    
+
+                except Exception as e:
+                    print(f"Warning: Failed to read config from {config_path}: {e}",
+                          file=sys.stderr)
+                    continue
+
     return combo_paths
 
 
-def run_exploration_phase(args, seed_opts, server_url: str | None, 
+def run_exploration_phase(args, seed_opts, server_url: str | None,
                          exp_types: List[str], render_modes: List[str]):
     """Run exploration phase: create dataset and run inference once.
-    
+
     Note: All seeds are processed in a single run via seed_opts.
     Loops through all exp_type and render_mode combinations.
     """
     print("\n" + "="*60)
     print("PHASE: EXPLORATION")
     print("="*60 + "\n")
-    
+
+    base_env = Path(args.base_env)
     base_infer = Path(args.base_infer)
     base_model = Path(args.base_model)
+
+    # Load room_config from base_env_config.yaml
+    base_env_cfg = load_yaml(base_env)
+    room_config = base_env_cfg.get("room_config")
+    if room_config:
+        print(f"Loaded room_config from {base_env}: {room_config}")
+
     # Generate unique run_id for this combination
     combo_run_id = datetime.now().strftime("%Y-%m-%d-%H-%M-%S-%f")
     data_train = f"data/{combo_run_id}/train.parquet"
     data_test = f"data/{combo_run_id}/test.parquet"
-    
+
     tmp_paths = build_tmp_paths(combo_run_id, "exploration")
 
     infer_cfg = load_yaml(base_infer)
@@ -411,19 +441,19 @@ def run_exploration_phase(args, seed_opts, server_url: str | None,
         server_url=server_url,
         all_override=args.all_override,
     )
-    model_cfg = load_yaml(base_model) 
-    model_cfg = patch_model_yaml(model_cfg, args.model_name)  
+    model_cfg = load_yaml(base_model)
+    model_cfg = patch_model_yaml(model_cfg, args.model_name)
     dump_yaml(model_cfg, tmp_paths["model"])
-    dump_yaml(patched_infer_cfg, tmp_paths["infer"]) 
+    dump_yaml(patched_infer_cfg, tmp_paths["infer"])
 
     # Loop through all combinations
     for exp_type in exp_types:
         for render_mode in render_modes:
             print(f"\n--- Running exploration: exp_type={exp_type}, render_mode={render_mode} ---")
             # Create env config with current combination
-            env_cfg = patch_env_yaml(exp_type, render_mode, 
+            env_cfg = patch_env_yaml(exp_type, render_mode,
                                      seed_opts, args.enable_think, data_dir=args.data_dir,
-                                     proxy_agent=args.proxy_agent)
+                                     proxy_agent=args.proxy_agent, room_config=room_config)
             dump_yaml(env_cfg, tmp_paths["env"])
             
             # Create dataset

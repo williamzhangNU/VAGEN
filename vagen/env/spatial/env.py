@@ -7,6 +7,7 @@ from vagen.env.spatial.Base.tos_base import (
     ExplorationManager,
     HistoryManager,
     BaseAction,
+    RoomGenerator,
 )
 from vagen.env.spatial.Base.tos_base.managers.agent_proxy import get_agent_proxy
 from vagen.env.spatial.Base.tos_base.prompts import PromptManager
@@ -88,12 +89,19 @@ class SpatialGym(gym.Env):
         """Reset environment for a new episode."""
         super().reset(seed=seed)
 
-        self.image_handler = ImageHandler(self.config.data_dir, seed, self.config.image_size)
-        self.json_data = self.image_handler.json_data
+        # self.image_handler = ImageHandler(self.config.data_dir, seed, self.config.image_size)
+        # self.json_data = self.image_handler.json_data
 
-        self.prompter = PromptManager(self.config, self.np_random, self.image_handler)
-        # Generate initial room
-        self.initial_room, self.agent = initialize_room_from_json(self.json_data)
+        # self.prompter = PromptManager(self.config, self.np_random, self.image_handler)
+        # # Generate initial room
+        # self.initial_room, self.agent = initialize_room_from_json(self.json_data)
+
+        self.prompter = PromptManager(self.config, self.np_random)
+        self.initial_room, self.agent = RoomGenerator.generate_multi_room(
+            **self.config.get_room_config(),
+            np_random=self.np_random,
+        )
+
         self.initial_agent = self.agent.copy()
 
         # Initialize episode state
@@ -115,7 +123,7 @@ class SpatialGym(gym.Env):
         self.history_manager = HistoryManager(
             self.config.get_observation_config(), self.config.get_model_config(),
             self.initial_room.to_dict(), self.agent.to_dict(),
-            image_dir=self.image_handler.image_dir,
+            image_dir=self.image_handler.image_dir if hasattr(self, 'image_handler') else None,
             output_dir=self.config.kwargs['output_dir'],
             seed=seed,
             eval_override=False,

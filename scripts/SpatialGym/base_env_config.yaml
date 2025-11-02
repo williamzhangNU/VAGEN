@@ -1,3 +1,9 @@
+room_config:
+  n_objects: 4
+  room_num: 3
+  topology: 1
+  room_size: [6, 6]
+
 _common: &common
   env_name: spatial
   train_size: 25

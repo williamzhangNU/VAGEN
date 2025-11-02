@@ -67,9 +67,9 @@ def collect_openai_batch(client: OpenAI, batch_id: str, poll_seconds: int = 10) 
     """Poll until batch completes. Returns list of {message_id, text, usage}."""
     while True:
         b = client.batches.retrieve(batch_id)
-        if b.status in ("failed", "expired", "canceled"):
+        if b.status in ("failed", "canceled"):
             raise RuntimeError(f"Batch {batch_id} status={b.status} reason={b.errors}")
-        if b.status == "completed":
+        if b.status in ("completed", "expired"):
             break
         time.sleep(poll_seconds)
 
