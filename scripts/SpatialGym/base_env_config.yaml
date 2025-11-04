@@ -1,6 +1,6 @@
 room_config:
   n_objects: 4
-  room_num: 3
+  room_num: 4
   topology: 1
   room_size: [6, 6]
 

@@ -85,7 +85,7 @@ def parse_args():
                    help="Seed range 'start-end' (0-based), e.g., 0-24")
     p.add_argument("--enable-think", type=int, dest="enable_think", choices=[0,1], default=1, 
                    help="1 to enable think, 0 to disable (default: 1)")
-    p.add_argument("--proxy-agent", type=str, dest="proxy_agent", default="strategist", 
+    p.add_argument("--proxy-agent", type=str, dest="proxy_agent", default="scout", 
                    choices=["scout","strategist","oracle"], 
                    help="Proxy agent for passive tasks (required if exp-type is passive)")
     p.add_argument("--all-override", action="store_true", dest="all_override", 

@@ -18,6 +18,7 @@ eval_task_counts:
   bwd_pov: 1
   fwd_fov: 1
   bwd_nav: 1
+  bwd_nav_rev: 1
   e2a: 1
   rot: 1
   rot_dual: 1
