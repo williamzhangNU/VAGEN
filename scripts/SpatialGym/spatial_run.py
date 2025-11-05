@@ -1,4 +1,12 @@
 #!/usr/bin/env python3
+"""
+Split SpatialGym runner: separate exploration, evaluation, and cogmap phases.
+
+Phases:
+- exploration: Run dataset creation only (generates exploration histories)
+- evaluation: Build eval messages and run inference
+- cogmap: Build cogmap messages and run inference
+"""
 import argparse
 import os
 import sys
@@ -6,6 +14,7 @@ import shlex
 import subprocess
 import time
 import socket
+import json
 from pathlib import Path
 from typing import Dict, Any, List
 import yaml as pyyaml
@@ -13,7 +22,8 @@ import urllib.request
 import threading
 from datetime import datetime
 from tqdm import tqdm
-
+from vagen.env.spatial.llm_inference import run_inference_for_combo_dirs, reevaluate_combo_dirs
+from vagen.env.spatial.Base.tos_base.utils.env_logger import SpatialEnvLogger
 SCRIPT_DIR = Path(__file__).resolve().parent
 
 
@@ -50,50 +60,71 @@ def get_adaptive_port(user_port: int = None, default_start: int = 5000) -> int:
 
 def parse_args():
     p = argparse.ArgumentParser(
-        description="Batch run SpatialGym: per-task tmp YAML generation, dataset then inference (no Hydra)."
+        description="SpatialGym runner with separated phases: exploration, evaluation, cogmap."
     )
-    p.add_argument("--tasks", nargs="+", default=['ActiveRot'],
-                   help="Tasks (space or comma separated). Examples: ActiveRot PassiveRot or 'ActiveRot,PassiveLoc'. Default: ActiveRot")
-    p.add_argument("--num", type=int, default=1, help="Number of samples per task. Default: 1")
-    p.add_argument("--model_name", type=str, default="gpt-4.1-mini",
-                   help="Model identifier. Default: gpt-4.1-mini")
-    p.add_argument("--data-dir", type=str, dest="data_dir", default=None, help="Data directory root. Default: data")
-    p.add_argument("--render-mode", type=str, dest="render_mode", default="vision", help="Environment render mode (vision or text). Default: vision")
-    p.add_argument("--output-root", type=str, dest="output_root", default="results", help="Root dir for inference output_dir. Default: results")
-    p.add_argument("--seed-range", type=str, dest="seed_range", default=None, help="Seed range 'start-end' (0-based), e.g., 0-24")
-    p.add_argument("--enable-think", type=int, dest="enable_think", choices=[0,1], default=1, help="1 to enable think, 0 to disable (default: 1)")
-    p.add_argument("--cogmap-reevaluate", action="store_true", dest="cogmap_reevaluate", help="If set, will re-evaluate existing cognitive maps")
-    # New granular override flags
-    p.add_argument("--eval-override", action="store_true", dest="eval_override", help="Override evaluation history (delete evaluation json only)")
-    p.add_argument("--cogmap-override", action="store_true", dest="cogmap_override", help="Override cognitive map cache")
-    p.add_argument("--all-override", action="store_true", dest="all_override", help="Override all history (delete whole sample path)")
-    p.add_argument("--cogmap", action="store_true", help="If set, will enable cognitive map evaluation")
-    # Eval repetition controls: CLI overrides YAML eval_task_counts
-    p.add_argument("--eval_counts", type=str, default=None,
-                   help="Per-task eval run counts, e.g., 'PassiveRot=3,ActiveDir=2'. If omitted, use inference_config.yaml eval_task_counts or default 1")
-    # Choose which evaluation tasks to override
-    p.add_argument("--eval-override-tasks", type=str, dest="eval_override_tasks", default=None,
-                   help="Comma/space separated eval task keys to override (short names or class names), e.g., 'dir,RotEvaluationTask'")
-    # Optional: override base yaml paths (env/model now default to base_*.yaml)
-    p.add_argument("--base_env", type=str, dest="base_env", default=str(SCRIPT_DIR / "base_env_config.yaml"))
-    p.add_argument("--base_infer", type=str, dest="base_infer", default=str(SCRIPT_DIR / "inference_config.yaml"))
-    p.add_argument("--base_model", type=str, dest="base_model", default=str(SCRIPT_DIR / "base_model_config.yaml"))
-    # Server options: server is ON by default, use --no_server to skip starting it
-    p.add_argument("--no-server", action="store_true", dest="no_server", help="Do not start internal env server (assume an external server is running)")
-    p.add_argument("--server-host", type=str, dest="server_host", default="127.0.0.1", help="Server host to bind/connect")
-    p.add_argument("--server-port", type=int, dest="server_port", default=5000, help="Server port to bind/connect")
-    # Proxy agent selection (for passive tasks)
-    p.add_argument("--proxy-agent", type=str, dest="proxy_agent", default=None, choices=["scout","strategist","oracle"], help="Proxy agent for passive tasks")
-    p.add_argument("--inference-only", action="store_true", dest="inference_only", help="If set, skip SpatialEnvLogger logging after inference")
-    p.add_argument("--aggregate-only", action="store_true", dest="aggregate_only", help="If set, skip individual task logging and only log aggregate results")
+    # Phase selection
+    p.add_argument("--phase", type=str, default="all", 
+                   choices=['explore', 'eval', 'cogmap', 'all', 'aggregate', 'reeval'],
+                   help="Which phase to run: explore, eval, cogmap, reeval, aggregate, or all")
 
+    # Common parameters
+    p.add_argument("--exp-type", type=str, dest="exp_type", 
+                   default="active",
+                   help="Experiment type: active, passive, or comma-separated for multiple (e.g., 'active,passive'). Default: active")
+    p.add_argument("--model-name", type=str, default="gpt-4o-mini",
+                   help="Model identifier. Default: gpt-4o-mini")
+    p.add_argument("--data-dir", type=str, dest="data_dir", default=None, 
+                   help="Data directory root. Default: data")
+    p.add_argument("--output-root", type=str, dest="output_root", default="results", 
+                   help="Root dir for output. Default: results")
+    p.add_argument("--num", type=int, default=1, 
+                   help="Number of samples per task (exploration phase). Default: 1")
+    p.add_argument("--render-mode", type=str, dest="render_mode", default="vision", 
+                   help="Environment render mode: vision, text, or comma-separated for multiple (e.g., 'vision,text'). Default: vision")
+    p.add_argument("--seed-range", type=str, dest="seed_range", default=None, 
+                   help="Seed range 'start-end' (0-based), e.g., 0-24")
+    p.add_argument("--enable-think", type=int, dest="enable_think", choices=[0,1], default=1, 
+                   help="1 to enable think, 0 to disable (default: 1)")
+    p.add_argument("--proxy-agent", type=str, dest="proxy_agent", default="scout", 
+                   choices=["scout","strategist","oracle"], 
+                   help="Proxy agent for passive tasks (required if exp-type is passive)")
+    p.add_argument("--all-override", action="store_true", dest="all_override", 
+                   help="Override all history (delete whole sample path)")
+    
+    # Evaluation/Cogmap phase parameters
+    p.add_argument("--eval-task-counts", type=str, dest="eval_task_counts", default=None,
+                   help='JSON string for eval task counts, e.g., {"dir": 1}. If omitted, use inference_config.yaml eval_task_counts')
+    p.add_argument("--cogmap", action="store_true", dest="cogmap",
+                   help="Run cognitive map phase")
+    p.add_argument("--eval-override", action="store_true", dest="eval_override", 
+                   help="Override evaluation history (delete evaluation json only)")
+    p.add_argument("--cogmap-override", action="store_true", dest="cogmap_override", 
+                   help="Override cognitive map cache (regenerate cogmap prompts)")
+    p.add_argument("--cogmap-reevaluate", action="store_true", dest="cogmap_reevaluate",
+                   help="Re-evaluate existing cognitive maps (pass to CognitiveMapManager)")
+    
+    # Inference parameters
+    p.add_argument("--inference-mode", type=str, dest="inference_mode", 
+                   choices=['batch', 'direct'], default='direct',
+                   help="Inference mode: batch (OpenAI batch API) or direct. Default: direct")
+    
+    # Server options
+    p.add_argument("--no-server", action="store_true", dest="no_server", 
+                   help="Do not start internal env server (assume external server is running)")
+    p.add_argument("--server-host", type=str, dest="server_host", default="127.0.0.1", 
+                   help="Server host to bind/connect")
+    p.add_argument("--server-port", type=int, dest="server_port", default=5000, 
+                   help="Server port to bind/connect")
+    
+    # Base config paths
+    p.add_argument("--base-env", type=str, dest="base_env", 
+                   default=str(SCRIPT_DIR / "base_env_config.yaml"))
+    p.add_argument("--base-infer", type=str, dest="base_infer", 
+                   default=str(SCRIPT_DIR / "inference_config.yaml"))
+    p.add_argument("--base-model", type=str, dest="base_model", 
+                   default=str(SCRIPT_DIR / "base_model_config.yaml"))
+    
     return p.parse_args()
-
-
-def normalize_tasks(tasks_arg: List[str]) -> List[str]:
-    if len(tasks_arg) == 1 and "," in tasks_arg[0]:
-        return [t.strip() for t in tasks_arg[0].split(",") if t.strip()]
-    return [t.strip() for t in tasks_arg]
 
 
 def load_yaml(path: Path) -> Dict[str, Any]:
@@ -105,14 +136,6 @@ def dump_yaml(data: Dict[str, Any], path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w") as f:
         pyyaml.safe_dump(data, f, sort_keys=False)
-
-
-def compute_experiment_name(script_dir: Path) -> str:
-    # Match run.sh behavior: last two parts joined by '-'
-    parts = [p for p in script_dir.parts if p]
-    if len(parts) >= 2:
-        return f"{parts[-2]}-{parts[-1]}"
-    return parts[-1] if parts else "exp"
 
 
 def model_segment(model_name: str) -> str:
@@ -129,132 +152,95 @@ def build_tmp_paths(run_id: str, task_key: str) -> Dict[str, Path]:
     }
 
 
+def patch_env_yaml(exp_type: str, render_mode="vision",
+                   seed_opts: tuple[int, int] | None = None, enable_think: int | None = None,
+                   data_dir: str | None = None, proxy_agent: str | None = None,
+                   room_config: Dict[str, Any] | None = None) -> Dict[str, Any]:
+    """Build env config directly without relying on custom_envs.
 
-def parse_eval_counts_arg(arg: str | None) -> Dict[str, int]:
-    """Parse CLI eval counts string into a dict, e.g., 'PassiveRot=3,ActiveDir=2'."""
-    result: Dict[str, int] = {}
-    if not arg:
-        return result
-    # Split by comma or spaces
-    parts: List[str] = []
-    for token in arg.replace(" ", ",").split(","):
-        t = token.strip()
-        if t:
-            parts.append(t)
-    for item in parts:
-        if "=" not in item:
-            continue
-        k, v = item.split("=", 1)
-        k = k.strip()
-        try:
-            result[k] = int(v.strip())
-        except Exception:
-            continue
-    return result
+    Args:
+        env_cfg: Base environment config (not used, kept for compatibility)
+        exp_type: 'active' or 'passive'
+        num: Number of samples
+        render_mode: Render mode
+        seed_opts: Seed range tuple
+        enable_think: Enable thinking
+        data_dir: Data directory
+        proxy_agent: Proxy agent for passive mode
+        room_config: Room configuration (n_objects, room_num, topology, room_size)
 
-
-def parse_task_list_arg(arg: str | None) -> List[str]:
-    """Parse CLI list string into a list, splitting on commas/spaces."""
-    if not arg:
-        return []
-    parts: List[str] = []
-    for token in arg.replace(" ", ",").split(","):
-        t = token.strip()
-        if t:
-            parts.append(t)
-    return parts
-
-
-def resolve_eval_runs_count(task_key: str, infer_cfg: Dict[str, Any], eval_counts_cli: Dict[str, int] | None) -> int:
-    """Decide how many times to run inference for a given task.
-
-    Priority: CLI --eval_counts > inference_config.yaml eval_task_counts > 1.
+    Returns:
+        Dict with task config
     """
-    if eval_counts_cli and task_key in eval_counts_cli:
-        return max(1, int(eval_counts_cli[task_key]))
-    yaml_counts = (infer_cfg or {}).get("eval_task_counts") or {}
-    if isinstance(yaml_counts, dict) and task_key in yaml_counts:
-        try:
-            return max(1, int(yaml_counts[task_key]))
-        except Exception:
-            pass
-    return 1
 
+    # Use a generic task key
+    task_key = "SpatialTask"
 
-def patch_env_yaml(env_cfg: Dict[str, Any], task_key: str, num: int, render_mode = "vision", seed_opts: tuple[int, int] | None = None, 
-                   enable_think: int | None = None, eval_num: int | None = None, data_dir: str | None = None) -> Dict[str, Any]:
-    """Return {TaskKey: {...}} by selecting the entry from custom_envs and overriding sizes.
+    # Build environment config directly
+    env_config = {
+        'exp_type': exp_type,
+        'max_exp_steps': 1 if exp_type == 'passive' else 20,
+        'render_mode': render_mode,
+        'prompt_config': {}
+    }
 
-    Behavior:
-    - Select the env config by key from env_cfg['custom_envs'].
-    - Shallow-copy the entry and set test_size to `num`.
-    - Wrap it under the CamelCase task key for create_dataset.
-    """
-    custom_envs = env_cfg.get("custom_envs", {}) or {}
-    selected = dict(custom_envs[task_key])
-    selected["test_size"] = int(num)
-    selected["env_config"]['render_mode'] = render_mode
+    # Add optional configurations
     if data_dir:
-        selected["env_config"]["data_dir"] = data_dir
-    if seed_opts:
-        selected["env_config"].setdefault("kwargs", {})
-        selected["env_config"]["kwargs"]["seed_start"] = int(seed_opts[0])
-        selected["env_config"]["kwargs"]["seed_end"] = int(seed_opts[1])
-        selected["test_size"] = int(seed_opts[1] - seed_opts[0] + 1)
+        env_config["data_dir"] = data_dir
+
+    env_config.setdefault("kwargs", {})
+    env_config["kwargs"]["seed_start"] = int(seed_opts[0])
+    env_config["kwargs"]["seed_end"] = int(seed_opts[1])
+
     if enable_think is not None:
-        selected["env_config"].setdefault("prompt_config", {})
-        selected["env_config"]["prompt_config"]["enable_think"] = bool(enable_think)
-    if eval_num is not None:
-        # Pass desired evaluation repetitions to EvaluationManager via env config
-        tasks = selected["env_config"].get("eval_tasks") or []
-        if tasks:
-            tasks[0]["num"] = int(eval_num)
+        env_config["prompt_config"]["enable_think"] = bool(enable_think)
+
+    if proxy_agent and exp_type == "passive":
+        env_config["proxy_agent"] = proxy_agent
+
+    # Add room_config if provided
+    if room_config:
+        env_config["room_config"] = room_config
+
+    # Build the complete task config
+    selected = {
+        "env_name": "spatial",
+        "env_config": env_config,
+        "train_size": 1,
+        "test_size": int(seed_opts[1] - seed_opts[0] + 1)
+    }
+
     return {task_key: selected}
 
 
-
 def patch_model_yaml(model_cfg: Dict[str, Any], model_name: str) -> Dict[str, Any]:
-    """Pick a single entry from base_model_config.yaml's `models`.
-
-    Selection rules:
-    1) If `model_name` matches a key in `models`, use that key.
-    2) Else if any entry has v['model_name'] == `model_name`, use that entry's key.
-    3) Else exit with an error listing available keys.
-    """
+    """Pick a single entry from base_model_config.yaml's `models`."""
     models = model_cfg.get("models", {}) or {}
-
     if model_name in models:
         model_cfg["models"] = {model_name: dict(models[model_name])}
         return model_cfg
-
     for k, v in models.items():
         if isinstance(v, Dict) and v.get("model_name") == model_name:
             model_cfg["models"] = {k: dict(v)}
             return model_cfg
-
     available = ", ".join(models.keys())
     print(f"[ERROR] Model '{model_name}' not found. Available model keys: {available}", file=sys.stderr)
     sys.exit(2)
 
 
-def patch_infer_yaml(infer_cfg: Dict[str, Any], output_dir: str, eval_override: bool, cogmap_override: bool, all_override: bool, evaluate_cogmap: bool, cogmap_reevaluate: bool = False, server_url: str | None = None, eval_override_tasks: List[str] | None = None) -> Dict[str, Any]:
-    """Patch inference yaml to set output directory and override flags and optional server_url. Split remains as in base config."""
+def patch_infer_yaml(
+    infer_cfg: Dict[str, Any], 
+    output_dir: str, 
+    server_url: str | None = None,
+    all_override: bool = False
+) -> Dict[str, Any]:
+    """Patch inference yaml to set output directory, server URL, and override flags."""
     infer_cfg = dict(infer_cfg or {})
     infer_cfg["output_dir"] = output_dir
-    if eval_override:
-        infer_cfg["eval_override"] = True
-    if cogmap_override:
-        infer_cfg["cogmap_override"] = True
-    if all_override:
-        infer_cfg["all_override"] = True
     if server_url:
         infer_cfg["server_url"] = server_url
-    if evaluate_cogmap:
-        infer_cfg["evaluate_cogmap"] = True
-    if cogmap_reevaluate:
-        infer_cfg["cogmap_reevaluate"] = True
-    if eval_override_tasks:
-        infer_cfg["eval_override_tasks"] = list(eval_override_tasks)
+    if all_override:
+        infer_cfg["all_override"] = True
     return infer_cfg
 
 
@@ -320,70 +306,158 @@ def stop_env_server(proc: subprocess.Popen) -> None:
         print(f"[WARN] Failed to stop server: {e}")
 
 
-def main():
-    args = parse_args()
-    tasks = normalize_tasks(args.tasks)
-    eval_counts_cli = parse_eval_counts_arg(args.eval_counts)
-    eval_override_tasks_cli = parse_task_list_arg(args.eval_override_tasks)
+def compute_combo_paths(
+    output_root: str,
+    model_name: str,
+    exp_types: List[str],
+    seed_range: tuple[int, int] | None,
+    render_modes: List[str],
+    enable_think: bool,
+    data_dir: str,
+    proxy_agent: str | None = None,
+) -> List[str]:
+    """Find combo directory paths by constructing possible paths and filtering by seed.
 
-    # Environment variables similar to run.sh
-    os.environ.setdefault("VLLM_ATTENTION_BACKEND", "XFORMERS")
-    os.environ.setdefault("PYTHONHASHSEED", "0")
+    This function constructs possible directory paths based on the given parameters,
+    then checks if config.json exists in those paths and filters by seed.
 
-    # Paths
+    Args:
+        output_root: Base output directory
+        model_name: Model name
+        exp_types: List of experiment types ('active', 'passive')
+        seed_range: Tuple of (start_seed, end_seed) or None
+        render_modes: List of render modes ('vision', 'text')
+        enable_think: Whether thinking is enabled
+        data_dir: Data directory containing room data (kept for compatibility)
+        proxy_agent: Proxy agent for passive mode
+
+    Returns:
+        List of combo directory paths that match the criteria
+    """
+    # data_dir is kept for backward compatibility but not used in new logic
+    _ = data_dir
+
+    # Determine seed range
+    if seed_range:
+        seed_start, seed_end = seed_range
+    else:
+        seed_start, seed_end = None, None
+
+    combo_paths = []
+    model_dir = os.path.join(output_root, model_name)
+
+    # Check if model directory exists
+    if not os.path.exists(model_dir):
+        print(f"Warning: Model directory does not exist: {model_dir}", file=sys.stderr)
+        return combo_paths
+
+    # Build think string based on enable_think
+    think_str = "think" if enable_think else "nothink"
+
+    # Get all room_hash directories (first level under model_dir)
+    try:
+        room_hash_dirs = [d for d in os.listdir(model_dir)
+                         if os.path.isdir(os.path.join(model_dir, d))]
+    except Exception as e:
+        print(f"Warning: Failed to list directories in {model_dir}: {e}", file=sys.stderr)
+        return combo_paths
+
+    # Construct possible paths based on parameters
+    for room_hash in room_hash_dirs:
+        for render_mode in render_modes:
+            for exp_type in exp_types:
+                # Build path: model_dir/room_hash/render_mode/exp_type/think_str/[proxy_agent]
+                if exp_type == "passive" and proxy_agent:
+                    combo_path = os.path.join(model_dir, room_hash, render_mode,
+                                             exp_type, think_str, proxy_agent)
+                else:
+                    combo_path = os.path.join(model_dir, room_hash, render_mode,
+                                             exp_type, think_str)
+
+                # Check if this path exists and has config.json
+                config_path = os.path.join(combo_path, "config.json")
+                if not os.path.exists(config_path):
+                    continue
+
+                # Read config and check seed
+                try:
+                    with open(config_path, 'r') as f:
+                        config = json.load(f)
+
+                    # Check if seed exists in config
+                    seed = config.get("seed")
+                    if seed is None:
+                        continue
+
+                    # Filter by seed range if specified
+                    if seed_range is not None:
+                        if not (seed_start <= seed <= seed_end):
+                            continue
+
+                    # Add this path to results
+                    combo_paths.append(combo_path)
+
+                except Exception as e:
+                    print(f"Warning: Failed to read config from {config_path}: {e}",
+                          file=sys.stderr)
+                    continue
+
+    return combo_paths
+
+
+def run_exploration_phase(args, seed_opts, server_url: str | None,
+                         exp_types: List[str], render_modes: List[str]):
+    """Run exploration phase: create dataset and run inference once.
+
+    Note: All seeds are processed in a single run via seed_opts.
+    Loops through all exp_type and render_mode combinations.
+    """
+    print("\n" + "="*60)
+    print("PHASE: EXPLORATION")
+    print("="*60 + "\n")
+
     base_env = Path(args.base_env)
     base_infer = Path(args.base_infer)
     base_model = Path(args.base_model)
-    if not base_env.exists() or not base_infer.exists() or not base_model.exists():
-        print(f"Base YAML missing: env={base_env.exists()} infer={base_infer.exists()} model={base_model.exists()}", file=sys.stderr)
-        sys.exit(2)
 
-    # Compute run id and experiment/data paths
-    run_id = datetime.now().strftime("%Y-%m-%d-%H-%M-%S-%f")
-    exp_name = compute_experiment_name(SCRIPT_DIR)
-    data_train = f"data/{run_id}/train.parquet"
-    data_test = f"data/{run_id}/test.parquet"
+    # Load room_config from base_env_config.yaml
+    base_env_cfg = load_yaml(base_env)
+    room_config = base_env_cfg.get("room_config")
+    if room_config:
+        print(f"Loaded room_config from {base_env}: {room_config}")
 
-    output_root = args.output_root
-    seed_opts = None
-    if args.seed_range:
-        try:
-            s, e = [int(x) for x in args.seed_range.split('-', 1)]
-            seed_opts = (s, e)
-        except Exception:
-            print(f"[ERROR] Bad --seed_range '{args.seed_range}'. Use 'start-end', e.g., 2-5.", file=sys.stderr)
-            sys.exit(2)
+    # Generate unique run_id for this combination
+    combo_run_id = datetime.now().strftime("%Y-%m-%d-%H-%M-%S-%f")
+    data_train = f"data/{combo_run_id}/train.parquet"
+    data_test = f"data/{combo_run_id}/test.parquet"
 
-    created_tmp_dirs: List[Path] = []
-    server_proc: subprocess.Popen | None = None
-    try:
-        server_url: str | None = None
-        if not args.no_server:
-            # Use adaptive port selection
-            actual_port = get_adaptive_port(args.server_port, 5000)
-            if actual_port != args.server_port:
-                print(f"Using port {actual_port} instead of requested {args.server_port}")
-            server_proc = start_env_server(args.server_host, actual_port)
-            server_url = f"http://{args.server_host}:{actual_port}"
+    tmp_paths = build_tmp_paths(combo_run_id, "exploration")
 
-        for task in tqdm(tasks, desc="Running tasks"):
-            tmp_paths = build_tmp_paths(run_id, f"{task}")
-            created_tmp_dirs.append(tmp_paths["base"])
+    infer_cfg = load_yaml(base_infer)
+    # Patch inference config with all_override flag if specified
+    patched_infer_cfg = patch_infer_yaml(
+        infer_cfg,
+        args.output_root,
+        server_url=server_url,
+        all_override=args.all_override,
+    )
+    model_cfg = load_yaml(base_model)
+    model_cfg = patch_model_yaml(model_cfg, args.model_name)
+    dump_yaml(model_cfg, tmp_paths["model"])
+    dump_yaml(patched_infer_cfg, tmp_paths["infer"])
 
-            env_cfg = load_yaml(base_env)
-            infer_cfg = load_yaml(base_infer)
-            model_cfg = load_yaml(base_model)
-
-            # Decide repetition count per task and embed into env config for EvaluationManager
-            repeat = resolve_eval_runs_count(task, infer_cfg, eval_counts_cli)
-
-            env_cfg = patch_env_yaml(env_cfg, task, args.num, args.render_mode, seed_opts, args.enable_think, eval_num=repeat, data_dir=args.data_dir)
-            if args.proxy_agent:
-                if (env_cfg[task]["env_config"].get("exp_type") == "passive"):
-                    env_cfg[task]["env_config"]["proxy_agent"] = args.proxy_agent
-            model_cfg = patch_model_yaml(model_cfg, args.model_name)
+    # Loop through all combinations
+    for exp_type in exp_types:
+        for render_mode in render_modes:
+            print(f"\n--- Running exploration: exp_type={exp_type}, render_mode={render_mode} ---")
+            # Create env config with current combination
+            env_cfg = patch_env_yaml(exp_type, render_mode,
+                                     seed_opts, args.enable_think, data_dir=args.data_dir,
+                                     proxy_agent=args.proxy_agent, room_config=room_config)
             dump_yaml(env_cfg, tmp_paths["env"])
-            dump_yaml(model_cfg, tmp_paths["model"])
+            
+            # Create dataset
+            print(f"Creating dataset for {exp_type} exploration...")
             rc = run_cmd([
                 sys.executable, "-m", "vagen.env.create_dataset",
                 "--yaml_path", str(tmp_paths["env"]),
@@ -393,60 +467,194 @@ def main():
             ])
             if rc != 0:
                 sys.exit(rc)
-            # for question_idx in range(num_questions):
-            # Only pass eval_override on first question when num_question > 1
+            
+            # Run inference
+            print(f"Running exploration inference...")
+            val_path = data_test
+            wandb_path_name = "spatial_gym"
+            cmd = [
+                sys.executable, "-m", "vagen.inference.run_inference",
+                f"--inference_config_path={tmp_paths['infer']}",
+                f"--model_config_path={tmp_paths['model']}",
+                f"--val_files_path={val_path}",
+                f"--wandb_path_name={wandb_path_name}",
+            ]
+            rc = run_cmd(cmd)
+            if rc != 0:
+                sys.exit(rc)
+            
+            print(f"Exploration completed for {exp_type} + {render_mode}")
+    
+    print(f"\nAll exploration combinations completed. Results in: {args.output_root}")
 
-            for i in range(repeat):
-                # Apply overrides only on the first repetition to avoid wiping between repeats
-                patched_infer_cfg = patch_infer_yaml(
-                    infer_cfg,
-                    output_root,
-                    bool(args.eval_override and i == 0),
-                    bool(args.cogmap_override and i == 0),
-                    bool(args.all_override and i == 0),
-                    args.cogmap,
-                    args.cogmap_reevaluate,
-                    server_url,
-                    eval_override_tasks=(eval_override_tasks_cli if i == 0 else None),
-                )
-                dump_yaml(patched_infer_cfg, tmp_paths["infer"])
 
-                # Run inference
-                val_path = data_test
-                wandb_path_name = "spatial_gym"
-                cmd = [
-                    sys.executable, "-m", "vagen.inference.run_inference",
-                    f"--inference_config_path={tmp_paths['infer']}",
-                    f"--model_config_path={tmp_paths['model']}",
-                    f"--val_files_path={val_path}",
-                    f"--wandb_path_name={wandb_path_name}",
-                ]
-                if args.inference_only:
-                    cmd.append("--inference-only")
-                if args.aggregate_only:
-                    cmd.append("--aggregate-only")
-                rc = run_cmd(cmd)
-                if rc != 0:
-                    sys.exit(rc)
-                if args.aggregate_only:
-                    break
+def run_inference_phase(args, mode: str, seed_opts: tuple[int, int] | None = None,
+                       exp_types: List[str] = None, render_modes: List[str] = None):
+    """Run inference phase: build messages and run inference for evaluation or cogmap.
+    
+    Computes combo paths for all exp_type and render_mode combinations at once.
+    
+    Args:
+        args: Command line arguments
+        mode: 'eval', 'cogmap', or 'reeval'
+        seed_opts: Seed range tuple
+        exp_types: List of experiment types
+        render_modes: List of render modes
+    """
+    print("\n" + "="*60)
+    print(f"PHASE: {mode.upper()}")
+    print("="*60 + "\n")
+    
+    # Get model name
+    model_name = load_yaml(Path(args.base_model))['models'][args.model_name]['model_name']
+    
+    # Compute combo paths for all combinations at once
+    print("Computing combo directory paths for all combinations...")
+    all_combo_paths = compute_combo_paths(
+        output_root=args.output_root,
+        model_name=model_name,
+        exp_types=exp_types,
+        seed_range=seed_opts,
+        render_modes=render_modes,
+        enable_think=bool(args.enable_think),
+        data_dir=args.data_dir,
+        proxy_agent=args.proxy_agent,
+    )
+    
+    if not all_combo_paths:
+        print("[ERROR] No valid combo paths computed", file=sys.stderr)
+        sys.exit(2)
+    
+    print(f"Found {len(all_combo_paths)} combo directories to process")
+    
+    # Special handling for reevaluate mode
+    if mode == "reeval":
+        reevaluate_combo_dirs(all_combo_paths)
+        print(f"\n{mode.capitalize()} completed.")
+        return
+    
+    # Build kwargs for run_inference_for_combo_dirs based on mode
+    inference_kwargs = {
+        "combo_dirs": all_combo_paths,
+        "model_config": load_yaml(Path(args.base_model))['models'][args.model_name],
+        "mode": mode,
+        "inference_mode": args.inference_mode,
+    }
+    
+    if mode == "eval":
+        if args.eval_task_counts:
+            eval_task_counts = json.loads(args.eval_task_counts)
+        else:
+            base_infer = Path(args.base_infer)
+            infer_cfg = load_yaml(base_infer)
+            eval_task_counts = infer_cfg.get("eval_task_counts")
+            if eval_task_counts:
+                print(f"Using eval_task_counts from inference_config.yaml: {eval_task_counts}")
+            else:
+                raise FileNotFoundError("eval_task_counts not found in inference_config.yaml")
+        inference_kwargs.update({
+            "eval_task_counts": eval_task_counts,
+            "eval_override": args.eval_override,
+        })
+    else:  # cogmap
+        inference_kwargs.update({
+            "cogmap_override": args.cogmap_override,
+            "cogmap_reevaluate": args.cogmap_reevaluate,
+        })
+    
+    # Run inference
+    run_inference_for_combo_dirs(**inference_kwargs)
+    
+    print(f"\n{mode.capitalize()} completed.")
 
+def run_aggregation_phase(args):
+    """Run aggregation phase: aggregate logs and images from previous runs."""
+    print("\n" + "="*60)
+    print("PHASE: AGGREGATION")
+    print("="*60 + "\n")
+    
+    SpatialEnvLogger.log_each_env_info(
+        output_dir= args.output_root,
+        model_name = load_yaml(Path(args.base_model))['models'][args.model_name]['model_name'],
+        save_images=True,
+    )
+    
+    print("\nAggregation completed.")
+
+def main():
+    args = parse_args()
+    
+    # Environment variables
+    os.environ.setdefault("VLLM_ATTENTION_BACKEND", "XFORMERS")
+    os.environ.setdefault("PYTHONHASHSEED", "0")
+    
+    # Check base config files exist
+    base_infer = Path(args.base_infer)
+    base_model = Path(args.base_model)
+    if not base_infer.exists() or not base_model.exists():
+        print(f"Base YAML missing: infer={base_infer.exists()} model={base_model.exists()}",
+              file=sys.stderr)
+        sys.exit(2)
+    
+    # Parse seed range
+    seed_opts = None
+    if args.seed_range:
+        try:
+            s, e = [int(x) for x in args.seed_range.split('-', 1)]
+            seed_opts = (s, e)
+        except Exception:
+            print(f"[ERROR] Bad --seed_range '{args.seed_range}'. Use 'start-end'.", file=sys.stderr)
+            sys.exit(2)
+    else:
+        seed_opts = (0, 0 + args.num - 1)
+    
+    exp_types = [x.strip() for x in args.exp_type.split(',')]
+    render_modes = [x.strip() for x in args.render_mode.split(',')]
+    
+    try:
+        server_url: str | None = None
+        
+        # Start server only for exploration phase
+        if args.phase in ['explore', 'all'] and not args.no_server:
+            actual_port = get_adaptive_port(args.server_port, 5000)
+            if actual_port != args.server_port:
+                print(f"Using port {actual_port} instead of requested {args.server_port}")
+            server_proc = start_env_server(args.server_host, actual_port)
+            server_url = f"http://{args.server_host}:{actual_port}"
+        
+        # Run requested phase(s)
+        if args.phase == 'explore':
+            run_exploration_phase(args, seed_opts, server_url, exp_types, render_modes)
+        elif args.phase == 'eval':
+            run_inference_phase(args, mode="eval", seed_opts=seed_opts, 
+                              exp_types=exp_types, render_modes=render_modes)
+        elif args.phase == 'cogmap':
+            run_inference_phase(args, mode="cogmap", seed_opts=seed_opts,
+                              exp_types=exp_types, render_modes=render_modes)
+        elif args.phase == 'reeval':
+            run_inference_phase(args, mode="reeval", seed_opts=seed_opts,
+                              exp_types=exp_types, render_modes=render_modes)
+        elif args.phase == 'all':
+            run_exploration_phase(args, seed_opts, server_url, exp_types, render_modes)
+            run_inference_phase(args, mode="eval", seed_opts=seed_opts,
+                              exp_types=exp_types, render_modes=render_modes)
+            # Run cogmap only for active exp_types
+            if 'active' in exp_types and args.cogmap:
+                active_exp_types = [e for e in exp_types if e == 'active']
+                run_inference_phase(args, mode="cogmap", seed_opts=seed_opts,
+                                  exp_types=active_exp_types, render_modes=render_modes)
+        run_aggregation_phase(args)
+    
     except Exception as e:
         raise e
-
+    
     finally:
-        # top_tmp = SCRIPT_DIR / "tmp" / run_id
-        # if top_tmp.exists():
-        #     import shutil
-        #     try:
-        #         shutil.rmtree(top_tmp)
-        #     except Exception as e:
-        #         print(f"[WARN] Failed to remove tmp dir {top_tmp}: {e}")
-
-        if server_proc is not None:
+        if args.phase in ['explore', 'all'] and not args.no_server:
             stop_env_server(server_proc)
-
-    print("All tasks completed.")
+    
+    print("\n" + "="*60)
+    print("ALL PHASES COMPLETED")
+    print("="*60)
 
 
 if __name__ == "__main__":

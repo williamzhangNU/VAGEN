@@ -34,10 +34,7 @@ class SpatialGymConfig(BaseEnvConfig):
     render_mode: str = field(default="vision")
 
     # Room configuration (minimal additions from RAGEN)
-    room_size: List[int] = field(default_factory=lambda: [10, 10])
-    n_objects: int = 3
-    level: int = 0
-    main: int = 6
+    room_config: Dict[str, Any] = field(default_factory=lambda: {"room_size": [10, 10], "n_objects": 3, "room_num": 1, "topology": 0})
 
     # Field of view and base directory
     field_of_view: int = field(default=90, init=False)
@@ -52,15 +49,15 @@ class SpatialGymConfig(BaseEnvConfig):
     # Each eval task entry supports {task_type, task_kwargs}
     eval_tasks: List[Dict[str, Any]] = field(default_factory=lambda: [{"task_type": "rot", "task_kwargs": {}}])
 
-    prompt_config: Dict[str, Any] = field(default_factory=lambda: {"topdown": False, "oblique": False, "type": "shorter"})
+    prompt_config: Dict[str, Any] = field(default_factory=lambda: {})
 
-    calculate_information_gain: bool = False
+    calculate_information_gain: bool = True
     
     def config_id(self) -> str:
         eval_task_str = ", ".join([f"{task['task_type']}" for task in self.eval_tasks])
         return f"SpatialGymConfig(mode={self.render_mode},format={self.prompt_format},eval_tasks={eval_task_str})"
 
-    def generate_seeds(self, size, seed=0, n_candidate = 20000):
+    def generate_seeds(self, size):
         ks = self.kwargs or {}
         start = int(ks.get('seed_start', 0))
         end = ks.get('seed_end')
@@ -73,7 +70,9 @@ class SpatialGymConfig(BaseEnvConfig):
     def __post_init__(self):
         """Validate configuration parameters."""
         # Validate room size (new from RAGEN)
-        assert self.room_size[0] > 0 and self.room_size[1] > 0, "room_size must be positive"
+        assert isinstance(self.room_config, dict), "room_config must be a dict"
+        assert "room_size" in self.room_config, "room_size must be specified in room_config"
+        assert self.room_config["room_size"][0] > 0 and self.room_config["room_size"][1] > 0, "room_size must be positive"
         self._validate_exp_type()
         self._validate_field_of_view()
         self._validate_eval_tasks()
@@ -116,12 +115,7 @@ class SpatialGymConfig(BaseEnvConfig):
 
     def get_room_config(self) -> Dict[str, Any]:
         """Get configuration for room generation (updated from RAGEN)."""
-        return {
-            'room_size': self.room_size,
-            'n_objects': self.n_objects,
-            'level': self.level,
-            'main': self.main,
-        }
+        return self.room_config
     
     def get_observation_config(self) -> Dict[str, Any]:
         return {
@@ -139,10 +133,7 @@ class SpatialGymConfig(BaseEnvConfig):
         # Specific config (spatial-specific parameters)
         specific_config = {
             'name': self.name,
-            'room_size': self.room_size,  # New from RAGEN
-            'n_objects': self.n_objects,  # New from RAGEN
-            'level': self.level,  # New from RAGEN
-            'main': self.main,  # New from RAGEN
+            'room_config': self.room_config,
             'exp_type': self.exp_type,
             'perspective': self.perspective,  # VAGEN specific
             'eval_tasks': self.eval_tasks,
@@ -172,7 +163,7 @@ class SpatialGymConfig(BaseEnvConfig):
 
 
 if __name__ == "__main__":
-    config = SpatialGymConfig(eval_tasks=[{"task_type": "rot", "task_kwargs": {"turn_direction": "clockwise"}}])
+    config = SpatialGymConfig(eval_tasks=[{"task_type": "rot"}])
     print(config)
     print(config.to_dict())
     print(config.config_id())
