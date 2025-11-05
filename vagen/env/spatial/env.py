@@ -89,18 +89,18 @@ class SpatialGym(gym.Env):
         """Reset environment for a new episode."""
         super().reset(seed=seed)
 
-        # self.image_handler = ImageHandler(self.config.data_dir, seed, self.config.image_size)
-        # self.json_data = self.image_handler.json_data
+        self.image_handler = ImageHandler(self.config.data_dir, seed, self.config.image_size)
+        self.json_data = self.image_handler.json_data
 
-        # self.prompter = PromptManager(self.config, self.np_random, self.image_handler)
-        # # Generate initial room
-        # self.initial_room, self.agent = initialize_room_from_json(self.json_data)
+        self.prompter = PromptManager(self.config, self.np_random, self.image_handler)
+        # Generate initial room
+        self.initial_room, self.agent = initialize_room_from_json(self.json_data)
 
-        self.prompter = PromptManager(self.config, self.np_random)
-        self.initial_room, self.agent = RoomGenerator.generate_multi_room(
-            **self.config.get_room_config(),
-            np_random=self.np_random,
-        )
+        # self.prompter = PromptManager(self.config, self.np_random)
+        # self.initial_room, self.agent = RoomGenerator.generate_multi_room(
+        #     **self.config.get_room_config(),
+        #     np_random=self.np_random,
+        # )
 
         self.initial_agent = self.agent.copy()
 

@@ -22,7 +22,7 @@ import urllib.request
 import threading
 from datetime import datetime
 from tqdm import tqdm
-from vagen.env.spatial.llm_inference import run_inference_for_combo_dirs, reevaluate_combo_dirs
+from vagen.env.spatial.llm_inference import run_inference_for_combo_dirs, reevaluate_combo_dirs, reevaluate_cogmaps_combo_dirs
 from vagen.env.spatial.Base.tos_base.utils.env_logger import SpatialEnvLogger
 SCRIPT_DIR = Path(__file__).resolve().parent
 
@@ -63,9 +63,9 @@ def parse_args():
         description="SpatialGym runner with separated phases: exploration, evaluation, cogmap."
     )
     # Phase selection
-    p.add_argument("--phase", type=str, default="all", 
-                   choices=['explore', 'eval', 'cogmap', 'all', 'aggregate', 'reeval'],
-                   help="Which phase to run: explore, eval, cogmap, reeval, aggregate, or all")
+    p.add_argument("--phase", type=str, default="all",
+                   choices=['explore', 'eval', 'cogmap', 'all', 'aggregate', 'reeval', 'cogmap_reeval'],
+                   help="Which phase to run: explore, eval, cogmap, reeval, cogmap_reeval, aggregate, or all")
 
     # Common parameters
     p.add_argument("--exp-type", type=str, dest="exp_type", 
@@ -96,12 +96,10 @@ def parse_args():
                    help='JSON string for eval task counts, e.g., {"dir": 1}. If omitted, use inference_config.yaml eval_task_counts')
     p.add_argument("--cogmap", action="store_true", dest="cogmap",
                    help="Run cognitive map phase")
-    p.add_argument("--eval-override", action="store_true", dest="eval_override", 
+    p.add_argument("--eval-override", action="store_true", dest="eval_override",
                    help="Override evaluation history (delete evaluation json only)")
-    p.add_argument("--cogmap-override", action="store_true", dest="cogmap_override", 
+    p.add_argument("--cogmap-override", action="store_true", dest="cogmap_override",
                    help="Override cognitive map cache (regenerate cogmap prompts)")
-    p.add_argument("--cogmap-reevaluate", action="store_true", dest="cogmap_reevaluate",
-                   help="Re-evaluate existing cognitive maps (pass to CognitiveMapManager)")
     
     # Inference parameters
     p.add_argument("--inference-mode", type=str, dest="inference_mode", 
@@ -488,7 +486,7 @@ def run_exploration_phase(args, seed_opts, server_url: str | None,
     print(f"\nAll exploration combinations completed. Results in: {args.output_root}")
 
 
-def run_inference_phase(args, mode: str, seed_opts: tuple[int, int] | None = None,
+def run_phase(args, mode: str, seed_opts: tuple[int, int] | None = None,
                        exp_types: List[str] = None, render_modes: List[str] = None):
     """Run inference phase: build messages and run inference for evaluation or cogmap.
     
@@ -527,12 +525,17 @@ def run_inference_phase(args, mode: str, seed_opts: tuple[int, int] | None = Non
     
     print(f"Found {len(all_combo_paths)} combo directories to process")
     
-    # Special handling for reevaluate mode
+    # Special handling for reevaluate modes
     if mode == "reeval":
         reevaluate_combo_dirs(all_combo_paths)
-        print(f"\n{mode.capitalize()} completed.")
+        print(f"\nEvaluation re-evaluation completed.")
         return
-    
+
+    if mode == "cogmap_reeval":
+        reevaluate_cogmaps_combo_dirs(all_combo_paths)
+        print(f"\nCogmap re-evaluation completed.")
+        return
+
     # Build kwargs for run_inference_for_combo_dirs based on mode
     inference_kwargs = {
         "combo_dirs": all_combo_paths,
@@ -540,7 +543,7 @@ def run_inference_phase(args, mode: str, seed_opts: tuple[int, int] | None = Non
         "mode": mode,
         "inference_mode": args.inference_mode,
     }
-    
+
     if mode == "eval":
         if args.eval_task_counts:
             eval_task_counts = json.loads(args.eval_task_counts)
@@ -559,9 +562,8 @@ def run_inference_phase(args, mode: str, seed_opts: tuple[int, int] | None = Non
     else:  # cogmap
         inference_kwargs.update({
             "cogmap_override": args.cogmap_override,
-            "cogmap_reevaluate": args.cogmap_reevaluate,
         })
-    
+
     # Run inference
     run_inference_for_combo_dirs(**inference_kwargs)
     
@@ -626,22 +628,25 @@ def main():
         if args.phase == 'explore':
             run_exploration_phase(args, seed_opts, server_url, exp_types, render_modes)
         elif args.phase == 'eval':
-            run_inference_phase(args, mode="eval", seed_opts=seed_opts, 
+            run_phase(args, mode="eval", seed_opts=seed_opts,
                               exp_types=exp_types, render_modes=render_modes)
         elif args.phase == 'cogmap':
-            run_inference_phase(args, mode="cogmap", seed_opts=seed_opts,
+            run_phase(args, mode="cogmap", seed_opts=seed_opts,
                               exp_types=exp_types, render_modes=render_modes)
         elif args.phase == 'reeval':
-            run_inference_phase(args, mode="reeval", seed_opts=seed_opts,
+            run_phase(args, mode="reeval", seed_opts=seed_opts,
+                              exp_types=exp_types, render_modes=render_modes)
+        elif args.phase == 'cogmap_reeval':
+            run_phase(args, mode="cogmap_reeval", seed_opts=seed_opts,
                               exp_types=exp_types, render_modes=render_modes)
         elif args.phase == 'all':
             run_exploration_phase(args, seed_opts, server_url, exp_types, render_modes)
-            run_inference_phase(args, mode="eval", seed_opts=seed_opts,
+            run_phase(args, mode="eval", seed_opts=seed_opts,
                               exp_types=exp_types, render_modes=render_modes)
             # Run cogmap only for active exp_types
             if 'active' in exp_types and args.cogmap:
                 active_exp_types = [e for e in exp_types if e == 'active']
-                run_inference_phase(args, mode="cogmap", seed_opts=seed_opts,
+                run_phase(args, mode="cogmap", seed_opts=seed_opts,
                                   exp_types=active_exp_types, render_modes=render_modes)
         run_aggregation_phase(args)
     
