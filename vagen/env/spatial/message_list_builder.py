@@ -121,7 +121,8 @@ def build_evaluation_from_combo(
             if image_dir:
                 if "images" not in new_list[-1]:
                     new_list[-1]["images"] = []
-                new_list[-1]["images"] += [os.path.join(image_dir, f"{task_short}-{i+1}.png")]
+                assert os.path.exists(os.path.join(image_dir, task.eval_data.id))
+                new_list[-1]["images"] += [os.path.join(image_dir, task.eval_data.id)]
             meta_obj = {
                 "type": "evaluation",
                 "task_type": task_short,
