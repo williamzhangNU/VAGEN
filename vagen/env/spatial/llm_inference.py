@@ -184,7 +184,7 @@ def map_llm_responses(
     - cogmap: evaluate and write via HistoryManager.update_cogmap
     """
     history = load_history_manager(combo_dir)
-    sample_cfg = json.load(open(history.sample_config_path))
+    sample_cfg = json.load(open(history.state_path))
 
     meta_by_id = index_meta_by_id(metas)
 

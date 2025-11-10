@@ -49,6 +49,7 @@ class SpatialGym(gym.Env):
         """Generate initial observation based on exploration type."""
         exp_history = {}
         images = []
+        final_loc = None
         if self.config.exp_type == 'passive':
             proxy = get_agent_proxy(
                 self.config.proxy_agent,
@@ -74,13 +75,14 @@ class SpatialGym(gym.Env):
             exp_history['obs_str'] = obs_str
             # expose proxy manager so metrics are available via env.get_exp_summary()
             self.exploration_manager = proxy.mgr
+            final_loc = (list(proxy.turns[-1].pos), list(proxy.turns[-1].ori))
 
         intial_prompt, self.observed_image_paths = self.prompter.get_initial_observation_prompt(
             room=self.initial_room,
             agent=self.agent,
             exp_history=exp_history,
         )
-        return intial_prompt
+        return intial_prompt, final_loc
 
     def system_prompt(self) -> str:
         return self.prompter.system_prompt()
@@ -130,7 +132,6 @@ class SpatialGym(gym.Env):
             all_override=self.config.kwargs.get('all_override', False),
         )
         # Persist the run seed so builders can reproduce evaluation tasks
-        self.history_manager.save_state()
         info = {}
         if self.history_manager:
             info['history'] = self.history_manager.get_responses()
@@ -138,13 +139,13 @@ class SpatialGym(gym.Env):
         if self.config.exp_type == 'passive':
             info['finish'] = True
 
-        obs = self._generate_initial_observation()
+        obs, final_loc = self._generate_initial_observation()
         self.render_cache = obs
 
         # initialize message list (system + initial env feedback only; no evaluation question)
         self.history_manager.init_messages(self.prompter.system_prompt())
         self.history_manager.append_env_feedback(obs.get('obs_str', ''), self.observed_image_paths or [])
-        self.history_manager.save_messages()
+        self.history_manager.save_messages(final_loc)
         self.observed_image_paths = []
         return obs, info
 
@@ -252,7 +253,7 @@ class SpatialGym(gym.Env):
         # Save message list
         self.history_manager.append_assistant_message(llm_response)
         self.history_manager.append_env_feedback(obs.get('obs_str', ''), self.observed_image_paths or [])
-        self.history_manager.save_messages()
+        self.history_manager.save_messages((list(agent_state.pos), list(agent_state.ori)) if agent_state else None)
 
         self.observed_image_paths = []
         self.turn_logs.append(turn_log)

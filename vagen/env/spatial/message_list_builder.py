@@ -15,7 +15,7 @@ from vagen.env.spatial.Base.tos_base.utils.utils import hash, numpy_to_python
 from vagen.env.spatial.common import (
     MESSAGES_BASENAME,
     EXPLORATION_LOG_BASENAME,
-    CONFIG_BASENAME,
+    STATE_BASENAME,
     read_json,
     resolve_built_root,
     paths_for_mode,
@@ -30,8 +30,8 @@ def _load_exploration_artifacts(combo_dir: str) -> Tuple[List[Dict], List[Dict],
     turn_logs_path = os.path.join(combo_dir, EXPLORATION_LOG_BASENAME)
     messages = read_json(messages_path)
     turn_logs = read_json(turn_logs_path) if os.path.exists(turn_logs_path) else []
-    cfg_path = os.path.join(combo_dir, CONFIG_BASENAME)
-    sample_cfg = read_json(cfg_path)
+    state_path = os.path.join(combo_dir, STATE_BASENAME)
+    sample_cfg = read_json(state_path)
     return messages, turn_logs, sample_cfg
 
 
@@ -99,18 +99,20 @@ def build_evaluation_from_combo(
     seen_message_ids = set()
 
     for task_short, count in (eval_task_counts or {}).items():
-        # Get task class name for comparison
-        task = EvalTaskType.create_task(task_short, np.random.default_rng(hm.seed), room, agent, {"image_dir": image_dir}, None)
+        is_vision_question = (hm.observation_config['render_mode'] == "vision") and (task_short == "bwd_loc" or task_short == "bwd_pov" or task_short == "bwd_nav")
+
+        task = EvalTaskType.create_task(task_short, np.random.default_rng(hm.seed), room, agent, {"image_dir": image_dir if is_vision_question else None}, None)
         task_class_name = task.__class__.__name__
 
         # Calculate how many questions still needed
         existing_id_for_task = existing_ids.get(task_class_name, [])
-
         for i in range(count - len(existing_id_for_task)):
             # retry
-            for _ in range(20):
+            for j in range(20):
                 q_text = task.generate_question()
                 if task.eval_data.id in existing_id_for_task:
+                    if j == 19:
+                        raise ValueError(f"Failed to generate unique question for {task_short} in {combo_dir}")
                     continue
                 else:
                     break
@@ -118,7 +120,7 @@ def build_evaluation_from_combo(
             assert base_msgs[-1]["role"] == "user"
             new_list = [m.copy() for m in base_msgs]
             new_list[-1]['content'] = new_list[-1]['content'] + "\n" + q_text
-            if image_dir:
+            if is_vision_question:
                 if "images" not in new_list[-1]:
                     new_list[-1]["images"] = []
                 assert os.path.exists(os.path.join(image_dir, f"{task.eval_data.id}.png"))

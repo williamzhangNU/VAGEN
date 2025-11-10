@@ -24,6 +24,7 @@ from datetime import datetime
 from tqdm import tqdm
 from vagen.env.spatial.llm_inference import run_inference_for_combo_dirs, reevaluate_combo_dirs, reevaluate_cogmaps_combo_dirs
 from vagen.env.spatial.Base.tos_base.utils.env_logger import SpatialEnvLogger
+from vagen.env.spatial.common import STATE_BASENAME
 SCRIPT_DIR = Path(__file__).resolve().parent
 
 
@@ -373,7 +374,7 @@ def compute_combo_paths(
                                              exp_type, think_str)
 
                 # Check if this path exists and has config.json
-                config_path = os.path.join(combo_path, "config.json")
+                config_path = os.path.join(combo_path, STATE_BASENAME)
                 if not os.path.exists(config_path):
                     continue
 
