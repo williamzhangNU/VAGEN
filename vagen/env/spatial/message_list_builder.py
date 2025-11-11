@@ -99,7 +99,12 @@ def build_evaluation_from_combo(
     seen_message_ids = set()
 
     for task_short, count in (eval_task_counts or {}).items():
-        is_vision_question = (hm.observation_config['render_mode'] == "vision") and (task_short == "bwd_loc" or task_short == "bwd_pov" or task_short == "bwd_nav")
+        is_vision_question = False
+        if task_short == "bwd_nav_vision" or task_short == "bwd_pov_vision" or task_short == "bwd_loc_vision" :
+            if hm.observation_config['render_mode'] == "text":
+                raise ValueError('cannot use vision question in text mode')
+            else:
+                is_vision_question = True
 
         task = EvalTaskType.create_task(task_short, np.random.default_rng(hm.seed), room, agent, {"image_dir": image_dir if is_vision_question else None}, None)
         task_class_name = task.__class__.__name__
