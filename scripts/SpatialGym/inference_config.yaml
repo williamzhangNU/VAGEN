@@ -13,17 +13,20 @@ debug: false
 # Keys correspond to entries under custom_envs in base_env_config.yaml (e.g., PassiveRot, ActiveDir).
 # You may also use the env name (e.g., passive_rot). If both provided, env name wins.
 eval_task_counts:
+  bwd_nav_rev: 1
   dir: 1
   pov: 1
-  bwd_pov: 1
+  bwd_pov_text: 1
+  bwd_pov_vision: 1
   fwd_fov: 1
-  bwd_nav: 1
-  bwd_nav_rev: 1
+  bwd_nav_text: 1
+  bwd_nav_vision: 1
   e2a: 1
   rot: 1
   rot_dual: 1
   fwd_loc: 1
-  bwd_loc: 1
+  bwd_loc_text: 1
+  bwd_loc_vision: 1
   false_belief: 1
   dir_anchor: 1
 

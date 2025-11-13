@@ -23,7 +23,7 @@ sft/output/*
 sft/data/*
 sft_configs/
 models/
-
+data*/
 # Distribution / packaging
 .Python
 build/

@@ -184,7 +184,7 @@ def map_llm_responses(
     - cogmap: evaluate and write via HistoryManager.update_cogmap
     """
     history = load_history_manager(combo_dir)
-    sample_cfg = json.load(open(history.sample_config_path))
+    sample_cfg = json.load(open(history.state_path))
 
     meta_by_id = index_meta_by_id(metas)
 
@@ -219,6 +219,7 @@ def map_llm_responses(
                 "assistant_raw_message": text,
                 "room_state": sample_cfg["room_dict"],
                 "agent_state": sample_cfg["agent_dict"],
+                "message_images": meta.get("message_images", []),
                 "turn_number": 1,
             }
             history.update_eval_turn_log(turn_log)
@@ -304,7 +305,7 @@ def reevaluate_combo_dir(combo_dir: str) -> int:
 
 def reevaluate_combo_dirs(combo_dirs: List[str]) -> None:
     """Re-evaluate all existing evaluation answers in multiple combo directories.
-    
+
     Args:
         combo_dirs: List of combo directory paths
     """
@@ -316,8 +317,81 @@ def reevaluate_combo_dirs(combo_dirs: List[str]) -> None:
         except Exception as e:
             print(f"Error re-evaluating {combo_dir}: {e}")
             continue
-    
+
     print(f"\nRe-evaluation completed: {total_count} answers re-evaluated across {len(combo_dirs)} combo directories.")
+
+
+def reevaluate_cogmaps_combo_dir(combo_dir: str) -> int:
+    """Re-evaluate all existing cognitive maps in a combo directory.
+
+    This function reads existing cogmap responses from history and re-evaluates
+    them using the current evaluation logic, without regenerating the responses.
+
+    Args:
+        combo_dir: Path to combo directory
+
+    Returns:
+        Number of cognitive maps re-evaluated
+    """
+    from vagen.env.spatial.Base.tos_base.managers.cognitive_map_manager import CognitiveMapManager
+
+    history = load_history_manager(combo_dir)
+
+    # Initialize cognitive map manager with default config
+    cm = CognitiveMapManager(cogmap_type="standard", pos_allow_scale=False, scope="all")
+
+    count = 0
+    # Re-evaluate exploration turn cogmaps
+    for turn_idx, turn_log in enumerate(history.exploration_turn_logs):
+        cogmap = turn_log.get("cogmap_log", {})
+        if not cogmap:
+            continue
+
+        # Extract original responses
+        responses_by_type = {}
+        for map_type, map_data in cogmap.items():
+            if isinstance(map_data, dict) and map_data.get("original_response"):
+                responses_by_type[map_type] = map_data["original_response"]
+
+        if not responses_by_type:
+            continue
+
+        # Re-evaluate using current turn log's ground truth
+        try:
+            cogmap_log = _evaluate_cogmaps(cm, responses_by_type, turn_log)
+            turn_log["cogmap_log"] = cogmap_log.to_dict() if cogmap_log else {}
+            history.update_cogmap({
+                "is_exploration_phase": True,
+                "turn_number": turn_idx + 1,
+                "cogmap_log": turn_log["cogmap_log"],
+            })
+            count += 1
+        except Exception as e:
+            print(f"Error re-evaluating cogmap for turn {turn_idx} in {combo_dir}: {e}")
+            continue
+
+    # Save updated history
+    history.save()
+    print(f"Re-evaluated {count} cognitive maps in {combo_dir}")
+    return count
+
+
+def reevaluate_cogmaps_combo_dirs(combo_dirs: List[str]) -> None:
+    """Re-evaluate all existing cognitive maps in multiple combo directories.
+
+    Args:
+        combo_dirs: List of combo directory paths
+    """
+    total_count = 0
+    for combo_dir in combo_dirs:
+        try:
+            count = reevaluate_cogmaps_combo_dir(combo_dir)
+            total_count += count
+        except Exception as e:
+            print(f"Error re-evaluating cogmaps in {combo_dir}: {e}")
+            continue
+
+    print(f"\nCogmap re-evaluation completed: {total_count} cognitive maps re-evaluated across {len(combo_dirs)} combo directories.")
 
 
 # ========================= Combo-level inference =========================
@@ -330,10 +404,9 @@ def run_inference_for_combo_dirs(
     inference_mode: str = "direct",
     eval_override: bool = False,
     cogmap_override: bool = False,
-    cogmap_reevaluate: bool = False,
 ) -> None:
     """Run inference for a specific list of combo directories.
-    
+
     Args:
         combo_dirs: List of combo directory paths
         model_name: Model name for inference
@@ -343,7 +416,6 @@ def run_inference_for_combo_dirs(
         inference_mode: 'batch' or 'direct'
         eval_override: If True, ignore existing evaluation history and regenerate all
         cogmap_override: If True, regenerate all cogmaps; if False, skip existing cogmaps
-        cogmap_reevaluate: If True, re-evaluate existing cognitive maps (passed to CognitiveMapManager)
     """
     from vagen.env.spatial.message_list_builder import build_all_for_combo_dirs
     
@@ -389,9 +461,8 @@ def run_inference_for_combo_dirs(
         combo_data[cdir]["metas"].append(m)
     
     # Update history for each combo
-    cogmap_config = {"cogmap_reevaluate": cogmap_reevaluate} if cogmap_reevaluate and mode == "cogmap" else None
     for cdir, data in combo_data.items():
-        map_llm_responses(cdir, data["metas"], data["outputs"], cogmap_config=cogmap_config)
+        map_llm_responses(cdir, data["metas"], data["outputs"])
     
     print(f"Completed {mode} inference for {len(combo_data)} combos, processed {len(outputs)} responses.")
 

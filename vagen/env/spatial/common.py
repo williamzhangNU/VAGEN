@@ -10,6 +10,7 @@ from vagen.env.spatial.Base.tos_base.managers.history_manager import HistoryMana
 MESSAGES_BASENAME = "messages.json"
 EXPLORATION_LOG_BASENAME = "exploration_turn_logs.json"
 CONFIG_BASENAME = "config.json"
+STATE_BASENAME = "history_state.json"
 BUILT_DIRNAME = "built_messages"
 
 EVAL_MESSAGES_FILENAME = "eval_messages.jsonl"

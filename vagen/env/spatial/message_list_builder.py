@@ -15,7 +15,7 @@ from vagen.env.spatial.Base.tos_base.utils.utils import hash, numpy_to_python
 from vagen.env.spatial.common import (
     MESSAGES_BASENAME,
     EXPLORATION_LOG_BASENAME,
-    CONFIG_BASENAME,
+    STATE_BASENAME,
     read_json,
     resolve_built_root,
     paths_for_mode,
@@ -30,8 +30,8 @@ def _load_exploration_artifacts(combo_dir: str) -> Tuple[List[Dict], List[Dict],
     turn_logs_path = os.path.join(combo_dir, EXPLORATION_LOG_BASENAME)
     messages = read_json(messages_path)
     turn_logs = read_json(turn_logs_path) if os.path.exists(turn_logs_path) else []
-    cfg_path = os.path.join(combo_dir, CONFIG_BASENAME)
-    sample_cfg = read_json(cfg_path)
+    state_path = os.path.join(combo_dir, STATE_BASENAME)
+    sample_cfg = read_json(state_path)
     return messages, turn_logs, sample_cfg
 
 
@@ -94,23 +94,30 @@ def build_evaluation_from_combo(
     existing_ids = hm.get_eval_ids()
     room = Room.from_dict(sample_cfg["room_dict"]).copy()
     agent = Agent.from_dict(sample_cfg["agent_dict"]).copy()
-
+    image_dir = sample_cfg.get("image_dir")
     # Track message_ids to ensure uniqueness
     seen_message_ids = set()
 
     for task_short, count in (eval_task_counts or {}).items():
-        # Get task class name for comparison
-        task = EvalTaskType.create_task(task_short, np.random.default_rng(hm.seed), room, agent, {}, None)
+        is_vision_question = False
+        if task_short == "bwd_nav_vision" or task_short == "bwd_pov_vision" or task_short == "bwd_loc_vision" :
+            if hm.observation_config['render_mode'] == "text":
+                raise ValueError('cannot use vision question in text mode')
+            else:
+                is_vision_question = True
+
+        task = EvalTaskType.create_task(task_short, np.random.default_rng(hm.seed), room, agent, {"image_dir": image_dir if is_vision_question else None}, None)
         task_class_name = task.__class__.__name__
 
         # Calculate how many questions still needed
         existing_id_for_task = existing_ids.get(task_class_name, [])
-
-        for _ in range(count - len(existing_id_for_task)):
+        for i in range(count - len(existing_id_for_task)):
             # retry
-            for _ in range(20):
+            for j in range(20):
                 q_text = task.generate_question()
                 if task.eval_data.id in existing_id_for_task:
+                    if j == 19:
+                        raise ValueError(f"Failed to generate unique question for {task_short} in {combo_dir}")
                     continue
                 else:
                     break
@@ -118,12 +125,18 @@ def build_evaluation_from_combo(
             assert base_msgs[-1]["role"] == "user"
             new_list = [m.copy() for m in base_msgs]
             new_list[-1]['content'] = new_list[-1]['content'] + "\n" + q_text
+            if is_vision_question:
+                if "images" not in new_list[-1]:
+                    new_list[-1]["images"] = []
+                assert os.path.exists(os.path.join(image_dir, f"{task.eval_data.id}.png"))
+                new_list[-1]["images"] += [os.path.join(image_dir, f"{task.eval_data.id}.png")]
             meta_obj = {
                 "type": "evaluation",
                 "task_type": task_short,
                 "task_class": task.__class__.__name__,
                 "question_id": task.eval_data.id,
                 "combo_dir": os.path.abspath(combo_dir),
+                "message_images": new_list[-1].get("images", []),
                 "evaluation_data": task.eval_data.to_dict(),
             }
             meta_obj["message_id"] = hash(json.dumps(meta_obj, sort_keys=True))
@@ -169,11 +182,7 @@ def build_cogmap_from_combo(
 
     if exp_type == "active":
         # For each turn after the first action, use previous turn index for decision
-        for i in range(1, len(turn_logs)):
-            t_idx = i - 1
-            if t_idx >= len(user_idxs):
-                break
-            
+        for t_idx in range(1, len(turn_logs)):
             # Check if cogmap already exists for this turn (unless override)
             if not cogmap_override:
                 existing_cogmap = hm.get_cogmap(t_idx)
@@ -185,11 +194,12 @@ def build_cogmap_from_combo(
             end_idx = user_idxs[t_idx]
             seq = _clone_until_inclusive(messages, end_idx)
             assert seq[-1]["role"] == "user"
-            base_user = re.sub(r"You have a maximum of\s*\d+\s*exploration steps left.*", "", seq[-1]["content"], flags=re.DOTALL)
+            base_user = re.sub(r"You have a maximum of\s*\d+\s*exploration steps left.*", "", seq[-1]["content"], flags=re.DOTALL) 
+            mod_seq = [m.copy() for m in seq]
+            # current turn cogmap question => previous turn number !!!
+            turn_number = _get_turn_number(mod_seq) -1
             for mtype in types:
-                mod_seq = [m.copy() for m in seq]
                 mod_seq[-1]["content"] = base_user + get_cogmap_prompt(mtype, enable_think)
-                turn_number = _get_turn_number(mod_seq)
                 meta_obj = {
                     "type": "cogmap",
                     "sample_id": sample_id,
