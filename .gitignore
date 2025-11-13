@@ -130,5 +130,5 @@ benchmark_results/
 env_benchmark_results/
 results/
 results*/
-room_data/
+room_data*/
 logs/
