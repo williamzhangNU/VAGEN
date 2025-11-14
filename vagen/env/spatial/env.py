@@ -120,6 +120,7 @@ class SpatialGym(gym.Env):
         # Set field of view for all actions
         BaseAction.set_field_of_view(self.config.field_of_view)
         BaseAction.set_use_real_relations(self.config.use_real_relations)
+        BaseAction.set_query_cost(self.config.query_action_cost)
         self.exploration_manager = ExplorationManager(
             self.initial_room, self.agent,
             grid_size=(self.config.grid_size if hasattr(self.config, 'grid_size') else None),

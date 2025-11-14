@@ -33,6 +33,7 @@ class SpatialGymConfig(BaseEnvConfig):
     name: str = 'unnamed_env'
     render_mode: str = field(default="vision")
     use_real_relations: bool = False  # Toggle Observe() outputs between binned and real-value relations
+    query_action_cost: int = 2  # Default Query() cost; overridable via CLI
 
     # Room configuration (minimal additions from RAGEN)
     room_size: List[int] = field(default_factory=lambda: [10, 10])
@@ -78,6 +79,7 @@ class SpatialGymConfig(BaseEnvConfig):
         self._validate_exp_type()
         self._validate_field_of_view()
         self._validate_eval_tasks()
+        self._validate_query_cost()
 
     def _validate_exp_type(self):
         """Validate exp_type parameter."""
@@ -115,6 +117,9 @@ class SpatialGymConfig(BaseEnvConfig):
             if 'task_kwargs' in task and task['task_kwargs'] is not None:
                 assert isinstance(task['task_kwargs'], dict), "task_kwargs must be a dict"
 
+    def _validate_query_cost(self):
+        assert self.query_action_cost >= 0, "query_action_cost must be non-negative"
+
     def get_room_config(self) -> Dict[str, Any]:
         """Get configuration for room generation (updated from RAGEN)."""
         return {
@@ -132,6 +137,7 @@ class SpatialGymConfig(BaseEnvConfig):
             'exp_type': self.exp_type,
             "proxy_agent": self.proxy_agent,
             'use_real_relations': self.use_real_relations,
+            'query_action_cost': self.query_action_cost,
         }        
     def get_model_config(self) -> Dict[str, Any]:
         return  self.kwargs['model_config']
@@ -157,6 +163,7 @@ class SpatialGymConfig(BaseEnvConfig):
             'model_config': self.get_model_config(),
             'field_of_view': self.field_of_view,
             'use_real_relations': self.use_real_relations,
+            'query_action_cost': self.query_action_cost,
         }
         
         # Common config (inherited from BaseEnvConfig)
