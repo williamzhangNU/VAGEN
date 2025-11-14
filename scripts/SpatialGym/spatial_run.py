@@ -86,6 +86,11 @@ def parse_args():
     p.add_argument("--proxy-agent", type=str, dest="proxy_agent", default=None, choices=["scout","strategist","oracle"], help="Proxy agent for passive tasks")
     p.add_argument("--inference-only", action="store_true", dest="inference_only", help="If set, skip SpatialEnvLogger logging after inference")
     p.add_argument("--aggregate-only", action="store_true", dest="aggregate_only", help="If set, skip individual task logging and only log aggregate results")
+    # Relation reporting mode
+    p.add_argument("--relation-mode", choices=["bin", "real"], dest="relation_mode", default=None,
+                   help="Relation reporting mode: 'bin' keeps bins; 'real' returns precise values.")
+    p.add_argument("--use-real-relations", action="store_true", dest="use_real_relations", help="Report precise (real-value) spatial relations in observations")
+    p.add_argument("--no-real-relations", action="store_false", dest="use_real_relations", help="Force binned spatial relations", default=None)
 
     return p.parse_args()
 
@@ -182,7 +187,8 @@ def resolve_eval_runs_count(task_key: str, infer_cfg: Dict[str, Any], eval_count
 
 
 def patch_env_yaml(env_cfg: Dict[str, Any], task_key: str, num: int, render_mode = "vision", seed_opts: tuple[int, int] | None = None, 
-                   enable_think: int | None = None, eval_num: int | None = None, data_dir: str | None = None) -> Dict[str, Any]:
+                   enable_think: int | None = None, eval_num: int | None = None, data_dir: str | None = None,
+                   use_real_relations: bool | None = None) -> Dict[str, Any]:
     """Return {TaskKey: {...}} by selecting the entry from custom_envs and overriding sizes.
 
     Behavior:
@@ -194,6 +200,8 @@ def patch_env_yaml(env_cfg: Dict[str, Any], task_key: str, num: int, render_mode
     selected = dict(custom_envs[task_key])
     selected["test_size"] = int(num)
     selected["env_config"]['render_mode'] = render_mode
+    if use_real_relations is not None:
+        selected["env_config"]["use_real_relations"] = bool(use_real_relations)
     if data_dir:
         selected["env_config"]["data_dir"] = data_dir
     if seed_opts:
@@ -325,6 +333,11 @@ def main():
     tasks = normalize_tasks(args.tasks)
     eval_counts_cli = parse_eval_counts_arg(args.eval_counts)
     eval_override_tasks_cli = parse_task_list_arg(args.eval_override_tasks)
+    relation_mode = args.relation_mode
+    use_real_relations = args.use_real_relations
+    if relation_mode is not None:
+        # Explicit string mode overrides boolean switches for clarity.
+        use_real_relations = relation_mode == "real"
 
     # Environment variables similar to run.sh
     os.environ.setdefault("VLLM_ATTENTION_BACKEND", "XFORMERS")
@@ -377,7 +390,17 @@ def main():
             # Decide repetition count per task and embed into env config for EvaluationManager
             repeat = resolve_eval_runs_count(task, infer_cfg, eval_counts_cli)
 
-            env_cfg = patch_env_yaml(env_cfg, task, args.num, args.render_mode, seed_opts, args.enable_think, eval_num=repeat, data_dir=args.data_dir)
+            env_cfg = patch_env_yaml(
+                env_cfg,
+                task,
+                args.num,
+                args.render_mode,
+                seed_opts,
+                args.enable_think,
+                eval_num=repeat,
+                data_dir=args.data_dir,
+                use_real_relations=use_real_relations,
+            )
             if args.proxy_agent:
                 if (env_cfg[task]["env_config"].get("exp_type") == "passive"):
                     env_cfg[task]["env_config"]["proxy_agent"] = args.proxy_agent

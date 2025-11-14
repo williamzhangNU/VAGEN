@@ -32,6 +32,7 @@ class SpatialGymConfig(BaseEnvConfig):
     # Environment specific configuration
     name: str = 'unnamed_env'
     render_mode: str = field(default="vision")
+    use_real_relations: bool = False  # Toggle Observe() outputs between binned and real-value relations
 
     # Room configuration (minimal additions from RAGEN)
     room_size: List[int] = field(default_factory=lambda: [10, 10])
@@ -129,7 +130,8 @@ class SpatialGymConfig(BaseEnvConfig):
             'prompt_config': self.prompt_config,
             'render_mode': self.render_mode,
             'exp_type': self.exp_type,
-            "proxy_agent": self.proxy_agent
+            "proxy_agent": self.proxy_agent,
+            'use_real_relations': self.use_real_relations,
         }        
     def get_model_config(self) -> Dict[str, Any]:
         return  self.kwargs['model_config']
@@ -154,6 +156,7 @@ class SpatialGymConfig(BaseEnvConfig):
             'observation_config': self.get_observation_config(),
             'model_config': self.get_model_config(),
             'field_of_view': self.field_of_view,
+            'use_real_relations': self.use_real_relations,
         }
         
         # Common config (inherited from BaseEnvConfig)
