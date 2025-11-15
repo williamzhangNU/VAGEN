@@ -27,7 +27,7 @@ launch() {
 wait_session() { while tmux has-session -t "$1" 2>/dev/null; do sleep 5; done; }
 
 if [ "$PAR" = "y" ] || [ "$PAR" = "yes" ] || [ "$PAR" = "1" ]; then # parallel run
-  launch active test;
+  launch active text;
   sleep 5
 
   # if [ "$MODEL" != "internvl3_5" ] && [ "$MODEL" != "gpt-oss-120b" ] && [ "$MODEL" != "gpt-oss-20b" ]; then
