@@ -149,7 +149,7 @@ models:
     provider: openai
     organization: self-hosted
     model_name: GLM-4.5V
-    max_tokens: 32768
+    max_tokens: 16384
     temperature: 0
     max_workers: 32
     base_url: https://api.revered.me/v1

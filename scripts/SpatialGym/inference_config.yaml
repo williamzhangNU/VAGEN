@@ -13,28 +13,28 @@ debug: false
 # Keys correspond to entries under custom_envs in base_env_config.yaml (e.g., PassiveRot, ActiveDir).
 # You may also use the env name (e.g., passive_rot). If both provided, env name wins.
 eval_task_counts:
-  PassiveDir: 3
+  PassiveDir: 1
   # PassivePov: 3
   # PassiveBwdPov: 3
-  PassiveFwdFov: 3
-  PassiveBwdNav: 3
-  PassiveE2A: 3
-  PassiveRot: 3
-  PassiveRotDual: 3
-  PassiveFwdLoc: 3
-  PassiveBwdLoc: 3
+  # PassiveFwdFov: 3
+  # PassiveBwdNav: 3
+  # PassiveE2A: 3
+  # PassiveRot: 3
+  # PassiveRotDual: 3
+  # PassiveFwdLoc: 3
+  # PassiveBwdLoc: 3
   # PassiveFalseBelief: 1
   # PassiveDirAnchor: 1
-  ActiveDir: 3
+  # ActiveDir: 3
   # ActivePov: 3
   # ActiveBwdPoV: 3
-  ActiveFwdFov: 3
-  ActiveBwdNav: 3
-  ActiveE2A: 3
-  ActiveRot: 3
-  ActiveRotDual: 3
-  ActiveFwdLoc: 3
-  ActiveBwdLoc: 3
+  # ActiveFwdFov: 3
+  # ActiveBwdNav: 3
+  # ActiveE2A: 3
+  # ActiveRot: 3
+  # ActiveRotDual: 3
+  # ActiveFwdLoc: 3
+  # ActiveBwdLoc: 3
   # ActiveFalseBelief: 1
   # ActiveDirAnchor: 1
 

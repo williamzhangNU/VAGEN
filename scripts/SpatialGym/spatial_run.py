@@ -52,7 +52,7 @@ def parse_args():
     p = argparse.ArgumentParser(
         description="Batch run SpatialGym: per-task tmp YAML generation, dataset then inference (no Hydra)."
     )
-    p.add_argument("--tasks", nargs="+", default=['ActiveRot'],
+    p.add_argument("--tasks", nargs="+", default=['PassiveRot'],
                    help="Tasks (space or comma separated). Examples: ActiveRot PassiveRot or 'ActiveRot,PassiveLoc'. Default: ActiveRot")
     p.add_argument("--num", type=int, default=1, help="Number of samples per task. Default: 1")
     p.add_argument("--model_name", type=str, default="gpt-4.1-mini",
@@ -93,6 +93,11 @@ def parse_args():
                    help="Override Query() action cost (default from base config).")
     p.add_argument("--max-exp-steps", type=int, dest="max_exp_steps", default=None,
                    help="Override maximum exploration steps before forced termination.")
+    # Ground-truth testing options
+    p.add_argument("--gt-cogmap-eval", action="store_true", dest="gt_cogmap_eval",
+                   help="If set, provide ground-truth cogmap and test evaluation tasks")
+    p.add_argument("--gt-local-cogmap", action="store_true", dest="gt_local_cogmap",
+                   help="If set, provide ground-truth local cogmap at each step and test cogmap")
 
     return p.parse_args()
 
@@ -188,9 +193,10 @@ def resolve_eval_runs_count(task_key: str, infer_cfg: Dict[str, Any], eval_count
     return 1
 
 
-def patch_env_yaml(env_cfg: Dict[str, Any], task_key: str, num: int, render_mode = "vision", seed_opts: tuple[int, int] | None = None, 
+def patch_env_yaml(env_cfg: Dict[str, Any], task_key: str, num: int, render_mode = "vision", seed_opts: tuple[int, int] | None = None,
                    enable_think: int | None = None, eval_num: int | None = None, data_dir: str | None = None,
-                   use_real_relations: bool | None = None, query_cost: int | None = None, max_exp_steps: int | None = None) -> Dict[str, Any]:
+                   use_real_relations: bool | None = None, query_cost: int | None = None, max_exp_steps: int | None = None,
+                   gt_cogmap_eval: bool = False, gt_local_cogmap: bool = False) -> Dict[str, Any]:
     """Return {TaskKey: {...}} by selecting the entry from custom_envs and overriding sizes.
 
     Behavior:
@@ -223,6 +229,11 @@ def patch_env_yaml(env_cfg: Dict[str, Any], task_key: str, num: int, render_mode
         tasks = selected["env_config"].get("eval_tasks") or []
         if tasks:
             tasks[0]["num"] = int(eval_num)
+    # Ground-truth testing options
+    if gt_cogmap_eval:
+        selected["env_config"]["gt_cogmap_eval"] = True
+    if gt_local_cogmap:
+        selected["env_config"]["gt_local_cogmap"] = True
     return {task_key: selected}
 
 
@@ -406,6 +417,8 @@ def main():
                 use_real_relations=use_real_relations,
                 query_cost=query_cost,
                 max_exp_steps=max_exp_steps,
+                gt_cogmap_eval=args.gt_cogmap_eval,
+                gt_local_cogmap=args.gt_local_cogmap,
             )
             if args.proxy_agent:
                 if (env_cfg[task]["env_config"].get("exp_type") == "passive"):

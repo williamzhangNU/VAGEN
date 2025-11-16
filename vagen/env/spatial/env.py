@@ -13,6 +13,7 @@ from vagen.env.spatial.Base.tos_base import (
     EvalTaskType,
 )
 from vagen.env.spatial.Base.tos_base.managers.agent_proxy import get_agent_proxy
+from vagen.env.spatial.Base.tos_base.managers.cognitive_map_manager import CognitiveMapManager
 from vagen.env.spatial.Base.tos_base.prompts import Prompter
 from vagen.env.spatial.Base.tos_base.utils.action_utils import action_results_to_text
 from vagen.env.spatial.Base.tos_base.utils.room_utils import initialize_room_from_json
@@ -20,6 +21,7 @@ from vagen.env.spatial.Base.tos_base.utils.env_logger import EnvTurnLog
 from vagen.env.spatial.Base.tos_base.utils.utils import parse_llm_response
 from vagen.env.spatial.Base.tos_base.utils.image_handler import ImageHandler
 from vagen.env.spatial.Base.tos_base.actions.actions import ForcedTermAction, ActionSequence
+import json
 
 
 class SpatialGym(gym.Env):
@@ -81,11 +83,18 @@ class SpatialGym(gym.Env):
             # expose proxy manager so metrics are available via env.get_exp_summary()
             self.exploration_manager = proxy.mgr
 
+        # Add ground-truth cogmap if gt_cogmap_eval is enabled (for passive/evaluation mode)
+        gt_cogmap_str = None
+        if self.config.gt_cogmap_eval and self.config.exp_type == 'passive' and self.config.render_mode == 'text':
+            gt_cogmap_json = self._generate_gt_cogmap_json(self.initial_room, self.agent, map_type='global')
+            gt_cogmap_str = f"Here is the ground-truth cognitive map of the environment:\n```json\n{gt_cogmap_json}\n```\n"
+
         return self.prompter.get_initial_observation_prompt(
             room=self.initial_room,
             agent=self.agent,
             eval_manager=self.evaluation_manager,
             exp_history=exp_history,
+            gt_cogmap=gt_cogmap_str,
         )
 
     def system_prompt(self) -> str:
@@ -202,6 +211,16 @@ class SpatialGym(gym.Env):
                 obs_str += self.prompter.get_evaluation_prompt(self.evaluation_manager)
             else:
                 obs_str += f"\nYou have a maximum of {self.remaining_exp_steps} exploration steps left."
+
+                # Add ground-truth local cogmap if gt_local_cogmap is enabled
+                if self.config.gt_local_cogmap:
+                    gt_local_cogmap_json = self._generate_gt_cogmap_json(
+                        self.exploration_manager.base_room,
+                        self.exploration_manager.agent,
+                        map_type='local'
+                    )
+                    obs_str += f"\n\n## Ground-Truth Local Cognitive Map\nHere is the ground-truth local cognitive map from your current perspective:\n```json\n{gt_local_cogmap_json}\n```\n"
+
                 # Only get multi-modal data if render_mode is vision
                 if self.config.render_mode == 'vision':
                     image, image_path = self._get_multi_modal_data(self.exploration_manager, self.exploration_manager.agent.pos, self.exploration_manager.agent.ori)
@@ -334,6 +353,46 @@ class SpatialGym(gym.Env):
             "initial_room": self.initial_room.to_dict(),
             "initial_agent": self.initial_agent.to_dict(),
         }
+
+    def _generate_gt_cogmap_json(self, room, agent, map_type='global'):
+        """Generate ground-truth cognitive map JSON.
+
+        Args:
+            room: Current room state
+            agent: Current agent state
+            map_type: Type of cogmap ('global' or 'local')
+
+        Returns:
+            JSON string of ground-truth cognitive map
+        """
+        # Create a temporary cognitive map manager to generate GT
+        temp_cogmap_manager = CognitiveMapManager(
+            cogmap_type="standard",
+            pos_allow_scale=False,
+            scope="all"
+        )
+
+        # Get observed items (all objects in the room for global, visible for local)
+        if map_type == 'global':
+            observed_items = [obj.name for obj in room.all_objects]
+        else:  # local
+            observed_items = []
+            for obj in room.all_objects:
+                if BaseAction._is_visible(agent, obj):
+                    observed_items.append(obj.name)
+
+        observed_set = set(observed_items)
+
+        # Build ground-truth BaseRoom
+        if map_type == 'global':
+            gt_baseroom = temp_cogmap_manager._build_gt_global_baseroom(room, agent, observed_set)
+        else:  # local
+            gt_baseroom = temp_cogmap_manager._build_gt_local_baseroom(room, agent)
+
+        # Convert to JSON
+        gt_json = temp_cogmap_manager.baseroom_to_json(gt_baseroom, include_gates=True)
+
+        return json.dumps(gt_json, indent=2)
 
 
 

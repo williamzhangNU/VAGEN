@@ -57,6 +57,10 @@ class SpatialGymConfig(BaseEnvConfig):
     prompt_config: Dict[str, Any] = field(default_factory=lambda: {"topdown": False, "oblique": False, "type": "shorter"})
 
     calculate_information_gain: bool = False
+
+    # Ground-truth testing options
+    gt_cogmap_eval: bool = False  # Provide ground-truth cogmap and test evaluation tasks
+    gt_local_cogmap: bool = False  # Provide ground-truth local cogmap at each step and test cogmap
     
     def config_id(self) -> str:
         eval_task_str = ", ".join([f"{task['task_type']}" for task in self.eval_tasks])
