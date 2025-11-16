@@ -94,7 +94,6 @@ class SpatialGymConfig(BaseEnvConfig):
     def _validate_eval_tasks(self):
         """Validate eval_tasks parameter."""
         valid_eval_tasks = EvalTaskType.get_short_names()
-        assert len(self.eval_tasks) == 1, "Only one evaluation task is supported"
 
         if isinstance(self.eval_tasks, ListConfig):
             self.eval_tasks = OmegaConf.to_container(self.eval_tasks, resolve=True)
@@ -102,14 +101,14 @@ class SpatialGymConfig(BaseEnvConfig):
         if isinstance(self.eval_tasks, np.ndarray):
             self.eval_tasks = self.eval_tasks.tolist()
 
-        
+
         if not self.eval_tasks:
             raise ValueError("eval_tasks must be non-empty")
-        
+
         for i, task in enumerate(self.eval_tasks):
             if not isinstance(task, dict) or 'task_type' not in task:
                 raise ValueError("Each eval_task must be a dict with 'task_type' key")
-            
+
             task_type = task['task_type']
             if task_type not in valid_eval_tasks:
                 raise ValueError(f"task_type '{task_type}' must be one of {valid_eval_tasks}")

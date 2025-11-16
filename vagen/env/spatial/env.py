@@ -125,6 +125,9 @@ class SpatialGym(gym.Env):
             self.initial_room, self.agent,
             grid_size=(self.config.grid_size if hasattr(self.config, 'grid_size') else None),
         )
+        # Collect all task types for history manager
+        task_types = [EvalTaskType.from_short_name(task['task_type']).class_name for task in self.config.eval_tasks]
+
         self.history_manager = HistoryManager(
             self.config.get_observation_config(), self.config.get_model_config(),
             self.initial_room.to_dict(), self.agent.to_dict(),
@@ -132,7 +135,7 @@ class SpatialGym(gym.Env):
             output_dir=self.config.kwargs['output_dir'],
             eval_override=self._should_eval_override(),
             all_override=self.config.kwargs.get('all_override', False),
-            task_type=EvalTaskType.from_short_name(self.config.eval_tasks[0]['task_type']).class_name
+            task_types=task_types
         )
         # Initialize EvaluationManager with knowledge of existing eval counts
         self.evaluation_manager = EvaluationManager(
@@ -150,17 +153,20 @@ class SpatialGym(gym.Env):
         return obs, info
 
     def _should_eval_override(self) -> bool:
-        """Decide if we should override evaluation logs for this specific task."""
+        """Decide if we should override evaluation logs for any of the tasks."""
         override_flag = self.config.kwargs.get('eval_override', False)
         if not override_flag:
             return False
         selected = set(self.config.kwargs.get('eval_override_tasks', []) or [])
         if not selected:
             return True
-        # Accept both short names and class names
-        current_short = self.config.eval_tasks[0]['task_type']
-        current_class = EvalTaskType.from_short_name(current_short).class_name
-        return (current_short in selected) or (current_class in selected)
+        # Accept both short names and class names - check if any task should be overridden
+        for task in self.config.eval_tasks:
+            current_short = task['task_type']
+            current_class = EvalTaskType.from_short_name(current_short).class_name
+            if (current_short in selected) or (current_class in selected):
+                return True
+        return False
 
     def _step_exploration(self, action: str):
         """
@@ -227,7 +233,16 @@ class SpatialGym(gym.Env):
         eval_log = self.evaluation_manager.turn_logs[-1]
         reward = 1 if correct else 0
 
-        return {'obs_str': "Task finished"}, reward, True, {}, eval_log
+        # Check if there are more questions
+        has_more = self.evaluation_manager.next_task()
+
+        if has_more:
+            # Generate next question
+            obs_str = self.prompter.get_evaluation_prompt(self.evaluation_manager)
+            return {'obs_str': obs_str}, reward, False, {}, eval_log
+        else:
+            # All questions answered
+            return {'obs_str': "Task finished"}, reward, True, {}, eval_log
 
     def step(self, llm_response: str):
         """Process agent actions in the spatial gym environment."""

@@ -1,21 +1,31 @@
 # config.yaml
 name: demo_env
 render_mode: vision
-room_size: [10, 10]
-n_objects: 3
-level: 0
-main: 6
-
+# room_size: [10, 10]
+# n_objects: 3
+# level: 0
+# main: 6
+seed-range: 0-1
 exp_type: active 
-perspective: ego
+# perspective: ego
 max_exp_steps: 20
 calculate_information_gain: true
-
-eval_tasks:
-  - task_type: rot
-    task_kwargs:
-      turn_direction: clockwise
-  #- task_type: dir 
+data_dir: "/home/zihanhuang/VAGEN/vagen/env/spatial/room_data/dataset_2room_9obj"
+eval_task_counts:
+  rot: 1
+  dir: 1
+  rot_dual: 1
+  pov: 1
+  e2a: 1
+  fwd_loc: 1
+  bwd_loc: 1
+  false_belief: 1
+  fwd_fov: 1
+  bwd_nav: 1
+  bwd_pov: 1
+# eval_tasks:
+  # - task_type: rot
+  # - task_type: dir 
   #- task_type: rot_dual
   #- task_type: pov
   #- task_type: e2a

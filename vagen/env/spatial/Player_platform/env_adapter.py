@@ -22,9 +22,22 @@ class TurnRecord:
 def load_cfg_from_yaml(path: str) -> SpatialGymConfig:
     """
     Load SpatialGymConfig from a YAML file.
+    Converts eval_task_counts to eval_tasks format.
     """
     with open(path, "r") as f:
         raw = yaml.safe_load(f)
+    del raw['seed-range']
+    # Convert eval_task_counts to eval_tasks if present
+    if "eval_task_counts" in raw and not raw.get("eval_tasks"):
+        eval_tasks = []
+        for task_type, count in raw["eval_task_counts"].items():
+            eval_tasks.append({
+                "task_type": task_type,
+                "num": int(count)
+            })
+        raw["eval_tasks"] = eval_tasks
+        # Remove eval_task_counts to avoid confusion
+        del raw["eval_task_counts"]
 
     # OmegaConf to ensure compatibility with ListConfig, etc.
     conf = OmegaConf.create(raw)
