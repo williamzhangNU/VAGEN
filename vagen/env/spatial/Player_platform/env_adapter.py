@@ -1,4 +1,11 @@
-# env_adapter.py
+import os
+import sys
+
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.abspath(os.path.join(CURRENT_DIR, "..", "..", "..", ".."))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
+
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict, Optional, Tuple, List
