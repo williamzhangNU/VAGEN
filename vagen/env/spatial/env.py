@@ -201,7 +201,7 @@ class SpatialGym(gym.Env):
         else:
             # execute action
             action_results = self.exploration_manager.execute_action_sequence(action_sequence)
-            obs_str += action_results_to_text(action_results, self.config.image_placeholder if self.config.render_mode == 'vision' else None)
+            obs_str += action_results_to_text(action_results, self.config.image_placeholder if self.config.render_mode == 'vision' else None) if not self.config.gt_local_cogmap else ""
             exp_log = self.exploration_manager.turn_logs[-1]
             if action_sequence.final_action and action_sequence.final_action.is_term():
                 self.is_exploration_phase = False
@@ -402,7 +402,7 @@ class SpatialGym(gym.Env):
             # +y = forward, -y = backward, +x = right, -x = left
             ori_mapping = {(0, 1): "forward", (0, -1): "backward", (1, 0): "right", (-1, 0): "left"}
             objects_dict = {}
-            for obj in gt_baseroom.objects:
+            for obj in gt_baseroom.objects + gt_baseroom.gates:
                 # Skip agent in local cogmap
                 if obj.name == "agent":
                     continue
@@ -410,20 +410,16 @@ class SpatialGym(gym.Env):
                 # Get the original object from room to access world-frame orientation
                 orig_obj = room.get_object_by_name(obj.name)
                 # Transform orientation to agent's frame
-                transformed_ori = transform_ori(orig_obj.ori, agent.ori)
-                facing = ori_mapping.get(tuple(transformed_ori), "")
-
-                objects_dict[obj.name] = {
-                    "position": [int(obj.pos[0]), int(obj.pos[1])],
-                    "facing": facing
-                }
-
-            # Add gates if present
-            if gt_baseroom.gates:
-                for g in gt_baseroom.gates:
-                    # Get original gate from room
-                    objects_dict[g.name] = {
-                        "position": [int(g.pos[0]), int(g.pos[1])],
+                if orig_obj.has_orientation:
+                    transformed_ori = transform_ori(orig_obj.ori, agent.ori)
+                    facing = ori_mapping.get(tuple(transformed_ori), "")
+                    objects_dict[obj.name] = {
+                        "position": [int(obj.pos[0]), int(obj.pos[1])],
+                        "facing": facing
+                    }
+                else:
+                    objects_dict[obj.name] = {
+                        "position": [int(obj.pos[0]), int(obj.pos[1])]
                     }
 
             gt_json = {
