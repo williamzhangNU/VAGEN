@@ -1,9 +1,25 @@
-# pages/01_🎮_Play.py
+# vagen/env/spatial/Player_platform/pages/Play.py
+import os
+import sys
+
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+ROOT_DIR = os.path.abspath(os.path.join(CURRENT_DIR, "..", "..", "..", "..", ".."))
+
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
+
 import streamlit as st
 import streamlit.components.v1 as components
-from env_adapter import SpatialEnvAdapter, summarize_turn, format_obs, save_episode, load_cfg_from_yaml
 import yaml
 
+from vagen.env.spatial.Player_platform.env_adapter import (
+    SpatialEnvAdapter,
+    summarize_turn,
+    format_obs,
+    save_episode,
+    load_cfg_from_yaml,
+)
 st.set_page_config(page_title="Play", layout="wide", page_icon="🎮")
 
 st.title("🎮 Exploration (Chat Mode)")

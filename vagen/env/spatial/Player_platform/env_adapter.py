@@ -1,3 +1,4 @@
+from __future__ import annotations
 import os
 import sys
 
@@ -6,7 +7,6 @@ BASE_DIR = os.path.abspath(os.path.join(CURRENT_DIR, "..", "..", "..", ".."))
 if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
 
-from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict, Optional, Tuple, List
 import os, json

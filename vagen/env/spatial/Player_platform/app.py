@@ -1,5 +1,12 @@
-# app.py
-#PYTHONPATH=. streamlit run vagen/env/spatial/Player_platform/app.py
+import os
+import sys
+
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+ROOT_DIR = os.path.abspath(os.path.join(CURRENT_DIR, "..", "..", "..", ".."))
+
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
 import streamlit as st
 
 st.set_page_config(page_title="Spatial Exploration Dashboard", layout="wide", page_icon="🧭")
