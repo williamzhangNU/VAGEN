@@ -86,7 +86,7 @@ with chat_container:
                 if rec.obs_raw and "multi_modal_data" in rec.obs_raw:
                     imgs = rec.obs_raw["multi_modal_data"].get("<image>", [])
                     if imgs:
-                        st.image(imgs, clamp=True, width=400)
+                        st.image(imgs, clamp=True, width=512, channels="RGB")
         else:
             with st.chat_message("user"):
                 st.markdown(rec.action)
@@ -95,7 +95,7 @@ with chat_container:
                 if rec.obs_raw and "multi_modal_data" in rec.obs_raw:
                     imgs = rec.obs_raw["multi_modal_data"].get("<image>", [])
                     if imgs:
-                        st.image(imgs, clamp=True, width=400)
+                        st.image(imgs, clamp=True, width=512, channels="RGB")
 
 # Auto-scroll to latest observation after sending action
 if st.session_state.get("scroll_to_bottom", False):
@@ -250,7 +250,7 @@ if send_clicked:
         if rec.obs_raw and "multi_modal_data" in rec.obs_raw:
             imgs = rec.obs_raw["multi_modal_data"].get("<image>", [])
             if imgs:
-                st.image(imgs, clamp=True, use_container_width=True)
+                st.image(imgs, clamp=True, width=512, channels="RGB")
 
     # Reset buffer to default Observe() (only in exploration phase)
     if st.session_state.env.env.is_exploration_phase:

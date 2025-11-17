@@ -386,13 +386,51 @@ class SpatialGym(gym.Env):
         # Build ground-truth BaseRoom
         if map_type == 'global':
             gt_baseroom = temp_cogmap_manager._build_gt_global_baseroom(room, agent, observed_set)
+            # Convert to JSON with absolute directions (north/south/east/west)
+            gt_json = temp_cogmap_manager.baseroom_to_json(gt_baseroom, include_gates=True)
+            return json.dumps(gt_json, indent=2)
         else:  # local
+            # Import transform_ori for orientation transformation
+            from vagen.env.spatial.Base.tos_base.utils.cogmap.transforms import transform_ori
+
             gt_baseroom = temp_cogmap_manager._build_gt_local_baseroom(room, agent)
+            # Convert to JSON with relative directions (forward/backward/left/right)
+            # Local cogmap uses relative coordinate frame where agent is at origin
+            # Note: _build_gt_local_baseroom transforms positions but NOT orientations
+            # We need to manually transform orientations using transform_ori
 
-        # Convert to JSON
-        gt_json = temp_cogmap_manager.baseroom_to_json(gt_baseroom, include_gates=True)
+            # +y = forward, -y = backward, +x = right, -x = left
+            ori_mapping = {(0, 1): "forward", (0, -1): "backward", (1, 0): "right", (-1, 0): "left"}
+            objects_dict = {}
+            for obj in gt_baseroom.objects:
+                # Skip agent in local cogmap
+                if obj.name == "agent":
+                    continue
 
-        return json.dumps(gt_json, indent=2)
+                # Get the original object from room to access world-frame orientation
+                orig_obj = room.get_object_by_name(obj.name)
+                # Transform orientation to agent's frame
+                transformed_ori = transform_ori(orig_obj.ori, agent.ori)
+                facing = ori_mapping.get(tuple(transformed_ori), "")
+
+                objects_dict[obj.name] = {
+                    "position": [int(obj.pos[0]), int(obj.pos[1])],
+                    "facing": facing
+                }
+
+            # Add gates if present
+            if gt_baseroom.gates:
+                for g in gt_baseroom.gates:
+                    # Get original gate from room
+                    objects_dict[g.name] = {
+                        "position": [int(g.pos[0]), int(g.pos[1])],
+                    }
+
+            gt_json = {
+                "origin": "agent",
+                "objects": objects_dict
+            }
+            return json.dumps(gt_json, indent=2)
 
 
 

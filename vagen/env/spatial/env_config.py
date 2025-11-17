@@ -27,7 +27,7 @@ class SpatialGymConfig(BaseEnvConfig):
     max_actions_per_step: int = field(default=1, init=False)    
     prompt_format: str = field(default="free_think", init=False)
     action_sep: str = field(default="|", init=False)
-    image_size: Tuple[int, int] = field(default=(300, 300), init=False)
+    image_size: Tuple[int, int] = field(default=(512, 512), init=False)
     
     # Environment specific configuration
     name: str = 'unnamed_env'
@@ -61,7 +61,10 @@ class SpatialGymConfig(BaseEnvConfig):
     # Ground-truth testing options
     gt_cogmap_eval: bool = False  # Provide ground-truth cogmap and test evaluation tasks
     gt_local_cogmap: bool = False  # Provide ground-truth local cogmap at each step and test cogmap
-    
+
+    # Cognitive map before evaluation option
+    cogmap_before_eval: bool = False  # Request model to output cognitive map before answering evaluation questions
+
     def config_id(self) -> str:
         eval_task_str = ", ".join([f"{task['task_type']}" for task in self.eval_tasks])
         return f"SpatialGymConfig(mode={self.render_mode},format={self.prompt_format},eval_tasks={eval_task_str})"
