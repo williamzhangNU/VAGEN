@@ -12,6 +12,12 @@ from vagen.env.spatial.Base.tos_base import (
     BaseAction,
     EvalTaskType,
 )
+from vagen.env.spatial.Base.tos_base.core.relationship import (
+    RELATION_MODE_REAL,
+    RELATION_MODE_DISCRETE_DEFAULT,
+    configure_pairwise_relation_bins,
+    is_discrete_relation_mode,
+)
 from vagen.env.spatial.Base.tos_base.managers.agent_proxy import get_agent_proxy
 from vagen.env.spatial.Base.tos_base.managers.cognitive_map_manager import CognitiveMapManager
 from vagen.env.spatial.Base.tos_base.prompts import Prompter
@@ -49,6 +55,8 @@ class SpatialGym(gym.Env):
         self.evaluation_manager = None
         self.cognitive_map_manager = None
         self.history_manager = None
+        self._exploration_relation_mode = None
+        self._evaluation_relation_mode = None
 
         # Turn logging
         self.turn_logs: List[EnvTurnLog] = None
@@ -125,10 +133,18 @@ class SpatialGym(gym.Env):
         self.observed_image_paths = []
         # Set exploration phase
         self.is_exploration_phase = self.config.exp_type == 'active'
+        self._exploration_relation_mode = self.config.relation_mode
+        if self._exploration_relation_mode == RELATION_MODE_REAL:
+            assert self.is_exploration_phase, "relation_mode 'real' requires active exploration"
+        self._evaluation_relation_mode = (
+            self._exploration_relation_mode
+            if is_discrete_relation_mode(self._exploration_relation_mode)
+            else RELATION_MODE_DISCRETE_DEFAULT
+        )
 
-        # Set field of view for all actions
+        # Set shared action parameters
         BaseAction.set_field_of_view(self.config.field_of_view)
-        BaseAction.set_use_real_relations(self.config.use_real_relations)
+        self._apply_relation_mode()
         BaseAction.set_query_cost(self.config.query_action_cost)
         self.exploration_manager = ExplorationManager(
             self.initial_room, self.agent,
@@ -177,6 +193,20 @@ class SpatialGym(gym.Env):
                 return True
         return False
 
+    def _apply_relation_mode(self):
+        """Set relation mode based on the current phase."""
+        mode = self._exploration_relation_mode if self.is_exploration_phase else self._evaluation_relation_mode
+        if mode is not None:
+            BaseAction.set_relation_mode(mode)
+            bins_mode = mode if is_discrete_relation_mode(mode) else RELATION_MODE_DISCRETE_DEFAULT
+            configure_pairwise_relation_bins(bins_mode)
+
+    def _end_exploration_phase(self):
+        """Stop exploration and fall back to evaluation relation mode."""
+        if self.is_exploration_phase:
+            self.is_exploration_phase = False
+            self._apply_relation_mode()
+
     def _step_exploration(self, action: str):
         """
         Handle exploration phase step with parsed result and shared info.
@@ -204,7 +234,7 @@ class SpatialGym(gym.Env):
             obs_str += action_results_to_text(action_results, self.config.image_placeholder if self.config.render_mode == 'vision' else None)
             exp_log = self.exploration_manager.turn_logs[-1]
             if action_sequence.final_action and action_sequence.final_action.is_term():
-                self.is_exploration_phase = False
+                self._end_exploration_phase()
                 # to ensure cogmap override working correctly
                 if self.evaluation_manager.check_and_prune_completed_tasks():
                     return {'obs_str': "Task finished"}, 0, True, info, exp_log

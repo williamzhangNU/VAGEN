@@ -7,6 +7,7 @@ import numpy as np
 
 from vagen.env.base.base_env_config import BaseEnvConfig
 from vagen.env.spatial.Base.tos_base.evaluation.task_types import EvalTaskType
+from vagen.env.spatial.Base.tos_base.core.relationship import RELATION_MODE_CHOICES
 
 
 @dataclass
@@ -32,7 +33,7 @@ class SpatialGymConfig(BaseEnvConfig):
     # Environment specific configuration
     name: str = 'unnamed_env'
     render_mode: str = field(default="vision")
-    use_real_relations: bool = False  # Toggle Observe() outputs between binned and real-value relations
+    relation_mode: str = field(default="bin_system1")  # 'real', 'bin_system1', 'bin_system2'
     query_action_cost: int = 2  # Default Query() cost; overridable via CLI
 
     # Room configuration (minimal additions from RAGEN)
@@ -83,6 +84,7 @@ class SpatialGymConfig(BaseEnvConfig):
         self._validate_exp_type()
         self._validate_field_of_view()
         self._validate_eval_tasks()
+        self._validate_relation_mode()
         self._validate_query_cost()
 
     def _validate_exp_type(self):
@@ -120,6 +122,10 @@ class SpatialGymConfig(BaseEnvConfig):
             if 'task_kwargs' in task and task['task_kwargs'] is not None:
                 assert isinstance(task['task_kwargs'], dict), "task_kwargs must be a dict"
 
+    def _validate_relation_mode(self):
+        if self.relation_mode not in RELATION_MODE_CHOICES:
+            raise ValueError(f"relation_mode must be one of {RELATION_MODE_CHOICES}")
+
     def _validate_query_cost(self):
         assert self.query_action_cost >= 0, "query_action_cost must be non-negative"
 
@@ -139,7 +145,7 @@ class SpatialGymConfig(BaseEnvConfig):
             'render_mode': self.render_mode,
             'exp_type': self.exp_type,
             "proxy_agent": self.proxy_agent,
-            'use_real_relations': self.use_real_relations,
+            'relation_mode': self.relation_mode,
             'query_action_cost': self.query_action_cost,
         }        
     def get_model_config(self) -> Dict[str, Any]:
@@ -165,7 +171,7 @@ class SpatialGymConfig(BaseEnvConfig):
             'observation_config': self.get_observation_config(),
             'model_config': self.get_model_config(),
             'field_of_view': self.field_of_view,
-            'use_real_relations': self.use_real_relations,
+            'relation_mode': self.relation_mode,
             'query_action_cost': self.query_action_cost,
         }
         

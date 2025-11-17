@@ -87,8 +87,9 @@ def parse_args():
     p.add_argument("--inference-only", action="store_true", dest="inference_only", help="If set, skip SpatialEnvLogger logging after inference")
     p.add_argument("--aggregate-only", action="store_true", dest="aggregate_only", help="If set, skip individual task logging and only log aggregate results")
     # Exploration tuning knobs
-    p.add_argument("--use-real-relations", action="store_true", dest="use_real_relations", default=False,
-                   help="Report precise (real-value) spatial relations in observations")
+    p.add_argument("--relation-mode", type=str, dest="relation_mode",
+                   choices=["real", "bin_system1", "bin_system2"], default="bin_system1",
+                   help="Relation reporting mode: real or one of the bin presets.")
     p.add_argument("--query-cost", type=int, dest="query_cost", default=None,
                    help="Override Query() action cost (default from base config).")
     p.add_argument("--max-exp-steps", type=int, dest="max_exp_steps", default=None,
@@ -195,7 +196,7 @@ def resolve_eval_runs_count(task_key: str, infer_cfg: Dict[str, Any], eval_count
 
 def patch_env_yaml(env_cfg: Dict[str, Any], task_key: str, num: int, render_mode = "vision", seed_opts: tuple[int, int] | None = None,
                    enable_think: int | None = None, eval_num: int | None = None, data_dir: str | None = None,
-                   use_real_relations: bool | None = None, query_cost: int | None = None, max_exp_steps: int | None = None,
+                   relation_mode: str | None = None, query_cost: int | None = None, max_exp_steps: int | None = None,
                    gt_cogmap_eval: bool = False, gt_local_cogmap: bool = False) -> Dict[str, Any]:
     """Return {TaskKey: {...}} by selecting the entry from custom_envs and overriding sizes.
 
@@ -208,8 +209,8 @@ def patch_env_yaml(env_cfg: Dict[str, Any], task_key: str, num: int, render_mode
     selected = dict(custom_envs[task_key])
     selected["test_size"] = int(num)
     selected["env_config"]['render_mode'] = render_mode
-    if use_real_relations is not None:
-        selected["env_config"]["use_real_relations"] = bool(use_real_relations)
+    if relation_mode is not None:
+        selected["env_config"]["relation_mode"] = relation_mode
     if data_dir:
         selected["env_config"]["data_dir"] = data_dir
     if seed_opts:
@@ -350,7 +351,6 @@ def main():
     tasks = normalize_tasks(args.tasks)
     eval_counts_cli = parse_eval_counts_arg(args.eval_counts)
     eval_override_tasks_cli = parse_task_list_arg(args.eval_override_tasks)
-    use_real_relations = bool(args.use_real_relations)
     query_cost = args.query_cost
     max_exp_steps = args.max_exp_steps
 
@@ -414,7 +414,7 @@ def main():
                 args.enable_think,
                 eval_num=repeat,
                 data_dir=args.data_dir,
-                use_real_relations=use_real_relations,
+                relation_mode=args.relation_mode,
                 query_cost=query_cost,
                 max_exp_steps=max_exp_steps,
                 gt_cogmap_eval=args.gt_cogmap_eval,
