@@ -20,6 +20,28 @@ python scripts/SpatialGym/spatial_run.py \
     --data-dir /home/pingyue/work/VAGEN/vagen/env/spatial/room_data \
     --relation-mode bin_system2 2>&1 | tee logs/bin2
 
+# another bin system relations
+python scripts/SpatialGym/spatial_run.py \
+    --tasks ActiveDir,ActiveFwdFov,ActiveBwdNav,ActiveE2A,ActiveRot,ActiveRotDual,ActiveFwdLoc,ActiveBwdLoc \
+    --model_name claude-4-sonnet \
+    --seed-range 0-19 \
+    --render-mode text \
+    --inference-only  \
+    --output-root results_rebuttal/bin-2 \
+    --data-dir /home/pingyue/work/VAGEN/vagen/env/spatial/room_data \
+    --relation-mode bin_system2 2>&1 | tee logs/bin2
+
+# another bin system relations
+python scripts/SpatialGym/spatial_run.py \
+    --tasks ActiveDir,ActiveFwdFov,ActiveBwdNav,ActiveE2A,ActiveRot,ActiveRotDual,ActiveFwdLoc,ActiveBwdLoc \
+    --model_name gemini-2_5-pro \
+    --seed-range 0-19 \
+    --render-mode text \
+    --inference-only  \
+    --output-root results_rebuttal/bin-2 \
+    --data-dir /home/pingyue/work/VAGEN/vagen/env/spatial/room_data \
+    --relation-mode bin_system2 2>&1 | tee logs/bin2
+
 # query cost
 python scripts/SpatialGym/spatial_run.py \
     --tasks ActiveDir,ActiveFwdFov,ActiveBwdNav,ActiveE2A,ActiveRot,ActiveRotDual,ActiveFwdLoc,ActiveBwdLoc \
