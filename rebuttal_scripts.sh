@@ -1,4 +1,4 @@
-# real-value relations
+# real-value relations (done)
 python scripts/SpatialGym/spatial_run.py \
     --tasks ActiveDir,ActiveFwdFov,ActiveBwdNav,ActiveE2A,ActiveRot,ActiveRotDual,ActiveFwdLoc,ActiveBwdLoc \
     --model_name gpt-5 \
@@ -9,7 +9,7 @@ python scripts/SpatialGym/spatial_run.py \
     --data-dir /home/pingyue/work/VAGEN/vagen/env/spatial/room_data \
     --relation-mode real 2>&1 | tee logs/real-value.log
 
-# another bin system relations
+# another bin system relations (done)
 python scripts/SpatialGym/spatial_run.py \
     --tasks ActiveDir,ActiveFwdFov,ActiveBwdNav,ActiveE2A,ActiveRot,ActiveRotDual,ActiveFwdLoc,ActiveBwdLoc \
     --model_name gpt-5 \
@@ -29,7 +29,7 @@ python scripts/SpatialGym/spatial_run.py \
     --inference-only  \
     --output-root results_rebuttal/bin-2 \
     --data-dir /home/pingyue/work/VAGEN/vagen/env/spatial/room_data \
-    --relation-mode bin_system2 2>&1 | tee logs/bin2
+    --relation-mode bin_system2 2>&1 | tee logs/bin2-claude-4-sonnet
 
 # another bin system relations
 python scripts/SpatialGym/spatial_run.py \
@@ -40,7 +40,7 @@ python scripts/SpatialGym/spatial_run.py \
     --inference-only  \
     --output-root results_rebuttal/bin-2 \
     --data-dir /home/pingyue/work/VAGEN/vagen/env/spatial/room_data \
-    --relation-mode bin_system2 2>&1 | tee logs/bin2
+    --relation-mode bin_system2 2>&1 | tee logs/bin2-gemini-2_5-pro
 
 # query cost
 python scripts/SpatialGym/spatial_run.py \
