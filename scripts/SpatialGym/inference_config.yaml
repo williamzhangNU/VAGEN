@@ -39,7 +39,7 @@ eval_task_counts:
   # ActiveDirAnchor: 1
 
 # Output configuration
-output_dir: "results"
+output_dir: "results_rebuttal/vision-gt-cogmap"
 override: false
 evaluate_cogmap: false
 cogmap_config:

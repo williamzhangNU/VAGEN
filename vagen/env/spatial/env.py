@@ -85,7 +85,7 @@ class SpatialGym(gym.Env):
 
         # Add ground-truth cogmap if gt_cogmap_eval is enabled (for passive/evaluation mode)
         gt_cogmap_str = None
-        if self.config.gt_cogmap_eval and self.config.exp_type == 'passive' and self.config.render_mode == 'text':
+        if self.config.gt_cogmap_eval and self.config.exp_type == 'passive':
             gt_cogmap_json = self._generate_gt_cogmap_json(self.initial_room, self.agent, map_type='global')
             gt_cogmap_str = f"Here is the ground-truth cognitive map of the environment:\n```json\n{gt_cogmap_json}\n```\n"
 
@@ -201,7 +201,7 @@ class SpatialGym(gym.Env):
         else:
             # execute action
             action_results = self.exploration_manager.execute_action_sequence(action_sequence)
-            obs_str += action_results_to_text(action_results, self.config.image_placeholder if self.config.render_mode == 'vision' else None) if not self.config.gt_local_cogmap else ""
+            obs_str += action_results_to_text(action_results, self.config.image_placeholder if self.config.render_mode == 'vision' else None)
             exp_log = self.exploration_manager.turn_logs[-1]
             if action_sequence.final_action and action_sequence.final_action.is_term():
                 self.is_exploration_phase = False
@@ -219,7 +219,7 @@ class SpatialGym(gym.Env):
                         self.exploration_manager.agent,
                         map_type='local'
                     )
-                    obs_str += f"\n\n## Ground-Truth Local Cognitive Map\nHere is the ground-truth local cognitive map from your current perspective:\n```json\n{gt_local_cogmap_json}\n```\n"
+                    obs_str += f"\nHere is the ground-truth local cognitive map from your current perspective:\n```json\n{gt_local_cogmap_json}\n```\n"
 
                 # Only get multi-modal data if render_mode is vision
                 if self.config.render_mode == 'vision':
