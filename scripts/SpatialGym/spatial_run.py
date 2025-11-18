@@ -14,6 +14,11 @@ import threading
 from datetime import datetime
 from tqdm import tqdm
 
+from vagen.env.spatial.Base.tos_base.core.relationship import (
+    RELATION_MODE_REAL,
+    RELATION_MODE_DISCRETE_DEFAULT,
+)
+
 SCRIPT_DIR = Path(__file__).resolve().parent
 
 
@@ -207,24 +212,28 @@ def patch_env_yaml(env_cfg: Dict[str, Any], task_key: str, num: int, render_mode
     """
     custom_envs = env_cfg.get("custom_envs", {}) or {}
     selected = dict(custom_envs[task_key])
+    env_config = selected["env_config"]
+    env_kwargs = env_config.setdefault("kwargs", {})
     selected["test_size"] = int(num)
-    selected["env_config"]['render_mode'] = render_mode
+    env_config['render_mode'] = render_mode
     if relation_mode is not None:
-        selected["env_config"]["relation_mode"] = relation_mode
+        env_config["relation_mode"] = relation_mode
+        if relation_mode == RELATION_MODE_REAL:
+            # Ensure evaluation falls back to the default discrete bins after exploration.
+            env_kwargs.setdefault("eval_relation_mode", RELATION_MODE_DISCRETE_DEFAULT)
     if data_dir:
-        selected["env_config"]["data_dir"] = data_dir
+        env_config["data_dir"] = data_dir
     if seed_opts:
-        selected["env_config"].setdefault("kwargs", {})
-        selected["env_config"]["kwargs"]["seed_start"] = int(seed_opts[0])
-        selected["env_config"]["kwargs"]["seed_end"] = int(seed_opts[1])
+        env_kwargs["seed_start"] = int(seed_opts[0])
+        env_kwargs["seed_end"] = int(seed_opts[1])
         selected["test_size"] = int(seed_opts[1] - seed_opts[0] + 1)
     if enable_think is not None:
-        selected["env_config"].setdefault("prompt_config", {})
-        selected["env_config"]["prompt_config"]["enable_think"] = bool(enable_think)
+        env_config.setdefault("prompt_config", {})
+        env_config["prompt_config"]["enable_think"] = bool(enable_think)
     if query_cost is not None:
-        selected["env_config"]["query_action_cost"] = int(query_cost)
+        env_config["query_action_cost"] = int(query_cost)
     if max_exp_steps is not None:
-        selected["env_config"]["max_exp_steps"] = int(max_exp_steps)
+        env_config["max_exp_steps"] = int(max_exp_steps)
     if eval_num is not None:
         # Pass desired evaluation repetitions to EvaluationManager via env config
         tasks = selected["env_config"].get("eval_tasks") or []

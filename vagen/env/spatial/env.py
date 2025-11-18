@@ -136,11 +136,15 @@ class SpatialGym(gym.Env):
         self._exploration_relation_mode = self.config.relation_mode
         if self._exploration_relation_mode == RELATION_MODE_REAL:
             assert self.is_exploration_phase, "relation_mode 'real' requires active exploration"
-        self._evaluation_relation_mode = (
+        base_eval_mode = (
             self._exploration_relation_mode
             if is_discrete_relation_mode(self._exploration_relation_mode)
             else RELATION_MODE_DISCRETE_DEFAULT
         )
+        cfg_kwargs = self.config.kwargs or {}
+        eval_override = cfg_kwargs.get('eval_relation_mode')
+        # When exploration uses real-valued relations, fall back to bin_system1 for evaluation.
+        self._evaluation_relation_mode = eval_override or base_eval_mode
 
         # Set shared action parameters
         BaseAction.set_field_of_view(self.config.field_of_view)
@@ -153,13 +157,14 @@ class SpatialGym(gym.Env):
         # Collect all task types for history manager
         task_types = [EvalTaskType.from_short_name(task['task_type']).class_name for task in self.config.eval_tasks]
 
+        all_override = bool(cfg_kwargs.get('all_override') or cfg_kwargs.get('override'))
         self.history_manager = HistoryManager(
             self.config.get_observation_config(), self.config.get_model_config(),
             self.initial_room.to_dict(), self.agent.to_dict(),
             image_dir=self.image_handler.image_dir,
-            output_dir=self.config.kwargs['output_dir'],
+            output_dir=cfg_kwargs.get('output_dir', 'results'),
             eval_override=self._should_eval_override(),
-            all_override=self.config.kwargs.get('all_override', False),
+            all_override=all_override,
             task_types=task_types
         )
         # Initialize EvaluationManager with knowledge of existing eval counts
@@ -179,10 +184,11 @@ class SpatialGym(gym.Env):
 
     def _should_eval_override(self) -> bool:
         """Decide if we should override evaluation logs for any of the tasks."""
-        override_flag = self.config.kwargs.get('eval_override', False)
+        kwargs = self.config.kwargs or {}
+        override_flag = kwargs.get('eval_override', False)
         if not override_flag:
             return False
-        selected = set(self.config.kwargs.get('eval_override_tasks', []) or [])
+        selected = set(kwargs.get('eval_override_tasks', []) or [])
         if not selected:
             return True
         # Accept both short names and class names - check if any task should be overridden
