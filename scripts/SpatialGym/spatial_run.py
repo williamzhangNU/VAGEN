@@ -89,7 +89,7 @@ def parse_args():
     # Exploration tuning knobs
     p.add_argument("--use-real-relations", action="store_true", dest="use_real_relations", default=False,
                    help="Report precise (real-value) spatial relations in observations")
-    p.add_argument("--query-cost", type=int, dest="query_cost", default=None,
+    p.add_argument("--query-cost", type=float, dest="query_cost", default=None,
                    help="Override Query() action cost (default from base config).")
     p.add_argument("--max-exp-steps", type=int, dest="max_exp_steps", default=None,
                    help="Override maximum exploration steps before forced termination.")
@@ -198,7 +198,7 @@ def resolve_eval_runs_count(task_key: str, infer_cfg: Dict[str, Any], eval_count
 
 def patch_env_yaml(env_cfg: Dict[str, Any], task_key: str, num: int, render_mode = "vision", seed_opts: tuple[int, int] | None = None,
                    enable_think: int | None = None, eval_num: int | None = None, data_dir: str | None = None,
-                   use_real_relations: bool | None = None, query_cost: int | None = None, max_exp_steps: int | None = None,
+                   use_real_relations: bool | None = None, query_cost: float | None = None, max_exp_steps: int | None = None,
                    gt_cogmap_eval: bool = False, gt_local_cogmap: bool = False, cogmap_before_eval: bool = False) -> Dict[str, Any]:
     """Return {TaskKey: {...}} by selecting the entry from custom_envs and overriding sizes.
 
@@ -224,7 +224,7 @@ def patch_env_yaml(env_cfg: Dict[str, Any], task_key: str, num: int, render_mode
         selected["env_config"].setdefault("prompt_config", {})
         selected["env_config"]["prompt_config"]["enable_think"] = bool(enable_think)
     if query_cost is not None:
-        selected["env_config"]["query_action_cost"] = int(query_cost)
+        selected["env_config"]["query_action_cost"] = float(query_cost)
     if max_exp_steps is not None:
         selected["env_config"]["max_exp_steps"] = int(max_exp_steps)
     if eval_num is not None:

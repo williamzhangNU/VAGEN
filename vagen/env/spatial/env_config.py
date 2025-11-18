@@ -33,7 +33,7 @@ class SpatialGymConfig(BaseEnvConfig):
     name: str = 'unnamed_env'
     render_mode: str = field(default="vision")
     use_real_relations: bool = False  # Toggle Observe() outputs between binned and real-value relations
-    query_action_cost: int = 2  # Default Query() cost; overridable via CLI
+    query_action_cost: float = 2  # Default Query() cost; overridable via CLI
 
     # Room configuration (minimal additions from RAGEN)
     room_size: List[int] = field(default_factory=lambda: [10, 10])
