@@ -252,16 +252,7 @@ class SpatialGym(gym.Env):
         eval_log = self.evaluation_manager.turn_logs[-1]
         reward = 1 if correct else 0
 
-        # Check if there are more questions
-        has_more = self.evaluation_manager.next_task()
-
-        if has_more:
-            # Generate next question
-            obs_str = self.prompter.get_evaluation_prompt(self.evaluation_manager)
-            return {'obs_str': obs_str}, reward, False, {}, eval_log
-        else:
-            # All questions answered
-            return {'obs_str': "Task finished"}, reward, True, {}, eval_log
+        return {'obs_str': "Task finished"}, reward, True, {}, eval_log
 
     def step(self, llm_response: str):
         """Process agent actions in the spatial gym environment."""
