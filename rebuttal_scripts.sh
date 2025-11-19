@@ -1,4 +1,4 @@
-# real-value relations (done)
+# real-value relations
 python scripts/SpatialGym/spatial_run.py \
     --tasks ActiveDir,ActiveFwdFov,ActiveBwdNav,ActiveE2A,ActiveRot,ActiveRotDual,ActiveFwdLoc,ActiveBwdLoc \
     --model_name gpt-5 \
@@ -9,7 +9,7 @@ python scripts/SpatialGym/spatial_run.py \
     --data-dir /home/pingyue/work/VAGEN/vagen/env/spatial/room_data \
     --relation-mode real 2>&1 | tee logs/real-value.log
 
-# another bin system relations (done)
+# another bin system relations
 python scripts/SpatialGym/spatial_run.py \
     --tasks ActiveDir,ActiveFwdFov,ActiveBwdNav,ActiveE2A,ActiveRot,ActiveRotDual,ActiveFwdLoc,ActiveBwdLoc \
     --model_name gpt-5 \
