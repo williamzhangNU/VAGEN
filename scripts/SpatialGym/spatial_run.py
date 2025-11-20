@@ -101,6 +101,9 @@ def parse_args():
     # Cognitive map before evaluation option
     p.add_argument("--cogmap-before-eval", action="store_true", dest="cogmap_before_eval",
                    help="If set, request model to output cognitive map before answering evaluation questions")
+    
+    p.add_argument("--image-size", type=int, dest="image_size", default=None,
+                   help="Image size (square). Default: 512 (via config)")
 
     return p.parse_args()
 
@@ -199,7 +202,8 @@ def resolve_eval_runs_count(task_key: str, infer_cfg: Dict[str, Any], eval_count
 def patch_env_yaml(env_cfg: Dict[str, Any], task_key: str, num: int, render_mode = "vision", seed_opts: tuple[int, int] | None = None,
                    enable_think: int | None = None, eval_num: int | None = None, data_dir: str | None = None,
                    use_real_relations: bool | None = None, query_cost: float | None = None, max_exp_steps: int | None = None,
-                   gt_cogmap_eval: bool = False, gt_local_cogmap: bool = False, cogmap_before_eval: bool = False) -> Dict[str, Any]:
+                   gt_cogmap_eval: bool = False, gt_local_cogmap: bool = False, cogmap_before_eval: bool = False,
+                   image_size: int | None = None) -> Dict[str, Any]:
     """Return {TaskKey: {...}} by selecting the entry from custom_envs and overriding sizes.
 
     Behavior:
@@ -240,6 +244,8 @@ def patch_env_yaml(env_cfg: Dict[str, Any], task_key: str, num: int, render_mode
     # Cognitive map before evaluation option
     if cogmap_before_eval:
         selected["env_config"]["cogmap_before_eval"] = True
+    if image_size is not None:
+        selected["env_config"]["image_size"] = [image_size, image_size]
     return {task_key: selected}
 
 
@@ -426,6 +432,7 @@ def main():
                 gt_cogmap_eval=args.gt_cogmap_eval,
                 gt_local_cogmap=args.gt_local_cogmap,
                 cogmap_before_eval=args.cogmap_before_eval,
+                image_size=args.image_size,
             )
             if args.proxy_agent:
                 if (env_cfg[task]["env_config"].get("exp_type") == "passive"):

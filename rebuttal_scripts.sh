@@ -42,7 +42,10 @@ python scripts/SpatialGym/spatial_run.py \
     --data-dir /home/pingyue/work/VAGEN/vagen/env/spatial/room_data \
     --relation-mode bin_system2 2>&1 | tee logs/bin2-gemini-2_5-pro
 
-# query cost
+
+
+
+# query cost (running)
 python scripts/SpatialGym/spatial_run.py \
     --tasks ActiveDir,ActiveFwdFov,ActiveBwdNav,ActiveE2A,ActiveRot,ActiveRotDual,ActiveFwdLoc,ActiveBwdLoc \
     --model_name gpt-5 \
@@ -53,12 +56,22 @@ python scripts/SpatialGym/spatial_run.py \
     --data-dir /home/pingyue/work/VAGEN/vagen/env/spatial/room_data \
     --query-cost 0.5 2>&1 | tee logs/query-cost-0.5
 
+# query cost 1
+python scripts/SpatialGym/spatial_run.py \
+    --tasks ActiveDir,ActiveFwdFov,ActiveBwdNav,ActiveE2A,ActiveRot,ActiveRotDual,ActiveFwdLoc,ActiveBwdLoc \
+    --model_name gpt-5 \
+    --seed-range 0-19 \
+    --render-mode text \
+    --inference-only  \
+    --output-root results_rebuttal/query-cost-1 \
+    --data-dir /home/pingyue/work/VAGEN/vagen/env/spatial/room_data \
+    --query-cost 1 2>&1 | tee logs/query-cost-1
 
 
 
 
 
-# Text: max steps 3 and 5
+# Text: max steps 3 and 5 (running)
 python scripts/SpatialGym/spatial_run.py \
     --tasks ActiveDir,ActiveFwdFov,ActiveBwdNav,ActiveE2A,ActiveRot,ActiveRotDual,ActiveFwdLoc,ActiveBwdLoc \
     --model_name gpt-5 \
@@ -79,7 +92,7 @@ python scripts/SpatialGym/spatial_run.py \
     --data-dir /home/pingyue/work/VAGEN/vagen/env/spatial/room_data \
     --max-exp-steps 5 2>&1 | tee logs/text-max-steps-5
 
-# Vision: max steps 3 and 5
+# Vision: max steps 3 and 5 (running)
 python scripts/SpatialGym/spatial_run.py \
     --tasks ActiveDir,ActiveFwdFov,ActiveBwdNav,ActiveE2A,ActiveRot,ActiveRotDual,ActiveFwdLoc,ActiveBwdLoc \
     --model_name gpt-5 \
@@ -112,7 +125,35 @@ python scripts/SpatialGym/spatial_run.py \
     --render-mode vision \
     --inference-only  \
     --output-root results_rebuttal/random-light \
-    --data-dir /home/pingyue/work/VAGEN/vagen/env/spatial/room_data_2_room_jitter/ 2>&1 | tee logs/random-light
+    --data-dir /home/pingyue/work/VAGEN/vagen/env/spatial/room_data_2_room_jitter/ 2>&1 | tee logs/random-light-gpt-5
+
+python scripts/SpatialGym/spatial_run.py \
+    --tasks ActiveDir,ActiveFwdFov,ActiveBwdNav,ActiveE2A,ActiveRot,ActiveRotDual,ActiveFwdLoc,ActiveBwdLoc \
+    --model_name claude-4-sonnet \
+    --seed-range 0-19 \
+    --render-mode vision \
+    --inference-only  \
+    --output-root results_rebuttal/random-light \
+    --data-dir /home/pingyue/work/VAGEN/vagen/env/spatial/room_data_2_room_jitter/ 2>&1 | tee logs/random-light-claude-4-sonnet
+
+python scripts/SpatialGym/spatial_run.py \
+    --tasks ActiveDir,ActiveFwdFov,ActiveBwdNav,ActiveE2A,ActiveRot,ActiveRotDual,ActiveFwdLoc,ActiveBwdLoc \
+    --model_name gemini-2_5-pro \
+    --seed-range 0-19 \
+    --render-mode vision \
+    --inference-only  \
+    --output-root results_rebuttal/random-light \
+    --data-dir /home/pingyue/work/VAGEN/vagen/env/spatial/room_data_2_room_jitter/ 2>&1 | tee logs/random-light-gemini-2_5-pro
+
+# smaller resolution
+python scripts/SpatialGym/spatial_run.py \
+    --tasks ActiveDir,ActiveFwdFov,ActiveBwdNav,ActiveE2A,ActiveRot,ActiveRotDual,ActiveFwdLoc,ActiveBwdLoc \
+    --model_name gpt-5 \
+    --seed-range 0-19 \
+    --render-mode vision \
+    --inference-only  \
+    --output-root results_rebuttal/resolution-256 \
+    --data-dir /home/pingyue/work/VAGEN/vagen/env/spatial/room_data/ --image-size 256 2>&1 | tee logs/resolution-256
 
 # given gt cogmap, test performance
 python scripts/SpatialGym/spatial_run.py \

@@ -27,11 +27,11 @@ class SpatialGymConfig(BaseEnvConfig):
     max_actions_per_step: int = field(default=1, init=False)    
     prompt_format: str = field(default="free_think", init=False)
     action_sep: str = field(default="|", init=False)
-    image_size: Tuple[int, int] = field(default=(512, 512), init=False)
     
     # Environment specific configuration
     name: str = 'unnamed_env'
     render_mode: str = field(default="vision")
+    image_size: Tuple[int, int] = field(default=(512, 512))
     use_real_relations: bool = False  # Toggle Observe() outputs between binned and real-value relations
     query_action_cost: float = 2  # Default Query() cost; overridable via CLI
 
