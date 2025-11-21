@@ -4,7 +4,6 @@ from typing import List, Dict, Any
 
 from vagen.env.spatial.env_config import SpatialGymConfig
 from vagen.env.spatial.Base.tos_base import (
-    EvaluationManager,
     ActionSequence,
     ExplorationManager,
     HistoryManager,
@@ -12,6 +11,7 @@ from vagen.env.spatial.Base.tos_base import (
     BaseAction,
     EvalTaskType,
 )
+from vagen.env.spatial.Base.tos_base.managers.evaluation_manager_human import EvaluationManagerHuman
 from vagen.env.spatial.Base.tos_base.managers.agent_proxy import get_agent_proxy
 from vagen.env.spatial.Base.tos_base.prompts import Prompter
 from vagen.env.spatial.Base.tos_base.utils.action_utils import action_results_to_text
@@ -37,7 +37,7 @@ class SpatialGym(gym.Env):
         self.is_exploration_phase = None
         self.remaining_exp_steps = None
         self.render_cache = None
-
+        self.is_human_eval = None
         # Room state management
         self.initial_room = None
         self.initial_agent = None
@@ -116,7 +116,7 @@ class SpatialGym(gym.Env):
         self.observed_image_paths = []
         # Set exploration phase
         self.is_exploration_phase = self.config.exp_type == 'active'
-
+        self.is_human_eval = self.config.is_human_eval
         # Set field of view for all actions
         BaseAction.set_field_of_view(self.config.field_of_view)
         self.exploration_manager = ExplorationManager(
@@ -133,8 +133,8 @@ class SpatialGym(gym.Env):
             task_type=EvalTaskType.from_short_name(self.config.eval_tasks[0]['task_type']).class_name
         )
         # Initialize EvaluationManager with knowledge of existing eval counts
-        self.evaluation_manager = EvaluationManager(
-            self.config.eval_tasks, self.np_random, self.initial_room, self.agent, history_manager=self.history_manager, seed=seed
+        self.evaluation_manager = EvaluationManagerHuman(
+            self.config.eval_tasks, self.np_random, self.initial_room, self.agent, self.is_human_eval, history_manager=self.history_manager, seed=seed
         ) if len(self.config.eval_tasks) > 0 else None
         info = {}
         if self.history_manager:
@@ -224,8 +224,18 @@ class SpatialGym(gym.Env):
         correct, _ = self.evaluation_manager.evaluate_answer(action)
         eval_log = self.evaluation_manager.turn_logs[-1]
         reward = 1 if correct else 0
+        # Check if there are more tasks to do
+        has_more = self.evaluation_manager.next_task()
 
-        return {'obs_str': "Task finished"}, reward, True, {}, eval_log
+        if has_more:
+            # Ask next question
+            obs_str = self.prompter.get_evaluation_prompt(self.evaluation_manager)
+            done = False
+        else:
+            # All tasks finished
+            obs_str = "Task finished"
+            done = True
+        return {'obs_str': obs_str}, reward, done, {}, eval_log
 
     def step(self, llm_response: str):
         """Process agent actions in the spatial gym environment."""

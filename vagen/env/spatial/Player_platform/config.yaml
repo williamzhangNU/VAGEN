@@ -10,22 +10,22 @@ exp_type: active
 perspective: ego
 max_exp_steps: 20
 calculate_information_gain: true
-
+is_human_eval: true
 eval_tasks:
+  #- task_type: rot
+    #task_kwargs:
+      #turn_direction: clockwise
+  - task_type: dir
   - task_type: rot
-    task_kwargs:
-      turn_direction: clockwise
-  #- task_type: dir 
-  #- task_type: rot_dual
-  #- task_type: pov
-  #- task_type: e2a
-  #- task_type: fwd_loc
-  #- task_type: bwd_loc
-  #- task_type: false_belief
-  #- task_type: fwd_fov
-  #- task_type: bwd_nav
-  #- task_type: bwd_pov
-
+  - task_type: rot_dual
+  - task_type: pov
+  - task_type: bwd_pov
+  - task_type: e2a
+  - task_type: fwd_loc
+  - task_type: bwd_loc
+  - task_type: fwd_fov 
+  - task_type: bwd_nav 
+  - task_type: false_belief
 prompt_config:
   topdown: false
   oblique: false

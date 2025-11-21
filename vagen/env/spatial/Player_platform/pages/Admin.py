@@ -1,7 +1,7 @@
 # pages/04_⚙️_Admin.py
 import streamlit as st
 from env_adapter import SpatialEnvAdapter
-from vagen.env.spatial.env_config import SpatialGymConfig
+from vagen.env.spatial.env_config_human import SpatialGymConfig
 
 st.set_page_config(page_title="Admin", layout="wide", page_icon="⚙️")
 

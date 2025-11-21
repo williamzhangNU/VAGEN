@@ -7,8 +7,8 @@ import yaml
 import re
 from omegaconf import OmegaConf
 from vagen.env.spatial.Base.tos_base.utils.utils import THINK_LABEL, ANSWER_LABEL, format_llm_output
-from vagen.env.spatial.env import SpatialGym                  
-from vagen.env.spatial.env_config import SpatialGymConfig     
+from vagen.env.spatial.env_human import SpatialGym                  
+from vagen.env.spatial.env_config_human import SpatialGymConfig     
 @dataclass
 class TurnRecord:
     t: int
