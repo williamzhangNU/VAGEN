@@ -75,6 +75,17 @@ models:
     base_url: https://generativelanguage.googleapis.com/v1beta/openai/
     timeout: 500
     max_retries: 5
+  
+  gemini-3-pro:
+    provider: openai
+    organization: google
+    model_name: gemini-3-pro-preview
+    max_tokens: 32768
+    temperature: 0
+    max_workers: 
+    base_url: https://generativelanguage.googleapis.com/v1beta/openai/
+    timeout: 500
+    max_retries: 5
 
   gemini-2_5-flash:
     provider: openai

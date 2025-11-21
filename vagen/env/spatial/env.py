@@ -188,12 +188,8 @@ class SpatialGym(gym.Env):
         if self.remaining_exp_steps < 0:
             action_sequence = ActionSequence(motion_actions=[], final_action=ForcedTermAction())
 
-        if not action:
+        if not action or not action_sequence:
             obs_str += self.prompter.invalid_action_message() + "\n"
-            info['is_valid_action'] = False
-            reward += -0.5
-        elif not action_sequence:
-            obs_str += self.prompter.invalid_format_message() + "\n"
             info['is_valid_action'] = False
             reward += -0.5
         else:
@@ -253,7 +249,7 @@ class SpatialGym(gym.Env):
         # Save message list
         self.history_manager.append_assistant_message(llm_response)
         self.history_manager.append_env_feedback(obs.get('obs_str', ''), self.observed_image_paths or [])
-        self.history_manager.save_messages((list(agent_state.pos), list(agent_state.ori)) if agent_state else None)
+        self.history_manager.save_messages((agent_state.pos.tolist(), agent_state.ori.tolist()) if agent_state else None)
 
         self.observed_image_paths = []
         self.turn_logs.append(turn_log)

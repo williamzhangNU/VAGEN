@@ -43,17 +43,17 @@ class ModelFactory:
         config_cls = REGISTERED_MODEL[provider]["config_cls"]
         
         # Get provider info to validate model_name
-        supported_models = []
-        if hasattr(config_cls, 'get_provider_info'):
-            provider_info = config_cls.get_provider_info()
-            supported_models = provider_info.get("supported_models", [])
+        # supported_models = []
+        # if hasattr(config_cls, 'get_provider_info'):
+        #     provider_info = config_cls.get_provider_info()
+        #     supported_models = provider_info.get("supported_models", [])
         
-        # Validate model name before initialization
-        if model_name and supported_models and model_name not in supported_models:
-            raise ValueError(
-                f"Invalid model '{model_name}' for provider '{provider}'. "
-                f"Supported models: {supported_models}"
-            )
+        # # Validate model name before initialization
+        # if model_name and supported_models and model_name not in supported_models:
+        #     raise ValueError(
+        #         f"Invalid model '{model_name}' for provider '{provider}'. "
+        #         f"Supported models: {supported_models}"
+        #     )
         
         try:
             # Create config instance
