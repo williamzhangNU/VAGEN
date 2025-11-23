@@ -52,6 +52,7 @@ class OpenAIModelConfig(BaseModelConfig):
                 "internvl3.5-241b-a28b",
                 "gemini-2.5-pro",
                 "gemini-2.5-flash",
+                "gemini-3-pro"
                 "Qwen/Qwen2.5-VL-72B-Instruct",
                 "GLM-4.5V"
 
