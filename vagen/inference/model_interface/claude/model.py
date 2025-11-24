@@ -106,7 +106,6 @@ class ClaudeModelInterface(BaseModelInterface):
                 "messages": messages_with_limit,
                 "max_tokens": max_tokens,
                 "temperature": kwargs.get("temperature", self.config.temperature),
-                "top_p": kwargs.get("top_p", self.config.top_p),
                 "top_k": kwargs.get("top_k", self.config.top_k),
                 "stop_sequences": kwargs.get("stop_sequences", self.config.stop_sequences),
             }
@@ -344,10 +343,17 @@ class ClaudeModelInterface(BaseModelInterface):
                 "messages": messages_with_limit,
                 "max_tokens": max_tokens,
                 "temperature": kwargs.get("temperature", self.config.temperature),
-                "top_p": kwargs.get("top_p", self.config.top_p),
                 "top_k": kwargs.get("top_k", self.config.top_k),
                 "stop_sequences": kwargs.get("stop_sequences", self.config.stop_sequences),
             }
+            
+            # Add thinking parameter if enabled and budget_tokens is set
+            budget_tokens = kwargs.get("budget_tokens", self.config.budget_tokens)
+            if self.config.thinking and budget_tokens:
+                params["thinking"] = {
+                    "type": "enabled",
+                    "budget_tokens": budget_tokens
+                }
             
             # Add system prompt if provided
             if system_prompt:
@@ -361,7 +367,7 @@ class ClaudeModelInterface(BaseModelInterface):
             response = self.client.messages.create(**params)
             
             # Extract text response
-            response_text = response.content[0].text
+            response_text = next(block.text for block in response.content if block.type == "text")
             
             return {
                 "text": response_text,

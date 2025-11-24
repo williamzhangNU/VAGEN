@@ -80,8 +80,8 @@ def parse_args():
                    help="Root dir for output. Default: results")
     p.add_argument("--num", type=int, default=1, 
                    help="Number of samples per task (exploration phase). Default: 1")
-    p.add_argument("--render-mode", type=str, dest="render_mode", default="vision", 
-                   help="Environment render mode: vision, text, or comma-separated for multiple (e.g., 'vision,text'). Default: vision")
+    p.add_argument("--render-mode", type=str, dest="render_mode", default="text", 
+                   help="Environment render mode: vision, text, or comma-separated for multiple (e.g., 'vision,text'). Default: text")
     p.add_argument("--seed-range", type=str, dest="seed_range", default=None, 
                    help="Seed range 'start-end' (0-based), e.g., 0-24")
     p.add_argument("--enable-think", type=int, dest="enable_think", choices=[0,1], default=1, 
@@ -343,7 +343,7 @@ def compute_combo_paths(
         seed_start, seed_end = None, None
 
     combo_paths = []
-    model_dir = os.path.join(output_root, model_name)
+    model_dir = os.path.join(output_root, model_segment(model_name))
 
     # Check if model directory exists
     if not os.path.exists(model_dir):
@@ -519,6 +519,7 @@ def run_phase(args, mode: str, seed_opts: tuple[int, int] | None = None,
         data_dir=args.data_dir,
         proxy_agent=args.proxy_agent,
     )
+    print(all_combo_paths)
     
     if not all_combo_paths:
         print("[ERROR] No valid combo paths computed", file=sys.stderr)

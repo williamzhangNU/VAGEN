@@ -17,13 +17,14 @@ class ClaudeModelConfig(BaseModelConfig):
     
     # Generation parameters (inherited from base)
     # max_tokens, temperature already defined in base
-    top_p: float = 0.9
     top_k: int = -1  # Claude uses -1 for no limit
     stop_sequences: Optional[List[str]] = field(default_factory=lambda: ["<|im_end|>"])
     
     # Claude specific parameters
     metadata: Optional[Dict[str, str]] = None
     stream: bool = False
+    budget_tokens: Optional[int] = None
+    thinking: bool = True
     
     # Batch processing options
     use_batch_api: bool = False  # Whether to use batch API by default

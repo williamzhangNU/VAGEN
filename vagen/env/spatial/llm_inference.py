@@ -11,6 +11,9 @@ from vagen.env.spatial.Base.tos_base.utils.cog_utils import _evaluate_cogmaps
 from vagen.env.spatial.Base.tos_base.evaluation.tasks import evaluate_from_dict
 from vagen.inference.model_interface.openai.model import OpenAIModelInterface
 from vagen.inference.model_interface.openai.model_config import OpenAIModelConfig
+from vagen.inference.model_interface.claude.model import ClaudeModelInterface
+from vagen.inference.model_interface.claude.model_config import ClaudeModelConfig
+from vagen.env.spatial.batch_processor import get_batch_processor
 from vagen.env.spatial.Base.tos_base.utils.utils import parse_llm_response
 import dotenv
 dotenv.load_dotenv()
@@ -29,75 +32,7 @@ from vagen.env.spatial.common import (
 """Root-only inference runner: reads built files once and maps responses back via HistoryManager.load_from_dir."""
 
 
-def submit_openai_batch(
-    client: OpenAI,
-    messages_list: List[List[Dict[str, Any]]],
-    metas: List[Dict[str, Any]],
-    model_config: dict,
-    jsonl_path: str
-) -> str:
-    """Create JSONL, upload file, and start a batch job. Returns batch_id."""
-    os.makedirs(os.path.dirname(jsonl_path) or ".", exist_ok=True)
-    with open(jsonl_path, "w") as f:
-        for i, msgs in enumerate(messages_list):
-            mid = (metas[i] or {}).get("message_id", f"req_{i}")
-            line = {
-                "custom_id": str(mid),
-                "method": "POST",
-                "url": "/v1/chat/completions",
-                "body": {
-                    "model": model_config["model_name"],
-                    "messages": OpenAIModelInterface._convert_qwen_to_openai_format(msgs),
-                    "max_completion_tokens": model_config["max_completion_tokens"],
-                    "temperature": model_config["temperature"],
-                },
-            }
-            f.write(json.dumps(line, ensure_ascii=False) + "\n")
 
-    batch_input = client.files.create(file=open(jsonl_path, "rb"), purpose="batch")
-    batch = client.batches.create(
-        input_file_id=batch_input.id,
-        endpoint="/v1/chat/completions",
-        completion_window="24h",
-    )
-    return batch.id
-
-
-def collect_openai_batch(client: OpenAI, batch_id: str, poll_seconds: int = 10) -> List[Dict[str, Any]]:
-    """Poll until batch completes. Returns list of {message_id, text, usage}."""
-    while True:
-        b = client.batches.retrieve(batch_id)
-        if b.status in ("failed", "canceled"):
-            raise RuntimeError(f"Batch {batch_id} status={b.status} reason={b.errors}")
-        if b.status in ("completed", "expired"):
-            break
-        time.sleep(poll_seconds)
-
-    out_file_id = b.output_file_id
-    content = client.files.content(out_file_id)
-    text = getattr(content, "text", None) or getattr(content, "content", None)
-    if hasattr(text, "decode"):
-        text = text.decode("utf-8")
-    if not isinstance(text, str):
-        text = content.read().decode("utf-8")
-
-    results: List[Dict[str, Any]] = []
-    for line in text.splitlines():
-        if not line.strip():
-            continue
-        obj = json.loads(line)
-        custom_id = obj.get("custom_id")
-        body = ((obj.get("response") or {}).get("body") or {})
-        choices = body.get("choices") or []
-        llm_text = ""
-        if choices:
-            msg = choices[0].get("message") or {}
-            llm_text = msg.get("content", "")
-        usage = body.get("usage") or {}
-        results.append({"message_id": custom_id, "text": llm_text, "usage": usage})
-
-    # Order by req index
-    return results
 
 
 # ========================= Direct Generate via Model Interface =========================
@@ -107,8 +42,14 @@ def generate_with_model_interface(
     messages_list: List[List[Dict[str, Any]]],
     metas: List[Dict[str, Any]],
 ) -> List[Dict[str, Any]]:
-    cfg = OpenAIModelConfig(**model_config)
-    interface = OpenAIModelInterface(cfg)
+    model_name = model_config.get("model_name", "")
+    if "claude" in model_name.lower():
+        cfg = ClaudeModelConfig(**model_config)
+        interface = ClaudeModelInterface(cfg)
+    else:
+        cfg = OpenAIModelConfig(**model_config)
+        interface = OpenAIModelInterface(cfg)
+    
     results = interface.generate(messages_list)
     outputs: List[Dict[str, Any]] = []
     for i, r in enumerate(results):
@@ -434,14 +375,13 @@ def run_inference_for_combo_dirs(
     
     # Run inference
     if inference_mode == "batch":
-        client = OpenAI()
-        # Use a temporary directory for batch files
+        processor = get_batch_processor(model_config)
         import tempfile
         with tempfile.TemporaryDirectory() as tmpdir:
             batch_jsonl = os.path.join(tmpdir, "batch_input.jsonl")
-            batch_id = submit_openai_batch(client, all_msgs, all_meta, model_config, batch_jsonl)
+            batch_id = processor.submit(all_msgs, all_meta, batch_jsonl)
             print(f"Submitted batch: {batch_id}, Messages: {len(all_msgs)}")
-            outputs = collect_openai_batch(client, batch_id)
+            outputs = processor.retrieve(batch_id)
     else:
         outputs = generate_with_model_interface(model_config, all_msgs, all_meta)
     
@@ -510,14 +450,21 @@ def main_infer() -> None:
 
     # Run inference
     if args.mode == "batch":
-        client = OpenAI()
+        # Need to construct model_config from args or minimal defaults
+        # Since main_infer is a demo, we might not have full config. 
+        # But BatchProcessor expects a dict.
+        model_config = {"model_name": args.model_name}
+        processor = get_batch_processor(model_config)
+        
         batch_jsonl = os.path.join(built_dir, "batch_input.jsonl")
         os.makedirs(os.path.dirname(batch_jsonl) or ".", exist_ok=True)
-        batch_id = submit_openai_batch(client, all_msgs, metas_with_ids, args.model_name, batch_jsonl)
+        
+        batch_id = processor.submit(all_msgs, metas_with_ids, batch_jsonl)
         print(f"Submitted batch: {batch_id}")
-        outputs = collect_openai_batch(client, batch_id)
+        outputs = processor.retrieve(batch_id)
     else:
-        outputs = generate_with_model_interface(args.model_name, all_msgs, metas_with_ids)
+        model_config = {"model_name": args.model_name}
+        outputs = generate_with_model_interface(model_config, all_msgs, metas_with_ids)
 
     # Append responses
     save_outputs_jsonl(outputs, responses_path)

@@ -181,6 +181,8 @@ class OpenAIModelInterface(BaseModelInterface):
                 msg_kwargs["max_completion_tokens"] = kwargs.get("max_completion_tokens", self.config.max_completion_tokens)
             else:
                 msg_kwargs["max_tokens"] = kwargs.get("max_tokens", self.config.max_tokens)
+            if self.config.reasoning_effort:
+                msg_kwargs['reasoning_effort'] = kwargs.get("reasoning_effort", self.config.reasoning_effort)
             response = self.client.chat.completions.create(**msg_kwargs)
             # print(f'[DEBUG] Response: {response}')
             # print(f'[DEBUG] msg_kwargs: {msg_kwargs}')

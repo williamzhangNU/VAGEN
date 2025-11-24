@@ -22,6 +22,7 @@ class OpenAIModelConfig(BaseModelConfig):
     max_completion_tokens: Optional[int] = None # for o-series models
     presence_penalty: float = 0.0
     frequency_penalty: float = 0.0
+    reasoning_effort: Optional[str] = None
     
     # Provider identifier
     provider: str = "openai"
@@ -37,6 +38,7 @@ class OpenAIModelConfig(BaseModelConfig):
             "description": "OpenAI API for GPT models",
             "supports_multimodal": True,
             "supported_models": [
+                "gpt-5.1",
                 "gpt-5",
                 "gpt-5-mini",
                 "o4-mini",
@@ -52,7 +54,7 @@ class OpenAIModelConfig(BaseModelConfig):
                 "internvl3.5-241b-a28b",
                 "gemini-2.5-pro",
                 "gemini-2.5-flash",
-                "gemini-3-pro"
+                "gemini-3-pro-preview",
                 "Qwen/Qwen2.5-VL-72B-Instruct",
                 "GLM-4.5V"
 
