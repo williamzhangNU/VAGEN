@@ -173,8 +173,6 @@ class FalseBeliefEnv(SpatialGym):
 
         return obs, reward, done, info
             
-        return obs, reward, done, info
-
     def _check_target_visibility(self) -> bool:
         """Check if target object is currently visible to the agent."""
         if not self.target_object_name or not self.modified_room:

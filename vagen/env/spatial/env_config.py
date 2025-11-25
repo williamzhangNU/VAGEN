@@ -90,6 +90,8 @@ class SpatialGymConfig(BaseEnvConfig):
     def _validate_eval_tasks(self):
         """Validate eval_tasks parameter."""
         valid_eval_tasks = EvalTaskType.get_short_names()
+        # Also allow false_belief_exp which is a special exploration task
+        valid_eval_tasks = valid_eval_tasks + ['false_belief_exp']
         assert len(self.eval_tasks) == 1, "Only one evaluation task is supported"
 
         if isinstance(self.eval_tasks, ListConfig):

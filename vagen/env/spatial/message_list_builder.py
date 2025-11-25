@@ -99,6 +99,10 @@ def build_evaluation_from_combo(
     seen_message_ids = set()
 
     for task_short, count in (eval_task_counts or {}).items():
+        # Skip false_belief_exp as it requires running a full environment
+        if task_short == 'false_belief_exp':
+            continue
+            
         is_vision_question = False
         if 'vision' in task_short:
             if hm.observation_config['render_mode'] == "text":
