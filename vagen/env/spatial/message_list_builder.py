@@ -100,7 +100,7 @@ def build_evaluation_from_combo(
 
     for task_short, count in (eval_task_counts or {}).items():
         is_vision_question = False
-        if task_short == "bwd_nav_vision" or task_short == "bwd_pov_vision" or task_short == "bwd_loc_vision" :
+        if 'vision' in task_short:
             if hm.observation_config['render_mode'] == "text":
                 raise ValueError('cannot use vision question in text mode')
             else:

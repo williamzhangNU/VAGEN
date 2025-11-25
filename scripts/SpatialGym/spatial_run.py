@@ -95,6 +95,8 @@ def parse_args():
     # Evaluation/Cogmap phase parameters
     p.add_argument("--eval-task-counts", type=str, dest="eval_task_counts", default=None,
                    help='JSON string for eval task counts, e.g., {"dir": 1}. If omitted, use inference_config.yaml eval_task_counts')
+    p.add_argument("--tasks", nargs='+', type=str, dest="tasks", default=None,
+                   help="List of tasks to run (e.g. 'dir' 'pov'). If not provided, run all tasks in eval-task-counts.")
     p.add_argument("--cogmap", action="store_true", dest="cogmap",
                    help="Run cognitive map phase")
     p.add_argument("--eval-override", action="store_true", dest="eval_override",
@@ -557,6 +559,19 @@ def run_phase(args, mode: str, seed_opts: tuple[int, int] | None = None,
                 print(f"Using eval_task_counts from inference_config.yaml: {eval_task_counts}")
             else:
                 raise FileNotFoundError("eval_task_counts not found in inference_config.yaml")
+        
+        # Filter by --tasks if provided
+        if args.tasks:
+            eval_task_counts = {k: v for k, v in eval_task_counts.items() if k in args.tasks}
+            print(f"Filtered tasks by --tasks: {eval_task_counts}")
+
+        # Filter vision tasks if render_mode is text only
+        if render_modes == ["text"]:
+            original_keys = list(eval_task_counts.keys())
+            eval_task_counts = {k: v for k, v in eval_task_counts.items() if 'vision' not in k}
+            if len(eval_task_counts) < len(original_keys):
+                print(f"Filtered out vision tasks for text-only mode. Remaining: {eval_task_counts}")
+
         inference_kwargs.update({
             "eval_task_counts": eval_task_counts,
             "eval_override": args.eval_override,

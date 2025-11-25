@@ -151,6 +151,8 @@ class SpatialGym(gym.Env):
 
     def _get_multi_modal_data(self, room: ExplorationManager, pos: np.ndarray, ori: np.ndarray):
         """Get multi-modal data (images) for current state."""
+        assert self.config.render_mode == 'vision', "Cannot get multi-modal data in text mode"
+        # Find position: which object is at same location as agent
         # Find position: which object is at same location as agent
         position_name = None if not np.allclose(room.init_pos, pos) else 'agent'
         if position_name is None:
