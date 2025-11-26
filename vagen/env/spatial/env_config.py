@@ -45,6 +45,7 @@ class SpatialGymConfig(BaseEnvConfig):
     max_exp_steps: int = 20
     kwargs: Dict = None
     proxy_agent: str = 'scout'
+    false_belief_exp: bool = False
     # Evaluation configuration
     # Each eval task entry supports {task_type, task_kwargs}
     eval_tasks: List[Dict[str, Any]] = field(default_factory=lambda: [{"task_type": "rot", "task_kwargs": {}}])
@@ -90,8 +91,7 @@ class SpatialGymConfig(BaseEnvConfig):
     def _validate_eval_tasks(self):
         """Validate eval_tasks parameter."""
         valid_eval_tasks = EvalTaskType.get_short_names()
-        # Also allow false_belief_exp which is a special exploration task
-        valid_eval_tasks = valid_eval_tasks + ['false_belief_exp']
+
         assert len(self.eval_tasks) == 1, "Only one evaluation task is supported"
 
         if isinstance(self.eval_tasks, ListConfig):

@@ -103,6 +103,8 @@ def parse_args():
                    help="Override evaluation history (delete evaluation json only)")
     p.add_argument("--cogmap-override", action="store_true", dest="cogmap_override",
                    help="Override cognitive map cache (regenerate cogmap prompts)")
+    p.add_argument("--false-belief-exp", action="store_true", dest="false_belief_exp",
+                   help="Enable false belief experiment")
     
     # Inference parameters
     p.add_argument("--inference-mode", type=str, dest="inference_mode", 
@@ -156,7 +158,7 @@ def build_tmp_paths(run_id: str, task_key: str) -> Dict[str, Path]:
 def patch_env_yaml(exp_type: str, render_mode="vision",
                    seed_opts: tuple[int, int] | None = None, enable_think: int | None = None,
                    data_dir: str | None = None, proxy_agent: str | None = None,
-                   room_config: Dict[str, Any] | None = None) -> Dict[str, Any]:
+                   room_config: Dict[str, Any] | None = None, false_belief_exp: bool = False) -> Dict[str, Any]:
     """Build env config directly without relying on custom_envs.
 
     Args:
@@ -182,7 +184,8 @@ def patch_env_yaml(exp_type: str, render_mode="vision",
         'exp_type': exp_type,
         'max_exp_steps': 1 if exp_type == 'passive' else 20,
         'render_mode': render_mode,
-        'prompt_config': {}
+        'prompt_config': {},
+        'false_belief_exp': false_belief_exp,
     }
 
     # Add optional configurations
@@ -454,7 +457,8 @@ def run_exploration_phase(args, seed_opts, server_url: str | None,
             # Create env config with current combination
             env_cfg = patch_env_yaml(exp_type, render_mode,
                                      seed_opts, args.enable_think, data_dir=args.data_dir,
-                                     proxy_agent=args.proxy_agent, room_config=room_config)
+                                     proxy_agent=args.proxy_agent, room_config=room_config,
+                                     false_belief_exp=args.false_belief_exp)
             dump_yaml(env_cfg, tmp_paths["env"])
             
             # Create dataset

@@ -117,14 +117,12 @@ def build_evaluation_from_combo(
         existing_id_for_task = existing_ids.get(task_class_name, [])
         for i in range(count - len(existing_id_for_task)):
             # retry
-            for j in range(20):
+            q_text = task.generate_question()
+            retry = 20
+            while task.eval_data.id in existing_id_for_task and retry:
                 q_text = task.generate_question()
-                if task.eval_data.id in existing_id_for_task:
-                    if j == 19:
-                        raise ValueError(f"Failed to generate unique question for {task_short} in {combo_dir}")
-                    continue
-                else:
-                    break
+                retry -= 1
+            assert task.eval_data.id not in existing_id_for_task, f"Failed to generate unique question for {task_short} in {combo_dir}"
             existing_id_for_task.append(task.eval_data.id)
             assert base_msgs[-1]["role"] == "user"
             new_list = [m.copy() for m in base_msgs]

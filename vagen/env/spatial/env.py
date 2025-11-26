@@ -16,7 +16,7 @@ from vagen.env.spatial.Base.tos_base.managers.agent_proxy import get_agent_proxy
 from vagen.env.spatial.Base.tos_base.prompts import PromptManager
 from vagen.env.spatial.Base.tos_base.utils.action_utils import action_results_to_text
 from vagen.env.spatial.Base.tos_base.utils.room_utils import initialize_room_from_json
-from vagen.env.spatial.Base.tos_base.utils.env_logger import EnvTurnLog
+from vagen.env.spatial.Base.tos_base.utils.env_logger import EnvTurnLog, FalseBeliefTurnLog
 from vagen.env.spatial.Base.tos_base.utils.utils import parse_llm_response
 from vagen.env.spatial.Base.tos_base.utils.image_handler import ImageHandler
 from vagen.env.spatial.Base.tos_base.actions.actions import ForcedTermAction, ActionSequence
@@ -51,19 +51,11 @@ class SpatialGym(gym.Env):
         self.observed_image_paths: List[str] = None
         
         # False belief experiment state
-        self.is_false_belief_exp = self._check_false_belief_exp()
+        self.is_false_belief_exp = self.config.false_belief_exp
         self.in_false_belief_phase = False
         self.target_object_name: Optional[str] = None
         self.modified_room = None
         self.target_observed = False
-
-    def _check_false_belief_exp(self) -> bool:
-        """Check if the current task is false_belief_exp."""
-        if self.config.eval_tasks:
-            for task in self.config.eval_tasks:
-                if task.get('task_type') == 'false_belief_exp':
-                    return True
-        return False
 
     def _generate_initial_observation(self) -> str:
         """Generate initial observation based on exploration type."""
@@ -110,12 +102,15 @@ class SpatialGym(gym.Env):
     def reset(self, seed: int = None):
         """Reset environment for a new episode."""
         super().reset(seed=seed)
+        self.current_seed = seed
         
         # Reset false belief phase state
         self.in_false_belief_phase = False
         self.target_object_name = None
         self.modified_room = None
+        self.modified_room = None
         self.target_observed = False
+        self.target_observed_steps = []
 
         self.image_handler = ImageHandler(self.config.data_dir, seed, self.config.image_size)
         self.json_data = self.image_handler.json_data
@@ -207,8 +202,11 @@ class SpatialGym(gym.Env):
         # Execute action and get results
         obs, reward, done, info, exp_log, room_state, agent_state = self._execute_action(action)
         
-        # Handle false belief phase transition
-        if done and self.is_false_belief_exp and not self.in_false_belief_phase:
+        if self.in_false_belief_phase:
+            return self._step_false_belief(llm_response, think_content, action, current_obs, obs, reward, done, info, exp_log, room_state, agent_state)
+        
+        # Switch to false belief phase
+        if done and self.is_false_belief_exp:
             # Save exploration turn log before transition
             self._save_turn_log(current_obs, llm_response, think_content, action, 
                                exp_log, room_state, agent_state, reward, info, 
@@ -225,44 +223,54 @@ class SpatialGym(gym.Env):
             self.observed_image_paths = []
             return obs, reward, done, info
         
-        # Handle false belief phase termination - check target visibility
-        if done and self.in_false_belief_phase:
-            is_visible = self._check_target_visibility()
-            self.target_observed = is_visible
-            info['if_observed'] = self.target_observed
-            info['success'] = self.target_observed
-            reward = 1.0 if self.target_observed else 0.0
-            
-            # Save false belief result to history (similar to map_llm_responses for evaluation)
-            fb_turn_log = {
-                "is_exploration_phase": False,
-                "evaluation_log": {
-                    "task_type": "FalseBeliefExp",
-                    "user_answer": llm_response,
-                    "score": 1.0 if self.target_observed else 0.0,
-                    "evaluation_info": {
-                        "target_object": self.target_object_name,
-                        "target_observed": self.target_observed,
-                    },
-                    "evaluation_data": {
-                        "task_type": "false_belief_exp",
-                        "target_object": self.target_object_name,
-                    },
-                },
-                "assistant_raw_message": llm_response,
-                "room_state": self.modified_room.to_dict() if self.modified_room else None,
-                "agent_state": self.agent.to_dict(),
-                "turn_number": self.current_turn_number,
-            }
-            self.history_manager.update_eval_turn_log(fb_turn_log)
-            self.history_manager.save()
-            
-            done = True
         # Save turn log
         self._save_turn_log(current_obs, llm_response, think_content, action,
                            exp_log, room_state, agent_state, reward, info,
-                           is_exploration=not self.in_false_belief_phase, is_last_exp=done)
+                           is_exploration=True, is_last_exp=done)
 
+        # Save messages
+        self.history_manager.append_assistant_message(llm_response)
+        self.history_manager.append_env_feedback(obs.get('obs_str', ''), self.observed_image_paths or [])
+        self.history_manager.save_messages((agent_state.pos.tolist(), agent_state.ori.tolist()) if agent_state else None)
+        self.observed_image_paths = []
+        
+        return obs, reward, done, info
+
+    def _step_false_belief(self, llm_response, think_content, action, current_obs, obs, reward, done, info, exp_log, room_state, agent_state):
+        """Handle step logic for false belief phase."""
+        # Check target visibility in current step
+        visible_objects = exp_log.visible_objects if exp_log else []
+        target_in_fov = self.target_object_name in visible_objects
+        if target_in_fov:
+            self.target_observed_steps.append(self.current_turn_number)
+        
+        # Create FalseBeliefTurnLog
+        fb_log = FalseBeliefTurnLog(
+            step=self.current_turn_number,
+            room_state=room_state,
+            agent_state=agent_state,
+            visible_objects=visible_objects,
+            target_in_fov=target_in_fov
+        )
+
+        if done:
+            # Check FINAL FOV for success
+            success = target_in_fov
+            self.target_observed = success
+            
+            info['if_observed'] = success
+            info['success'] = success
+            reward = 1.0 if success else 0.0
+            
+            fb_log.success = success
+            fb_log.observed_at_steps = self.target_observed_steps
+            
+
+        # Save turn log
+        self._save_turn_log(current_obs, llm_response, think_content, action,
+                           None, room_state, agent_state, reward, info,
+                           is_exploration=False, is_last_exp=done, false_belief_log=fb_log)
+        
         # Save messages
         self.history_manager.append_assistant_message(llm_response)
         self.history_manager.append_env_feedback(obs.get('obs_str', ''), self.observed_image_paths or [])
@@ -324,7 +332,7 @@ class SpatialGym(gym.Env):
 
     def _save_turn_log(self, current_obs, llm_response, think_content, action,
                        exp_log, room_state, agent_state, reward, info,
-                       is_exploration=True, is_last_exp=False):
+                       is_exploration=True, is_last_exp=False, false_belief_log=None):
         """Save turn log. Shared by exploration and false belief phases."""
         turn_log = EnvTurnLog(
             turn_number=self.current_turn_number,
@@ -335,6 +343,7 @@ class SpatialGym(gym.Env):
             is_exploration_phase=is_exploration,
             is_last_exp=is_last_exp,
             exploration_log=exp_log,
+            false_belief_log=false_belief_log,
             evaluation_log=None,
             room_state=room_state,
             agent_state=agent_state,
@@ -348,6 +357,7 @@ class SpatialGym(gym.Env):
         else:
             self.history_manager.update_turn_log(turn_log.to_dict())
             self.history_manager.save_exploration()
+            self.history_manager.save_false_belief()
         self.turn_logs.append(turn_log)
 
     def render(self):
@@ -363,8 +373,8 @@ class SpatialGym(gym.Env):
         self.in_false_belief_phase = True
         
         # Modify room - move one object to a new location
-        modifier = SingleObjectModifier()
-        self.modified_room, self.target_object_name = modifier.modify(self.initial_room, self.np_random)
+        modifier = SingleObjectModifier(seed=self.current_seed)
+        self.modified_room, self.target_object_name = modifier.modify(self.initial_room)
         
         # Switch exploration manager to use modified room
         self.exploration_manager.room = self.modified_room
@@ -378,9 +388,6 @@ class SpatialGym(gym.Env):
         # Reset step budget for False Belief phase
         self.remaining_exp_steps = self.config.max_exp_steps
         
-        # Update history manager paths for false belief phase
-        self.history_manager.exploration_path = os.path.join(self.history_manager.output_dir, "false_belief_turn_logs.json")
-        self.history_manager.messages_path = os.path.join(self.history_manager.output_dir, "false_belief_messages.json")
         # Update room dict to modified one for saving
         self.history_manager.room_dict = self.modified_room.to_dict()
         
@@ -392,13 +399,11 @@ class SpatialGym(gym.Env):
         self.render_cache = obs
         info = {'phase': 'false_belief', 'target_object': self.target_object_name}
         
+        self.target_observed_steps = []
+        self.current_turn_number = -1
         return obs, info
 
-    def _check_target_visibility(self) -> bool:
-        """Check if target object has been observed during exploration."""
-        if not self.target_object_name:
-            return False
-        return self.target_object_name in self.exploration_manager.observed_items
+
 
     # =================== Analysis ===================
     
