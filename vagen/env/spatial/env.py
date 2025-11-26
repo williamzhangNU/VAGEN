@@ -204,35 +204,23 @@ class SpatialGym(gym.Env):
         
         if self.in_false_belief_phase:
             return self._step_false_belief(llm_response, think_content, action, current_obs, obs, reward, done, info, exp_log, room_state, agent_state)
-        
-        # Switch to false belief phase
-        if done and self.is_false_belief_exp:
-            # Save exploration turn log before transition
-            self._save_turn_log(current_obs, llm_response, think_content, action, 
-                               exp_log, room_state, agent_state, reward, info, 
-                               is_exploration=True, is_last_exp=True)
-            self.history_manager.append_assistant_message(llm_response)
-            
-            # Transition to false belief phase
-            obs, info = self._transition_to_false_belief_phase()
-            done = False
-            
-            # Save transition message
-            self.history_manager.append_env_feedback(obs.get('obs_str', ''), self.observed_image_paths or [])
-            self.history_manager.save_messages(None)
-            self.observed_image_paths = []
-            return obs, reward, done, info
-        
+
         # Save turn log
         self._save_turn_log(current_obs, llm_response, think_content, action,
                            exp_log, room_state, agent_state, reward, info,
                            is_exploration=True, is_last_exp=done)
-
         # Save messages
         self.history_manager.append_assistant_message(llm_response)
         self.history_manager.append_env_feedback(obs.get('obs_str', ''), self.observed_image_paths or [])
         self.history_manager.save_messages((agent_state.pos.tolist(), agent_state.ori.tolist()) if agent_state else None)
         self.observed_image_paths = []
+
+        if done and self.is_false_belief_exp:
+            # Transition to false belief phase
+            obs, info = self._transition_to_false_belief_phase()
+            done = False
+            
+            return obs, reward, done, info
         
         return obs, reward, done, info
 
@@ -272,10 +260,10 @@ class SpatialGym(gym.Env):
                            is_exploration=False, is_last_exp=done, false_belief_log=fb_log)
         
         # Save messages
-        self.history_manager.append_assistant_message(llm_response)
-        self.history_manager.append_env_feedback(obs.get('obs_str', ''), self.observed_image_paths or [])
-        self.history_manager.save_messages((agent_state.pos.tolist(), agent_state.ori.tolist()) if agent_state else None)
-        self.observed_image_paths = []
+        # self.history_manager.append_assistant_message(llm_response)
+        # self.history_manager.append_env_feedback(obs.get('obs_str', ''), self.observed_image_paths or [])
+        # self.history_manager.save_messages((agent_state.pos.tolist(), agent_state.ori.tolist()) if agent_state else None)
+        # self.observed_image_paths = []
         
         return obs, reward, done, info
 
@@ -377,13 +365,13 @@ class SpatialGym(gym.Env):
         self.modified_room, self.target_object_name = modifier.modify(self.initial_room)
         
         # Switch exploration manager to use modified room
-        self.exploration_manager.room = self.modified_room
+        self.exploration_manager.exploration_room = self.modified_room
         
         # Reset agent to INITIAL position and orientation
-        self.agent.pos = self.agent.init_pos.copy()
-        self.agent.ori = self.agent.init_ori.copy()
-        if self.agent.init_room_id is not None:
-            self.agent.room_id = self.agent.init_room_id
+        self.exploration_manager.agent.pos = self.agent.init_pos.copy()
+        self.exploration_manager.agent.ori = self.agent.init_ori.copy()
+        if self.exploration_manager.agent.init_room_id is not None:
+            self.exploration_manager.agent.room_id = self.agent.init_room_id
         
         # Reset step budget for False Belief phase
         self.remaining_exp_steps = self.config.max_exp_steps
@@ -400,7 +388,6 @@ class SpatialGym(gym.Env):
         info = {'phase': 'false_belief', 'target_object': self.target_object_name}
         
         self.target_observed_steps = []
-        self.current_turn_number = -1
         return obs, info
 
 
@@ -442,4 +429,3 @@ if __name__ == "__main__":
 
     # TODO: add test cases
     pass
-

@@ -69,6 +69,9 @@ class SingleObjectModifier(RoomModifier):
             if available_pos:
                 new_pos = available_pos[self.np_random.choice(len(available_pos))]
                 obj.pos = np.array(new_pos)
+                # Update room_id based on new position's mask value
+                new_room_id = int(mask[new_pos[0], new_pos[1]])
+                obj.room_id = new_room_id
             else:
                 # Fallback to rotate if possible
                 if obj.has_orientation:
