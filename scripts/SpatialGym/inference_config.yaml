@@ -28,6 +28,7 @@ eval_task_counts:
   bwd_loc_text: 1
   bwd_loc_vision: 1
   false_belief: 1
+  false_belief_exp: 1
   dir_anchor: 1
 
 # eval_task_counts:
