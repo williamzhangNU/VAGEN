@@ -8,6 +8,8 @@ from concurrent.futures import ThreadPoolExecutor
 from openai import OpenAI
 from PIL import Image
 import io
+import json
+from copy import deepcopy
 
 from vagen.inference.model_interface.base_model import BaseModelInterface
 from .model_config import OpenAIModelConfig
@@ -183,10 +185,21 @@ class OpenAIModelInterface(BaseModelInterface):
                 msg_kwargs["max_tokens"] = kwargs.get("max_tokens", self.config.max_tokens)
             if self.config.reasoning_effort:
                 msg_kwargs['reasoning_effort'] = kwargs.get("reasoning_effort", self.config.reasoning_effort)
+            tmp = deepcopy(msg_kwargs)
+            tmp.pop('messages')
+            logger.warning(f'[DEBUG] msg_kwargs: {tmp}')
+
             response = self.client.chat.completions.create(**msg_kwargs)
             # print(f'[DEBUG] Response: {response}')
             # print(f'[DEBUG] msg_kwargs: {msg_kwargs}')
             
+            
+            # try:
+            #     with open("tmp.txt", 'a') as f:
+            #         sanitized_messages = self._sanitize_messages_for_logging(messages)
+            #         f.write(json.dumps(sanitized_messages, indent=2) + "\n" + "-"*80 + "\n")
+            # except Exception as e:
+            #     logger.warning(f"Failed to log messages to tmp.txt: {e}")
             
             # Extract text response
             response_text = response.choices[0].message.content
@@ -244,3 +257,19 @@ class OpenAIModelInterface(BaseModelInterface):
         })
         
         return info
+
+    @staticmethod
+    def _sanitize_messages_for_logging(messages: List[Dict]) -> List[Dict]:
+        """Create a safe copy of messages for logging, truncating long base64 strings."""
+        import copy
+        sanitized = []
+        for msg in messages:
+            msg_copy = copy.deepcopy(msg)
+            if "content" in msg_copy and isinstance(msg_copy["content"], list):
+                for item in msg_copy["content"]:
+                    if isinstance(item, dict) and item.get("type") == "image_url":
+                        url = item.get("image_url", {}).get("url", "")
+                        if url.startswith("data:image") and len(url) > 100:
+                            item["image_url"]["url"] = url[:50] + "...[TRUNCATED]..." + url[-20:]
+            sanitized.append(msg_copy)
+        return sanitized

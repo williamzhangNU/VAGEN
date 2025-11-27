@@ -43,6 +43,7 @@ class SpatialGymConfig(BaseEnvConfig):
     exp_type: str = 'passive'
     perspective: str = 'ego'
     max_exp_steps: int = 20
+    max_false_belief_exp_steps: int = 20
     kwargs: Dict = None
     proxy_agent: str = 'scout'
     false_belief_exp: bool = False
@@ -140,6 +141,7 @@ class SpatialGymConfig(BaseEnvConfig):
             'perspective': self.perspective,  # VAGEN specific
             'eval_tasks': self.eval_tasks,
             'max_exp_steps': self.max_exp_steps,
+            'max_false_belief_exp_steps': self.max_false_belief_exp_steps,
             'calculate_information_gain': self.calculate_information_gain,
             'output_dir': self.kwargs['output_dir'],
             'image_size': self.image_size,
