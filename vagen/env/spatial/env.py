@@ -239,7 +239,7 @@ class SpatialGym(gym.Env):
 
         if done:
             # Check success: correctly identified changes
-            reported_changes = info.get('reported_changes', [])
+            reported_changes = info.pop('reported_changes', [])
             fb_log.reported_changes = reported_changes
             
             accuracy = self._evaluate_changes(reported_changes, self.ground_truth_changes)

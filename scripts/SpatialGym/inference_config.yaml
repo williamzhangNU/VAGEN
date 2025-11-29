@@ -9,7 +9,6 @@ max_steps: 100
 split: "test"
 debug: false
 
-false_belief_exp: true
 # Number of evaluation questions per environment type (strictly enforced without overrides)
 # Keys correspond to entries under custom_envs in base_env_config.yaml (e.g., PassiveRot, ActiveDir).
 # You may also use the env name (e.g., passive_rot). If both provided, env name wins.
