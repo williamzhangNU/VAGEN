@@ -7,24 +7,24 @@ from dataclasses import dataclass
 @dataclass
 class ChangedObject:
     name: str
-    pos: Optional[Tuple[Tuple[float, ...], Tuple[float, ...]]] = None # (prev, curr)
-    ori: Optional[Tuple[Tuple[float, ...], Tuple[float, ...]]] = None # (prev, curr)
+    pos: bool = False
+    ori: bool = False
 
     def to_dict(self):
         res = {'name': self.name}
         if self.pos:
-            res['pos'] = {'prev': self.pos[0], 'curr': self.pos[1]}
+            res['pos'] = True
         if self.ori:
-            res['ori'] = {'prev': self.ori[0], 'curr': self.ori[1]}
+            res['ori'] = True
         return res
     
     def merge(self, other: 'ChangedObject'):
         if self.name != other.name:
             raise ValueError(f"Cannot merge changes for different objects: {self.name} vs {other.name}")
         if other.pos:
-            self.pos = other.pos
+            self.pos = True
         if other.ori:
-            self.ori = other.ori
+            self.ori = True
 
     @classmethod
     def parse(cls, text: str) -> 'ChangedObject':
@@ -71,7 +71,7 @@ class ChangedObject:
         if not (is_pos or is_ori):
              raise ValueError(f"Unknown change type: {change_type}")
 
-        return cls(name=name, pos=True if is_pos else None, ori=True if is_ori else None)
+        return cls(name=name, pos=is_pos, ori=is_ori)
 
 class RoomModifier:
     """Base class for room modifications."""
@@ -143,7 +143,6 @@ class ObjectModifier(RoomModifier):
         return modified_room, list(changes_map.values())
 
     def _move_object(self, room: Room, obj: Object) -> Optional[ChangedObject]:
-        prev_pos = tuple(float(x) for x in obj.pos)
         assert hasattr(room, 'mask') and room.mask is not None, "Room must have a mask"
         mask = room.mask
         valid_indices = np.argwhere((mask >= 1) & (mask < 100))
@@ -160,7 +159,7 @@ class ObjectModifier(RoomModifier):
             obj.room_id = int(mask[new_pos[0], new_pos[1]])
             return ChangedObject(
                 name=obj.name,
-                pos=(prev_pos, tuple(float(x) for x in obj.pos))
+                pos=True
             )
         else:
             # Fallback to rotate if possible
@@ -175,14 +174,13 @@ class ObjectModifier(RoomModifier):
             np.array([0, -1]),
             np.array([-1, 0])
         ]
-        current_ori_tuple = tuple(float(x) for x in obj.ori)
         possible_oris = [r for r in rotations if tuple(r) != tuple(obj.ori)]
         if possible_oris:
             new_ori = possible_oris[self.np_random.choice(len(possible_oris))]
             obj.ori = new_ori
             return ChangedObject(
                 name=obj.name,
-                ori=(current_ori_tuple, tuple(float(x) for x in obj.ori))
+                ori=True
             )
         return None
 
