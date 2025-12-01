@@ -193,6 +193,22 @@ def build_cogmap_from_combo(
                     continue
             
             types = ["local", "global"] if (turn_logs[t_idx].get("exploration_log", {}) or {}).get("visible_objects") else ["global"]
+            
+            # Add unexplored type if agent re-observes a previously visited room
+            # Check if current room_id was seen in any previous turn
+            current_exp_log = turn_logs[t_idx].get("exploration_log", {}) or {}
+            current_agent = current_exp_log.get("agent_state", {})
+            current_room_id = current_agent.get("room_id")
+            
+            if current_room_id is not None:
+                # Check previous turns for the same room_id, means observed before
+                for prev_idx in range(t_idx):
+                    prev_exp_log = turn_logs[prev_idx].get("exploration_log", {}) or {}
+                    prev_agent = prev_exp_log.get("agent_state", {})
+                    if prev_agent.get("room_id") == current_room_id:
+                        types.append("unexplored")
+                        break
+            
             end_idx = user_idxs[t_idx]
             seq = _clone_until_inclusive(messages, end_idx)
             assert seq[-1]["role"] == "user"
@@ -279,7 +295,6 @@ def build_all_for_combo_dirs(
         combo_dirs: List of combo directory paths to process
         mode: 'eval' or 'cogmap'
         eval_task_counts: Dict mapping task types to count (for eval mode)
-        seed: Seed for task generation (for eval mode)
         eval_override: If True, ignore existing evaluation history and regenerate all
         cogmap_override: If True, regenerate all cogmaps; if False, skip existing cogmaps
     
