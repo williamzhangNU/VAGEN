@@ -196,21 +196,8 @@ def build_cogmap_from_combo(
                     print(f"Skipping turn {t_idx} in {combo_dir}: cogmap already exists")
                     continue
             
-            types = ["local", "global"] if (turn_logs[t_idx].get("exploration_log", {}) or {}).get("visible_objects") else ["global"]
-            
-            # Add unexplored type if agent re-observes a previously visited room
-            # Determine observed room based on agent position, orientation and gates
-            current_agent = turn_logs[t_idx-1].get("agent_state", {})
-            current_room_id = get_observed_room_id(room, current_agent)
-            
-            if current_room_id is not None and not isinstance(current_room_id, list):
-                # Check previous turns for the same room_id, means observed before
-                for prev_idx in range(t_idx-1):
-                    prev_agent = turn_logs[prev_idx].get("agent_state", {})
-                    prev_room_id = get_observed_room_id(room, prev_agent) 
-                    if prev_room_id == current_room_id or (isinstance(prev_room_id, list) and current_room_id in prev_room_id):
-                        types.append("unexplored")
-                        break
+            types = ["local", "global", "unexplored"] if (turn_logs[t_idx].get("exploration_log", {}) or {}).get("visible_objects") else ["global", "unexplored"]
+
             # observation is in next turn log
             end_idx = user_idxs[t_idx]
             seq = _clone_until_inclusive(messages, end_idx)
