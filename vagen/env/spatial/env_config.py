@@ -71,10 +71,6 @@ class SpatialGymConfig(BaseEnvConfig):
 
     def __post_init__(self):
         """Validate configuration parameters."""
-        # Validate room size (new from RAGEN)
-        assert isinstance(self.room_config, dict), "room_config must be a dict"
-        assert "room_size" in self.room_config, "room_size must be specified in room_config"
-        assert self.room_config["room_size"][0] > 0 and self.room_config["room_size"][1] > 0, "room_size must be positive"
         self._validate_exp_type()
         self._validate_field_of_view()
         self._validate_eval_tasks()
