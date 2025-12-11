@@ -207,7 +207,17 @@ def build_cogmap_from_combo(
 
             # current turn cogmap question => previous turn number !!!
             for mtype in types:
-                mod_seq[-1]["content"] = base_user + get_cogmap_prompt(mtype, enable_think)
+                # For unexplored type, pass all candidate coords from turn log
+                if mtype == "unexplored":
+                    all_candidate_coords_raw = turn_logs[t_idx-1].get("exploration_log", {}).get("all_candidate_coords", [])
+                    # Convert from serialized format [[x,y],...] to list of tuples
+                    all_candidate_coords = [(int(pt[0]), int(pt[1])) for pt in all_candidate_coords_raw] if all_candidate_coords_raw else None
+                    if all_candidate_coords:
+                        mod_seq[-1]["content"] = base_user + get_cogmap_prompt(mtype, enable_think, all_candidate_coords)
+                    else:
+                        continue
+                else:
+                    mod_seq[-1]["content"] = base_user + get_cogmap_prompt(mtype, enable_think)
                 meta_obj = {
                     "type": "cogmap",
                     "sample_id": sample_id,
