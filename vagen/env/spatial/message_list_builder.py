@@ -1,16 +1,16 @@
-from typing import List, Dict, Tuple, Any
+from typing import List, Dict, Tuple, Any, Optional, Union
 import os
 import json
 import re
 import numpy as np
 import argparse
-
+import copy
 # Reuse existing components
 from vagen.env.spatial.Base.tos_base import Room, Agent
 from vagen.env.spatial.Base.tos_base.evaluation.task_types import EvalTaskType
 from vagen.env.spatial.Base.tos_base.prompts.cogmap_prompts import get_cogmap_prompt
 from vagen.env.spatial.Base.tos_base.utils.utils import hash, numpy_to_python
-
+from vagen.env.spatial.Base.tos_base.utils.room_utils import get_observed_room_id
 # Shared common utilities/constants
 from vagen.env.spatial.common import (
     MESSAGES_BASENAME,
@@ -23,6 +23,7 @@ from vagen.env.spatial.common import (
     iter_combo_dirs,
     load_history_manager,
 )
+
 
 
 def _load_exploration_artifacts(combo_dir: str) -> Tuple[List[Dict], List[Dict], Dict[str, Any]]:
@@ -177,6 +178,9 @@ def build_cogmap_from_combo(
     enable_think = hm.get_enable_think()
     exp_type = getattr(hm, "exp_type", _detect_exp_type(combo_dir))
 
+    # Load room for determining observed room from agent position/orientation
+    room = Room.from_dict(sample_cfg["room_dict"]).copy() if "room_dict" in sample_cfg else None
+
     out_msgs: List[List[Dict]] = []
     meta: List[Dict] = []
 
@@ -192,25 +196,37 @@ def build_cogmap_from_combo(
                     print(f"Skipping turn {t_idx} in {combo_dir}: cogmap already exists")
                     continue
             
-            types = ["local", "global"] if (turn_logs[t_idx].get("exploration_log", {}) or {}).get("visible_objects") else ["global"]
+            types = ["local", "global", "unexplored"] if (turn_logs[t_idx].get("exploration_log", {}) or {}).get("visible_objects") else ["global", "unexplored"]
+
+            # observation is in next turn log
             end_idx = user_idxs[t_idx]
             seq = _clone_until_inclusive(messages, end_idx)
             assert seq[-1]["role"] == "user"
             base_user = re.sub(r"You have a maximum of\s*\d+\s*exploration steps left.*", "", seq[-1]["content"], flags=re.DOTALL) 
             mod_seq = [m.copy() for m in seq]
+
             # current turn cogmap question => previous turn number !!!
-            turn_number = _get_turn_number(mod_seq) -1
             for mtype in types:
-                mod_seq[-1]["content"] = base_user + get_cogmap_prompt(mtype, enable_think)
+                # For unexplored type, pass all candidate coords from turn log
+                if mtype == "unexplored":
+                    all_candidate_coords_raw = turn_logs[t_idx-1].get("exploration_log", {}).get("all_candidate_coords", [])
+                    # Convert from serialized format [[x,y],...] to list of tuples
+                    all_candidate_coords = [(int(pt[0]), int(pt[1])) for pt in all_candidate_coords_raw] if all_candidate_coords_raw else None
+                    if all_candidate_coords:
+                        mod_seq[-1]["content"] = base_user + get_cogmap_prompt(mtype, enable_think, all_candidate_coords)
+                    else:
+                        continue
+                else:
+                    mod_seq[-1]["content"] = base_user + get_cogmap_prompt(mtype, enable_think)
                 meta_obj = {
                     "type": "cogmap",
                     "sample_id": sample_id,
-                    "turn_number": turn_number,
+                    "turn_number": t_idx,
                     "map_type": mtype,
                     "combo_dir": os.path.abspath(combo_dir),
                 }
                 meta_obj["message_id"] = hash(json.dumps(meta_obj, sort_keys=True, default=numpy_to_python))
-                _add_message(out_msgs, meta, mod_seq, meta_obj)
+                _add_message(out_msgs, meta, copy.deepcopy(mod_seq), meta_obj)
 
     else:  # passive
         if user_idxs:
@@ -279,7 +295,6 @@ def build_all_for_combo_dirs(
         combo_dirs: List of combo directory paths to process
         mode: 'eval' or 'cogmap'
         eval_task_counts: Dict mapping task types to count (for eval mode)
-        seed: Seed for task generation (for eval mode)
         eval_override: If True, ignore existing evaluation history and regenerate all
         cogmap_override: If True, regenerate all cogmaps; if False, skip existing cogmaps
     

@@ -1,30 +1,25 @@
 # config.yaml
 name: demo_env
-render_mode: vision
-room_size: [10, 10]
-n_objects: 3
-level: 0
-main: 6
+render_mode: text  # options: vision or text
 
+seed-range: 0-9
 exp_type: active 
-perspective: ego
+# perspective: ego
 max_exp_steps: 20
 calculate_information_gain: true
-
-eval_tasks:
-  - task_type: rot
-    task_kwargs:
-      turn_direction: clockwise
-  #- task_type: dir 
-  #- task_type: rot_dual
-  #- task_type: pov
-  #- task_type: e2a
-  #- task_type: fwd_loc
-  #- task_type: bwd_loc
-  #- task_type: false_belief
-  #- task_type: fwd_fov
-  #- task_type: bwd_nav
-  #- task_type: bwd_pov
+data_dir: "/home/zihanhuang/VAGEN/data-test"
+eval_task_counts:
+  dir: 3
+  # fwd_fov: 3
+  # bwd_nav: 3
+  # rot: 3
+  # rot_dual: 3
+  # pov: 3
+  # bwd_pov: 3
+  # e2a: 3
+  # fwd_loc: 3
+  # bwd_loc: 3
+  # false_belief: 3
 
 prompt_config:
   topdown: false
@@ -36,5 +31,5 @@ prompt_config:
 kwargs:
   model_config:
     model_name: human_player
-  override: false
+  all_override: true
   output_dir: "results"
