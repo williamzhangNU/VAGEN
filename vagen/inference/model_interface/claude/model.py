@@ -52,16 +52,17 @@ class ClaudeModelInterface(BaseModelInterface):
         else:
             return self._generate_standard(prompts, **kwargs)
     
+    def _prepare_api_payload(self, messages: List[Dict], **kwargs) -> Dict[str, Any]:
+        """Prepare API payload from Qwen format messages."""
+        claude_msgs, system = self._convert_qwen_to_claude_format(messages)
+        return self._prepare_request_kwargs(claude_msgs, system, **kwargs)
+
     def _generate_standard(self, prompts: List[Any], **kwargs) -> List[Dict[str, Any]]:
         """Generate responses using standard Claude API (realtime) with retries and stable ordering."""
-        formatted_requests = []
-        for prompt in prompts:
-            messages, system_prompt = self._convert_qwen_to_claude_format(prompt)
-            formatted_requests.append((messages, system_prompt))
+        formatted_requests = prompts  # Pass raw Qwen prompts to worker
 
-        def worker(item: tuple) -> Dict[str, Any]:
-            messages, system_prompt = item
-            return self._single_api_call(messages, system_prompt, **kwargs)
+        def worker(messages: List[Dict]) -> Dict[str, Any]:
+            return self._single_api_call(messages, **kwargs)
 
         return run_parallel_with_retries(
             formatted_requests,
@@ -74,44 +75,9 @@ class ClaudeModelInterface(BaseModelInterface):
         """Generate responses using Claude Batch API."""
         # Convert prompts to batch request format
         batch_requests = []
-        max_tokens = kwargs.get("max_tokens", self.config.max_tokens)
         
         for i, prompt in enumerate(prompts):
-            messages, system_prompt = self._convert_qwen_to_claude_format(prompt)
-            
-            # Add token limit instruction to the last user message
-            messages_with_limit = []
-            for j, msg in enumerate(messages):
-                msg_copy = msg.copy()
-                if j == len(messages) - 1 and msg_copy.get("role") == "user":
-                    if isinstance(msg_copy["content"], str):
-                        msg_copy["content"] += f"\n\nYour response should be within {max_tokens} tokens."
-                    elif isinstance(msg_copy["content"], list):
-                        # For multimodal content, append to the last text item
-                        for k in range(len(msg_copy["content"]) - 1, -1, -1):
-                            if msg_copy["content"][k].get("type") == "text":
-                                msg_copy["content"][k]["text"] += f"\n\nYour response should be within {max_tokens} tokens."
-                                break
-                        else:
-                            # If no text content found, add a new text item
-                            msg_copy["content"].append({
-                                "type": "text",
-                                "text": f"Your response should be within {max_tokens} tokens."
-                            })
-                messages_with_limit.append(msg_copy)
-            
-            # Create request params
-            params = {
-                "model": self.config.model_name,
-                "messages": messages_with_limit,
-                "max_tokens": max_tokens,
-                "temperature": kwargs.get("temperature", self.config.temperature),
-                "top_k": kwargs.get("top_k", self.config.top_k),
-                "stop_sequences": kwargs.get("stop_sequences", self.config.stop_sequences),
-            }
-            
-            if system_prompt:
-                params["system"] = system_prompt
+            params = self._prepare_api_payload(prompt, **kwargs)
             
             batch_requests.append({
                 "custom_id": f"request-{i}",
@@ -309,59 +275,66 @@ class ClaudeModelInterface(BaseModelInterface):
         else:
             raise ValueError(f"Unsupported image type: {type(image)}")
     
-    def _single_api_call(self, messages: List[Dict], system_prompt: str, **kwargs) -> Dict[str, Any]:
+    def _prepare_request_kwargs(self, messages: List[Dict], system_prompt: str, **kwargs) -> Dict[str, Any]:
+        """Prepare arguments for Claude API call."""
+        # Get max_tokens value
+        max_tokens = kwargs.get("max_tokens", self.config.max_tokens)
+        
+        # # Create a copy of messages to avoid modifying the original and append token limit instruction
+        # messages_with_limit = []
+        # for i, msg in enumerate(messages):
+        #     msg_copy = msg.copy()
+        #     # If this is the last user message, append token limit instruction
+        #     if i == len(messages) - 1 and msg_copy.get("role") == "user":
+        #         if isinstance(msg_copy["content"], str):
+        #             msg_copy["content"] += f"\n\nYour response should be within {max_tokens} tokens."
+        #         elif isinstance(msg_copy["content"], list):
+        #             # For multimodal content, append to the last text item
+        #             for j in range(len(msg_copy["content"]) - 1, -1, -1):
+        #                 if msg_copy["content"][j].get("type") == "text":
+        #                     msg_copy["content"][j]["text"] += f"\n\nYour response should be within {max_tokens} tokens."
+        #                     break
+        #             else:
+        #                 # If no text content found, add a new text item
+        #                 msg_copy["content"].append({
+        #                     "type": "text",
+        #                     "text": f"Your response should be within {max_tokens} tokens."
+        #                 })
+        #     messages_with_limit.append(msg_copy)
+        messages_with_limit = messages
+        
+        # Prepare parameters
+        params = {
+            "model": self.config.model_name,
+            "messages": messages_with_limit,
+            "max_tokens": max_tokens,
+            "temperature": kwargs.get("temperature", self.config.temperature),
+            "top_k": kwargs.get("top_k", self.config.top_k),
+            "stop_sequences": kwargs.get("stop_sequences", self.config.stop_sequences),
+        }
+        
+        # Add thinking parameter if enabled and budget_tokens is set
+        budget_tokens = kwargs.get("budget_tokens", self.config.budget_tokens)
+        if self.config.thinking and budget_tokens:
+            params["thinking"] = {
+                "type": "enabled",
+                "budget_tokens": budget_tokens
+            }
+        
+        # Add system prompt if provided
+        if system_prompt:
+            params["system"] = system_prompt
+        
+        # Add metadata if configured
+        if self.config.metadata:
+            params["metadata"] = self.config.metadata
+
+        return params
+
+    def _single_api_call(self, messages: List[Dict], **kwargs) -> Dict[str, Any]:
         """Make a single API call to Claude."""
         try:
-            # Get max_tokens value
-            max_tokens = kwargs.get("max_tokens", self.config.max_tokens)
-            
-            # Create a copy of messages to avoid modifying the original
-            messages_with_limit = []
-            for i, msg in enumerate(messages):
-                msg_copy = msg.copy()
-                # If this is the last user message, append token limit instruction
-                if i == len(messages) - 1 and msg_copy.get("role") == "user":
-                    if isinstance(msg_copy["content"], str):
-                        msg_copy["content"] += f"\n\nYour response should be within {max_tokens} tokens."
-                    elif isinstance(msg_copy["content"], list):
-                        # For multimodal content, append to the last text item
-                        for j in range(len(msg_copy["content"]) - 1, -1, -1):
-                            if msg_copy["content"][j].get("type") == "text":
-                                msg_copy["content"][j]["text"] += f"\n\nYour response should be within {max_tokens} tokens."
-                                break
-                        else:
-                            # If no text content found, add a new text item
-                            msg_copy["content"].append({
-                                "type": "text",
-                                "text": f"Your response should be within {max_tokens} tokens."
-                            })
-                messages_with_limit.append(msg_copy)
-            
-            # Prepare parameters
-            params = {
-                "model": self.config.model_name,
-                "messages": messages_with_limit,
-                "max_tokens": max_tokens,
-                "temperature": kwargs.get("temperature", self.config.temperature),
-                "top_k": kwargs.get("top_k", self.config.top_k),
-                "stop_sequences": kwargs.get("stop_sequences", self.config.stop_sequences),
-            }
-            
-            # Add thinking parameter if enabled and budget_tokens is set
-            budget_tokens = kwargs.get("budget_tokens", self.config.budget_tokens)
-            if self.config.thinking and budget_tokens:
-                params["thinking"] = {
-                    "type": "enabled",
-                    "budget_tokens": budget_tokens
-                }
-            
-            # Add system prompt if provided
-            if system_prompt:
-                params["system"] = system_prompt
-            
-            # Add metadata if configured
-            if self.config.metadata:
-                params["metadata"] = self.config.metadata
+            params = self._prepare_api_payload(messages, **kwargs)
             
             # Make the API call
             response = self.client.messages.create(**params)

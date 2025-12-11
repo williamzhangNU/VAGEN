@@ -53,6 +53,8 @@ def generate_with_model_interface(
     results = interface.generate(messages_list)
     outputs: List[Dict[str, Any]] = []
     for i, r in enumerate(results):
+        if r is None:
+            continue
         outputs.append({
             "message_id": (metas[i] or {}).get("message_id"),
             "text": r.get("text", ""),

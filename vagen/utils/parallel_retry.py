@@ -75,7 +75,9 @@ def run_parallel_with_retries(
             pbar.close()
             aggregate: List[Tuple[int, BaseException]] = sorted(non_retryable_errors, key=lambda t: t[0])
             messages = [f"[{idx}] {type(err).__name__}: {err}" for idx, err in aggregate]
-            raise RuntimeError("Non-retryable task failures:\n" + "\n".join(messages))
+            logger.warning("Non-retryable task failures:\n" + "\n".join(messages))
+            # raise RuntimeError("Non-retryable task failures:\n" + "\n".join(messages))
+            return results # type: ignore[return-value]
 
         remaining = len(next_pending)
         if remaining == 0:
@@ -89,7 +91,9 @@ def run_parallel_with_retries(
             # Aggregate errors for clarity
             aggregate: List[Tuple[int, BaseException]] = sorted(errors_this_round + last_errors, key=lambda t: t[0])
             messages = [f"[{idx}] {type(err).__name__}: {err}" for idx, err in aggregate]
-            raise RuntimeError("Some tasks failed after retries:\n" + "\n".join(messages))
+            logger.warning("Some tasks failed after retries:\n" + "\n".join(messages))
+            # raise RuntimeError("Some tasks failed after retries:\n" + "\n".join(messages))
+            return results # type: ignore[return-value]
 
         if sleep_seconds > 0:
             time.sleep(sleep_seconds)

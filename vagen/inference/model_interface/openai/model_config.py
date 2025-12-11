@@ -15,6 +15,7 @@ class OpenAIModelConfig(BaseModelConfig):
     # Model parameters
     model_name: str = "gpt-4o"
     max_retries: int = 3
+    max_retries_api: int = 2 
     timeout: int = 60
     
     # Generation parameters (inherited from base)

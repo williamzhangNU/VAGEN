@@ -19,6 +19,33 @@ The script supports multiple experiment types (active/passive), render modes (vi
 python spatial_run.py [OPTIONS]
 ```
 
+### Key CLI Arguments
+
+- `--exp-type` (str, default: `active`): Experiment type. Use `active`, `passive`, or a comma-separated list (e.g., `active,passive`).
+- `--model-name` (str, default: `gpt-4o-mini`): Model identifier to use for all calls.
+- `--data-dir` (str, default: `data`): Root directory for input data.
+- `--output-root` (str, default: `results`): Root directory where outputs and logs are saved.
+- `--num` (int, default: `1`): Number of samples per task in the exploration phase.
+- `--seed-range` (str): Seed range as `start-end` (0-based), e.g., `0-24`, to select which seeds to run. (Choose either `--num` or `--seed-range`)
+- `--render-mode` (str, default: `text`): Environment render mode: `vision`, `text`, or comma-separated (e.g., `vision,text`).
+- `--enable-think` (0 or 1, default: `1`): Enable (`1`) or disable (`0`) chain-of-thought / “think” mode.
+- `--proxy-agent` (str, default: `strategist`): Proxy agent for **passive** experiments (`scout`, `strategist`, or `oracle`). Required if `--exp-type` includes `passive`.
+- `--all-override`: If set, delete all existing history for the run (full reset of sample path).
+
+**Evaluation / Cogmap phase**
+
+- `--eval-task-counts` (str): JSON string for eval task counts, e.g. `{"dir": 1}`. If omitted, uses `inference_config.yaml`.
+- `--tasks` (list of str): Specific tasks to run (e.g., `dir pov`). If omitted, runs all tasks from `--eval-task-counts`.
+- `--cogmap`: Run the cognitive map phase.
+- `--eval-override`: Re-run evaluation, deleting existing evaluation JSON only.
+- `--cogmap-override`: Rebuild cognitive map prompts, ignoring any cached cogmap data.
+- `--false-belief-exp`: Enable the false belief experiment variant.
+
+**Inference Options**
+- `--inference-mode`: Inference execution mode (default: `direct`)
+  - `direct`: Direct API calls
+  - `batch`: OpenAI batch API
+
 ### Basic Examples
 
 ```bash
@@ -32,7 +59,7 @@ python spatial_run.py --phase explore --num 10
 python spatial_run.py --phase eval --seed-range 0-9
 
 # Run with specific model and multiple experiment types
-python spatial_run.py --phase all --model-name gpt-4o --exp-type active,passive --num 5
+python spatial_run.py --phase all --model-name gpt-4.1-mini --exp-type active,passive --num 5
 
 # Run with text and vision render modes
 python spatial_run.py --phase explore --render-mode vision,text

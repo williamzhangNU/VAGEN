@@ -156,6 +156,7 @@ class ObjectModifier(RoomModifier):
             new_pos = available_pos[self.np_random.choice(len(available_pos))]
             obj.pos = np.array(new_pos)
             # Update room_id based on new position's mask value
+            # TODO: handle room_id is a list, solution: object never moved at a gate
             obj.room_id = int(mask[new_pos[0], new_pos[1]])
             return ChangedObject(
                 name=obj.name,

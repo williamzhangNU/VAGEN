@@ -141,7 +141,7 @@ def build_evaluation_from_combo(
                 "message_images": new_list[-1].get("images", []),
                 "evaluation_data": task.eval_data.to_dict(),
             }
-            meta_obj["message_id"] = hash(json.dumps(meta_obj, sort_keys=True))
+            meta_obj["message_id"] = hash(json.dumps(meta_obj, sort_keys=True, default=numpy_to_python))
             if meta_obj["message_id"] in seen_message_ids:
                 raise ValueError(f"Duplicate message_id detected: {meta_obj['message_id']} for combo_dir={combo_dir}, task={task_short}, question_id={task.eval_data.id}")
             seen_message_ids.add(meta_obj["message_id"])
@@ -233,7 +233,7 @@ def build_cogmap_from_combo(
                 "map_type": "global",
                 "combo_dir": os.path.abspath(combo_dir),
             }
-            meta_obj["message_id"] = hash(json.dumps(meta_obj, sort_keys=True))
+            meta_obj["message_id"] = hash(json.dumps(meta_obj, sort_keys=True, default=numpy_to_python))
             _add_message(out_msgs, meta, mod_seq, meta_obj)
 
     return out_msgs, meta

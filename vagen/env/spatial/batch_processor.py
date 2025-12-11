@@ -48,21 +48,7 @@ class OpenAIBatchProcessor(BaseBatchProcessor):
         for i, msgs in enumerate(messages_list):
             mid = (metas[i] or {}).get("message_id", f"req_{i}")
             
-            body = {
-                "model": self.model_name,
-                "messages": self.interface._convert_qwen_to_openai_format(msgs),
-                "temperature": self.cfg.temperature,
-                "timeout": self.cfg.timeout,
-            }
-            
-            # Match logic from OpenAIModelInterface._single_api_call
-            if self.model_name.startswith("o") or 'gpt-5' in self.model_name:
-                body["max_completion_tokens"] = self.cfg.max_completion_tokens
-            else:
-                body["max_tokens"] = self.cfg.max_tokens
-                
-            if self.cfg.reasoning_effort:
-                body["reasoning_effort"] = self.cfg.reasoning_effort
+            body = self.interface._prepare_api_payload(msgs)
 
             lines.append({
                 "custom_id": str(mid),
@@ -124,30 +110,8 @@ class ClaudeBatchProcessor(BaseBatchProcessor):
         requests_data = []
         for i, msgs in enumerate(messages_list):
             mid = (metas[i] or {}).get("message_id", f"req_{i}")
-            claude_msgs, system = self.interface._convert_qwen_to_claude_format(msgs)
             
-            params = {
-                "model": self.model_name,
-                "messages": claude_msgs,
-                "max_tokens": self.cfg.max_tokens,
-                "temperature": self.cfg.temperature,
-                "top_k": self.cfg.top_k,
-                "stop_sequences": self.cfg.stop_sequences,
-                "timeout": self.cfg.timeout,
-            }
-            
-            # Match logic from ClaudeModelInterface._single_api_call
-            if self.cfg.thinking and self.cfg.budget_tokens:
-                params["thinking"] = {
-                    "type": "enabled",
-                    "budget_tokens": self.cfg.budget_tokens
-                }
-                
-            if self.cfg.metadata:
-                params["metadata"] = self.cfg.metadata
-
-            if system:
-                params["system"] = system
+            params = self.interface._prepare_api_payload(msgs)
             
             requests_data.append({
                 "custom_id": str(mid),

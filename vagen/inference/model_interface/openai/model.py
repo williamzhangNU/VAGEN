@@ -38,7 +38,8 @@ class OpenAIModelInterface(BaseModelInterface):
         self.client = OpenAI(
             api_key=api_key,
             organization=config.organization,
-            base_url=config.base_url
+            base_url=config.base_url,
+            max_retries=config.max_retries_api if hasattr(config, 'max_retries_api') else 2,
         )
         
         # Thread pool for batch processing
@@ -46,13 +47,15 @@ class OpenAIModelInterface(BaseModelInterface):
         
         logger.info(f"Initialized OpenAI interface with model {config.model_name}")
     
+    def _prepare_api_payload(self, messages: List[Dict], **kwargs) -> Dict[str, Any]:
+        """Prepare API payload from Qwen format messages."""
+        openai_messages = self._convert_qwen_to_openai_format(messages)
+        return self._prepare_request_kwargs(openai_messages, **kwargs)
+
     def generate(self, prompts: List[Any], **kwargs) -> List[Dict[str, Any]]:
         """Generate responses using OpenAI API with parallel retries and stable ordering.
         All calls must succeed; otherwise an error is raised."""
-        formatted_requests = []
-        for prompt in prompts:
-            messages = OpenAIModelInterface._convert_qwen_to_openai_format(prompt)
-            formatted_requests.append(messages)
+        formatted_requests = prompts  # Pass raw Qwen prompts to worker
 
         def worker(messages: List[Dict]) -> Dict[str, Any]:
             return self._single_api_call(messages, **kwargs)
@@ -167,24 +170,26 @@ class OpenAIModelInterface(BaseModelInterface):
         else:
             raise ValueError(f"Unsupported image type: {type(image)}")
     
+    def _prepare_request_kwargs(self, messages: List[Dict], **kwargs) -> Dict[str, Any]:
+        """Prepare arguments for OpenAI API call."""
+        msg_kwargs = {
+            "model": self.config.model_name,
+            "messages": messages,
+            "temperature": kwargs.get("temperature", self.config.temperature),
+            "timeout": kwargs.get("timeout", self.config.timeout),
+        }
+        if self.config.model_name.startswith("o") or 'gpt-5' in self.config.model_name:
+            msg_kwargs["max_completion_tokens"] = kwargs.get("max_completion_tokens", self.config.max_completion_tokens)
+        else:
+            msg_kwargs["max_tokens"] = kwargs.get("max_tokens", self.config.max_tokens)
+        if self.config.reasoning_effort:
+            msg_kwargs['reasoning_effort'] = kwargs.get("reasoning_effort", self.config.reasoning_effort)
+        return msg_kwargs
+
     def _single_api_call(self, messages: List[Dict], **kwargs) -> Dict[str, Any]:
         """Make a single API call to OpenAI."""
         try:
-            msg_kwargs = {
-                "model": self.config.model_name,
-                "messages": messages,
-                "temperature": kwargs.get("temperature", self.config.temperature),
-                "timeout": kwargs.get("timeout", self.config.timeout),
-                # "presence_penalty": kwargs.get("presence_penalty", self.config.presence_penalty),
-                # "frequency_penalty": kwargs.get("frequency_penalty", self.config.frequency_penalty),
-                # "seed": kwargs.get("seed", self.config.seed),
-            }
-            if self.config.model_name.startswith("o") or 'gpt-5' in self.config.model_name:
-                msg_kwargs["max_completion_tokens"] = kwargs.get("max_completion_tokens", self.config.max_completion_tokens)
-            else:
-                msg_kwargs["max_tokens"] = kwargs.get("max_tokens", self.config.max_tokens)
-            if self.config.reasoning_effort:
-                msg_kwargs['reasoning_effort'] = kwargs.get("reasoning_effort", self.config.reasoning_effort)
+            msg_kwargs = self._prepare_api_payload(messages, **kwargs)
             tmp = deepcopy(msg_kwargs)
             tmp.pop('messages')
             logger.warning(f'[DEBUG] msg_kwargs: {tmp}')
@@ -193,13 +198,16 @@ class OpenAIModelInterface(BaseModelInterface):
             # print(f'[DEBUG] Response: {response}')
             # print(f'[DEBUG] msg_kwargs: {msg_kwargs}')
             
-            
+
+            # save messages for debugging
             # try:
-            #     with open("tmp.txt", 'a') as f:
+            #     with open("tmp_debug.txt", 'a') as f:
             #         sanitized_messages = self._sanitize_messages_for_logging(messages)
             #         f.write(json.dumps(sanitized_messages, indent=2) + "\n" + "-"*80 + "\n")
             # except Exception as e:
             #     logger.warning(f"Failed to log messages to tmp.txt: {e}")
+
+                
             
             # Extract text response
             response_text = response.choices[0].message.content
