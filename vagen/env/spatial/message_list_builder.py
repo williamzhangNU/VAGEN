@@ -9,7 +9,7 @@ import copy
 from vagen.env.spatial.Base.tos_base import Room, Agent
 from vagen.env.spatial.Base.tos_base.evaluation.task_types import EvalTaskType
 from vagen.env.spatial.Base.tos_base.prompts.cogmap_prompts import get_cogmap_prompt
-from vagen.env.spatial.Base.tos_base.utils.utils import hash, numpy_to_python
+from vagen.env.spatial.Base.tos_base.utils.utils import hash, numpy_to_python, THINK_LABEL, ANSWER_LABEL
 from vagen.env.spatial.Base.tos_base.utils.room_utils import get_observed_room_id
 # Shared common utilities/constants
 from vagen.env.spatial.common import (
@@ -66,6 +66,12 @@ def _add_message(out_msgs: List[List[Dict]], out_meta: List[Dict], msgs: List[Di
     out_msgs.append(msgs)
     out_meta.append(meta)
 
+def _evaluation_format_footer(enable_think: bool) -> str:
+    answer_hint = "[your answer (only required answer, no extra text, notes, formatting or anything else)]"
+    if enable_think:
+        return f"## Output Format\n{THINK_LABEL}\n[Your thoughts on the question]\n{ANSWER_LABEL}\n{answer_hint}"
+    return f"## Output Format\n{ANSWER_LABEL}\n{answer_hint}"
+
 
 def build_evaluation_from_combo(
     combo_dir: str,
@@ -88,6 +94,7 @@ def build_evaluation_from_combo(
 
     # Load history manager with eval_override flag
     hm = load_history_manager(combo_dir, eval_override=eval_override, all_tasks=list(eval_task_counts.keys()))
+    enable_think = hm.get_enable_think()
     out_msgs: List[List[Dict]] = []
     meta: List[Dict] = []
 
@@ -127,7 +134,7 @@ def build_evaluation_from_combo(
             existing_id_for_task.append(task.eval_data.id)
             assert base_msgs[-1]["role"] == "user"
             new_list = [m.copy() for m in base_msgs]
-            new_list[-1]['content'] = new_list[-1]['content'] + "\n" + q_text
+            new_list[-1]['content'] = new_list[-1]['content'] + "\n" + q_text + "\n\n" + _evaluation_format_footer(enable_think)
             if is_vision_question:
                 if "images" not in new_list[-1]:
                     new_list[-1]["images"] = []

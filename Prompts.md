@@ -12,7 +12,7 @@ Goal: Build a **COMPLETE AND ACCURATE MAP** of the environment with **MINIMAL TO
 ## Actions & Grammar
 - Constraint: Max 20 steps.Format: Actions: [ <Move>*, <Final> ] (List of Moves followed by exactly one Final action).
 - Movement Actions (<Move>):
-    - JumpTo(OBJ): Move to object/door OBJ. Constraint: Must be visible & previously observed. No JumpTo on step 1. Orientation unchanged. Use object/door names only.
+    - JumpTo(OBJ): Jump to the same position as the object/door OBJ. Constraint: Must be visible & previously observed. No JumpTo on step 1. Orientation unchanged. Use object/door names only.
     - Rotate(DEG): Relative rotation. Valid DEG: [-270, -180, -90, 0, 90, 180, 270].
 - Final Actions (<Final> - Only one per turn):
     - Observe(): Cost: 1. Reports objects and their relationships relative to you in FOV from current pose.
@@ -28,15 +28,15 @@ Goal: Build a **COMPLETE AND ACCURATE MAP** of the environment with **MINIMAL TO
     - Observe only reports from your current pose. If you jump several times, the last Observe() shows the view from your final pose.
     - Actions execute in order.
 
+
+## Current Context:
+{room_info}
+Unless otherwise specified, treat the starting position as origin (0, 0), facing North (+y axis).
+You have a maximum of {max_steps} steps.
+
+
 ## Output Format
 THINK:
 [Reasoning for next step. Track pose/coverage.]
 FINAL ANSWER:
 Actions: [ ... ]
-
-## Constraints:
-- No extra text/formatting in FINAL ANSWER.
-- Prefer actions that reveal unknowns.
-- Avoid redundancy.
-
-Initial State: (0, 0), facing North (+y axis).

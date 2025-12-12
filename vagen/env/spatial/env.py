@@ -144,6 +144,7 @@ class SpatialGym(gym.Env):
         self.exploration_manager = ExplorationManager(
             self.initial_room, self.agent,
             grid_size=(self.config.grid_size if hasattr(self.config, 'grid_size') else None),
+            seed=seed,
         )
         self.history_manager = HistoryManager(
             self.config.get_observation_config(), self.config.get_model_config(),

@@ -200,12 +200,12 @@ class OpenAIModelInterface(BaseModelInterface):
             
 
             # save messages for debugging
-            # try:
-            #     with open("tmp_debug.txt", 'a') as f:
-            #         sanitized_messages = self._sanitize_messages_for_logging(messages)
-            #         f.write(json.dumps(sanitized_messages, indent=2) + "\n" + "-"*80 + "\n")
-            # except Exception as e:
-            #     logger.warning(f"Failed to log messages to tmp.txt: {e}")
+            try:
+                with open("tmp_debug.txt", 'a') as f:
+                    sanitized_messages = self._sanitize_messages_for_logging(messages)
+                    f.write(json.dumps(sanitized_messages, indent=2) + "\n" + "-"*80 + "\n")
+            except Exception as e:
+                logger.warning(f"Failed to log messages to tmp.txt: {e}")
 
                 
             
