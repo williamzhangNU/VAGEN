@@ -116,7 +116,7 @@ class SpatialGym(gym.Env):
         self.target_observed = False
         self.target_observed_steps = []
 
-        self.image_handler = ImageHandler(self.config.data_dir, seed, self.config.image_size)
+        self.image_handler = ImageHandler(self.config.data_dir, seed, image_size=self.config.image_size)
         self.json_data = self.image_handler.json_data
 
         self.prompter = PromptManager(self.config, self.np_random, self.image_handler)

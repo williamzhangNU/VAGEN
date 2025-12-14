@@ -11,6 +11,7 @@ from vagen.env.spatial.Base.tos_base.evaluation.task_types import EvalTaskType
 from vagen.env.spatial.Base.tos_base.prompts.cogmap_prompts import get_cogmap_prompt
 from vagen.env.spatial.Base.tos_base.utils.utils import hash, numpy_to_python, THINK_LABEL, ANSWER_LABEL
 from vagen.env.spatial.Base.tos_base.utils.room_utils import get_observed_room_id
+from vagen.env.spatial.Base.tos_base.utils.image_handler import ImageHandler
 # Shared common utilities/constants
 from vagen.env.spatial.common import (
     MESSAGES_BASENAME,
@@ -90,7 +91,7 @@ def build_evaluation_from_combo(
     """
     messages, _turn_logs, sample_cfg = _load_exploration_artifacts(combo_dir)
 
-    base_msgs = [m.copy() for m in messages]
+    base_msgs = copy.deepcopy(messages)
 
     # Load history manager with eval_override flag
     hm = load_history_manager(combo_dir, eval_override=eval_override, all_tasks=list(eval_task_counts.keys()))
@@ -108,6 +109,7 @@ def build_evaluation_from_combo(
     if agent_init.init_room_id is not None:
         agent_init.room_id = agent_init.init_room_id
     image_dir = sample_cfg.get("image_dir")
+    image_handler = ImageHandler(image_dir=image_dir) if image_dir else None
     # Track message_ids to ensure uniqueness
     seen_message_ids = set()
 
@@ -140,13 +142,18 @@ def build_evaluation_from_combo(
             assert task.eval_data.id not in existing_id_for_task, f"Failed to generate unique question for {task_short} in {combo_dir}"
             existing_id_for_task.append(task.eval_data.id)
             assert base_msgs[-1]["role"] == "user"
-            new_list = [m.copy() for m in base_msgs]
+            new_list = copy.deepcopy(base_msgs)
             new_list[-1]['content'] = new_list[-1]['content'] + "\n" + q_text + "\n\n" + _evaluation_format_footer(enable_think)
             if is_vision_question:
                 if "images" not in new_list[-1]:
                     new_list[-1]["images"] = []
-                assert os.path.exists(os.path.join(image_dir, f"{task.eval_data.id}.png"))
-                new_list[-1]["images"] += [os.path.join(image_dir, f"{task.eval_data.id}.png")]
+                object_name = None
+                for name, pos in task.eval_data.answer.get('object_positions').items():
+                    # Compare positions (handle both int and float tuples)
+                    if tuple(map(int, pos)) == tuple(map(int, task.eval_data.answer['final_pos'])):
+                        object_name = name
+                        break
+                new_list[-1]["images"] += [image_handler.get_image_path(object_name or task.eval_data.answer['final_pos'], task.eval_data.answer.get('final_ori'))]
             meta_obj = {
                 "type": "evaluation",
                 "task_type": task_short,
