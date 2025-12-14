@@ -102,6 +102,11 @@ def build_evaluation_from_combo(
     existing_ids = hm.get_eval_ids()
     room = Room.from_dict(sample_cfg["room_dict"]).copy()
     agent = Agent.from_dict(sample_cfg["agent_dict"]).copy()
+    agent_init = agent.copy()
+    agent_init.pos = agent_init.init_pos.copy()
+    agent_init.ori = agent_init.init_ori.copy()
+    if agent_init.init_room_id is not None:
+        agent_init.room_id = agent_init.init_room_id
     image_dir = sample_cfg.get("image_dir")
     # Track message_ids to ensure uniqueness
     seen_message_ids = set()
@@ -118,7 +123,9 @@ def build_evaluation_from_combo(
             else:
                 is_vision_question = True
 
-        task = EvalTaskType.create_task(task_short, np.random.default_rng(hm.seed), room, agent, {"image_dir": image_dir if is_vision_question else None}, None)
+        # All evaluation tasks start from initial state except bwd_nav_rev (starts from final pose).
+        base_agent = agent if task_short == "bwd_nav_rev" else agent_init
+        task = EvalTaskType.create_task(task_short, np.random.default_rng(hm.seed), room, base_agent, {"image_dir": image_dir if is_vision_question else None}, None)
         task_class_name = task.__class__.__name__
 
         # Calculate how many questions still needed

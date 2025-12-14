@@ -60,6 +60,7 @@ class InferenceRolloutService(BaseRollout):
         self.recordings = {}  # Maps env_id to recorded trajectory
         self.system_prompts = {}  # Maps env_id to system prompt
         self.env_histories = {}  # Maps env_id to history list
+        self.finished_envs = set()  # env_ids that should not be stepped (e.g., passive envs finish on reset)
         
         # Max number of steps from config
         self.max_steps = config.get("max_steps", 10)
@@ -91,6 +92,7 @@ class InferenceRolloutService(BaseRollout):
         self.recordings = {}
         self.system_prompts = {}
         self.env_histories = {}
+        self.finished_envs = set()
         
         # Prepare environment configurations
         ids2configs = {}
@@ -115,8 +117,7 @@ class InferenceRolloutService(BaseRollout):
         if self.debug:
             print(f"Creating {len(env_configs)} environments...")
         
-        # Create and reset environments (skip those marked finish)
-        # Filter out envs where reset would immediately signal finish; this requires env to tell us via info
+        # Create and reset environments (some envs may finish on reset and should not be stepped)
         self.env_client.create_environments_batch(ids2configs)
         reset_results = self.env_client.reset_batch(ids2seeds)
         
@@ -124,13 +125,11 @@ class InferenceRolloutService(BaseRollout):
         self.system_prompts = self.env_client.get_system_prompts_batch(list(self.envs.keys()))
         
         
-        # Initialize recordings and state tracking
+        # Initialize recordings and state tracking (including envs that finish on reset)
         for env_id, (obs, info) in reset_results.items():
-            # passive finish
-            if info.get('finish'):
-                # exclude finished envs from active set
-                self.envs.pop(env_id, None)
-                continue
+            finish_on_reset = bool(info.get("finish"))
+            if finish_on_reset:
+                self.finished_envs.add(env_id)
             # Initialize recording with system prompt and first observation
             self.recordings[env_id] = [
                 {"role": "system", "content": self.system_prompts[env_id]},
@@ -148,7 +147,7 @@ class InferenceRolloutService(BaseRollout):
             # Initialize environment state
             self.env_states[env_id] = {
                 "step": 0,
-                "done": False,
+                "done": finish_on_reset,
                 "last_obs": obs,
                 "last_info": info,
                 "rewards": [],
@@ -229,7 +228,9 @@ class InferenceRolloutService(BaseRollout):
             max_steps = self.max_steps
         
         # Track active environments
-        active_envs = set(self.envs.keys())
+        active_envs = set(self.envs.keys()) - set(self.finished_envs)
+        if not active_envs:
+            return
         
         # Progress bar
         progress_iter = range(max_steps)

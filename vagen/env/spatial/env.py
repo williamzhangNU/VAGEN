@@ -21,7 +21,7 @@ from vagen.env.spatial.Base.tos_base.utils.utils import parse_llm_response
 from vagen.env.spatial.Base.tos_base.utils.image_handler import ImageHandler
 from vagen.env.spatial.Base.tos_base.actions.actions import ForcedTermAction, ActionSequence, ACTION_CLASSES, TermAction, FalseBeliefTermAction
 from vagen.env.spatial.Base.tos_base.prompts.false_belief_prompts import FALSE_BELIEF_INSTRUCTION
-from vagen.env.spatial.room_modifier import ObjectModifier
+from vagen.env.spatial.Base.tos_base.utils.room_modifier import ObjectModifier
 from vagen.env.spatial.Base.tos_base.actions.actions import configure_actions
 
 class SpatialGym(gym.Env):
@@ -53,6 +53,7 @@ class SpatialGym(gym.Env):
         # False belief experiment state
         self.is_false_belief_exp = self.config.false_belief_exp
         self.in_false_belief_phase = False
+        self.false_belief_step = 0
         self.ground_truth_changes = []
         self.modified_room = None
         self.target_observed = False
@@ -109,6 +110,7 @@ class SpatialGym(gym.Env):
 
         # Reset false belief phase state
         self.in_false_belief_phase = False
+        self.false_belief_step = 0
         self.ground_truth_changes = []
         self.modified_room = None
         self.target_observed = False
@@ -229,10 +231,11 @@ class SpatialGym(gym.Env):
 
     def _step_false_belief(self, llm_response, think_content, action, current_obs, obs, reward, done, info, exp_log, room_state, agent_state):
         """Handle step logic for false belief phase."""
+        self.false_belief_step += 1
         
         # Create FBLog
         fb_log = FBLog(
-            step=self.current_turn_number,
+            step=self.false_belief_step,
             room_state=room_state,
             agent_state=agent_state,
             ground_truth_changes=self.ground_truth_changes
@@ -243,12 +246,12 @@ class SpatialGym(gym.Env):
             reported_changes = info.pop('reported_changes', [])
             fb_log.reported_changes = reported_changes
             
-            accuracy = self._evaluate_changes(reported_changes, self.ground_truth_changes)
+            f1 = self._evaluate_changes(reported_changes, self.ground_truth_changes)
             
-            info['success'] = accuracy
-            reward = accuracy
+            info['success'] = f1
+            reward = f1
             
-            fb_log.correctly_identified_changes = accuracy
+            fb_log.correctly_identified_changes = f1
             
         # Save turn log
         self._save_turn_log(current_obs, llm_response, think_content, action,
@@ -259,8 +262,8 @@ class SpatialGym(gym.Env):
 
     def _evaluate_changes(self, reported: List[Any], ground_truth: List[Any]) -> float:
         """
-        Calculate accuracy of reported changes against ground truth.
-        Accuracy = (Correctly Identified Changes) / (Total Ground Truth Changes)
+        Calculate F1 of reported changes against ground truth.
+        Treat each (object, change_type) as a label.
         """
         if not ground_truth:
             return 0.0
@@ -278,9 +281,9 @@ class SpatialGym(gym.Env):
         
         # Calculate intersection
         correct = len(gt_changes.intersection(rep_changes))
-        total = len(gt_changes)
-        
-        return float(correct) / total if total > 0 else 0.0
+        precision = float(correct) / float(len(rep_changes)) if rep_changes else 0.0
+        recall = float(correct) / float(len(gt_changes)) if gt_changes else 0.0
+        return (2.0 * precision * recall / (precision + recall)) if (precision + recall) > 0 else 0.0
 
     def _execute_action(self, action: str):
         """Execute action and return results. Shared by exploration and false belief phases."""
@@ -377,6 +380,7 @@ class SpatialGym(gym.Env):
     def _transition_to_false_belief_phase(self):
         """Transition from exploration to false belief phase."""
         self.in_false_belief_phase = True
+        self.false_belief_step = 0
         
         # Modify room - move n objects (1-3)
         n_changes = self.np_random.integers(1, 4)
@@ -393,7 +397,7 @@ class SpatialGym(gym.Env):
             self.exploration_manager.agent.room_id = self.agent.init_room_id
         
         # Reset step budget for False Belief phase
-        self.remaining_exp_steps = self.config.max_false_belief_exp_steps
+        self.remaining_exp_steps = int(getattr(self.config, "max_false_belief_exp_steps", 10))
         
         # Update room dict to modified one for saving
         self.history_manager.room_dict = self.modified_room.to_dict()
@@ -402,7 +406,10 @@ class SpatialGym(gym.Env):
         configure_actions('false_belief')
         
         # Generate False Belief prompt
-        prompt = FALSE_BELIEF_INSTRUCTION.format(n_changes=len(self.ground_truth_changes))
+        prompt = FALSE_BELIEF_INSTRUCTION.format(
+            n_changes=len(self.ground_truth_changes),
+            max_steps=int(getattr(self.config, "max_false_belief_exp_steps", 10)),
+        )
         obs = {'obs_str': prompt}
         obs['obs_str'] += '\n' + self.prompter.get_format_footer(True)
         

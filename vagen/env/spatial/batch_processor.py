@@ -67,34 +67,50 @@ class OpenAIBatchProcessor(BaseBatchProcessor):
         return batch.id
 
     def retrieve(self, batch_id: str) -> List[Dict[str, Any]]:
+        total_wait_time = 0 # minutes
+        loop_wait_time = 60 # seconds
         while True:
             b = self.client.batches.retrieve(batch_id)
             if b.status in ("failed", "canceled"):
                 raise RuntimeError(f"Batch {batch_id} status={b.status} reason={b.errors}")
             if b.status in ("completed", "expired"):
+                print(f"Batch {batch_id} status: {b.status}", flush=True)
                 break
-            time.sleep(30)
+            print(f"Waiting another {loop_wait_time} seconds for batch to complete, Total wait time: {total_wait_time:.2f} minutes...", flush=True)
+            time.sleep(loop_wait_time)
+            total_wait_time += loop_wait_time / 60.0
 
-        if not b.output_file_id:
+        error_file_id = getattr(b, "error_file_id", None)
+        if not b.output_file_id and not error_file_id:
             return []
 
-        content = self.client.files.content(b.output_file_id)
-        text = getattr(content, "text", None) or getattr(content, "content", None)
-        if hasattr(text, "decode"):
-            text = text.decode("utf-8")
-        if not isinstance(text, str):
-            text = content.read().decode("utf-8")
+        def _file_text(file_id: str) -> str:
+            content = self.client.files.content(file_id)
+            text = getattr(content, "text", None) or getattr(content, "content", None)
+            if hasattr(text, "decode"):
+                text = text.decode("utf-8")
+            if not isinstance(text, str):
+                text = content.read().decode("utf-8")
+            return text
 
-        results = []
-        for line in text.splitlines():
-            if not line.strip(): continue
-            obj = json.loads(line)
-            custom_id = obj.get("custom_id")
-            body = ((obj.get("response") or {}).get("body") or {})
-            choices = body.get("choices") or []
-            llm_text = choices[0].get("message", {}).get("content", "") if choices else ""
-            usage = body.get("usage") or {}
-            results.append({"message_id": custom_id, "text": llm_text, "usage": usage})
+        results: List[Dict[str, Any]] = []
+        if b.output_file_id:
+            for line in _file_text(b.output_file_id).splitlines():
+                if not line.strip():
+                    continue
+                obj = json.loads(line)
+                body = ((obj.get("response") or {}).get("body") or {})
+                choices = body.get("choices") or []
+                llm_text = choices[0].get("message", {}).get("content", "") if choices else ""
+                results.append({"message_id": obj.get("custom_id"), "text": llm_text, "usage": body.get("usage") or {}})
+
+        if error_file_id:
+            for line in _file_text(error_file_id).splitlines():
+                if not line.strip():
+                    continue
+                obj = json.loads(line)
+                print("Batch error:", obj.get("custom_id"), obj.get("error") or obj, flush=True)
+
         return results
 
 class ClaudeBatchProcessor(BaseBatchProcessor):
@@ -123,23 +139,36 @@ class ClaudeBatchProcessor(BaseBatchProcessor):
         return batch.id
 
     def retrieve(self, batch_id: str) -> List[Dict[str, Any]]:
+        total_wait_time = 0 # minutes
+        loop_wait_time = 60 # seconds
         while True:
             b = self.client.messages.batches.retrieve(batch_id)
             if b.processing_status == "ended":
                 break
-            time.sleep(10)
+            print(f"Waiting another {loop_wait_time} seconds for batch to complete, Total wait time: {total_wait_time:.2f} minutes...", flush=True)
+            time.sleep(loop_wait_time)
+            total_wait_time += loop_wait_time / 60.0
         
-        if not b.results_url:
+        headers = {"x-api-key": self.client.api_key, "anthropic-version": "2023-06-01"}
+        results_url = getattr(b, "results_url", None)
+        objs = None
+        if not results_url:
+            base_url = self.cfg.base_url or "https://api.anthropic.com"
+            status = requests.get(f"{base_url}/v1/messages/batches/{batch_id}", headers=headers)
+            status.raise_for_status()
+            status_json = status.json()
+            results_url = status_json.get("results_url")
+            if not results_url:
+                objs = status_json.get("results", [])
+        if results_url:
+            resp = requests.get(results_url, headers=headers)
+            resp.raise_for_status()
+            objs = [json.loads(line) for line in resp.text.splitlines() if line.strip()]
+        if not objs:
             return []
             
-        headers = {"x-api-key": self.client.api_key, "anthropic-version": "2023-06-01"}
-        resp = requests.get(b.results_url, headers=headers)
-        resp.raise_for_status()
-        
         results = []
-        for line in resp.text.splitlines():
-            if not line.strip(): continue
-            obj = json.loads(line)
+        for obj in objs:
             custom_id = obj.get("custom_id")
             res = obj.get("result", {})
             if res.get("type") == "succeeded":
@@ -148,10 +177,15 @@ class ClaudeBatchProcessor(BaseBatchProcessor):
                 text = "".join(block.get("text", "") for block in content if block.get("type") == "text")
                 usage = msg.get("usage", {})
                 results.append({"message_id": custom_id, "text": text, "usage": usage})
+            else:
+                print("Batch error:", custom_id, res.get("error") or res, flush=True)
         return results
 
 def get_batch_processor(model_config: dict) -> BaseBatchProcessor:
     """Factory to get appropriate batch processor."""
-    if "claude" in model_config.get("model_name", "").lower():
+    if "anthropic" in model_config.get("provider", "").lower():
         return ClaudeBatchProcessor(model_config)
-    return OpenAIBatchProcessor(model_config)
+    elif "openai" in model_config.get("provider", "").lower():
+        return OpenAIBatchProcessor(model_config)
+    else:
+        raise ValueError(f"Unsupported model: {model_config.get('model_name', '')}")

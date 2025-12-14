@@ -9,10 +9,7 @@ from openai import OpenAI
 from vagen.env.spatial.Base.tos_base.managers.cognitive_map_manager import CognitiveMapManager
 from vagen.env.spatial.Base.tos_base.utils.cog_utils import _evaluate_cogmaps
 from vagen.env.spatial.Base.tos_base.evaluation.tasks import evaluate_from_dict
-from vagen.inference.model_interface.openai.model import OpenAIModelInterface
-from vagen.inference.model_interface.openai.model_config import OpenAIModelConfig
-from vagen.inference.model_interface.claude.model import ClaudeModelInterface
-from vagen.inference.model_interface.claude.model_config import ClaudeModelConfig
+from vagen.inference.model_interface.factory_model import ModelFactory
 from vagen.env.spatial.batch_processor import get_batch_processor
 from vagen.env.spatial.Base.tos_base.utils.utils import parse_llm_response
 import dotenv
@@ -42,13 +39,8 @@ def generate_with_model_interface(
     messages_list: List[List[Dict[str, Any]]],
     metas: List[Dict[str, Any]],
 ) -> List[Dict[str, Any]]:
-    model_name = model_config.get("model_name", "")
-    if "claude" in model_name.lower():
-        cfg = ClaudeModelConfig(**model_config)
-        interface = ClaudeModelInterface(cfg)
-    else:
-        cfg = OpenAIModelConfig(**model_config)
-        interface = OpenAIModelInterface(cfg)
+    # Use ModelFactory to create interface based on provider field
+    interface = ModelFactory.create(model_config)
     
     results = interface.generate(messages_list)
     outputs: List[Dict[str, Any]] = []
@@ -372,7 +364,7 @@ def run_inference_for_combo_dirs(
     )
     
     if not all_msgs or not all_meta:
-        print(f"No messages generated for {mode} mode")
+        print(f"No messages generated for {mode} mode", flush=True)
         return
     
     # Run inference
@@ -382,7 +374,7 @@ def run_inference_for_combo_dirs(
         with tempfile.TemporaryDirectory() as tmpdir:
             batch_jsonl = os.path.join(tmpdir, "batch_input.jsonl")
             batch_id = processor.submit(all_msgs, all_meta, batch_jsonl)
-            print(f"Submitted batch: {batch_id}, Messages: {len(all_msgs)}")
+            print(f"Submitted batch: {batch_id}, Messages: {len(all_msgs)}", flush=True)
             outputs = processor.retrieve(batch_id)
     else:
         outputs = generate_with_model_interface(model_config, all_msgs, all_meta)
@@ -406,7 +398,7 @@ def run_inference_for_combo_dirs(
     for cdir, data in combo_data.items():
         map_llm_responses(cdir, data["metas"], data["outputs"])
     
-    print(f"Completed {mode} inference for {len(combo_data)} combos, processed {len(outputs)} responses.")
+    print(f"Completed {mode} inference for {len(combo_data)} combos, processed {len(outputs)} responses.", flush=True)
 
 
 # ========================= __main__ demos =========================

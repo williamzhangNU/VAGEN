@@ -334,7 +334,8 @@ class SpatialEnvAdapter:
             return
         
         room = self.env.initial_room
-        agent = self.env.initial_agent
+        # Use the final exploration pose for bwd_nav_rev; other tasks will reset to init.
+        agent = (self.env.exploration_manager.agent.copy() if self.env.exploration_manager else self.env.initial_agent)
         image_dir = getattr(self.env.image_handler, 'image_dir', None) if hasattr(self.env, 'image_handler') else None
         render_mode = self.cfg.render_mode or "text"
         

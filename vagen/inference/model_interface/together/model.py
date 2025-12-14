@@ -1,14 +1,11 @@
 import base64
-import logging
-import re
-import json
-import os
-import sys
-from typing import List, Dict, Any
-from concurrent.futures import ThreadPoolExecutor
-import requests
-from PIL import Image
 import io
+import logging
+import os
+from typing import Any, Dict, List
+
+from PIL import Image
+from together import Together
 
 from vagen.inference.model_interface.base_model import BaseModelInterface
 from .model_config import TogetherModelConfig
@@ -16,8 +13,14 @@ from vagen.utils.parallel_retry import run_parallel_with_retries, NonRetryableEr
 
 logger = logging.getLogger(__name__)
 
+
+def _get(obj: Any, key: str, default: Any = None) -> Any:
+    """Small helper for dict-or-object SDK responses."""
+    return obj.get(key, default) if isinstance(obj, dict) else getattr(obj, key, default)
+
+
 class TogetherModelInterface(BaseModelInterface):
-    """Model interface for Together AI API with Qwen format compatibility."""
+    """Together AI model interface (Together Python SDK), Qwen-style prompt compatible."""
     
     def __init__(self, config: TogetherModelConfig):
         super().__init__(config)
@@ -31,12 +34,12 @@ class TogetherModelInterface(BaseModelInterface):
             error_msg = "Together API key not set. Set TOGETHER_API_KEY or provide api_key in config."
             logger.error(error_msg)
             raise RuntimeError(error_msg)
-            
-        # Base URL
-        self.base_url = config.base_url
-        
-        # Thread pool for batch processing
-        self.executor = ThreadPoolExecutor(max_workers=self.config.max_workers)
+
+        # Initialize Together client (docs: https://docs.together.ai/docs/inference-python)
+        self.client = Together(
+            api_key=self.api_key,
+            timeout=self.config.timeout,
+        )
         
         logger.info(f"Initialized Together AI interface with model {config.model_name}")
     
@@ -57,30 +60,14 @@ class TogetherModelInterface(BaseModelInterface):
         Convert Qwen format messages to Together AI request format.
         Together API supports OpenAI-compatible format.
         """
-        # Convert Qwen messages to OpenAI format
         messages = self._convert_qwen_to_together_format(prompt)
         
-        # Prepare request payload
-        request_data = {
-            "model": self.config.model_name,
+        return {
+            "model": f"Qwen/{self.config.model_name}" if "Qwen" in self.config.model_name else self.config.model_name,
             "messages": messages,
             "max_tokens": kwargs.get("max_tokens", self.config.max_tokens),
             "temperature": kwargs.get("temperature", self.config.temperature),
-            # "top_p": kwargs.get("top_p", self.config.top_p),
-            # "top_k": kwargs.get("top_k", self.config.top_k),
         }
-        
-        # Add optional parameters if provided
-        # if self.config.seed is not None:
-        #     request_data["seed"] = kwargs.get("seed", self.config.seed)
-        
-        # if self.config.presence_penalty != 0:
-        #     request_data["presence_penalty"] = kwargs.get("presence_penalty", self.config.presence_penalty)
-        
-        # if self.config.frequency_penalty != 0:
-        #     request_data["frequency_penalty"] = kwargs.get("frequency_penalty", self.config.frequency_penalty)
-        
-        return request_data
     
     def _convert_qwen_to_together_format(self, prompt: List[Dict]) -> List[Dict]:
         """
@@ -96,17 +83,17 @@ class TogetherModelInterface(BaseModelInterface):
             content = message.get("content", "")
             
             # Create Together AI message structure (OpenAI compatible)
-            together_msg = {
-                "role": role,
-            }
+            together_msg: Dict[str, Any] = {"role": role}
             
             # Handle multimodal content
-            if "multi_modal_data" in message and "<image>" in content:
-                # Extract images from multi_modal_data
+            if ("multi_modal_data" in message or "images" in message) and "<image>" in content:
                 images = []
-                for key, values in message["multi_modal_data"].items():
-                    if key == "<image>" or "image" in key.lower():
-                        images.extend(values)
+                if "images" in message:
+                    images.extend(message["images"])
+                if "multi_modal_data" in message:
+                    for key, values in message["multi_modal_data"].items():
+                        if key == "<image>" or "image" in key.lower():
+                            images.extend(values)
                 
                 # Split content by <image> placeholders
                 parts = content.split("<image>")
@@ -133,8 +120,7 @@ class TogetherModelInterface(BaseModelInterface):
                 
                 together_msg["content"] = content_array
             else:
-                # Text-only message - use simple content string 
-                # (Together supports both formats)
+                # Text-only message
                 together_msg["content"] = content
             
             together_messages.append(together_msg)
@@ -142,7 +128,7 @@ class TogetherModelInterface(BaseModelInterface):
         return together_messages
     
     def _process_image_for_together(self, image: Any) -> str:
-        """Convert image to base64 for Together AI API."""
+        """Convert image to base64 (data URL payload)."""
         if isinstance(image, Image.Image):
             # Ensure RGB mode
             if image.mode != "RGB":
@@ -158,7 +144,11 @@ class TogetherModelInterface(BaseModelInterface):
             buffered = io.BytesIO()
             image.save(buffered, format="JPEG", quality=85)
             return base64.b64encode(buffered.getvalue()).decode()
-            
+
+        if isinstance(image, str):
+            with Image.open(image) as img:
+                return self._process_image_for_together(img)
+
         elif isinstance(image, dict) and "__pil_image__" in image:
             from vagen.server.serial import deserialize_pil_image
             pil_image = deserialize_pil_image(image)
@@ -167,80 +157,38 @@ class TogetherModelInterface(BaseModelInterface):
             raise ValueError(f"Unsupported image type: {type(image)}")
     
     def _single_api_call(self, prompt: List[Dict], **kwargs) -> Dict[str, Any]:
-        """Make a single API call to Together AI."""
+        """Make a single Together SDK call."""
         try:
-            # Prepare request data
             request_data = self._prepare_together_request(prompt, **kwargs)
-            
-            # Set headers with explicit API key
-            headers = {
-                "Authorization": f"Bearer {self.api_key}",
-                "Content-Type": "application/json"
-            }
-            
-            # Debug information
-            logger.debug(f"API URL: {self.base_url}/v1/chat/completions")
-            logger.debug(f"Headers: {json.dumps({k: '***' if k == 'Authorization' else v for k, v in headers.items()})}")
-            logger.debug(f"Request data: {json.dumps(request_data)}")
-            
-            # Make the API call - ensure we're using POST
-            response = requests.post(
-                f"{self.base_url}/v1/chat/completions",
-                headers=headers,
-                json=request_data,
-                timeout=self.config.timeout
-            )
-            
-            # Debug response
-            logger.debug(f"Status code: {response.status_code}")
-            logger.debug(f"Response headers: {dict(response.headers)}")
-            logger.debug(f"Response body: {response.text[:200]}...")
-            
-            # Check for API key errors specifically
-            if response.status_code == 401:
-                error_msg = f"API key invalid or unauthorized. Status code: {response.status_code}, Response: {response.text}"
-                logger.error(error_msg)
-                raise NonRetryableError(error_msg)
-            
-            # Check for other errors
-            response.raise_for_status()
-            
-            # Parse the response
-            response_data = response.json()
-            
-            # Extract text response
-            response_text = response_data["choices"][0]["message"]["content"]
-            
-            # Return response in Qwen format
+
+            response = self.client.chat.completions.create(**request_data)
+
+            choices = _get(response, "choices", [])
+            first = choices[0] if choices else {}
+            msg = _get(first, "message", {})
+            text = _get(msg, "content", "")
+
+            usage = _get(response, "usage", None)
+            prompt_tokens = _get(usage, "prompt_tokens", 0) if usage else 0
+            completion_tokens = _get(usage, "completion_tokens", 0) if usage else 0
+            total_tokens = _get(usage, "total_tokens", prompt_tokens + completion_tokens) if usage else (prompt_tokens + completion_tokens)
+
             return {
-                "text": response_text,
+                "text": text,
                 "usage": {
-                    "prompt_tokens": response_data.get("usage", {}).get("prompt_tokens", 0),
-                    "completion_tokens": response_data.get("usage", {}).get("completion_tokens", 0),
-                    "total_tokens": response_data.get("usage", {}).get("total_tokens", 0)
+                    "prompt_tokens": prompt_tokens or 0,
+                    "completion_tokens": completion_tokens or 0,
+                    "total_tokens": total_tokens or 0,
                 },
-                "finish_reason": response_data["choices"][0].get("finish_reason", "unknown")
+                "finish_reason": _get(first, "finish_reason", "unknown"),
             }
-            
-        except requests.exceptions.HTTPError as e:
-            if hasattr(e, 'response') and e.response.status_code == 401:
-                error_msg = f"API key invalid or unauthorized: {e}"
-                logger.error(error_msg)
-                raise NonRetryableError(error_msg)
-            logger.error(f"HTTP error: {e}")
-            raise
         except Exception as e:
-            error_str = str(e)
-            # Check for API key related errors in the exception message
-            if "401" in error_str or "api_key" in error_str.lower() or "unauthorized" in error_str.lower():
-                error_msg = f"API key invalid or unauthorized: {error_str}"
-                logger.error(error_msg)
-                raise NonRetryableError(error_msg)
-                
-            logger.error(f"Together AI API error: {e}")
-            if 'response' in locals():
-                logger.error(f"Response status: {response.status_code}")
-                logger.error(f"Response body: {response.text}")
+            resp = getattr(e, "response", None)
+            status = getattr(resp, "status_code", None) or getattr(e, "status_code", None)
+            msg = str(e)
+            if status in (401, 403) or "401" in msg or "unauthorized" in msg.lower() or "api key" in msg.lower():
+                raise NonRetryableError(f"Together auth error: {msg}") from e
+            logger.error(f"Together API error: {e}")
             raise
     
     def format_prompt(self, messages: List[Dict[str, Any]]) -> str:

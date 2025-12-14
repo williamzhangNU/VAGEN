@@ -134,46 +134,13 @@ models:
     max_workers: 128
     timeout: 300
 
-  gpt-oss-20b:
+  Qwen3-VL-32B-Instruct:
     provider: together
-    model_name: openai/gpt-oss-20b
-    max_tokens: 8192
+    model_name: Qwen3-VL-32B-Instruct
+    max_tokens: 32768
     temperature: 0
-    max_workers: 16
-
-  gpt-oss-120b:
-    provider: together
-    model_name: openai/gpt-oss-120b
-    max_tokens: 8192
-    temperature: 0
-    max_workers: 8
-    timeout: 120
-
-  Qwen2.5-VL-72B-Instruct:
-    provider: openai
-    organization: self-hosted
-    model_name:  Qwen/Qwen2.5-VL-72B-Instruct
-    max_tokens: 8192
-    temperature: 0
-    max_workers: 10
-    base_url: https://api.revered.me/v1
-    timeout: 180
-
-  Qwen3-235B-A22B-Thinking-2507:
-    provider: together
-    model_name:  Qwen/Qwen3-235B-A22B-Thinking-2507
-    max_tokens: 8192
-    temperature: 0
-    max_workers: 161
+    max_workers: 32
     timeout: 300
-
-  Qwen3-235B-A22B-Instruct-2507-tput:
-    provider: together
-    model_name:  Qwen/Qwen3-235B-A22B-Instruct-2507-tput
-    max_tokens: 8192
-    temperature: 0
-    max_workers: 16
-    timeout: 180
 
   internvl3.5-241b-a28b:
     provider: openai

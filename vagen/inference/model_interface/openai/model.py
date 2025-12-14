@@ -37,9 +37,9 @@ class OpenAIModelInterface(BaseModelInterface):
             api_key = config.api_key or os.getenv("OPENAI_API_KEY")
         self.client = OpenAI(
             api_key=api_key,
-            organization=config.organization,
             base_url=config.base_url,
             max_retries=config.max_retries_api if hasattr(config, 'max_retries_api') else 2,
+            timeout=config.timeout,
         )
         
         # Thread pool for batch processing
@@ -176,7 +176,6 @@ class OpenAIModelInterface(BaseModelInterface):
             "model": self.config.model_name,
             "messages": messages,
             "temperature": kwargs.get("temperature", self.config.temperature),
-            "timeout": kwargs.get("timeout", self.config.timeout),
         }
         if self.config.model_name.startswith("o") or 'gpt-5' in self.config.model_name:
             msg_kwargs["max_completion_tokens"] = kwargs.get("max_completion_tokens", self.config.max_completion_tokens)
@@ -192,7 +191,6 @@ class OpenAIModelInterface(BaseModelInterface):
             msg_kwargs = self._prepare_api_payload(messages, **kwargs)
             tmp = deepcopy(msg_kwargs)
             tmp.pop('messages')
-            logger.warning(f'[DEBUG] msg_kwargs: {tmp}')
 
             response = self.client.chat.completions.create(**msg_kwargs)
             # print(f'[DEBUG] Response: {response}')

@@ -79,6 +79,13 @@ def setup_wandb(model_name: str, wandb_path_name: str, model_config: Dict, infer
 def main():
     """Main entry point for inference."""
     args = parse_args()
+
+    # Stream prints when piping (e.g., "2>&1 | tee ...")
+    try:
+        sys.stdout.reconfigure(line_buffering=True)
+        sys.stderr.reconfigure(line_buffering=True)
+    except Exception:
+        pass
     
     # Load configurations
     inference_config = load_yaml_config(args.inference_config_path)

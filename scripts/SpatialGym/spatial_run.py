@@ -282,7 +282,7 @@ def _stream_process_output(proc: subprocess.Popen, prefix: str = "server") -> No
 
 def start_env_server(host: str, port: int) -> subprocess.Popen:
     cmd = [
-        sys.executable, "-m", "vagen.server.server",
+        sys.executable, "-u", "-m", "vagen.server.server",
         f"server.host={host}",
         f"server.port={port}",
         "use_state_reward=false",
@@ -464,7 +464,7 @@ def run_exploration_phase(args, seed_opts, server_url: str | None,
             # Create dataset
             print(f"Creating dataset for {exp_type} exploration...")
             rc = run_cmd([
-                sys.executable, "-m", "vagen.env.create_dataset",
+                sys.executable, "-u", "-m", "vagen.env.create_dataset",
                 "--yaml_path", str(tmp_paths["env"]),
                 "--train_path", data_train,
                 "--test_path", data_test,
@@ -478,7 +478,7 @@ def run_exploration_phase(args, seed_opts, server_url: str | None,
             val_path = data_test
             wandb_path_name = "spatial_gym"
             cmd = [
-                sys.executable, "-m", "vagen.inference.run_inference",
+                sys.executable, "-u", "-m", "vagen.inference.run_inference",
                 f"--inference_config_path={tmp_paths['infer']}",
                 f"--model_config_path={tmp_paths['model']}",
                 f"--val_files_path={val_path}",
@@ -606,6 +606,13 @@ def run_aggregation_phase(args):
 
 def main():
     args = parse_args()
+
+    # Stream prints when piping (e.g., "2>&1 | tee ...")
+    try:
+        sys.stdout.reconfigure(line_buffering=True)
+        sys.stderr.reconfigure(line_buffering=True)
+    except Exception:
+        pass
     
     # Environment variables
     os.environ.setdefault("VLLM_ATTENTION_BACKEND", "XFORMERS")
