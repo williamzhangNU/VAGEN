@@ -91,7 +91,7 @@ def build_evaluation_from_combo(
     """
     messages, _turn_logs, sample_cfg = _load_exploration_artifacts(combo_dir)
 
-    base_msgs = [m.copy() for m in messages]
+    base_msgs = copy.deepcopy(messages)
 
     # Load history manager with eval_override flag
     hm = load_history_manager(combo_dir, eval_override=eval_override, all_tasks=list(eval_task_counts.keys()))
@@ -142,7 +142,7 @@ def build_evaluation_from_combo(
             assert task.eval_data.id not in existing_id_for_task, f"Failed to generate unique question for {task_short} in {combo_dir}"
             existing_id_for_task.append(task.eval_data.id)
             assert base_msgs[-1]["role"] == "user"
-            new_list = [m.copy() for m in base_msgs]
+            new_list = copy.deepcopy(base_msgs)
             new_list[-1]['content'] = new_list[-1]['content'] + "\n" + q_text + "\n\n" + _evaluation_format_footer(enable_think)
             if is_vision_question:
                 if "images" not in new_list[-1]:
@@ -153,8 +153,7 @@ def build_evaluation_from_combo(
                     if tuple(map(int, pos)) == tuple(map(int, task.eval_data.answer['final_pos'])):
                         object_name = name
                         break
-                assert object_name is not None, f"Could not find object at position {task.eval_data.answer['final_pos']} for vision question in {combo_dir}"
-                new_list[-1]["images"] += [image_handler.get_image_path(object_name, task.eval_data.answer.get('final_ori'))]
+                new_list[-1]["images"] += [image_handler.get_image_path(object_name or task.eval_data.answer['final_pos'], task.eval_data.answer.get('final_ori'))]
             meta_obj = {
                 "type": "evaluation",
                 "task_type": task_short,
