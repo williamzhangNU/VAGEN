@@ -94,7 +94,7 @@ python scripts/SpatialGym/spatial_run.py \
   --inference-mode batch \
   --render-mode vision 2>&1 | tee logs/cogmap_gpt-5.2.log
 
-# false-belief-exp (after exploration)
+# false-belief-exp (after exploration, text only)
 python scripts/SpatialGym/spatial_run.py \
   --phase explore \
   --model-name gpt-5.2 \
@@ -103,7 +103,7 @@ python scripts/SpatialGym/spatial_run.py \
   --data-dir vagen/env/spatial/room_data_3_room/  \
   --output-root results_arxiv/ \
   --data-dir vagen/env/spatial/room_data_3_room/ \
-  --render-mode vision \
+  --render-mode text \
   --false-belief-exp 2>&1 | tee logs/fb-exp_gpt-5.2.log
 ```
 
