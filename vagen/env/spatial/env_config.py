@@ -27,7 +27,7 @@ class SpatialGymConfig(BaseEnvConfig):
     max_actions_per_step: int = field(default=1, init=False)    
     prompt_format: str = field(default="free_think", init=False)
     action_sep: str = field(default="|", init=False)
-    image_size: Tuple[int, int] = field(default=(300, 300), init=False)
+    image_size: Tuple[int, int] = field(default=(384, 384), init=False)
     
     # Environment specific configuration
     name: str = 'unnamed_env'
