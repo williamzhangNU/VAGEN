@@ -19,7 +19,7 @@ from vagen.env.spatial.Base.tos_base.utils.room_utils import initialize_room_fro
 from vagen.env.spatial.Base.tos_base.utils.env_logger import EnvTurnLog, FBLog
 from vagen.env.spatial.Base.tos_base.utils.utils import parse_llm_response
 from vagen.env.spatial.Base.tos_base.utils.image_handler import ImageHandler
-from vagen.env.spatial.Base.tos_base.actions.actions import ForcedTermAction, ActionSequence, ACTION_CLASSES, TermAction, FalseBeliefTermAction
+from vagen.env.spatial.Base.tos_base.actions.actions import ForcedTermAction, ActionSequence
 from vagen.env.spatial.Base.tos_base.prompts.false_belief_prompts import FALSE_BELIEF_INSTRUCTION
 from vagen.env.spatial.Base.tos_base.utils.room_modifier import ObjectModifier
 from vagen.env.spatial.Base.tos_base.actions.actions import configure_actions
@@ -32,6 +32,8 @@ class SpatialGym(gym.Env):
         super().__init__()
         self.config = config
         self.prompter: PromptManager = None
+        # Per-env action registry (do NOT rely on global mutable registries).
+        self.action_classes = configure_actions('exploration')
 
         self.is_exploration_phase = None
         self.remaining_exp_steps = None
@@ -105,8 +107,8 @@ class SpatialGym(gym.Env):
         super().reset(seed=seed)
         self.current_seed = seed
         
-        # Configure actions for exploration mode
-        configure_actions('exploration')
+        # Configure actions for exploration mode (per-env; no global mutation)
+        self.action_classes = configure_actions('exploration')
 
         # Reset false belief phase state
         self.in_false_belief_phase = False
@@ -294,7 +296,7 @@ class SpatialGym(gym.Env):
         agent_state = None
         self.remaining_exp_steps -= 1
 
-        action_sequence = ActionSequence.parse(action)
+        action_sequence = ActionSequence.parse(action, action_classes=self.action_classes)
         if self.remaining_exp_steps < 0:
             action_sequence = ActionSequence(motion_actions=[], final_action=ForcedTermAction())
 
@@ -402,8 +404,8 @@ class SpatialGym(gym.Env):
         # Update room dict to modified one for saving
         self.history_manager.room_dict = self.modified_room.to_dict()
         
-        # Configure actions for false belief mode
-        configure_actions('false_belief')
+        # Configure actions for false belief mode (per-env; no global mutation)
+        self.action_classes = configure_actions('false_belief')
         
         # Generate False Belief prompt
         prompt = FALSE_BELIEF_INSTRUCTION.format(

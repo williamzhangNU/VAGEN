@@ -78,10 +78,11 @@ python scripts/SpatialGym/spatial_run.py \
   --model-name gpt-5.2 \
   --exp-type active \
   --num 5 \
-  --output-root results_arxiv/ \
+  --output-root results_debug/ \
   --data-dir vagen/env/spatial/room_data_3_room/  \
-  --inference-mode batch \
-  --render-mode vision 2>&1 | tee logs/active_vision_eval_gpt-5.2.log
+  --inference-mode direct \
+  --tasks dir rot pov e2a bwd_nav_text bwd_loc_text \
+  --render-mode text 2>&1 | tee logs/active_text_eval_gpt-5.2.log
 
 # cogmap (after exploration)
 python scripts/SpatialGym/spatial_run.py \
@@ -101,8 +102,7 @@ python scripts/SpatialGym/spatial_run.py \
   --exp-type active \
   --num 5 \
   --data-dir vagen/env/spatial/room_data_3_room/  \
-  --output-root results_arxiv/ \
-  --data-dir vagen/env/spatial/room_data_3_room/ \
+  --output-root results_debug/ \
   --render-mode text \
   --false-belief-exp 2>&1 | tee logs/fb-exp_gpt-5.2.log
 ```
