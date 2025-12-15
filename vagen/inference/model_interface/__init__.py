@@ -2,7 +2,6 @@ from .vllm import VLLMModelInterface, VLLMModelConfig
 from .openai import OpenAIModelInterface, OpenAIModelConfig
 from .azure_openai import AzureOpenAIModelInterface, AzureOpenAIModelConfig
 from .claude import ClaudeModelInterface, ClaudeModelConfig
-from .gemini import GeminiModelInterface, GeminiModelConfig
 # from .routerapi import RouterAPIModelInterface, RouterAPIModelConfig
 from .together import TogetherModelInterface, TogetherModelConfig
 
@@ -22,10 +21,6 @@ REGISTERED_MODEL = {
     "anthropic": {
         "model_cls": ClaudeModelInterface,
         "config_cls": ClaudeModelConfig
-    },
-    "gemini": {
-        "model_cls": GeminiModelInterface,
-        "config_cls": GeminiModelConfig
     },
     # "routerapi": {
     #     "model_cls": RouterAPIModelInterface,

@@ -5,6 +5,9 @@ from typing import List, Dict, Any
 from abc import ABC, abstractmethod
 import requests
 
+from google import genai  # type: ignore
+from google.genai import types  # type: ignore
+
 from vagen.inference.model_interface.openai.model import OpenAIModelInterface
 from vagen.inference.model_interface.openai.model_config import OpenAIModelConfig
 from vagen.inference.model_interface.claude.model import ClaudeModelInterface
@@ -35,13 +38,33 @@ class BaseBatchProcessor(ABC):
                 f.write(json.dumps(line, ensure_ascii=False) + "\n")
 
 class OpenAIBatchProcessor(BaseBatchProcessor):
-    """Batch processor for OpenAI and compatible models (e.g. Gemini)."""
+    """Batch processor for OpenAI and compatible models (e.g. Gemini).
+
+    Notes for Gemini (OpenAI compatibility layer):
+    - Batch creation/status uses the OpenAI SDK pointed at Gemini's OpenAI-compatible base_url.
+    - File upload/download for batch input/output must use the Google `genai` SDK.
+      See: https://ai.google.dev/gemini-api/docs/openai
+    """
     
     def __init__(self, model_config: dict):
         super().__init__(model_config)
         self.cfg = OpenAIModelConfig(**model_config)
         self.interface = OpenAIModelInterface(self.cfg)
         self.client = self.interface.client
+        self.is_gemini = (
+            (self.cfg.organization or "").lower() == "google"
+            or ("generativelanguage.googleapis.com" in (self.cfg.base_url or ""))
+        )
+
+        # Gemini OpenAI compatibility does not support OpenAI SDK file upload/download.
+        # Use the Google GenAI SDK for those operations.
+        self._genai_client = None
+        self._genai_types = None
+        if self.is_gemini:
+
+            api_key = self.cfg.api_key or os.getenv("GOOGLE_API_KEY")
+            self._genai_client = genai.Client(api_key=api_key) 
+            self._genai_types = types
 
     def submit(self, messages_list, metas, jsonl_path) -> str:
         lines = []
@@ -58,9 +81,27 @@ class OpenAIBatchProcessor(BaseBatchProcessor):
             })
         self._save_jsonl(lines, jsonl_path)
 
-        batch_input = self.client.files.create(file=open(jsonl_path, "rb"), purpose="batch")
+        # Upload batch input file
+        if self.is_gemini:
+            assert self._genai_client is not None and self._genai_types is not None
+            display_name = os.path.splitext(os.path.basename(jsonl_path))[0] or "batch_requests"
+            uploaded_file = self._genai_client.files.upload(
+                file=jsonl_path,
+                config=self._genai_types.UploadFileConfig(
+                    display_name=display_name,
+                    mime_type="application/jsonl",
+                ),
+            )
+            input_file_id = getattr(uploaded_file, "name", None) or getattr(uploaded_file, "id", None)
+            if not input_file_id:
+                raise RuntimeError(f"Gemini file upload returned no file id: {uploaded_file!r}")
+        else:
+            with open(jsonl_path, "rb") as f:
+                batch_input = self.client.files.create(file=f, purpose="batch")
+            input_file_id = batch_input.id
+
         batch = self.client.batches.create(
-            input_file_id=batch_input.id,
+            input_file_id=input_file_id,
             endpoint="/v1/chat/completions",
             completion_window="24h",
         )
@@ -71,7 +112,7 @@ class OpenAIBatchProcessor(BaseBatchProcessor):
         loop_wait_time = 60 # seconds
         while True:
             b = self.client.batches.retrieve(batch_id)
-            if b.status in ("failed", "canceled"):
+            if b.status in ("failed", "canceled", "cancelled"):
                 raise RuntimeError(f"Batch {batch_id} status={b.status} reason={b.errors}")
             if b.status in ("completed", "expired"):
                 print(f"Batch {batch_id} status: {b.status}", flush=True)
@@ -85,6 +126,19 @@ class OpenAIBatchProcessor(BaseBatchProcessor):
             return []
 
         def _file_text(file_id: str) -> str:
+            if self.is_gemini:
+                assert self._genai_client is not None
+                data = self._genai_client.files.download(file=file_id)
+                if isinstance(data, bytes):
+                    return data.decode("utf-8")
+                if hasattr(data, "decode"):
+                    return data.decode("utf-8")
+                if isinstance(data, str):
+                    return data
+                if hasattr(data, "read"):
+                    return data.read().decode("utf-8")
+                return str(data)
+
             content = self.client.files.content(file_id)
             text = getattr(content, "text", None) or getattr(content, "content", None)
             if hasattr(text, "decode"):

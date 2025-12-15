@@ -4,8 +4,6 @@ import time
 from typing import List, Dict, Tuple, Any
 import argparse
 
-from openai import OpenAI
-
 from vagen.env.spatial.Base.tos_base.managers.cognitive_map_manager import CognitiveMapManager
 from vagen.env.spatial.Base.tos_base.utils.cog_utils import _evaluate_cogmaps
 from vagen.env.spatial.Base.tos_base.evaluation.tasks import evaluate_from_dict

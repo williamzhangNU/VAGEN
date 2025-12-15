@@ -25,8 +25,8 @@ eval_task_counts:
   rot_dual: 3
   fwd_loc: 3
   bwd_loc_text: 3
-  bwd_loc_vision: 3
-
+  # bwd_loc_vision: 3
+  
   # bwd_nav_rev: 3
   # false_belief: 1
   # dir_anchor: 1

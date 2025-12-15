@@ -29,8 +29,6 @@ class OpenAIModelInterface(BaseModelInterface):
             api_key = config.api_key or os.getenv("INTERN_API_KEY")
         elif config.organization == "google":
             api_key = config.api_key or os.getenv("GOOGLE_API_KEY")
-        elif config.organization == "google-2":
-            api_key = config.api_key or os.getenv("GOOGLE_API_KEY_2")
         elif config.organization == "self-hosted":
             api_key = config.api_key or os.getenv("SELF_HOSTED_API_KEY")
         else:

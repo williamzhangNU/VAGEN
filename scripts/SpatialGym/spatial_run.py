@@ -109,7 +109,7 @@ def parse_args():
     # Inference parameters
     p.add_argument("--inference-mode", type=str, dest="inference_mode", 
                    choices=['batch', 'direct'], default='direct',
-                   help="Inference mode: batch (OpenAI batch API) or direct. Default: direct")
+                   help="Inference mode: batch (OpenAI/Gemini batch API) or direct. Default: direct")
     
     # Server options
     p.add_argument("--no-server", action="store_true", dest="no_server", 
