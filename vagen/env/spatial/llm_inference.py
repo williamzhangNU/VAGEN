@@ -368,12 +368,9 @@ def run_inference_for_combo_dirs(
     # Run inference
     if inference_mode == "batch":
         processor = get_batch_processor(model_config)
-        import tempfile
-        with tempfile.TemporaryDirectory() as tmpdir:
-            batch_jsonl = os.path.join(tmpdir, "batch_input.jsonl")
-            batch_id = processor.submit(all_msgs, all_meta, batch_jsonl)
-            print(f"Submitted batch: {batch_id}, Messages: {len(all_msgs)}", flush=True)
-            outputs = processor.retrieve(batch_id)
+        batch_ids = processor.submit(all_msgs, all_meta)
+        print(f"Submitted batch: {batch_ids}, Messages: {len(all_msgs)}", flush=True)
+        outputs = processor.retrieve(batch_ids)
     else:
         outputs = generate_with_model_interface(model_config, all_msgs, all_meta)
     
@@ -447,13 +444,10 @@ def main_infer() -> None:
         # But BatchProcessor expects a dict.
         model_config = {"model_name": args.model_name}
         processor = get_batch_processor(model_config)
-        
-        batch_jsonl = os.path.join(built_dir, "batch_input.jsonl")
-        os.makedirs(os.path.dirname(batch_jsonl) or ".", exist_ok=True)
-        
-        batch_id = processor.submit(all_msgs, metas_with_ids, batch_jsonl)
-        print(f"Submitted batch: {batch_id}")
-        outputs = processor.retrieve(batch_id)
+ 
+        batch_ids = processor.submit(all_msgs, metas_with_ids)
+        print(f"Submitted batch: {batch_ids}")
+        outputs = processor.retrieve(batch_ids)
     else:
         model_config = {"model_name": args.model_name}
         outputs = generate_with_model_interface(model_config, all_msgs, metas_with_ids)

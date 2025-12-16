@@ -21,12 +21,12 @@ class BaseBatchProcessor(ABC):
         self.model_name = model_config.get("model_name", "")
 
     @abstractmethod
-    def submit(self, messages_list: List[List[Dict[str, Any]]], metas: List[Dict[str, Any]], jsonl_path: str) -> str:
-        """Submit batch job and return batch_id."""
+    def submit(self, messages_list: List[List[Dict[str, Any]]], metas: List[Dict[str, Any]]) -> List[str]:
+        """Submit batch job and return list of batch_ids."""
         pass
 
     @abstractmethod
-    def retrieve(self, batch_id: str) -> List[Dict[str, Any]]:
+    def retrieve(self, batch_ids: List[str]) -> List[Dict[str, Any]]:
         """Retrieve batch results."""
         pass
     
@@ -66,20 +66,65 @@ class OpenAIBatchProcessor(BaseBatchProcessor):
             self._genai_client = genai.Client(api_key=api_key) 
             self._genai_types = types
 
-    def submit(self, messages_list, metas, jsonl_path) -> str:
+    def submit(self, messages_list, metas) -> List[str]:
+        # OpenAI batch file size limit: 200MB
+        MAX_FILE_SIZE_MB = 190  # Use 190MB to leave some buffer
+        MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
+        
+        # Generate base path for batch files
+        import tempfile
+        from datetime import datetime
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        temp_dir = tempfile.gettempdir()
+        base_name = f"batch_requests_{timestamp}"
+        
         lines = []
         for i, msgs in enumerate(messages_list):
             mid = (metas[i] or {}).get("message_id", f"req_{i}")
-            
             body = self.interface._prepare_api_payload(msgs)
-
             lines.append({
                 "custom_id": str(mid),
                 "method": "POST",
                 "url": "/v1/chat/completions",
                 "body": body,
             })
-        self._save_jsonl(lines, jsonl_path)
+        
+        # Split into batches based on file size
+        batch_ids = []
+        current_batch = []
+        current_size = 0
+        batch_num = 0
+        
+        for line in lines:
+            line_str = json.dumps(line, ensure_ascii=False) + "\n"
+            line_size = len(line_str.encode('utf-8'))
+            
+            if current_size + line_size > MAX_FILE_SIZE_BYTES and current_batch:
+                batch_num += 1
+                batch_path = os.path.join(temp_dir, f"{base_name}_part{batch_num}.jsonl")
+                self._save_jsonl(current_batch, batch_path)
+                batch_id = self._submit_single_file(batch_path)
+                batch_ids.append(batch_id)
+                print(f"Submitted batch {batch_num} with {len(current_batch)} requests, batch_id: {batch_id}", flush=True)
+                current_batch = []
+                current_size = 0
+            
+            current_batch.append(line)
+            current_size += line_size
+        
+        if current_batch:
+            batch_num += 1
+            suffix = "" if batch_num == 1 else f"_part{batch_num}"
+            batch_path = os.path.join(temp_dir, f"{base_name}{suffix}.jsonl")
+            self._save_jsonl(current_batch, batch_path)
+            batch_id = self._submit_single_file(batch_path)
+            batch_ids.append(batch_id)
+            print(f"Submitted batch {batch_num} with {len(current_batch)} requests, batch_id: {batch_id}", flush=True)
+        
+        return batch_ids
+    
+    def _submit_single_file(self, jsonl_path: str) -> str:
+        """Submit a single batch file."""
 
         # Upload batch input file
         if self.is_gemini:
@@ -107,9 +152,25 @@ class OpenAIBatchProcessor(BaseBatchProcessor):
         )
         return batch.id
 
-    def retrieve(self, batch_id: str) -> List[Dict[str, Any]]:
-        total_wait_time = 0 # minutes
-        loop_wait_time = 60 # seconds
+    def retrieve(self, batch_ids: List[str]) -> List[Dict[str, Any]]:
+        if isinstance(batch_ids, str):
+            batch_ids = [batch_ids]
+        
+        # Wait for all batches to complete first
+        for batch_id in batch_ids:
+            self._wait_for_batch_completion(batch_id)
+        
+        # Then retrieve all results
+        all_results = []
+        for batch_id in batch_ids:
+            print(f"Retrieving results for batch {batch_id}...", flush=True)
+            all_results.extend(self._retrieve_batch_results(batch_id))
+        return all_results
+    
+    def _wait_for_batch_completion(self, batch_id: str) -> None:
+        """Wait for a single batch to complete."""
+        total_wait_time = 0  # minutes
+        loop_wait_time = 300  # seconds
         while True:
             b = self.client.batches.retrieve(batch_id)
             if b.status in ("failed", "canceled", "cancelled"):
@@ -117,10 +178,13 @@ class OpenAIBatchProcessor(BaseBatchProcessor):
             if b.status in ("completed", "expired"):
                 print(f"Batch {batch_id} status: {b.status}", flush=True)
                 break
-            print(f"Waiting another {loop_wait_time} seconds for batch to complete, Total wait time: {total_wait_time:.2f} minutes...", flush=True)
-            time.sleep(loop_wait_time)
+            print(f"Batch {batch_id}: Waiting another {loop_wait_time} seconds, Total wait time: {total_wait_time:.2f} minutes...", flush=True)
+            time.sleep(loop_wait_time) 
             total_wait_time += loop_wait_time / 60.0
-
+    
+    def _retrieve_batch_results(self, batch_id: str) -> List[Dict[str, Any]]:
+        """Retrieve results from a completed batch."""
+        b = self.client.batches.retrieve(batch_id)
         error_file_id = getattr(b, "error_file_id", None)
         if not b.output_file_id and not error_file_id:
             return []
@@ -176,7 +240,14 @@ class ClaudeBatchProcessor(BaseBatchProcessor):
         self.interface = ClaudeModelInterface(self.cfg)
         self.client = self.interface.client
 
-    def submit(self, messages_list, metas, jsonl_path) -> str:
+    def submit(self, messages_list, metas) -> List[str]:
+        # Generate path for batch file
+        import tempfile
+        from datetime import datetime
+        timestamp = datetime.now().strftime("%%Y%m%d_%H%M%S")
+        temp_dir = tempfile.gettempdir()
+        jsonl_path = os.path.join(temp_dir, f"batch_requests_{timestamp}.jsonl")
+        
         requests_data = []
         for i, msgs in enumerate(messages_list):
             mid = (metas[i] or {}).get("message_id", f"req_{i}")
@@ -190,18 +261,38 @@ class ClaudeBatchProcessor(BaseBatchProcessor):
         
         self._save_jsonl(requests_data, jsonl_path)
         batch = self.client.messages.batches.create(requests=requests_data)
-        return batch.id
+        return [batch.id]
 
-    def retrieve(self, batch_id: str) -> List[Dict[str, Any]]:
-        total_wait_time = 0 # minutes
-        loop_wait_time = 60 # seconds
+    def retrieve(self, batch_ids: List[str]) -> List[Dict[str, Any]]:
+        if isinstance(batch_ids, str):
+            batch_ids = [batch_ids]
+        
+        # Wait for all batches to complete first
+        for batch_id in batch_ids:
+            self._wait_for_batch_completion(batch_id)
+        
+        # Then retrieve all results
+        all_results = []
+        for batch_id in batch_ids:
+            all_results.extend(self._retrieve_batch_results(batch_id))
+        return all_results
+    
+    def _wait_for_batch_completion(self, batch_id: str) -> None:
+        """Wait for a single batch to complete."""
+        total_wait_time = 0  # minutes
+        loop_wait_time = 60  # seconds
         while True:
             b = self.client.messages.batches.retrieve(batch_id)
             if b.processing_status == "ended":
+                print(f"Batch {batch_id} completed", flush=True)
                 break
-            print(f"Waiting another {loop_wait_time} seconds for batch to complete, Total wait time: {total_wait_time:.2f} minutes...", flush=True)
+            print(f"Batch {batch_id}: Waiting another {loop_wait_time} seconds, Total wait time: {total_wait_time:.2f} minutes...", flush=True)
             time.sleep(loop_wait_time)
             total_wait_time += loop_wait_time / 60.0
+    
+    def _retrieve_batch_results(self, batch_id: str) -> List[Dict[str, Any]]:
+        """Retrieve results from a completed batch."""
+        b = self.client.messages.batches.retrieve(batch_id)
         
         headers = {"x-api-key": self.client.api_key, "anthropic-version": "2023-06-01"}
         results_url = getattr(b, "results_url", None)

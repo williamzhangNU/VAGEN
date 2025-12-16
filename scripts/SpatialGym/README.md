@@ -45,11 +45,10 @@ python spatial_run.py --phase reeval --seed-range 0-24
 
 # Run aggregation only
 python spatial_run.py --phase aggregate
-```
 
 ### Commands to reproduce the results
 ```bash
-# passive
+# passive vision
 python scripts/SpatialGym/spatial_run.py \
   --phase all \
   --model-name gpt-5.2 \
@@ -61,7 +60,7 @@ python scripts/SpatialGym/spatial_run.py \
   --render-mode vision \
   --proxy-agent scout 2>&1 | tee logs/passive_vision_gpt-5.2.log
 
-# active vision (exploration only)
+# active vision
 python scripts/SpatialGym/spatial_run.py \
   --phase explore \
   --model-name gpt-5.2 \
@@ -69,20 +68,9 @@ python scripts/SpatialGym/spatial_run.py \
   --num 5 \
   --output-root results_arxiv/ \
   --data-dir vagen/env/spatial/room_data_3_room/  \
-  --inference-mode direct \
-  --render-mode vision 2>&1 | tee logs/active_vision_explore_gpt-5.2.log
-
-# eval (after exploration)
-python scripts/SpatialGym/spatial_run.py \
-  --phase eval \
-  --model-name gpt-5.2 \
-  --exp-type active \
-  --num 5 \
-  --output-root results_debug/ \
-  --data-dir vagen/env/spatial/room_data_3_room/  \
-  --inference-mode direct \
-  --tasks dir rot pov e2a bwd_nav_text bwd_loc_text \
-  --render-mode text 2>&1 | tee logs/active_text_eval_gpt-5.2.log
+  --inference-mode batch \
+  --render-mode vision \
+  --proxy-agent scout 2>&1 | tee logs/active_vision_gpt-5.2.log
 
 # cogmap (after exploration)
 python scripts/SpatialGym/spatial_run.py \
@@ -93,18 +81,20 @@ python scripts/SpatialGym/spatial_run.py \
   --output-root results_arxiv/ \
   --data-dir vagen/env/spatial/room_data_3_room/  \
   --inference-mode batch \
-  --render-mode vision 2>&1 | tee logs/cogmap_gpt-5.2.log
+  --render-mode vision \
+  --proxy-agent scout 2>&1 | tee logs/cogmap_gpt-5.2.log
 
-# false-belief-exp (after exploration, text only)
+# false-belief-exp (after exploration)
 python scripts/SpatialGym/spatial_run.py \
   --phase explore \
   --model-name gpt-5.2 \
   --exp-type active \
   --num 5 \
   --data-dir vagen/env/spatial/room_data_3_room/  \
-  --output-root results_debug/ \
-  --render-mode text \
-  --false-belief-exp 2>&1 | tee logs/fb-exp_gpt-5.2.log
+  --output-root results_arxiv/ \
+  --render-mode vision \
+  --false-belief-exp \
+  --proxy-agent scout 2>&1 | tee logs/fb-exp_gpt-5.2.log
 ```
 
 

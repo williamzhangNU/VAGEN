@@ -259,7 +259,7 @@ class SpatialGym(gym.Env):
         self._save_turn_log(current_obs, llm_response, think_content, action,
                            None, room_state, agent_state, reward, info,
                            is_exploration=False, is_last_exp=done, false_belief_log=fb_log)
-        
+        self.observed_image_paths = []
         return obs, reward, done, info
 
     def _evaluate_changes(self, reported: List[Any], ground_truth: List[Any]) -> float:
@@ -386,7 +386,7 @@ class SpatialGym(gym.Env):
         
         # Modify room - move n objects (1-3)
         n_changes = self.np_random.integers(1, 4)
-        modifier = ObjectModifier(seed=self.current_seed, n_changes=n_changes)
+        modifier = ObjectModifier(seed=self.current_seed, n_changes=n_changes, agent_pos=self.agent.init_pos)
         self.modified_room, self.ground_truth_changes = modifier.modify(self.initial_room)
         
         # Switch exploration manager to use modified room
