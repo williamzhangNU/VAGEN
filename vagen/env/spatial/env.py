@@ -304,6 +304,10 @@ class SpatialGym(gym.Env):
             is_valid = bool(action) and bool(action_sequence)
 
         if not is_valid:
+            obs_str += self.prompter.invalid_action_message() + "\n"
+            info["is_valid_action"] = False
+            reward -= 0.5
+        else:
             action_results = self.exploration_manager.execute_action_sequence(action_sequence)
             for res in action_results:
                 if res.data and 'reported_changes' in res.data:
