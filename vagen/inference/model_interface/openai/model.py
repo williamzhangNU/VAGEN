@@ -25,14 +25,18 @@ class OpenAIModelInterface(BaseModelInterface):
         self.config = config
         
         # Initialize OpenAI client
-        if config.organization == "intern":
+        org = (config.organization or "").lower()
+        if org == "intern":
             api_key = config.api_key or os.getenv("INTERN_API_KEY")
-        elif config.organization == "google":
+        elif org == "google":
             api_key = config.api_key or os.getenv("GOOGLE_API_KEY")
-        elif config.organization == "self-hosted":
+        elif org == "self-hosted":
             api_key = config.api_key or os.getenv("SELF_HOSTED_API_KEY")
+        elif org == "openrouter":
+            api_key = config.api_key or os.getenv("OPENROUTER_API_KEY")
         else:
             api_key = config.api_key or os.getenv("OPENAI_API_KEY")
+
         self.client = OpenAI(
             api_key=api_key,
             base_url=config.base_url,
@@ -171,7 +175,7 @@ class OpenAIModelInterface(BaseModelInterface):
     def _prepare_request_kwargs(self, messages: List[Dict], **kwargs) -> Dict[str, Any]:
         """Prepare arguments for OpenAI API call."""
         msg_kwargs = {
-            "model": self.config.model_name,
+            "model": self.config.model_name if 'glm' not in self.config.model_name else 'z-ai/'+self.config.model_name,
             "messages": messages,
             "temperature": kwargs.get("temperature", self.config.temperature),
         }

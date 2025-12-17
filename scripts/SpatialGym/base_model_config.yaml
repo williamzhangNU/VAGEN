@@ -170,3 +170,15 @@ models:
     max_workers: 32
     max_retries: 5
     timeout: 300
+
+  glm-4.6v:
+    provider: openai
+    organization: openrouter
+    model_name: glm-4.6v
+    max_tokens: 32768
+    temperature: 0.0
+    max_workers: 32
+    base_url: https://openrouter.ai/api/v1
+    timeout: 300
+    max_retries: 5
+    max_retries_api: 5
