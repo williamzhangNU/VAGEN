@@ -241,27 +241,64 @@ class ClaudeBatchProcessor(BaseBatchProcessor):
         self.client = self.interface.client
 
     def submit(self, messages_list, metas) -> List[str]:
-        # Generate path for batch file
+        # Claude batch file size limit: 256MB
+        MAX_FILE_SIZE_MB = 250  # Use 250MB to leave some buffer
+        MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
+        
+        # Generate base path for batch files
         import tempfile
         from datetime import datetime
-        timestamp = datetime.now().strftime("%%Y%m%d_%H%M%S")
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         temp_dir = tempfile.gettempdir()
-        jsonl_path = os.path.join(temp_dir, f"batch_requests_{timestamp}.jsonl")
+        base_name = f"batch_requests_{timestamp}"
         
-        requests_data = []
+        lines = []
         for i, msgs in enumerate(messages_list):
             mid = (metas[i] or {}).get("message_id", f"req_{i}")
-            
             params = self.interface._prepare_api_payload(msgs)
-            
-            requests_data.append({
+            lines.append({
                 "custom_id": str(mid),
                 "params": params
             })
         
-        self._save_jsonl(requests_data, jsonl_path)
+        # Split into batches based on file size
+        batch_ids = []
+        current_batch = []
+        current_size = 0
+        batch_num = 0
+        
+        for line in lines:
+            line_str = json.dumps(line, ensure_ascii=False) + "\n"
+            line_size = len(line_str.encode('utf-8'))
+            
+            if current_size + line_size > MAX_FILE_SIZE_BYTES and current_batch:
+                batch_num += 1
+                batch_path = os.path.join(temp_dir, f"{base_name}_part{batch_num}.jsonl")
+                self._save_jsonl(current_batch, batch_path)
+                batch_id = self._submit_single_file(current_batch)
+                batch_ids.append(batch_id)
+                print(f"Submitted batch {batch_num} with {len(current_batch)} requests, batch_id: {batch_id}", flush=True)
+                current_batch = []
+                current_size = 0
+            
+            current_batch.append(line)
+            current_size += line_size
+        
+        if current_batch:
+            batch_num += 1
+            suffix = "" if batch_num == 1 else f"_part{batch_num}"
+            batch_path = os.path.join(temp_dir, f"{base_name}{suffix}.jsonl")
+            self._save_jsonl(current_batch, batch_path)
+            batch_id = self._submit_single_file(current_batch)
+            batch_ids.append(batch_id)
+            print(f"Submitted batch {batch_num} with {len(current_batch)} requests, batch_id: {batch_id}", flush=True)
+        
+        return batch_ids
+    
+    def _submit_single_file(self, requests_data: List[Dict]) -> str:
+        """Submit a single batch file."""
         batch = self.client.messages.batches.create(requests=requests_data)
-        return [batch.id]
+        return batch.id
 
     def retrieve(self, batch_ids: List[str]) -> List[Dict[str, Any]]:
         if isinstance(batch_ids, str):
