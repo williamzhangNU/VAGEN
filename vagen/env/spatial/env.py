@@ -296,15 +296,14 @@ class SpatialGym(gym.Env):
         agent_state = None
         self.remaining_exp_steps -= 1
 
-        action_sequence = ActionSequence.parse(action, action_classes=self.action_classes)
         if self.remaining_exp_steps < 0:
             action_sequence = ActionSequence(motion_actions=[], final_action=ForcedTermAction())
-
-        if not action or not action_sequence:
-            obs_str += self.prompter.invalid_action_message() + "\n"
-            info['is_valid_action'] = False
-            reward += -0.5
+            is_valid = True
         else:
+            action_sequence = ActionSequence.parse(action, action_classes=self.action_classes)
+            is_valid = bool(action) and bool(action_sequence)
+
+        if not is_valid:
             action_results = self.exploration_manager.execute_action_sequence(action_sequence)
             for res in action_results:
                 if res.data and 'reported_changes' in res.data:
