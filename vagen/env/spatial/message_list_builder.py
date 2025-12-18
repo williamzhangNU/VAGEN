@@ -140,12 +140,6 @@ def build_evaluation_from_combo(
             while task.eval_data.id in existing_id_for_task and retry:
                 q_text = task.generate_question()
                 retry -= 1
-            if task.eval_data.id in existing_id_for_task: # for bwd when max match place less than 3 (bwd_pov)
-                force_retry = 5
-                while task.eval_data.id in existing_id_for_task and force_retry:
-                    setattr(task, "_force_shuffle_final_obs", True)
-                    q_text = task.generate_question()
-                    force_retry -= 1
             if task.eval_data.id in existing_id_for_task and len(existing_id_for_task) >= 2: # for bwd when max match place less than 3 (bwd_pov)
                 break
             assert task.eval_data.id not in existing_id_for_task, f"Failed to generate unique question for {task_short} in {combo_dir}"

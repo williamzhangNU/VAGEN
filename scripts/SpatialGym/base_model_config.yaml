@@ -131,7 +131,7 @@ models:
     budget_tokens: 30000
     thinking: true
     temperature: 1.0
-    max_workers: 128
+    max_workers: 32
     timeout: 300
 
   Qwen3-VL-32B-Instruct:

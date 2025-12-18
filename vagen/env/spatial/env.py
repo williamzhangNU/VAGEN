@@ -391,7 +391,7 @@ class SpatialGym(gym.Env):
         n_changes = self.np_random.integers(1, 4)
         modifier = ObjectModifier(seed=self.current_seed, n_changes=n_changes, agent_pos=self.agent.init_pos)
         self.modified_room, self.ground_truth_changes = modifier.modify(self.initial_room)
-        
+        self.image_handler.transition_to_false_belief()
         # Switch exploration manager to use modified room
         self.exploration_manager.exploration_room = self.modified_room
         
