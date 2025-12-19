@@ -15,8 +15,6 @@ from collections import defaultdict
 from vagen.inference.model_interface.factory_model import ModelFactory
 from vagen.rollout.inference_rollout.inference_rollout_service import InferenceRolloutService
 from vagen.inference.utils.logging import log_results_to_wandb
-from vagen.env.spatial.Base.tos_base.utils.env_logger import SpatialEnvLogger
-from vagen.env.spatial.Base.tos_base.utils.cog_utils import evaluate_cognitive_maps_from_turnlogs
 
 logger = logging.getLogger(__name__)
 dotenv.load_dotenv() 
@@ -132,25 +130,6 @@ def main():
             service.run(max_steps=inference_config.get('max_steps', 10))
             results = service.recording_to_log()
 
-            # save results to json and visualize (for spatial env)
-            # save_results_to_disk([result['env_summary'] for result in results], [result['messages'] for result in results], inference_config.get('output_dir', 'results/inference_outputs'), model_name=model_name)
-            # if inference_config.get('evaluate_cogmap'):
-            #     evaluate_cognitive_maps_from_turnlogs(
-            #         [result['env_summary'] for result in results], 
-            #         [result['messages'] for result in results], 
-            #         service.model_interface,
-            #         override_cogmap=inference_config.get('cogmap_override', False),
-            #         cogmap_config=inference_config['cogmap_config'],
-            #         vagen=True,
-            #         reevaluate=inference_config.get('cogmap_reevaluate', False)
-            #     )
-            # if not args.inference_only:
-            #     SpatialEnvLogger.log_each_env_info(
-            #         output_dir=inference_config.get('output_dir'),
-            #         model_config=model_interface.config.to_dict(),
-            #         save_images=True,
-            #     )
-            
             # Log results to wandb (using the combined logging function)
             if inference_config.get('use_wandb', True):
                 log_results_to_wandb(results, inference_config)

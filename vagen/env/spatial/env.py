@@ -449,19 +449,3 @@ class SpatialGym(gym.Env):
             "initial_room": self.initial_room.to_dict(),
             "initial_agent": self.initial_agent.to_dict(),
         }
-
-
-
-
-
-
-
-
-
-
-
-if __name__ == "__main__":
-    # Simple test cases for SpatialGym environment
-
-    # TODO: add test cases
-    pass
