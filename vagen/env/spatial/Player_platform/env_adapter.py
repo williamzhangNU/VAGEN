@@ -23,6 +23,8 @@ from vagen.env.spatial.Base.tos_base.utils.utils import format_llm_output
 from vagen.env.spatial.Base.tos_base.evaluation.task_types import EvalTaskType
 from vagen.env.spatial.env import SpatialGym                  
 from vagen.env.spatial.env_config import SpatialGymConfig
+from vagen.env.spatial.Base.tos_base.utils.eval_utilities import evaluate_task_answer
+
 
 _USER_STATE_KEY = "_player_sessions"
 _USER_BASE_FIELD = "_player_id_base"
@@ -97,17 +99,28 @@ class PlayerEvaluationManager:
         if current_task is None:
             return False, 0.0
         
-        is_correct = answer.strip().upper() == current_task.answer.strip().upper()
+        score, info = evaluate_task_answer(
+            task_type=current_task.eval_data.task_type,
+            pred=answer,
+            answer=current_task.eval_data.answer,
+            choices=getattr(current_task.eval_data, "choices", None),
+        )
+
+        is_correct = bool(score >= 0.999)
+
         self.turn_logs.append({
             "task_type": current_task.task_type,
             "question": current_task.question,
             "user_answer": answer,
-            "correct_answer": current_task.answer,
+            "correct_answer": current_task.eval_data.answer,
+            "score": score,
             "is_correct": is_correct,
+            "eval_info": info,
         })
-        
+
         self.current_index += 1
-        return is_correct, 1.0 if is_correct else 0.0
+        return is_correct, float(score)
+
     
     def is_complete(self) -> bool:
         """Check if all tasks are complete."""
@@ -448,4 +461,3 @@ def summarize_turn(t: int, action: str, obs: Dict[str, Any], reward: float, done
         info=info,
         obs_raw=obs                 
     )
-
