@@ -296,14 +296,17 @@ class SpatialGym(gym.Env):
         agent_state = None
         self.remaining_exp_steps -= 1
 
-        action_sequence = ActionSequence.parse(action, action_classes=self.action_classes)
         if self.remaining_exp_steps < 0:
             action_sequence = ActionSequence(motion_actions=[], final_action=ForcedTermAction())
+            is_valid = True
+        else:
+            action_sequence = ActionSequence.parse(action, action_classes=self.action_classes)
+            is_valid = bool(action) and bool(action_sequence)
 
-        if not action or not action_sequence:
+        if not is_valid:
             obs_str += self.prompter.invalid_action_message() + "\n"
-            info['is_valid_action'] = False
-            reward += -0.5
+            info["is_valid_action"] = False
+            reward -= 0.5
         else:
             action_results = self.exploration_manager.execute_action_sequence(action_sequence)
             for res in action_results:
@@ -388,7 +391,7 @@ class SpatialGym(gym.Env):
         n_changes = self.np_random.integers(1, 4)
         modifier = ObjectModifier(seed=self.current_seed, n_changes=n_changes, agent_pos=self.agent.init_pos)
         self.modified_room, self.ground_truth_changes = modifier.modify(self.initial_room)
-        
+        self.image_handler.transition_to_false_belief()
         # Switch exploration manager to use modified room
         self.exploration_manager.exploration_room = self.modified_room
         
