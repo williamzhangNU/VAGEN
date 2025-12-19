@@ -107,6 +107,7 @@ class InferenceRolloutService(BaseRollout):
                     "model_config": self.model_interface.config.to_dict(),
                     "eval_override": self.config.get('eval_override', False),
                     "all_override": self.config.get('all_override', False),
+                    "false_belief_override": self.config.get('false_belief_override', False),
                     "eval_override_tasks": self.config.get('eval_override_tasks', []),
                     "output_dir": self.config.get('output_dir'),
                 }

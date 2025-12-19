@@ -82,6 +82,8 @@ def parse_args():
                    help="Number of samples per task (exploration phase). Default: 1")
     p.add_argument("--render-mode", type=str, dest="render_mode", default="text", 
                    help="Environment render mode: vision, text, or comma-separated for multiple (e.g., 'vision,text'). Default: text")
+    p.add_argument("--max-exp-steps", type=int, dest="max_exp_steps", default=20,
+                   help="Max steps for exploration. Default: 20")
     p.add_argument("--seed-range", type=str, dest="seed_range", default=None, 
                    help="Seed range 'start-end' (0-based), e.g., 0-24")
     p.add_argument("--enable-think", type=int, dest="enable_think", choices=[0,1], default=1, 
@@ -105,6 +107,8 @@ def parse_args():
                    help="Override cognitive map cache (regenerate cogmap prompts)")
     p.add_argument("--false-belief-exp", action="store_true", dest="false_belief_exp",
                    help="Enable false belief experiment")
+    p.add_argument("--false-belief-override", action="store_true", dest="false_belief_override",
+                   help="Override false belief experiment cache (delete false belief json)")
     
     # Inference parameters
     p.add_argument("--inference-mode", type=str, dest="inference_mode", 
@@ -158,7 +162,8 @@ def build_tmp_paths(run_id: str, task_key: str) -> Dict[str, Path]:
 def patch_env_yaml(exp_type: str, render_mode="vision",
                    seed_opts: tuple[int, int] | None = None, enable_think: int | None = None,
                    data_dir: str | None = None, proxy_agent: str | None = None,
-                   room_config: Dict[str, Any] | None = None, false_belief_exp: bool = False) -> Dict[str, Any]:
+                   room_config: Dict[str, Any] | None = None, false_belief_exp: bool = False, 
+                   max_exp_steps: int = 20) -> Dict[str, Any]:
     """Build env config directly without relying on custom_envs.
 
     Args:
@@ -182,7 +187,7 @@ def patch_env_yaml(exp_type: str, render_mode="vision",
     # Build environment config directly
     env_config = {
         'exp_type': exp_type,
-        'max_exp_steps': 1 if exp_type == 'passive' else 20,
+        'max_exp_steps': 1 if exp_type == 'passive' else max_exp_steps,
         'render_mode': render_mode,
         'prompt_config': {},
         'false_belief_exp': false_belief_exp,
@@ -236,7 +241,8 @@ def patch_infer_yaml(
     infer_cfg: Dict[str, Any], 
     output_dir: str, 
     server_url: str | None = None,
-    all_override: bool = False
+    all_override: bool = False,
+    false_belief_override: bool = False
 ) -> Dict[str, Any]:
     """Patch inference yaml to set output directory, server URL, and override flags."""
     infer_cfg = dict(infer_cfg or {})
@@ -245,6 +251,8 @@ def patch_infer_yaml(
         infer_cfg["server_url"] = server_url
     if all_override:
         infer_cfg["all_override"] = True
+    if false_belief_override:
+        infer_cfg["false_belief_override"] = True
     return infer_cfg
 
 
@@ -438,12 +446,13 @@ def run_exploration_phase(args, seed_opts, server_url: str | None,
     tmp_paths = build_tmp_paths(combo_run_id, "exploration")
 
     infer_cfg = load_yaml(base_infer)
-    # Patch inference config with all_override flag if specified
+    # Patch inference config with all_override and false_belief_override flags if specified
     patched_infer_cfg = patch_infer_yaml(
         infer_cfg,
         args.output_root,
         server_url=server_url,
         all_override=args.all_override,
+        false_belief_override=args.false_belief_override,
     )
     model_cfg = load_yaml(base_model)
     model_cfg = patch_model_yaml(model_cfg, args.model_name)
@@ -458,7 +467,7 @@ def run_exploration_phase(args, seed_opts, server_url: str | None,
             env_cfg = patch_env_yaml(exp_type, render_mode,
                                      seed_opts, args.enable_think, data_dir=args.data_dir,
                                      proxy_agent=args.proxy_agent, room_config=room_config,
-                                     false_belief_exp=args.false_belief_exp)
+                                     false_belief_exp=args.false_belief_exp, max_exp_steps=args.max_exp_steps)
             dump_yaml(env_cfg, tmp_paths["env"])
             
             # Create dataset

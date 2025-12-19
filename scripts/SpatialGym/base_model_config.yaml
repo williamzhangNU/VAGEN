@@ -104,7 +104,6 @@ models:
     base_url: https://generativelanguage.googleapis.com/v1beta/openai/
     timeout: 500
     max_retries: 5
-    reasoning_effort: medium
 
   gemini-2.5-flash:
     provider: openai
@@ -175,6 +174,18 @@ models:
     provider: openai
     organization: openrouter
     model_name: glm-4.6v
+    max_tokens: 32768
+    temperature: 0.0
+    max_workers: 32
+    base_url: https://openrouter.ai/api/v1
+    timeout: 300
+    max_retries: 5
+    max_retries_api: 5
+
+  qwen/qwen3-vl-235b-a22b-thinking:
+    provider: openai
+    organization: openrouter
+    model_name: qwen/qwen3-vl-235b-a22b-thinking
     max_tokens: 32768
     temperature: 0.0
     max_workers: 32
