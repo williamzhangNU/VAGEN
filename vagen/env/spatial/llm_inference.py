@@ -66,6 +66,40 @@ def save_outputs_jsonl(outputs: List[Dict[str, Any]], out_path: str) -> None:
             f.write(json.dumps(o, ensure_ascii=False) + "\n")
 
 
+def group_and_map_outputs(outputs: List[Dict[str, Any]], metas: List[Dict[str, Any]]) -> tuple:
+    """
+    Group outputs by `combo_dir` using the provided `metas` and map them
+    back into histories via `map_llm_responses`.
+
+    Returns a tuple (processed_count, set_of_combo_dirs_updated).
+    """
+    meta_by_id = index_meta_by_id(metas)
+    combo_data: Dict[str, Dict[str, List]] = {}
+
+    for out in outputs:
+        mid = str(out.get("message_id"))
+        m = meta_by_id.get(mid)
+        if not m:
+            continue
+        cdir = m.get("combo_dir")
+        combo_data.setdefault(cdir, {"outputs": [], "metas": []})
+        combo_data[cdir]["outputs"].append(out)
+        combo_data[cdir]["metas"].append(m)
+
+    combos_updated = set()
+    processed = 0
+    for cdir, data in combo_data.items():
+        try:
+            map_llm_responses(cdir, data["metas"], data["outputs"])
+            combos_updated.add(cdir)
+            processed += len(data["outputs"])
+        except Exception as e:
+            print(f"Error mapping responses for combo {cdir}: {e}", flush=True)
+            continue
+
+    return processed, combos_updated
+
+
 # ========================= Input Loading (prebuilt) =========================
 def load_prebuilt_inputs(built_root: str) -> Tuple[List[List[Dict[str, Any]]], List[Dict[str, Any]]]:
     """Load prebuilt inputs from built root directory."""
@@ -393,29 +427,32 @@ def run_inference_for_combo_dirs(
         batch_ids = processor.submit(all_msgs, all_meta)
         print(f"Submitted batch: {batch_ids}, Messages: {len(all_msgs)}", flush=True)
         outputs = processor.retrieve(batch_ids)
+
+        processed, combos = group_and_map_outputs(outputs, all_meta)
+        print(f"Completed {mode} inference for {len(combos)} combos, processed {processed} responses.", flush=True)
+
     else:
-        outputs = generate_with_model_interface(model_config, all_msgs, all_meta)
-    
-    # Map responses back to histories
-    meta_by_id = index_meta_by_id(all_meta)
-    combo_data: Dict[str, Dict[str, List]] = {}
-    
-    for out in outputs:
-        mid = str(out.get("message_id"))
-        m = meta_by_id.get(mid)
-        if not m:
-            continue
-        cdir = m.get("combo_dir")
-        if cdir not in combo_data:
-            combo_data[cdir] = {"outputs": [], "metas": []}
-        combo_data[cdir]["outputs"].append(out)
-        combo_data[cdir]["metas"].append(m)
-    
-    # Update history for each combo
-    for cdir, data in combo_data.items():
-        map_llm_responses(cdir, data["metas"], data["outputs"])
-    
-    print(f"Completed {mode} inference for {len(combo_data)} combos, processed {len(outputs)} responses.", flush=True)
+        # Direct mode: chunk into batches to avoid losing all progress on errors.
+        CHUNK_SIZE = 1024
+        total_processed = 0
+        combos_updated = set()
+
+        # Process in chunks and map/save results after each chunk
+        for start in range(0, len(all_msgs), CHUNK_SIZE):
+            chunk_msgs = all_msgs[start : start + CHUNK_SIZE]
+            chunk_meta = all_meta[start : start + CHUNK_SIZE]
+            try:
+                chunk_outputs = generate_with_model_interface(model_config, chunk_msgs, chunk_meta) or []
+            except Exception as e:
+                print(f"Error during direct inference chunk {start}-{start+len(chunk_msgs)}: {e}", flush=True)
+                # continue to next chunk (do not abort entire run)
+                continue
+
+            processed, combos = group_and_map_outputs(chunk_outputs, chunk_meta)
+            total_processed += processed
+            combos_updated.update(combos)
+
+        print(f"Completed {mode} direct inference in chunks; processed {total_processed} responses across {len(combos_updated)} combos.", flush=True)
 
 
 # ========================= __main__ demos =========================
