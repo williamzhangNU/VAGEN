@@ -182,7 +182,7 @@ models:
     max_retries: 5
     max_retries_api: 5
 
-  qwen/qwen3-vl-235b-a22b-thinking:
+  qwen3-vl-235b-a22b-thinking:
     provider: openai
     organization: openrouter
     model_name: qwen/qwen3-vl-235b-a22b-thinking

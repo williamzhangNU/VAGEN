@@ -93,6 +93,8 @@ def parse_args():
                    help="Proxy agent for passive tasks (required if exp-type is passive)")
     p.add_argument("--all-override", action="store_true", dest="all_override", 
                    help="Override all history (delete whole sample path)")
+    p.add_argument("--replay", action="store_true", dest="replay",
+                   help="Replay mode: override existing turn logs instead of appending")
     
     # Evaluation/Cogmap phase parameters
     p.add_argument("--eval-task-counts", type=str, dest="eval_task_counts", default=None,
@@ -163,7 +165,7 @@ def patch_env_yaml(exp_type: str, render_mode="vision",
                    seed_opts: tuple[int, int] | None = None, enable_think: int | None = None,
                    data_dir: str | None = None, proxy_agent: str | None = None,
                    room_config: Dict[str, Any] | None = None, false_belief_exp: bool = False, 
-                   max_exp_steps: int = 20) -> Dict[str, Any]:
+                   max_exp_steps: int = 20, replay: bool = False) -> Dict[str, Any]:
     """Build env config directly without relying on custom_envs.
 
     Args:
@@ -191,6 +193,7 @@ def patch_env_yaml(exp_type: str, render_mode="vision",
         'render_mode': render_mode,
         'prompt_config': {},
         'false_belief_exp': false_belief_exp,
+        'replay': replay,
     }
 
     # Add optional configurations
@@ -467,7 +470,8 @@ def run_exploration_phase(args, seed_opts, server_url: str | None,
             env_cfg = patch_env_yaml(exp_type, render_mode,
                                      seed_opts, args.enable_think, data_dir=args.data_dir,
                                      proxy_agent=args.proxy_agent, room_config=room_config,
-                                     false_belief_exp=args.false_belief_exp, max_exp_steps=args.max_exp_steps)
+                                     false_belief_exp=args.false_belief_exp, max_exp_steps=args.max_exp_steps,
+                                     replay=args.replay)
             dump_yaml(env_cfg, tmp_paths["env"])
             
             # Create dataset
