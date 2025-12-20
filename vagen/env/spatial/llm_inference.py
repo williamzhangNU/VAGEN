@@ -164,6 +164,27 @@ def map_llm_responses(
 
     # Process cogmap groups
     if cogmap_groups:
+        # If some map types or turns are missing from the new LLM outputs,
+        # default them to the existing `cogmap_log` stored in the current
+        # exploration turn logs (use original_response when available).
+        # This makes the default value for each `t_idx`/`responses_by_type`
+        # come from the current exploration cogmap.
+        for idx, turn_log in enumerate(history.exploration_turn_logs):
+            existing_cogmap = turn_log.get("cogmap_log", {}) or {}
+            # Extract original responses saved previously
+            existing_responses_by_type: Dict[str, str] = {}
+            for map_type, map_data in existing_cogmap.items():
+                if isinstance(map_data, dict) and map_data.get("original_response"):
+                    existing_responses_by_type[map_type] = map_data["original_response"]
+
+            if existing_responses_by_type:
+                if idx not in cogmap_groups:
+                    cogmap_groups[idx] = dict(existing_responses_by_type)
+                else:
+                    # fill missing map types with existing originals
+                    for k, v in existing_responses_by_type.items():
+                        cogmap_groups[idx].setdefault(k, v)
+
         cm_cfg = cogmap_config or {"cogmap_type": "standard", "pos_allow_scale": False, "scope": "all"}
         cm = CognitiveMapManager(**cm_cfg)
 
@@ -174,7 +195,8 @@ def map_llm_responses(
             try:
                 cogmap_log = _evaluate_cogmaps(cm, resp_by_type, turn_log)
                 result = cogmap_log.to_dict() if cogmap_log else {}
-            except Exception:
+            except Exception as e:
+                # raise  e
                 result = {k: {"original_response": v} for k, v in resp_by_type.items()}
             history.update_cogmap({
                 "is_exploration_phase": True,
