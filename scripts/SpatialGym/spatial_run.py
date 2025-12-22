@@ -24,6 +24,7 @@ from datetime import datetime
 from tqdm import tqdm
 from vagen.env.spatial.llm_inference import run_inference_for_combo_dirs, reevaluate_combo_dirs, reevaluate_cogmaps_combo_dirs
 from vagen.env.spatial.Base.tos_base.utils.env_logger import SpatialEnvLogger
+from vagen.env.spatial.Base.tos_base.utils import  get_model_name
 from vagen.env.spatial.common import STATE_BASENAME
 SCRIPT_DIR = Path(__file__).resolve().parent
 
@@ -145,11 +146,6 @@ def dump_yaml(data: Dict[str, Any], path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w") as f:
         pyyaml.safe_dump(data, f, sort_keys=False)
-
-
-def model_segment(model_name: str) -> str:
-    return model_name.replace("\\", "/").rstrip("/").split("/")[-1]
-
 
 def build_tmp_paths(run_id: str, task_key: str) -> Dict[str, Path]:
     base = SCRIPT_DIR / "tmp" / run_id / task_key
@@ -359,7 +355,7 @@ def compute_combo_paths(
         seed_start, seed_end = None, None
 
     combo_paths = []
-    model_dir = os.path.join(output_root, model_segment(model_name))
+    model_dir = os.path.join(output_root, get_model_name(model_name))
 
     # Check if model directory exists
     if not os.path.exists(model_dir):
