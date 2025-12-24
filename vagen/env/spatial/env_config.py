@@ -32,7 +32,7 @@ class SpatialGymConfig(BaseEnvConfig):
     # Environment specific configuration
     name: str = 'unnamed_env'
     render_mode: str = field(default="vision")
-
+    replay: bool = False
     # Room configuration (minimal additions from RAGEN)
     room_config: Dict[str, Any] = field(default_factory=lambda: {"room_size": [10, 10], "n_objects": 3, "room_num": 1, "topology": 0})
 

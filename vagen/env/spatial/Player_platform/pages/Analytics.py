@@ -34,18 +34,18 @@ else:
         per_task = {}
         for log in eval_mgr.turn_logs:
             task_type = log.get("task_type") if isinstance(log, dict) else getattr(log, "task_type", None)
-            is_correct = log.get("is_correct") if isinstance(log, dict) else getattr(log, "is_correct", False)
+            score = log.get("score") if isinstance(log, dict) else getattr(log, "score", False)
             if task_type:
-                total, correct = per_task.get(task_type, (0, 0))
-                per_task[task_type] = (total + 1, correct + (1 if is_correct else 0))
+                total, cur_score = per_task.get(task_type, (0, 0))
+                per_task[task_type] = (total + 1, cur_score + (score if score else 0))
         rows = [
             {
                 "task": task,
-                "accuracy": correct / total if total else 0.0,
-                "correct": correct,
+                "accuracy": cur_score / total if total else 0.0,
+                "score": cur_score,
                 "total": total,
             }
-            for task, (total, correct) in sorted(per_task.items())
+            for task, (total, cur_score) in sorted(per_task.items())
         ]
         st.subheader("Evaluation Accuracy by Task")
         st.json(rows)

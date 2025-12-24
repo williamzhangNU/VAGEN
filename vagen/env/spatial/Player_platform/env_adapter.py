@@ -316,9 +316,6 @@ class SpatialEnvAdapter:
     ):
         self.cfg = cfg
         self.env = SpatialGym(cfg)
-        self.turn = 0
-        self._last_obs = None
-        self._last_info = {}
         self.evaluation_manager: Optional[PlayerEvaluationManager] = None
         self.is_exploration_phase = True
 
@@ -326,9 +323,6 @@ class SpatialEnvAdapter:
         obs, info = self.env.reset(seed=seed)
         if isinstance(obs, str):
             obs = {"obs_str": obs}
-        self.turn = 0
-        self._last_obs = obs
-        self._last_info = info or {}
         self.is_exploration_phase = True
         self.evaluation_manager = None
         return obs
@@ -374,10 +368,6 @@ class SpatialEnvAdapter:
         llm_response = _wrap_user_action_for_env(user_action, enable_think=enable_think)
 
         obs, reward, done, step_info = self.env.step(llm_response)
-        self.turn += 1
-        self._last_obs = obs
-        self._last_info = step_info or {}
-        
         # Check if exploration is done (Term action was sent)
         if done or "Term" in user_action:
             # Transition to evaluation phase
@@ -413,8 +403,6 @@ class SpatialEnvAdapter:
             obs["obs_str"] = f"Your answer was {'correct' if is_correct else 'incorrect'}.\n\n{current_task.question}"
             done = False
         
-        self._last_obs = obs
-        self._last_info = step_info
         return obs, reward, done, step_info
 
     def get_eval_answers(self):
@@ -422,9 +410,6 @@ class SpatialEnvAdapter:
         if self.evaluation_manager is not None:
             return self.evaluation_manager.get_answers()
         return answers
-
-    def get_room_objects_str(self):
-        return ";".join(sorted(self.env.exploration_manager.observed_items))
 
     def max_turn(self) -> int:
         return int(self.cfg.max_exp_steps or 20)

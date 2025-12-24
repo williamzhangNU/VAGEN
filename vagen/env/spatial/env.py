@@ -58,7 +58,6 @@ class SpatialGym(gym.Env):
         self.false_belief_step = 0
         self.ground_truth_changes = []
         self.modified_room = None
-        self.target_observed = False
 
     def _generate_initial_observation(self) -> str:
         """Generate initial observation based on exploration type."""
@@ -115,8 +114,6 @@ class SpatialGym(gym.Env):
         self.false_belief_step = 0
         self.ground_truth_changes = []
         self.modified_room = None
-        self.target_observed = False
-        self.target_observed_steps = []
 
         self.image_handler = ImageHandler(self.config.data_dir, seed, image_size=self.config.image_size)
         self.json_data = self.image_handler.json_data
@@ -158,6 +155,7 @@ class SpatialGym(gym.Env):
             seed=seed,
             eval_override=False,
             all_override=self.config.kwargs.get('all_override', False),
+            false_belief_override=self.config.kwargs.get('false_belief_override', False),
         )
         # Persist the run seed so builders can reproduce evaluation tasks
         info = {}
@@ -365,12 +363,13 @@ class SpatialGym(gym.Env):
             info={"reward": reward, "is_done": is_last_exp, **info}
         )
         if is_exploration:
-            if not self.history_manager.has_exploration(self.current_turn_number - 1):
-                self.history_manager.update_turn_log(turn_log.to_dict())
+            replay = self.config.replay
+            if replay or not self.history_manager.has_exploration(self.current_turn_number - 1):
+                self.history_manager.update_turn_log(turn_log.to_dict(), replay=replay)
                 self.history_manager.save_exploration()
         else:
+            # false belief
             self.history_manager.update_turn_log(turn_log.to_dict())
-            self.history_manager.save_exploration()
             self.history_manager.save_false_belief()
         self.turn_logs.append(turn_log)
 
@@ -384,6 +383,7 @@ class SpatialGym(gym.Env):
     
     def _transition_to_false_belief_phase(self):
         """Transition from exploration to false belief phase."""
+        print("Transitioning to False Belief Phase")
         self.in_false_belief_phase = True
         self.false_belief_step = 0
         
@@ -391,7 +391,8 @@ class SpatialGym(gym.Env):
         n_changes = self.np_random.integers(1, 4)
         modifier = ObjectModifier(seed=self.current_seed, n_changes=n_changes, agent_pos=self.agent.init_pos)
         self.modified_room, self.ground_truth_changes = modifier.modify(self.initial_room)
-        self.image_handler.transition_to_false_belief()
+        if self.config.render_mode == 'vision':
+            self.image_handler.transition_to_false_belief()
         # Switch exploration manager to use modified room
         self.exploration_manager.exploration_room = self.modified_room
         
@@ -421,7 +422,6 @@ class SpatialGym(gym.Env):
         self.render_cache = obs
         info = {'phase': 'false_belief', 'ground_truth_changes': [c.to_dict() for c in self.ground_truth_changes]}
         
-        self.target_observed_steps = []
         return obs, info
 
 
@@ -447,19 +447,3 @@ class SpatialGym(gym.Env):
             "initial_room": self.initial_room.to_dict(),
             "initial_agent": self.initial_agent.to_dict(),
         }
-
-
-
-
-
-
-
-
-
-
-
-if __name__ == "__main__":
-    # Simple test cases for SpatialGym environment
-
-    # TODO: add test cases
-    pass

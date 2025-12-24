@@ -45,16 +45,6 @@ def load_messages_and_meta_jsonl(messages_path: str, meta_path: str) -> Tuple[Li
 
 
 # ========================= Path Helpers =========================
-
-def get_sample_dir(combo_dir: str) -> str:
-    combo_dir = os.path.abspath(combo_dir)
-    parts = combo_dir.split(os.sep)
-    render_idx = max(i for i, p in enumerate(parts) if p in ("vision", "text"))
-    room_hash_idx = render_idx - 1
-    sample_path = os.sep.join(parts[: room_hash_idx + 1])
-    return sample_path
-
-
 def resolve_built_root(root_dir: str, out_dir: str | None) -> str:
     """Return a single built output directory under root.
 
@@ -91,23 +81,6 @@ def list_built_pairs(built_root: str) -> List[Tuple[str, str]]:
     if os.path.exists(cog_msgs) and os.path.exists(cog_meta):
         pairs.append((cog_msgs, cog_meta))
     return pairs
-
-
-# ========================= Message IDs / Responses =========================
-
-def generate_message_id(meta: Dict[str, Any]) -> str:
-    """
-    Generate unique id using ONLY sample_id and question_id/turn_number and cogmap type.
-    - evaluation: <sample_id>:q:<task_type>:<question_id>
-    - cogmap: <sample_id>:t:<turn_number>:<map_type>
-    """
-    t = str(meta.get("type", "")).lower()
-    sample_id = str(meta.get("sample_id", ""))
-    if t == "evaluation":
-        return f"{sample_id}:q:{meta.get('task_type')}:{meta.get('question_id')}"
-    if t == "cogmap":
-        return f"{sample_id}:t:{meta.get('turn_number')}:{meta.get('map_type')}"
-    return f"{sample_id}:unknown"
 
 
 def _sanitize_model_name(model_name: str) -> str:

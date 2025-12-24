@@ -11,7 +11,6 @@ from vagen.env.spatial.Base.tos_base import Room, Agent
 from vagen.env.spatial.Base.tos_base.evaluation.task_types import EvalTaskType
 from vagen.env.spatial.Base.tos_base.prompts.cogmap_prompts import get_cogmap_prompt
 from vagen.env.spatial.Base.tos_base.utils.utils import hash, numpy_to_python, THINK_LABEL, ANSWER_LABEL
-from vagen.env.spatial.Base.tos_base.utils.room_utils import get_observed_room_id
 from vagen.env.spatial.Base.tos_base.utils.image_handler import ImageHandler
 # Shared common utilities/constants
 from vagen.env.spatial.common import (
@@ -21,7 +20,6 @@ from vagen.env.spatial.common import (
     read_json,
     resolve_built_root,
     paths_for_mode,
-    generate_message_id,
     iter_combo_dirs,
     load_history_manager,
 )
