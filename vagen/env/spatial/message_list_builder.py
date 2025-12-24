@@ -218,7 +218,7 @@ def build_cogmap_from_combo(
                     print(f"Skipping turn {t_idx} in {combo_dir}: cogmap already exists")
                     continue
             
-            types = ["local", "global", "unexplored"] if (turn_logs[t_idx].get("exploration_log", {}) or {}).get("visible_objects") else ["global", "unexplored"]
+            types = ["local", "global", "unexplored"] if (turn_logs[t_idx - 1].get("exploration_log", {}) or {}).get("visible_objects") else ["global", "unexplored"]
 
             # observation is in next turn log
             end_idx = user_idxs[t_idx]
