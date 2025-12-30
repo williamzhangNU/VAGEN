@@ -587,11 +587,11 @@ def run_phase(args, mode: str, seed_opts: tuple[int, int] | None = None,
             print(f"Filtered tasks by --tasks: {eval_task_counts}")
 
         # Filter vision tasks if render_mode is text only
-        if render_modes == ["text"]:
-            original_keys = list(eval_task_counts.keys())
-            eval_task_counts = {k: v for k, v in eval_task_counts.items() if 'vision' not in k}
-            if len(eval_task_counts) < len(original_keys):
-                print(f"Filtered out vision tasks for text-only mode. Remaining: {eval_task_counts}")
+        # if render_modes == ["text"]:
+        #     original_keys = list(eval_task_counts.keys())
+        #     eval_task_counts = {k: v for k, v in eval_task_counts.items() if 'vision' not in k}
+        #     if len(eval_task_counts) < len(original_keys):
+        #         print(f"Filtered out vision tasks for text-only mode. Remaining: {eval_task_counts}")
 
         inference_kwargs.update({
             "eval_task_counts": eval_task_counts,

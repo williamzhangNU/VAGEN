@@ -118,9 +118,10 @@ def build_evaluation_from_combo(
             continue
             
         is_vision_question = False
+        # filter vision question in text mode
         if 'vision' in task_short:
             if hm.observation_config['render_mode'] == "text":
-                raise ValueError('cannot use vision question in text mode')
+                continue
             else:
                 is_vision_question = True
 
