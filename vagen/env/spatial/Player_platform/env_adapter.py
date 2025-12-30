@@ -313,11 +313,17 @@ class SpatialEnvAdapter:
     def __init__(
         self,
         cfg: SpatialGymConfig,
+        debug: Optional[bool] = None, 
     ):
         self.cfg = cfg
         self.env = SpatialGym(cfg)
         self.evaluation_manager: Optional[PlayerEvaluationManager] = None
         self.is_exploration_phase = True
+
+        if debug is None:
+            debug_str = os.getenv("PLAYER_PLATFORM_DEBUG", "").strip().lower()
+            debug = debug_str in {"1", "true", "yes", "y", "on"}
+        self.debug = bool(debug)
 
     def reset(self, seed: Optional[int] = None) -> Dict[str, Any]:
         obs, info = self.env.reset(seed=seed)
@@ -392,17 +398,23 @@ class SpatialEnvAdapter:
             "is_correct": is_correct,
             "phase": "evaluation",
         }
-        
+
         if self.evaluation_manager.is_complete():
             # All evaluation tasks complete
-            obs["obs_str"] = f"Evaluation complete! Your answer was {'correct' if is_correct else 'incorrect'}."
+            if self.debug:
+                obs["obs_str"] = f"Evaluation complete! Your answer was {'correct' if is_correct else 'incorrect'}."
+            else:
+                obs["obs_str"] = "Evaluation complete!"
             done = True
         else:
             # Show next question
             current_task = self.evaluation_manager.get_current_task()
-            obs["obs_str"] = f"Your answer was {'correct' if is_correct else 'incorrect'}.\n\n{current_task.question}"
+            if self.debug:
+                obs["obs_str"] = f"Your answer was {'correct' if is_correct else 'incorrect'}.\n\n{current_task.question}"
+            else:
+                obs["obs_str"] = current_task.question
             done = False
-        
+            
         return obs, reward, done, step_info
 
     def get_eval_answers(self):

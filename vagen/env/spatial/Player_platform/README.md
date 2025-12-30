@@ -14,6 +14,8 @@ Players can:
 
 Start the Streamlit app:
 PYTHONPATH=. streamlit run vagen/env/spatial/Player_platform/app.py
+For debug mode, run:
+PLAYER_PLATFORM_DEBUG=1 PYTHONPATH=. streamlit run vagen/env/spatial/Player_platform/app.py
 This will open a browser tab with the chat interface.
 Enter an user_id to log trajectories and performance metrics.
 Then go to `Play` tab to start.
