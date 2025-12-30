@@ -103,12 +103,13 @@ def plot_config_group_line_style(info_gains: Dict[str, Dict[str, List[float]]],
         return
 
     # Prepare data - create a separate line for each configuration
-    plt.figure(figsize=(8, 4))
+    # Use a narrower figure to make the overall table/plot tighter
+    plt.figure(figsize=(6, 4))
 
     # Define color palette and marker styles
     colors = ['#4285f4', '#ea4335', '#34a853', '#fbbc05', '#ff6d00', '#795548', '#673ab7']
     markers = ['o', 's', '^', 'D', 'v', 'p']
-    linestyles = ['-']
+    linestyles =  ['-', ':', '--', '-.']
 
     # Collect data across models to determine the maximum number of turns
     max_turns = 0
@@ -169,7 +170,7 @@ def plot_config_group_line_style(info_gains: Dict[str, Dict[str, List[float]]],
                     plt.plot(x, y,
                             marker=markers[line_index % len(markers)],
                             color=line_color,
-                            markersize=5,
+                            markersize=4,
                             markerfacecolor='white',
                             markeredgewidth=2)
 
@@ -244,6 +245,7 @@ def plot_config_group_line_style(info_gains: Dict[str, Dict[str, List[float]]],
         pass
 
     # Compact the legend inside the plot (lower right) for a tighter layout
+    # Slightly smaller legend to save horizontal space
     plt.legend(loc='lower right', framealpha=0.85, fancybox=True, shadow=True,
                fontsize=8, markerscale=0.7, handlelength=1.2, handletextpad=0.4,
                borderpad=0.3, bbox_to_anchor=(0.98, 0.02), ncol=1)

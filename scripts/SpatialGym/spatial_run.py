@@ -89,9 +89,9 @@ def parse_args():
                    help="Seed range 'start-end' (0-based), e.g., 0-24")
     p.add_argument("--enable-think", type=int, dest="enable_think", choices=[0,1], default=1, 
                    help="1 to enable think, 0 to disable (default: 1)")
-    p.add_argument("--proxy-agent", type=str, dest="proxy_agent", default="strategist", 
-                   choices=["scout","strategist","oracle"], 
-                   help="Proxy agent for passive tasks (required if exp-type is passive)")
+    # p.add_argument("--proxy-agent", type=str, dest="proxy_agent", default="strategist", 
+    #                choices=["scout","strategist","oracle"], 
+    #                help="Proxy agent for passive tasks (required if exp-type is passive)")
     p.add_argument("--all-override", action="store_true", dest="all_override", 
                    help="Override all history (delete whole sample path)")
     p.add_argument("--replay", action="store_true", dest="replay",
@@ -325,7 +325,6 @@ def compute_combo_paths(
     render_modes: List[str],
     enable_think: bool,
     data_dir: str,
-    proxy_agent: str | None = None,
 ) -> List[str]:
     """Find combo directory paths by constructing possible paths and filtering by seed.
 
@@ -377,6 +376,7 @@ def compute_combo_paths(
     for room_hash in room_hash_dirs:
         for render_mode in render_modes:
             for exp_type in exp_types:
+                proxy_agent = set_proxy_agent(exp_type, render_mode)
                 # Build path: model_dir/room_hash/render_mode/exp_type/think_str/[proxy_agent]
                 if exp_type == "passive" and proxy_agent:
                     combo_path = os.path.join(model_dir, room_hash, render_mode,
@@ -415,6 +415,14 @@ def compute_combo_paths(
 
     return combo_paths
 
+def set_proxy_agent(exp_type: str, render_mode: str) -> str | None:
+    """Determine proxy agent based on exp_type and render_mode."""
+    if exp_type == 'passive':
+        if render_mode == 'vision':
+            return "scout"
+        else:
+            return "strategist"
+    return None
 
 def run_exploration_phase(args, seed_opts, server_url: str | None,
                          exp_types: List[str], render_modes: List[str]):
@@ -461,11 +469,12 @@ def run_exploration_phase(args, seed_opts, server_url: str | None,
     # Loop through all combinations
     for exp_type in exp_types:
         for render_mode in render_modes:
-            print(f"\n--- Running exploration: exp_type={exp_type}, render_mode={render_mode} ---")
+            proxy_agent = set_proxy_agent(exp_type, render_mode)
+            print(f"\n--- Running exploration: exp_type={exp_type}, render_mode={render_mode}, proxy_agent={proxy_agent} ---")
             # Create env config with current combination
             env_cfg = patch_env_yaml(exp_type, render_mode,
                                      seed_opts, args.enable_think, data_dir=args.data_dir,
-                                     proxy_agent=args.proxy_agent, room_config=room_config,
+                                     proxy_agent = proxy_agent, room_config=room_config,
                                      false_belief_exp=args.false_belief_exp, max_exp_steps=args.max_exp_steps,
                                      replay=args.replay)
             dump_yaml(env_cfg, tmp_paths["env"])
@@ -532,7 +541,6 @@ def run_phase(args, mode: str, seed_opts: tuple[int, int] | None = None,
         render_modes=render_modes,
         enable_think=bool(args.enable_think),
         data_dir=args.data_dir,
-        proxy_agent=args.proxy_agent,
     )
     print(all_combo_paths)
     
@@ -579,11 +587,11 @@ def run_phase(args, mode: str, seed_opts: tuple[int, int] | None = None,
             print(f"Filtered tasks by --tasks: {eval_task_counts}")
 
         # Filter vision tasks if render_mode is text only
-        if render_modes == ["text"]:
-            original_keys = list(eval_task_counts.keys())
-            eval_task_counts = {k: v for k, v in eval_task_counts.items() if 'vision' not in k}
-            if len(eval_task_counts) < len(original_keys):
-                print(f"Filtered out vision tasks for text-only mode. Remaining: {eval_task_counts}")
+        # if render_modes == ["text"]:
+        #     original_keys = list(eval_task_counts.keys())
+        #     eval_task_counts = {k: v for k, v in eval_task_counts.items() if 'vision' not in k}
+        #     if len(eval_task_counts) < len(original_keys):
+        #         print(f"Filtered out vision tasks for text-only mode. Remaining: {eval_task_counts}")
 
         inference_kwargs.update({
             "eval_task_counts": eval_task_counts,
