@@ -5,6 +5,7 @@ import re
 import numpy as np
 import argparse
 import copy
+from pathlib import Path
 
 # Reuse existing components
 from vagen.env.spatial.Base.tos_base import Room, Agent
@@ -12,6 +13,7 @@ from vagen.env.spatial.Base.tos_base.evaluation.task_types import EvalTaskType
 from vagen.env.spatial.Base.tos_base.prompts.cogmap_prompts import get_cogmap_prompt
 from vagen.env.spatial.Base.tos_base.utils.utils import hash, numpy_to_python, THINK_LABEL, ANSWER_LABEL
 from vagen.env.spatial.Base.tos_base.utils.image_handler import ImageHandler
+from vagen.env.spatial.Base.tos_base.utils.visualization.annotate_point import load_mapping_from_meta, draw_point
 # Shared common utilities/constants
 from vagen.env.spatial.common import (
     MESSAGES_BASENAME,
@@ -174,6 +176,63 @@ def build_evaluation_from_combo(
     return out_msgs, meta
 
 
+def _generate_annotated_cogmap(cogmap_dir: str, image_dir: str, abs_candidates: List[Tuple[int, int]], agent_pos: Tuple[int, int], t_idx: int) -> str:
+    """Generate annotated top_down image with candidate positions marked.
+    
+    Args:
+        cogmap_dir: Path to the cogmap directory (combo_dir / 'cogmap')
+        image_dir: Path to the image directory containing top_down_empty.png and meta_data.json
+        abs_candidates: List of absolute candidate coordinates to mark on the map
+        agent_pos: Agent's current position to mark on the map (as a dot)
+        t_idx: Turn index to distinguish different output images
+    
+    Returns:
+        Path to the generated annotated image, or empty string if generation failed
+    """
+    if not image_dir or not abs_candidates:
+        return ""
+    
+    image_dir_path = Path(image_dir)
+    cogmap_dir_path = Path(cogmap_dir)
+    
+    # Source files
+    top_down_img = image_dir_path / "top_down_empty.png"
+    meta_data_json = image_dir_path / "meta_data.json"
+    
+    # Output file with turn index
+    os.makedirs(cogmap_dir_path, exist_ok=True)
+    out_img = cogmap_dir_path / f"top_down_candidates_t{t_idx}.png"
+    
+    # Check if source files exist
+    if not top_down_img.exists():
+        raise FileNotFoundError(f"top_down_empty.png not found at {top_down_img}")
+    if not meta_data_json.exists():
+        raise FileNotFoundError(f"meta_data.json not found at {meta_data_json}")
+    
+    # Load mapping from meta_data.json
+    mapping = load_mapping_from_meta(meta_data_json)
+    
+    # Create label dict: assign letters A, B, C, ... to candidates in order
+    label_dict = {}
+    letter_idx = 0
+    for coord in abs_candidates:
+        if coord in mapping:
+            label_dict[coord] = chr(ord('A') + letter_idx)
+            letter_idx += 1
+    
+    # Add agent position as a dot (None = red dot)
+    agent_pos_tuple = (int(agent_pos[0]), int(agent_pos[1]))
+    if agent_pos_tuple in mapping:
+        label_dict[agent_pos_tuple] = None
+    
+    if not label_dict:
+        raise ValueError("No valid candidate coordinates found in mapping; cannot generate annotated cogmap.")
+    
+    # Generate annotated image
+    draw_point(top_down_img, out_img, mapping, label_dict)
+    print(f"✅ Generated annotated cogmap: {out_img}")
+    return str(out_img)
+
 def _transform_relative_to_absolute(coords: List[Tuple[int, int]], init_pos: np.ndarray, init_ori: np.ndarray) -> List[Tuple[int, int]]:
     """Transform relative coordinates (Forward=y, Right=x) to absolute grid coordinates."""
     # Right vector: rotate Forward (init_ori) -90 degrees (assuming [0,1] -> [1,0])
@@ -264,7 +323,17 @@ def build_cogmap_from_combo(
                     if all_candidate_coords:
                         # Transform to absolute for map plotting
                         agent_init = Agent.from_dict(sample_cfg["agent_dict"])
+                        # all_candidate_coords: relative to init pos
                         abs_candidates = _transform_relative_to_absolute(all_candidate_coords, agent_init.init_pos, agent_init.init_ori)
+                        
+                        # Get agent's current position
+                        agent_current = Agent.from_dict(turn_logs[t_idx-1]['agent_state'])
+                        agent_pos = (int(agent_current.pos[0]), int(agent_current.pos[1]))
+                        
+                        # Generate annotated cogmap image
+                        cogmap_dir = os.path.join(combo_dir, 'cogmap')
+                        image_dir = sample_cfg.get("image_dir")
+                        annotated_img_path = _generate_annotated_cogmap(cogmap_dir, image_dir, abs_candidates, agent_pos, t_idx)
                         
                         mod_seq[-1]["content"] = base_user + get_cogmap_prompt(
                             mtype, 
@@ -274,6 +343,7 @@ def build_cogmap_from_combo(
                             room=room, 
                             agent=Agent.from_dict(turn_logs[t_idx-1]['agent_state'])
                         )
+                        mod_seq[-1]["images"].append(annotated_img_path)
                     else:
                         continue
                 else:
