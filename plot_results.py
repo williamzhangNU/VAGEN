@@ -18,12 +18,15 @@ df = pd.DataFrame(data, index=models)
 df01 = df / 100.0
 
 # --------------------
-# Highlight switch (改这一行即可切换)
+# Highlight switch (choose ONE of: "Active", "Passive", "Text", "Vision")
 # --------------------
-# highlight_mode = "Passive"
-highlight_mode = "Active"
+highlight_mode = "Passive"
+# highlight_mode = "Active"
+# highlight_mode = "Text"
+# highlight_mode = "Vision"
+# highlight_mode = ""
 
-dim_alpha = 0.05
+dim_alpha = 0.1
 label_dimmed = False
 
 # --------------------
@@ -39,12 +42,20 @@ colors = [Blues(lvl) for lvl in blue_levels]
 
 fig, ax = plt.subplots(figsize=(13, 6))
 
+def is_highlight(col, mode):
+    # col = (Active/Passive, Text/Vision)
+    if mode in ("Active", "Passive"):
+        return col[0] == mode
+    if mode in ("Text", "Vision"):
+        return col[1] == mode
+    return True
+
 for i, col in enumerate(series):
     y = df01[col].values
     mask = ~np.isnan(y)
 
-    is_highlight = (col[0] == highlight_mode)
-    alpha = 1.0 if is_highlight else dim_alpha
+    hi = is_highlight(col, highlight_mode)
+    alpha = 1.0 if hi else dim_alpha
 
     bars = ax.bar(
         x[mask] + offsets[i],
@@ -56,7 +67,7 @@ for i, col in enumerate(series):
         label=f"{col[0]} · {col[1]}"
     )
 
-    if is_highlight or label_dimmed:
+    if hi or label_dimmed:
         for rect, val in zip(bars, y[mask]):
             ax.text(
                 rect.get_x() + rect.get_width()/2,
@@ -66,22 +77,31 @@ for i, col in enumerate(series):
             )
 
 # Styling
-ax.set_title("Avg Performance across models (Active/Passive × Text/Vision)", fontsize=20, pad=14)
+ax.set_title("Avg Performance across models (Active/Passive × Text/Vision)", fontsize=20)
+leg = ax.legend(loc="upper center", bbox_to_anchor=(0.5, 1.18), ncol=4, frameon=True, fontsize=12)
 ax.set_xlabel("Models", fontsize=16)
 ax.set_ylabel("Avg Performance", fontsize=16)
 ax.set_xticks(x)
 ax.set_xticklabels(models, fontsize=12)
 ax.set_ylim(0, 1.0)
 ax.grid(axis="y", linestyle="--", alpha=0.35)
-leg = ax.legend(loc="center left", bbox_to_anchor=(1.02, 0.5), frameon=True)
 
-# Make legend entries match the highlight/dim state
-for handle, text in zip(leg.legend_handles, leg.get_texts()):
-    mode = text.get_text().split("·")[0].strip()  # "Active" or "Passive"
-    a = 1.0 if mode == highlight_mode else dim_alpha
-    handle.set_alpha(a)
-    text.set_alpha(a)
+# Make legend entries match highlight/dim state
+if highlight_mode:
+    for handle, text in zip(leg.legend_handles, leg.get_texts()):
+        t = text.get_text()
+        mode0, mode1 = [s.strip() for s in t.split("·")]
+        hi = (highlight_mode in ("Active", "Passive") and mode0 == highlight_mode) or \
+             (highlight_mode in ("Text", "Vision") and mode1 == highlight_mode)
+        a = 1.0 if hi else dim_alpha
+        handle.set_alpha(a)
+        text.set_alpha(a)
+else:
+    # no highlight -> all opaque
+    for handle, text in zip(leg.legend_handles, leg.get_texts()):
+        handle.set_alpha(1.0)
+        text.set_alpha(1.0)
 
 plt.tight_layout()
-plt.savefig("avg_perform_2.pdf", dpi=200, bbox_inches="tight")
+plt.savefig(f"avg_perform_{highlight_mode.lower()}.pdf", dpi=200, bbox_inches="tight")
 plt.show()
