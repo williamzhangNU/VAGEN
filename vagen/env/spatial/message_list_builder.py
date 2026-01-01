@@ -219,7 +219,8 @@ def build_cogmap_from_combo(
                     print(f"Skipping turn {t_idx} in {combo_dir}: cogmap already exists")
                     continue
             
-            types = ["local", "global", "unexplored"] if (turn_logs[t_idx - 1].get("exploration_log", {}) or {}).get("visible_objects") else ["global", "unexplored"]
+            # types = ["local", "global", "unexplored"] if (turn_logs[t_idx - 1].get("exploration_log", {}) or {}).get("visible_objects") else ["global", "unexplored"]
+            types = ["local", "global", "fog_probe"] if (turn_logs[t_idx - 1].get("exploration_log", {}) or {}).get("visible_objects") else ["global", "fog_probe"]
 
             # observation is in next turn log
             end_idx = user_idxs[t_idx]
@@ -237,6 +238,14 @@ def build_cogmap_from_combo(
                     all_candidate_coords = [(int(pt[0]), int(pt[1])) for pt in all_candidate_coords_raw] if all_candidate_coords_raw else None
                     if all_candidate_coords:
                         mod_seq[-1]["content"] = base_user + get_cogmap_prompt(mtype, enable_think, all_candidate_coords)
+                    else:
+                        continue
+                elif mtype == "fog_probe":
+                    all_candidate_coords_raw = turn_logs[t_idx-1].get("exploration_log", {}).get("all_candidate_coords", [])
+                    # Convert from serialized format [[x,y],...] to list of tuples
+                    all_candidate_coords = [(int(pt[0]), int(pt[1])) for pt in all_candidate_coords_raw] if all_candidate_coords_raw else None
+                    if all_candidate_coords:
+                        mod_seq[-1]["content"] = base_user + get_cogmap_prompt(mtype, enable_think, all_candidate_coords, use_vision=(hm.observation_config['render_mode'] == "vision"), room=room, agent=Agent.from_dict(turn_logs[t_idx-1]['agent_state']))
                     else:
                         continue
                 else:
