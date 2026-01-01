@@ -174,6 +174,21 @@ def build_evaluation_from_combo(
     return out_msgs, meta
 
 
+def _transform_relative_to_absolute(coords: List[Tuple[int, int]], init_pos: np.ndarray, init_ori: np.ndarray) -> List[Tuple[int, int]]:
+    """Transform relative coordinates (Forward=y, Right=x) to absolute grid coordinates."""
+    # Right vector: rotate Forward (init_ori) -90 degrees (assuming [0,1] -> [1,0])
+    # For (x, y): Right = (y, -x)
+    fx, fy = init_ori[0], init_ori[1]
+    rx, ry = fy, -fx
+    
+    abs_coords = []
+    for (cx, cy) in coords:
+        ax = cx * rx + cy * fx + init_pos[0]
+        ay = cx * ry + cy * fy + init_pos[1]
+        abs_coords.append((int(round(ax)), int(round(ay))))
+    return abs_coords
+
+
 def build_cogmap_from_combo(
     combo_dir: str,
     cogmap_override: bool = False,
@@ -220,7 +235,8 @@ def build_cogmap_from_combo(
                     continue
             
             # types = ["local", "global", "unexplored"] if (turn_logs[t_idx - 1].get("exploration_log", {}) or {}).get("visible_objects") else ["global", "unexplored"]
-            types = ["local", "global", "fog_probe"] if (turn_logs[t_idx - 1].get("exploration_log", {}) or {}).get("visible_objects") else ["global", "fog_probe"]
+            # types = ["local", "global", "fog_probe"] if (turn_logs[t_idx - 1].get("exploration_log", {}) or {}).get("visible_objects") else ["global", "fog_probe"]
+            types = ["fog_probe"] if (turn_logs[t_idx - 1].get("exploration_log", {}) or {}).get("visible_objects") else ["fog_probe"]
 
             # observation is in next turn log
             end_idx = user_idxs[t_idx]
@@ -244,8 +260,20 @@ def build_cogmap_from_combo(
                     all_candidate_coords_raw = turn_logs[t_idx-1].get("exploration_log", {}).get("all_candidate_coords", [])
                     # Convert from serialized format [[x,y],...] to list of tuples
                     all_candidate_coords = [(int(pt[0]), int(pt[1])) for pt in all_candidate_coords_raw] if all_candidate_coords_raw else None
+                    
                     if all_candidate_coords:
-                        mod_seq[-1]["content"] = base_user + get_cogmap_prompt(mtype, enable_think, all_candidate_coords, use_vision=(hm.observation_config['render_mode'] == "vision"), room=room, agent=Agent.from_dict(turn_logs[t_idx-1]['agent_state']))
+                        # Transform to absolute for map plotting
+                        agent_init = Agent.from_dict(sample_cfg["agent_dict"])
+                        abs_candidates = _transform_relative_to_absolute(all_candidate_coords, agent_init.init_pos, agent_init.init_ori)
+                        
+                        mod_seq[-1]["content"] = base_user + get_cogmap_prompt(
+                            mtype, 
+                            enable_think, 
+                            abs_candidates, 
+                            use_vision=(hm.observation_config['render_mode'] == "vision"), 
+                            room=room, 
+                            agent=Agent.from_dict(turn_logs[t_idx-1]['agent_state'])
+                        )
                     else:
                         continue
                 else:
