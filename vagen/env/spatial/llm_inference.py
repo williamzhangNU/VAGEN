@@ -157,6 +157,15 @@ def map_llm_responses(
 
     # Group for cogmap: (turn_idx) -> {map_type: text}
     cogmap_groups: Dict[int, Dict[str, str]] = {}
+    cogmap_message_images: Dict[int, Dict[str, List[str]]] = {}
+
+    def _to_rel_imgs(imgs: Any) -> List[str]:
+        out: List[str] = []
+        for p in (imgs or []):
+            if not isinstance(p, str) or not p:
+                continue
+            out.append(os.path.relpath(p, history.model_path) if os.path.isabs(p) else p)
+        return out
 
     for out in outputs:
         mid = str(out.get("message_id"))
@@ -194,7 +203,11 @@ def map_llm_responses(
         elif (meta.get("type") or "").lower() == "cogmap":
             tnum = int(meta.get("turn_number", 1))
             t_idx = tnum - 1
-            cogmap_groups.setdefault(t_idx, {})[meta.get("map_type", "global")] = text
+            mtype = str(meta.get("map_type", "global") or "global")
+            cogmap_groups.setdefault(t_idx, {})[mtype] = text
+            imgs = _to_rel_imgs(meta.get("message_images"))
+            if imgs:
+                cogmap_message_images.setdefault(t_idx, {})[mtype] = imgs
 
     # Process cogmap groups
     if cogmap_groups:
@@ -232,6 +245,13 @@ def map_llm_responses(
             except Exception as e:
                 # raise  e
                 result = {k: {"original_response": v} for k, v in resp_by_type.items()}
+            # Attach prompt images (e.g., fog-probe annotated top-down candidates) for visualization.
+            for mtype, imgs in (cogmap_message_images.get(t_idx) or {}).items():
+                if not imgs:
+                    continue
+                result.setdefault(mtype, {})
+                if isinstance(result.get(mtype), dict):
+                    result[mtype]["message_images"] = imgs
             history.update_cogmap({
                 "is_exploration_phase": True,
                 "turn_number": t_idx + 1,
@@ -393,6 +413,7 @@ def run_inference_for_combo_dirs(
     inference_mode: str = "direct",
     eval_override: bool = False,
     cogmap_override: bool = False,
+    image_dir: str = None,
 ) -> None:
     """Run inference for a specific list of combo directories.
 
@@ -415,6 +436,7 @@ def run_inference_for_combo_dirs(
         eval_task_counts=eval_task_counts,
         eval_override=eval_override,
         cogmap_override=cogmap_override,
+        image_dir=image_dir,
     )
     
     if not all_msgs or not all_meta:

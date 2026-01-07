@@ -79,6 +79,7 @@ def build_evaluation_from_combo(
     combo_dir: str,
     eval_task_counts: Dict[str, int],
     eval_override: bool = False,
+    image_dir: str = None,
 ) -> Tuple[List[List[Dict]], List[Dict]]:
     """Create evaluation message lists from exploration history for one sample combo dir.
 
@@ -95,7 +96,7 @@ def build_evaluation_from_combo(
     base_msgs = copy.deepcopy(messages)
 
     # Load history manager with eval_override flag
-    hm = load_history_manager(combo_dir, eval_override=eval_override, all_tasks=list(eval_task_counts.keys()))
+    hm = load_history_manager(combo_dir, eval_override=eval_override, all_tasks=list(eval_task_counts.keys()), image_dir=image_dir)
     enable_think = hm.get_enable_think()
     out_msgs: List[List[Dict]] = []
     meta: List[Dict] = []
@@ -109,7 +110,10 @@ def build_evaluation_from_combo(
     agent_init.ori = agent_init.init_ori.copy()
     if agent_init.init_room_id is not None:
         agent_init.room_id = agent_init.init_room_id
-    image_dir = sample_cfg.get("image_dir")
+    
+    # Use override image_dir from history manager (handles base dir override logic)
+    image_dir = hm.image_dir
+    
     image_handler = ImageHandler(image_dir=image_dir) if image_dir else None
     # Track message_ids to ensure uniqueness
     seen_message_ids = set()
@@ -210,7 +214,7 @@ def _generate_annotated_cogmap(cogmap_dir: str, image_dir: str, abs_candidates: 
         raise FileNotFoundError(f"meta_data.json not found at {meta_data_json}")
     
     # Load mapping from meta_data.json
-    mapping = load_mapping_from_meta(meta_data_json)
+    mapping, rows, cols = load_mapping_from_meta(meta_data_json)
     
     # Create label dict: assign letters A, B, C, ... to candidates in order
     label_dict = {}
@@ -229,28 +233,22 @@ def _generate_annotated_cogmap(cogmap_dir: str, image_dir: str, abs_candidates: 
         raise ValueError("No valid candidate coordinates found in mapping; cannot generate annotated cogmap.")
     
     # Generate annotated image
-    draw_point(top_down_img, out_img, mapping, label_dict)
-    print(f"✅ Generated annotated cogmap: {out_img}")
+    draw_point(top_down_img, out_img, mapping, label_dict, rows, cols, agent_pos)
     return str(out_img)
 
-def _transform_relative_to_absolute(coords: List[Tuple[int, int]], init_pos: np.ndarray, init_ori: np.ndarray) -> List[Tuple[int, int]]:
-    """Transform relative coordinates (Forward=y, Right=x) to absolute grid coordinates."""
-    # Right vector: rotate Forward (init_ori) -90 degrees (assuming [0,1] -> [1,0])
-    # For (x, y): Right = (y, -x)
-    fx, fy = init_ori[0], init_ori[1]
-    rx, ry = fy, -fx
-    
-    abs_coords = []
-    for (cx, cy) in coords:
-        ax = cx * rx + cy * fx + init_pos[0]
-        ay = cx * ry + cy * fy + init_pos[1]
-        abs_coords.append((int(round(ax)), int(round(ay))))
-    return abs_coords
+def _transform_absolute_to_relative(coords: List[Tuple[int, int]], init_pos: np.ndarray) -> List[Tuple[int, int]]:
+    """Transform absolute grid coordinates to relative coordinates (shift by init_pos)."""
+    rel_coords = []
+    ox, oy = int(init_pos[0]), int(init_pos[1])
+    for (ax, ay) in coords:
+        rel_coords.append((ax - ox, ay - oy))
+    return rel_coords
 
 
 def build_cogmap_from_combo(
     combo_dir: str,
     cogmap_override: bool = False,
+    image_dir: str = None,
 ) -> Tuple[List[List[Dict]], List[Dict]]:
     """Create cogmap message lists strictly following cog_utils logic (local/global only).
 
@@ -271,12 +269,15 @@ def build_cogmap_from_combo(
         # Fallback if path structure is unexpected
         sample_id = os.path.basename(sample_cfg.get("image_dir", "sample"))
     
-    hm = load_history_manager(combo_dir)
+    hm = load_history_manager(combo_dir, image_dir=image_dir)
     enable_think = hm.get_enable_think()
     exp_type = getattr(hm, "exp_type", _detect_exp_type(combo_dir))
 
     # Load room for determining observed room from agent position/orientation
     room = Room.from_dict(sample_cfg["room_dict"]).copy() if "room_dict" in sample_cfg else None
+
+    # Use override image_dir from history manager (handles base dir override logic)
+    image_dir = hm.image_dir
 
     out_msgs: List[List[Dict]] = []
     meta: List[Dict] = []
@@ -286,16 +287,16 @@ def build_cogmap_from_combo(
     if exp_type == "active":
         # For each turn after the first action, use previous turn index for decision
         for t_idx in range(1, len(turn_logs)):
-            # Check if cogmap already exists for this turn (unless override)
-            if not cogmap_override:
-                existing_cogmap = hm.get_cogmap(t_idx)
-                if existing_cogmap:
-                    print(f"Skipping turn {t_idx} in {combo_dir}: cogmap already exists")
-                    continue
-            
-            # types = ["local", "global", "unexplored"] if (turn_logs[t_idx - 1].get("exploration_log", {}) or {}).get("visible_objects") else ["global", "unexplored"]
             # types = ["local", "global", "fog_probe"] if (turn_logs[t_idx - 1].get("exploration_log", {}) or {}).get("visible_objects") else ["global", "fog_probe"]
-            types = ["fog_probe"] if (turn_logs[t_idx - 1].get("exploration_log", {}) or {}).get("visible_objects") else ["fog_probe"]
+            types = ["global"] if (turn_logs[t_idx - 1].get("exploration_log", {}) or {}).get("visible_objects") else ["global"]
+
+            if not cogmap_override:
+                existing_cogmap = hm.get_cogmap(t_idx - 1) or {}
+                # Filter types to only those missing from existing cogmap
+                types = [t for t in types if t not in existing_cogmap]
+                if not types:
+                    print(f"Skipping turn {t_idx} in {combo_dir}: all cogmap types already exist")
+                    continue
 
             # observation is in next turn log
             end_idx = user_idxs[t_idx]
@@ -312,7 +313,10 @@ def build_cogmap_from_combo(
                     # Convert from serialized format [[x,y],...] to list of tuples
                     all_candidate_coords = [(int(pt[0]), int(pt[1])) for pt in all_candidate_coords_raw] if all_candidate_coords_raw else None
                     if all_candidate_coords:
-                        mod_seq[-1]["content"] = base_user + get_cogmap_prompt(mtype, enable_think, all_candidate_coords)
+                        # Unexplored prompt expects relative coordinates
+                        agent_init = Agent.from_dict(sample_cfg["agent_dict"])
+                        rel_candidate_coords = _transform_absolute_to_relative(all_candidate_coords, agent_init.init_pos)
+                        mod_seq[-1]["content"] = base_user + get_cogmap_prompt(mtype, enable_think, rel_candidate_coords)
                     else:
                         continue
                 elif mtype == "fog_probe":
@@ -321,29 +325,33 @@ def build_cogmap_from_combo(
                     all_candidate_coords = [(int(pt[0]), int(pt[1])) for pt in all_candidate_coords_raw] if all_candidate_coords_raw else None
                     
                     if all_candidate_coords:
-                        # Transform to absolute for map plotting
-                        agent_init = Agent.from_dict(sample_cfg["agent_dict"])
-                        # all_candidate_coords: relative to init pos
-                        abs_candidates = _transform_relative_to_absolute(all_candidate_coords, agent_init.init_pos, agent_init.init_ori)
+                        # Candidates are already absolute
+                        abs_candidates = all_candidate_coords
                         
-                        # Get agent's current position
-                        agent_current = Agent.from_dict(turn_logs[t_idx-1]['agent_state'])
-                        agent_pos = (int(agent_current.pos[0]), int(agent_current.pos[1]))
-                        
-                        # Generate annotated cogmap image
-                        cogmap_dir = os.path.join(combo_dir, 'cogmap')
-                        image_dir = sample_cfg.get("image_dir")
-                        annotated_img_path = _generate_annotated_cogmap(cogmap_dir, image_dir, abs_candidates, agent_pos, t_idx)
-                        
+                        use_vision = (hm.observation_config['render_mode'] == "vision")
+
                         mod_seq[-1]["content"] = base_user + get_cogmap_prompt(
                             mtype, 
                             enable_think, 
                             abs_candidates, 
-                            use_vision=(hm.observation_config['render_mode'] == "vision"), 
+                            use_vision=use_vision, 
                             room=room, 
                             agent=Agent.from_dict(turn_logs[t_idx-1]['agent_state'])
                         )
-                        mod_seq[-1]["images"].append(annotated_img_path)
+                        
+                        if use_vision:
+                            # Get agent's current position
+                            agent_current = Agent.from_dict(turn_logs[t_idx-1]['agent_state'])
+                            agent_pos = (int(agent_current.pos[0]), int(agent_current.pos[1]))
+                            
+                            # Generate annotated cogmap image
+                            cogmap_dir = os.path.join(combo_dir, 'cogmap')
+                            # image_dir is already set correctly at start of function
+                            annotated_img_path = _generate_annotated_cogmap(cogmap_dir, image_dir, abs_candidates, agent_pos, t_idx)
+                            if annotated_img_path:
+                                # Ensure we work with a fresh list for images
+                                current_imgs = mod_seq[-1].get("images") or []
+                                mod_seq[-1]["images"] = list(current_imgs) + [annotated_img_path]
                     else:
                         continue
                 else:
@@ -354,6 +362,7 @@ def build_cogmap_from_combo(
                     "turn_number": t_idx,
                     "map_type": mtype,
                     "combo_dir": os.path.abspath(combo_dir),
+                    "message_images": mod_seq[-1].get("images", []),
                 }
                 meta_obj["message_id"] = hash(json.dumps(meta_obj, sort_keys=True, default=numpy_to_python))
                 _add_message(out_msgs, meta, copy.deepcopy(mod_seq), meta_obj)
@@ -418,6 +427,7 @@ def build_all_for_combo_dirs(
     eval_task_counts: Dict[str, int] | None = None,
     eval_override: bool = False,
     cogmap_override: bool = False,
+    image_dir: str = None,
 ) -> Tuple[List[List[Dict]], List[Dict]]:
     """Build messages/meta for a specific list of combo directories.
     
@@ -439,10 +449,11 @@ def build_all_for_combo_dirs(
             assert eval_task_counts is not None, "eval_task_counts must be provided for eval mode"
             msgs, meta = build_evaluation_from_combo(
                 combo, eval_task_counts, 
-                eval_override=eval_override
+                eval_override=eval_override,
+                image_dir=image_dir,
             )
         else:
-            msgs, meta = build_cogmap_from_combo(combo, cogmap_override=cogmap_override)
+            msgs, meta = build_cogmap_from_combo(combo, cogmap_override=cogmap_override, image_dir=image_dir)
         all_msgs.extend(msgs)
         all_meta.extend(meta)
     

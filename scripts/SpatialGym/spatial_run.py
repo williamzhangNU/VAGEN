@@ -567,6 +567,7 @@ def run_phase(args, mode: str, seed_opts: tuple[int, int] | None = None,
         "model_config": load_yaml(Path(args.base_model))['models'][args.model_name],
         "mode": mode,
         "inference_mode": args.inference_mode,
+        "image_dir": args.data_dir,
     }
 
     if mode == "eval":

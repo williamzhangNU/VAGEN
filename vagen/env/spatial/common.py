@@ -106,13 +106,14 @@ def iter_combo_dirs(root_dir: str) -> List[str]:
 
 # ========================= History Manager Loader =========================
 
-def load_history_manager(combo_dir: str, eval_override: bool = False, all_tasks: List = None) -> HistoryManager:
+def load_history_manager(combo_dir: str, eval_override: bool = False, all_tasks: List = None, image_dir: str = None) -> HistoryManager:
     """Load HistoryManager from a combo directory using its saved state file.
     
     Args:
         combo_dir: Path to combo directory
         eval_override: If True, ignore existing evaluation history
+        image_dir: Optional override for image directory
     """
-    return HistoryManager.load_from_dir(combo_dir, eval_override=eval_override, all_tasks=all_tasks)
+    return HistoryManager.load_from_dir(combo_dir, eval_override=eval_override, all_tasks=all_tasks, image_dir=image_dir)
 
 
