@@ -224,13 +224,13 @@ def _generate_annotated_cogmap(cogmap_dir: str, image_dir: str, abs_candidates: 
             label_dict[coord] = chr(ord('A') + letter_idx)
             letter_idx += 1
     
-    # Add agent position as a dot (None = red dot)
+    # Add agent position as a dot
     agent_pos_tuple = (int(agent_pos[0]), int(agent_pos[1]))
     if agent_pos_tuple in mapping:
         label_dict[agent_pos_tuple] = None
     
     if not label_dict:
-        raise ValueError("No valid candidate coordinates found in mapping; cannot generate annotated cogmap.")
+        raise ValueError(f"No valid candidate coordinates found in mapping; cannot generate annotated cogmap. cogmap_dir: {cogmap_dir}, abs_candidates: {abs_candidates}, agent_pos: {agent_pos}")
     
     # Generate annotated image
     draw_point(top_down_img, out_img, mapping, label_dict, rows, cols, agent_pos)
@@ -287,8 +287,8 @@ def build_cogmap_from_combo(
     if exp_type == "active":
         # For each turn after the first action, use previous turn index for decision
         for t_idx in range(1, len(turn_logs)):
-            # types = ["local", "global", "fog_probe"] if (turn_logs[t_idx - 1].get("exploration_log", {}) or {}).get("visible_objects") else ["global", "fog_probe"]
-            types = ["global"] if (turn_logs[t_idx - 1].get("exploration_log", {}) or {}).get("visible_objects") else ["global"]
+            types = ["local", "global", "fog_probe"] if (turn_logs[t_idx - 1].get("exploration_log", {}) or {}).get("visible_objects") else ["global", "fog_probe"]
+            # types = ["global"] if (turn_logs[t_idx - 1].get("exploration_log", {}) or {}).get("visible_objects") else ["global"]
 
             if not cogmap_override:
                 existing_cogmap = hm.get_cogmap(t_idx - 1) or {}
@@ -307,19 +307,7 @@ def build_cogmap_from_combo(
 
             # current turn cogmap question => previous turn number !!!
             for mtype in types:
-                # For unexplored type, pass all candidate coords from turn log
-                if mtype == "unexplored":
-                    all_candidate_coords_raw = turn_logs[t_idx-1].get("exploration_log", {}).get("all_candidate_coords", [])
-                    # Convert from serialized format [[x,y],...] to list of tuples
-                    all_candidate_coords = [(int(pt[0]), int(pt[1])) for pt in all_candidate_coords_raw] if all_candidate_coords_raw else None
-                    if all_candidate_coords:
-                        # Unexplored prompt expects relative coordinates
-                        agent_init = Agent.from_dict(sample_cfg["agent_dict"])
-                        rel_candidate_coords = _transform_absolute_to_relative(all_candidate_coords, agent_init.init_pos)
-                        mod_seq[-1]["content"] = base_user + get_cogmap_prompt(mtype, enable_think, rel_candidate_coords)
-                    else:
-                        continue
-                elif mtype == "fog_probe":
+                if mtype == "fog_probe":
                     all_candidate_coords_raw = turn_logs[t_idx-1].get("exploration_log", {}).get("all_candidate_coords", [])
                     # Convert from serialized format [[x,y],...] to list of tuples
                     all_candidate_coords = [(int(pt[0]), int(pt[1])) for pt in all_candidate_coords_raw] if all_candidate_coords_raw else None

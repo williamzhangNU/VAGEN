@@ -200,7 +200,7 @@ def map_llm_responses(
             }
             history.update_eval_turn_log(turn_log)
 
-        elif (meta.get("type") or "").lower() == "cogmap":
+        elif (meta.get("type") or "").lower() == "cogmap": # for fog probe (vision)
             tnum = int(meta.get("turn_number", 1))
             t_idx = tnum - 1
             mtype = str(meta.get("map_type", "global") or "global")
