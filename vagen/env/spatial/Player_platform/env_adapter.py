@@ -35,6 +35,7 @@ _USER_FULL_FIELD = "_player_id_full"
 class EvalTask:
     """Represents a single evaluation task with question and answer."""
     task_type: str
+    class_name: str
     question: str
     answer: str
     eval_data: Any = None
@@ -76,9 +77,11 @@ class PlayerEvaluationManager:
                         task_short, np_random, self.room, self.agent, config, None
                     )
                     question_text = task.generate_question()
-                    
+                    task_type = next(t for t in EvalTaskType if t.short_name == task_short)
+                    class_name = task_type.class_name
                     eval_task = EvalTask(
                         task_type=task_short,
+                        class_name=class_name,
                         question=question_text,
                         answer=task.eval_data.answer if hasattr(task.eval_data, 'answer') else str(task.eval_data),
                         eval_data=task.eval_data,
