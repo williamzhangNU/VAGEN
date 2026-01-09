@@ -162,7 +162,9 @@ if not env_adapter.is_exploration_phase and eval_manager is not None:
 
     st.info(f"Evaluation Question {current_idx + 1} of {total_questions}")
     current_task = eval_manager.get_current_task()
+    current_task_type = current_task.class_name
     if current_task:
+        st.markdown(f"**Question Type:** {current_task_type}")
         st.markdown(f"**Question:** {current_task.question}")
     answer = st.text_input("Your answer:", key=f"eval_answer_{current_idx}", placeholder="Type your answer here...")
     if answer:
