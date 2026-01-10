@@ -6,6 +6,9 @@ import numpy as np
 import argparse
 import copy
 from pathlib import Path
+import logging
+logger = logging.getLogger(__name__)
+
 
 # Reuse existing components
 from vagen.env.spatial.Base.tos_base import Room, Agent
@@ -286,9 +289,13 @@ def build_cogmap_from_combo(
 
     if exp_type == "active":
         # For each turn after the first action, use previous turn index for decision
-        for t_idx in range(1, len(turn_logs)):
-            types = ["local", "global", "fog_probe"] if (turn_logs[t_idx - 1].get("exploration_log", {}) or {}).get("visible_objects") else ["global", "fog_probe"]
-            # types = ["global"] if (turn_logs[t_idx - 1].get("exploration_log", {}) or {}).get("visible_objects") else ["global"]
+        for t_idx in range(1, len(turn_logs) + 1):
+            if t_idx == len(turn_logs):
+                # After termination, only probe global map.
+                types = ["global"]
+            else:
+                visible = (turn_logs[t_idx - 1].get("exploration_log", {}) or {}).get("visible_objects")
+                types = ["local", "global", "fog_probe"] if visible else ["global", "fog_probe"]
 
             if not cogmap_override:
                 existing_cogmap = hm.get_cogmap(t_idx - 1) or {}
@@ -298,14 +305,18 @@ def build_cogmap_from_combo(
                     print(f"Skipping turn {t_idx} in {combo_dir}: all cogmap types already exist")
                     continue
 
-            # observation is in next turn log
-            end_idx = user_idxs[t_idx]
+            # Use the next user message to attach the probe.
+            # For the final turn this is the "Task finished" message after Term().
+            try:
+                end_idx = user_idxs[t_idx]
+            except IndexError:
+                print(f'sample_id: {sample_id}, t_idx: {t_idx}, user_idxs: {user_idxs}, turn_logs: {turn_logs}')
+                raise IndexError
             seq = _clone_until_inclusive(messages, end_idx)
             assert seq[-1]["role"] == "user"
-            base_user = re.sub(r"You have a maximum of\s*\d+\s*exploration steps left.*", "", seq[-1]["content"], flags=re.DOTALL) 
+            base_user = re.sub(r"You have a maximum of\s*\d+\s*exploration steps left.*", "", seq[-1]["content"], flags=re.DOTALL)
             mod_seq = [m.copy() for m in seq]
 
-            # current turn cogmap question => previous turn number !!!
             for mtype in types:
                 if mtype == "fog_probe":
                     all_candidate_coords_raw = turn_logs[t_idx-1].get("exploration_log", {}).get("all_candidate_coords", [])
