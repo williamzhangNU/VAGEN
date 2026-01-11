@@ -10,6 +10,8 @@ from vagen.env.spatial.Base.tos_base.evaluation.tasks import evaluate_from_dict
 from vagen.inference.model_interface.factory_model import ModelFactory
 from vagen.env.spatial.batch_processor import get_batch_processor
 from vagen.env.spatial.Base.tos_base.utils.utils import parse_llm_response
+from vagen.env.spatial.Base.tos_base.core.room import Room
+from vagen.env.spatial.Base.tos_base.core.object import Agent
 import dotenv
 dotenv.load_dotenv()
 
@@ -25,6 +27,76 @@ from vagen.env.spatial.common import (
 
 
 """Root-only inference runner: reads built files once and maps responses back via HistoryManager.load_from_dir."""
+
+
+def _evaluate_false_belief_cogmap(
+    cognitive_map_manager: CognitiveMapManager,
+    response_text: str,
+    fb_turn_log: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Evaluate false belief cognitive map with separate metrics for changed and unchanged objects.
+    
+    Args:
+        cognitive_map_manager: CognitiveMapManager instance
+        response_text: LLM response text with cognitive map
+        fb_turn_log: False belief turn log containing room_state, agent_state, and false_belief_log
+    
+    Returns:
+        Dict with evaluation results including separate metrics for changed and unchanged objects
+    """
+    room_state = Room.from_dict(fb_turn_log['room_state'])
+    agent_state = Agent.from_dict(fb_turn_log['agent_state'])
+    fb_log = fb_turn_log.get('false_belief_log', {})
+    
+    # Get ground truth changes
+    ground_truth_changes = fb_log.get('ground_truth_changes', [])
+    changed_object_names = set()
+    for change in ground_truth_changes:
+        if isinstance(change, dict):
+            changed_object_names.add(change.get('name'))
+    
+    # All objects in the room
+    all_object_names = {obj.name for obj in room_state.all_objects}
+    
+    # Unchanged objects = all objects - changed objects
+    unchanged_object_names = all_object_names - changed_object_names
+    
+    # Evaluate full cogmap (all objects)
+    responses_by_type = {"global": response_text}
+    full_cogmap_log = cognitive_map_manager.evaluate_cogmaps(
+        responses_by_type,
+        room_state,
+        agent_state,
+        list(all_object_names),
+    )
+    
+    # Evaluate cogmap for changed objects only
+    changed_cogmap_log = cognitive_map_manager.evaluate_cogmaps(
+        responses_by_type,
+        room_state,
+        agent_state,
+        list(changed_object_names),
+    ) if changed_object_names else None
+    
+    # Evaluate cogmap for unchanged objects only
+    unchanged_cogmap_log = cognitive_map_manager.evaluate_cogmaps(
+        responses_by_type,
+        room_state,
+        agent_state,
+        list(unchanged_object_names),
+    ) if unchanged_object_names else None
+    
+    # Build result dictionary
+    result = {
+        "full": full_cogmap_log.to_dict() if full_cogmap_log else {},
+        "changed_objects": changed_cogmap_log.to_dict() if changed_cogmap_log else {},
+        "unchanged_objects": unchanged_cogmap_log.to_dict() if unchanged_cogmap_log else {},
+        "original_response": response_text,
+        "changed_object_names": list(changed_object_names),
+        "unchanged_object_names": list(unchanged_object_names),
+    }
+    
+    return result
 
 
 
@@ -158,6 +230,8 @@ def map_llm_responses(
     # Group for cogmap: (turn_idx) -> {map_type: text}
     cogmap_groups: Dict[int, Dict[str, str]] = {}
     cogmap_message_images: Dict[int, Dict[str, List[str]]] = {}
+    # Group for cogmap_fb: (fb_turn_index) -> text
+    cogmap_fb_groups: Dict[int, str] = {}
 
     def _to_rel_imgs(imgs: Any) -> List[str]:
         out: List[str] = []
@@ -208,6 +282,10 @@ def map_llm_responses(
             imgs = _to_rel_imgs(meta.get("message_images"))
             if imgs:
                 cogmap_message_images.setdefault(t_idx, {})[mtype] = imgs
+        
+        elif (meta.get("type") or "").lower() == "cogmap_fb":
+            fb_turn_idx = int(meta.get("fb_turn_index", 0))
+            cogmap_fb_groups[fb_turn_idx] = text
 
     # Process cogmap groups
     if cogmap_groups:
@@ -257,6 +335,28 @@ def map_llm_responses(
                 "turn_number": t_idx + 1,
                 "cogmap_log": result,
             })
+    
+    # Process cogmap_fb groups
+    if cogmap_fb_groups:
+        cm_cfg = cogmap_config or {"cogmap_type": "standard", "pos_allow_scale": False, "scope": "all"}
+        cm = CognitiveMapManager(**cm_cfg)
+        
+        for fb_idx, response_text in cogmap_fb_groups.items():
+            if not (0 <= fb_idx < len(history.false_belief_turn_logs)):
+                continue
+            fb_turn_log = history.false_belief_turn_logs[fb_idx]
+            
+            try:
+                # Evaluate cogmap with separate metrics for changed and unchanged objects
+                cogmap_result = _evaluate_false_belief_cogmap(cm, response_text, fb_turn_log)
+                # Update false belief turn log with cogmap_log
+                fb_turn_log["cogmap_log"] = cogmap_result
+            except Exception as e:
+                print(f"Error evaluating false belief cogmap for FB turn {fb_idx}: {e}")
+                fb_turn_log["cogmap_log"] = {"original_response": response_text, "error": str(e)}
+        
+        # Save updated false belief logs
+        history.save_false_belief()
 
     history.save()
 
@@ -403,6 +503,73 @@ def reevaluate_cogmaps_combo_dirs(combo_dirs: List[str]) -> None:
     print(f"\nCogmap re-evaluation completed: {total_count} cognitive maps re-evaluated across {len(combo_dirs)} combo directories.")
 
 
+def reevaluate_cogmap_fb_combo_dir(combo_dir: str) -> int:
+    """Re-evaluate all existing false belief cognitive maps in a combo directory.
+
+    This function reads existing false belief cogmap responses from history and 
+    re-evaluates them using the current evaluation logic with separate metrics 
+    for changed and unchanged objects.
+
+    Args:
+        combo_dir: Path to combo directory
+
+    Returns:
+        Number of false belief cognitive maps re-evaluated
+    """
+    from vagen.env.spatial.Base.tos_base.managers.cognitive_map_manager import CognitiveMapManager
+
+    history = load_history_manager(combo_dir)
+
+    # Initialize cognitive map manager with default config
+    cm = CognitiveMapManager(cogmap_type="standard", pos_allow_scale=False, scope="all")
+
+    count = 0
+    # Re-evaluate false belief turn cogmaps
+    for fb_idx, fb_turn_log in enumerate(history.false_belief_turn_logs):
+        cogmap_log = fb_turn_log.get("cogmap_log", {})
+        if not cogmap_log:
+            continue
+
+        # Extract original response
+        original_response = cogmap_log.get("original_response")
+        if not original_response:
+            continue
+
+        # Re-evaluate with separate metrics for changed and unchanged objects
+        try:
+            cogmap_result = _evaluate_false_belief_cogmap(cm, original_response, fb_turn_log)
+            fb_turn_log["cogmap_log"] = cogmap_result
+            count += 1
+        except Exception as e:
+            print(f"Error re-evaluating false belief cogmap for FB turn {fb_idx} in {combo_dir}: {e}")
+            continue
+
+    # Save updated false belief logs
+    if count > 0:
+        history.save_false_belief()
+    
+    print(f"Re-evaluated {count} false belief cognitive maps in {combo_dir}")
+    return count
+
+
+def reevaluate_cogmap_fb_combo_dirs(combo_dirs: List[str]) -> None:
+    """Re-evaluate all existing false belief cognitive maps in multiple combo directories.
+
+    Args:
+        combo_dirs: List of combo directory paths
+    """
+    total_count = 0
+    for combo_dir in combo_dirs:
+        try:
+            count = reevaluate_cogmap_fb_combo_dir(combo_dir)
+            total_count += count
+        except Exception as e:
+            print(f"Error re-evaluating false belief cogmaps in {combo_dir}: {e}")
+            continue
+
+    print(f"\nFalse belief cogmap re-evaluation completed: {total_count} false belief cognitive maps re-evaluated across {len(combo_dirs)} combo directories.")
+
+
 # ========================= Combo-level inference =========================
 
 def run_inference_for_combo_dirs(
@@ -413,6 +580,7 @@ def run_inference_for_combo_dirs(
     inference_mode: str = "direct",
     eval_override: bool = False,
     cogmap_override: bool = False,
+    cogmap_fb_override: bool = False,
     image_dir: str = None,
 ) -> None:
     """Run inference for a specific list of combo directories.
@@ -420,23 +588,25 @@ def run_inference_for_combo_dirs(
     Args:
         combo_dirs: List of combo directory paths
         model_name: Model name for inference
-        mode: 'eval' or 'cogmap'
+        mode: 'eval', 'cogmap', or 'cogmap_fb'
         eval_task_counts: Evaluation task counts (for eval mode)
         seed: Seed for task generation (for eval mode)
         inference_mode: 'batch' or 'direct'
         eval_override: If True, ignore existing evaluation history and regenerate all
         cogmap_override: If True, regenerate all cogmaps; if False, skip existing cogmaps
+        cogmap_fb_override: If True, regenerate all false belief cogmaps
     """
     from vagen.env.spatial.message_list_builder import build_all_for_combo_dirs
     
     # Build messages for the specified combos (override logic handled in builder)
     all_msgs, all_meta = build_all_for_combo_dirs(
-        combo_dirs=combo_dirs,
+        combo_dirs,
         mode=mode,
         eval_task_counts=eval_task_counts,
         eval_override=eval_override,
-        cogmap_override=cogmap_override,
-        image_dir=image_dir,
+        cogmap_override=cogmap_override,     
+        cogmap_fb_override=cogmap_fb_override,
+        image_dir=image_dir
     )
     
     if not all_msgs or not all_meta:

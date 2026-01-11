@@ -393,6 +393,109 @@ def build_cogmap_from_combo(
     return out_msgs, meta
 
 
+def build_cogmap_fb_from_combo(
+    combo_dir: str,
+    cogmap_fb_override: bool = False,
+    image_dir: str = None,
+) -> Tuple[List[List[Dict]], List[Dict]]:
+    """Create cogmap message lists from false belief phase logs.
+
+    Args:
+        combo_dir: Directory containing false belief history
+        cogmap_fb_override: If True, regenerate all cogmaps; if False, skip turns with existing cogmaps
+        image_dir: Base image directory
+    """
+    hm = load_history_manager(combo_dir, image_dir=image_dir)
+    fb_logs = hm.false_belief_turn_logs
+    
+    if not fb_logs:
+        print(f"No false belief logs found in {combo_dir}")
+        return [], []
+    
+    # Derive sample_id from combo_dir path
+    combo_abs = os.path.abspath(combo_dir)
+    parts = combo_abs.split(os.sep)
+    try:
+        render_idx = max(i for i, p in enumerate(parts) if p in ("vision", "text"))
+        room_hash_idx = render_idx - 1
+        sample_id = parts[room_hash_idx]
+    except (ValueError, IndexError):
+        sample_id = os.path.basename(combo_dir)
+    
+    enable_think = hm.get_enable_think()
+    
+    out_msgs: List[List[Dict]] = []
+    meta: List[Dict] = []
+    
+    # Build base message sequence from exploration phase
+    # This includes all exploration turns
+    base_messages = hm.messages.copy()
+    if base_messages[-1]['role'] == 'user':
+        # Remove last user message (prompt for false belief phase)
+        base_messages = base_messages[:-1]
+    
+    # Process each false belief turn (only the last turn should have completed phase)
+    for fb_idx, fb_log in enumerate(fb_logs):
+        # Only process final turn (where changes are reported)
+        fb_log_data = fb_log.get("false_belief_log", {})
+        if fb_log_data.get("reported_changes") is None:
+            continue
+        
+        # Check if cogmap already exists (unless override)
+        if not cogmap_fb_override:
+            existing_cogmap = fb_log_data.get("cogmap_log")
+            if existing_cogmap:
+                print(f"Skipping FB turn {fb_idx} in {combo_dir}: cogmap already exists")
+                continue
+        
+        # Build message sequence: base_messages + false belief messages up to this turn
+        mod_seq = base_messages.copy()
+        
+        # Add false belief turn messages from the logs
+        # Each false belief turn has user_message and assistant_raw_message
+        for i in range(fb_idx + 1):
+            fb_turn = fb_logs[i]
+            user_msg = fb_turn.get("user_message", "")
+            assistant_msg = fb_turn.get("assistant_raw_message", "")
+            
+            if user_msg:
+                mod_seq.append({"role": "user", "content": user_msg,
+                                "images": fb_turn.get("message_images", [])})
+            if assistant_msg:
+                mod_seq.append({"role": "assistant", "content": assistant_msg})
+        
+        # Add the next turn's user message (fb_idx + 1) and append cogmap prompt to it
+        # This follows the same pattern as cogmap construction
+        # If there's no next turn, skip this sample (no cogmap needed for the last turn)
+        if fb_idx + 1 >= len(fb_logs):
+            continue
+        
+        next_fb_turn = fb_logs[fb_idx + 1]
+        next_user_msg = next_fb_turn.get("user_message", "")
+        
+        # Remove step counter from the user message
+        base_user = re.sub(r"You have a maximum of\s*\d+\s*exploration steps left.*", "", next_user_msg, flags=re.DOTALL)
+        # Append cogmap prompt
+        cogmap_prompt = get_cogmap_prompt("global", enable_think)
+        mod_seq.append({"role": "user", "content": base_user + cogmap_prompt})
+        
+        turn_num = fb_log.get("turn_number", fb_idx + 1)
+        
+        meta_obj = {
+            "type": "cogmap_fb",
+            "sample_id": sample_id,
+            "turn_number": turn_num,
+            "fb_turn_index": fb_idx,
+            "map_type": "global",
+            "combo_dir": os.path.abspath(combo_dir),
+            "message_images": [],
+        }
+        meta_obj["message_id"] = hash(json.dumps(meta_obj, sort_keys=True, default=numpy_to_python))
+        _add_message(out_msgs, meta, copy.deepcopy(mod_seq), meta_obj)
+    
+    return out_msgs, meta
+
+
 def save_messages_jsonl(messages_list: List[List[Dict]], out_path: str, meta_list: List[Dict] | None = None) -> None:
     os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
     with open(out_path, "w") as f:
@@ -426,16 +529,18 @@ def build_all_for_combo_dirs(
     eval_task_counts: Dict[str, int] | None = None,
     eval_override: bool = False,
     cogmap_override: bool = False,
+    cogmap_fb_override: bool = False,
     image_dir: str = None,
 ) -> Tuple[List[List[Dict]], List[Dict]]:
     """Build messages/meta for a specific list of combo directories.
     
     Args:
         combo_dirs: List of combo directory paths to process
-        mode: 'eval' or 'cogmap'
+        mode: 'eval', 'cogmap', or 'cogmap_fb'
         eval_task_counts: Dict mapping task types to count (for eval mode)
         eval_override: If True, ignore existing evaluation history and regenerate all
         cogmap_override: If True, regenerate all cogmaps; if False, skip existing cogmaps
+        cogmap_fb_override: If True, regenerate all false belief cogmaps
     
     Returns:
         Tuple of (messages_list, meta_list)
@@ -451,6 +556,8 @@ def build_all_for_combo_dirs(
                 eval_override=eval_override,
                 image_dir=image_dir,
             )
+        elif mode == "cogmap_fb":
+            msgs, meta = build_cogmap_fb_from_combo(combo, cogmap_fb_override=cogmap_fb_override, image_dir=image_dir)
         else:
             msgs, meta = build_cogmap_from_combo(combo, cogmap_override=cogmap_override, image_dir=image_dir)
         all_msgs.extend(msgs)
