@@ -22,7 +22,7 @@ import urllib.request
 import threading
 from datetime import datetime
 from tqdm import tqdm
-from vagen.env.spatial.llm_inference import run_inference_for_combo_dirs, reevaluate_combo_dirs, reevaluate_cogmaps_combo_dirs
+from vagen.env.spatial.llm_inference import run_inference_for_combo_dirs, reevaluate_combo_dirs, reevaluate_cogmaps_combo_dirs, reevaluate_cogmap_fb_combo_dirs
 from vagen.env.spatial.Base.tos_base.utils.env_logger import SpatialEnvLogger
 from vagen.env.spatial.Base.tos_base.utils import  get_model_name
 from vagen.env.spatial.common import STATE_BASENAME
@@ -66,8 +66,8 @@ def parse_args():
     )
     # Phase selection
     p.add_argument("--phase", type=str, default="all",
-                   choices=['explore', 'eval', 'cogmap', 'all', 'aggregate', 'reeval', 'cogmap_reeval'],
-                   help="Which phase to run: explore, eval, cogmap, reeval, cogmap_reeval, aggregate, or all")
+                   choices=['explore', 'eval', 'cogmap', 'all', 'aggregate', 'reeval', 'cogmap_reeval', 'cogmap_fb', 'cogmap_fb_reeval'],
+                   help="Which phase to run: explore, eval, cogmap, reeval, cogmap_reeval, cogmap_fb, cogmap_fb_reeval, aggregate, or all")
 
     # Common parameters
     p.add_argument("--exp-type", type=str, dest="exp_type", 
@@ -112,6 +112,10 @@ def parse_args():
                    help="Enable false belief experiment")
     p.add_argument("--false-belief-override", action="store_true", dest="false_belief_override",
                    help="Override false belief experiment cache (delete false belief json)")
+    p.add_argument("--cogmap-fb", action="store_true", dest="cogmap_fb",
+                   help="Run cognitive map evaluation for false belief experiment")
+    p.add_argument("--cogmap-fb-override", action="store_true", dest="cogmap_fb_override",
+                   help="Override false belief cognitive map cache (regenerate false belief cogmap prompts)")
     
     # Inference parameters
     p.add_argument("--inference-mode", type=str, dest="inference_mode", 
@@ -560,6 +564,11 @@ def run_phase(args, mode: str, seed_opts: tuple[int, int] | None = None,
         reevaluate_cogmaps_combo_dirs(all_combo_paths)
         print(f"\nCogmap re-evaluation completed.")
         return
+    
+    if mode == "cogmap_fb_reeval":
+        reevaluate_cogmap_fb_combo_dirs(all_combo_paths)
+        print(f"\nFalse belief cogmap re-evaluation completed.")
+        return
 
     # Build kwargs for run_inference_for_combo_dirs based on mode
     inference_kwargs = {
@@ -597,6 +606,10 @@ def run_phase(args, mode: str, seed_opts: tuple[int, int] | None = None,
         inference_kwargs.update({
             "eval_task_counts": eval_task_counts,
             "eval_override": args.eval_override,
+        })
+    elif mode == "cogmap_fb":
+        inference_kwargs.update({
+            "cogmap_fb_override": args.cogmap_fb_override,
         })
     else:  # cogmap
         inference_kwargs.update({
@@ -685,6 +698,12 @@ def main():
         elif args.phase == 'cogmap_reeval':
             run_phase(args, mode="cogmap_reeval", seed_opts=seed_opts,
                               exp_types=exp_types, render_modes=render_modes)
+        elif args.phase == 'cogmap_fb':
+            run_phase(args, mode="cogmap_fb", seed_opts=seed_opts,
+                              exp_types=exp_types, render_modes=render_modes)
+        elif args.phase == 'cogmap_fb_reeval':
+            run_phase(args, mode="cogmap_fb_reeval", seed_opts=seed_opts,
+                              exp_types=exp_types, render_modes=render_modes)
         elif args.phase == 'all':
             run_exploration_phase(args, seed_opts, server_url, exp_types, render_modes)
             run_phase(args, mode="eval", seed_opts=seed_opts,
@@ -694,6 +713,10 @@ def main():
                 active_exp_types = [e for e in exp_types if e == 'active']
                 run_phase(args, mode="cogmap", seed_opts=seed_opts,
                                   exp_types=active_exp_types, render_modes=render_modes)
+            # Run cogmap_fb if false_belief_exp is enabled and --cogmap-fb flag is set
+            if args.false_belief_exp and args.cogmap_fb:
+                run_phase(args, mode="cogmap_fb", seed_opts=seed_opts,
+                                  exp_types=exp_types, render_modes=render_modes)
         run_aggregation_phase(args)
     
     except Exception as e:
