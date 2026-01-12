@@ -30,17 +30,6 @@ from vagen.env.spatial.common import (
 )
 
 
-
-def _load_exploration_artifacts(combo_dir: str) -> Tuple[List[Dict], List[Dict], Dict[str, Any]]:
-    messages_path = os.path.join(combo_dir, MESSAGES_BASENAME)
-    turn_logs_path = os.path.join(combo_dir, EXPLORATION_LOG_BASENAME)
-    messages = read_json(messages_path)
-    turn_logs = read_json(turn_logs_path) if os.path.exists(turn_logs_path) else []
-    state_path = os.path.join(combo_dir, STATE_BASENAME)
-    sample_cfg = read_json(state_path)
-    return messages, turn_logs, sample_cfg
-
-
 def _detect_exp_type(combo_dir: str) -> str:
     parts = os.path.abspath(combo_dir).split(os.sep)
     return "active" if "active" in parts else "passive"
@@ -94,20 +83,24 @@ def build_evaluation_from_combo(
         seed: Seed for task generation
         eval_override: If True, ignore existing evaluation history and regenerate all questions
     """
-    messages, _turn_logs, sample_cfg = _load_exploration_artifacts(combo_dir)
-
-    base_msgs = copy.deepcopy(messages)
-
     # Load history manager with eval_override flag
     hm = load_history_manager(combo_dir, eval_override=eval_override, all_tasks=list(eval_task_counts.keys()), image_dir=image_dir)
+    
+    # Use messages from hm (which may have corrected paths)
+    base_msgs = copy.deepcopy(hm.messages)
+
     enable_think = hm.get_enable_think()
     out_msgs: List[List[Dict]] = []
     meta: List[Dict] = []
 
     # Get existing eval counts (will be empty if eval_override=True)
     existing_ids = hm.get_eval_ids()
-    room = Room.from_dict(sample_cfg["room_dict"]).copy()
-    agent = Agent.from_dict(sample_cfg["agent_dict"]).copy()
+    # Always override Action2ViewEvaluationTask
+    if EvalTaskType.FWD_FOV.class_name in existing_ids:
+        del existing_ids[EvalTaskType.FWD_FOV.class_name]
+
+    room = Room.from_dict(hm.room_dict).copy()
+    agent = Agent.from_dict(hm.agent_dict).copy()
     agent_init = agent.copy()
     agent_init.pos = agent_init.init_pos.copy()
     agent_init.ori = agent_init.init_ori.copy()
@@ -266,7 +259,10 @@ def build_cogmap_from_combo(
         combo_dir: Directory containing exploration history
         cogmap_override: If True, regenerate all cogmaps; if False, skip turns with existing cogmaps
     """
-    messages, turn_logs, sample_cfg = _load_exploration_artifacts(combo_dir)
+    hm = load_history_manager(combo_dir, image_dir=image_dir)
+    messages = hm.messages
+    turn_logs = hm.exploration_turn_logs
+    
     # Derive sample_id from combo_dir path instead of image_dir
     # Format: room_hash (parent of vision/text directory)
     combo_abs = os.path.abspath(combo_dir)
@@ -277,14 +273,13 @@ def build_cogmap_from_combo(
         sample_id = parts[room_hash_idx]
     except (ValueError, IndexError):
         # Fallback if path structure is unexpected
-        sample_id = os.path.basename(sample_cfg.get("image_dir", "sample"))
+        sample_id = os.path.basename(hm.image_dir or "sample")
     
-    hm = load_history_manager(combo_dir, image_dir=image_dir)
     enable_think = hm.get_enable_think()
     exp_type = getattr(hm, "exp_type", _detect_exp_type(combo_dir))
 
     # Load room for determining observed room from agent position/orientation
-    room = Room.from_dict(sample_cfg["room_dict"]).copy() if "room_dict" in sample_cfg else None
+    room = Room.from_dict(hm.room_dict).copy() if hm.room_dict else None
 
     # Use override image_dir from history manager (handles base dir override logic)
     image_dir = hm.image_dir
