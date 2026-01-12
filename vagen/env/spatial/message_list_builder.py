@@ -450,7 +450,7 @@ def build_cogmap_fb_from_combo(
         
         # Check if cogmap already exists (unless override)
         if not cogmap_fb_override:
-            existing_cogmap = fb_log_data.get("cogmap_log")
+            existing_cogmap = fb_log.get("cogmap_log")
             if existing_cogmap:
                 print(f"Skipping FB turn {fb_idx} in {combo_dir}: cogmap already exists")
                 continue
@@ -464,12 +464,10 @@ def build_cogmap_fb_from_combo(
             fb_turn = fb_logs[i]
             user_msg = fb_turn.get("user_message", "")
             assistant_msg = fb_turn.get("assistant_raw_message", "")
-            
-            if user_msg:
-                mod_seq.append({"role": "user", "content": user_msg,
-                                "images": fb_turn.get("message_images", [])})
-            if assistant_msg:
-                mod_seq.append({"role": "assistant", "content": assistant_msg})
+            assert user_msg and assistant_msg, f"Missing messages in FB turn {i} of {combo_dir}"
+            mod_seq.append({"role": "user", "content": user_msg,
+                            "images": fb_turn.get("message_images", [])})
+            mod_seq.append({"role": "assistant", "content": assistant_msg})
         
         # Add the next turn's user message (fb_idx + 1) and append cogmap prompt to it
         # This follows the same pattern as cogmap construction

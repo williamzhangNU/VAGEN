@@ -233,12 +233,24 @@ class SpatialGym(gym.Env):
         """Handle step logic for false belief phase."""
         self.false_belief_step += 1
         
+        # Track which changed objects were newly observed in this turn
+        newly_observed_changed = []
+        if exp_log and hasattr(exp_log, 'visible_objects'):
+            changed_names = {c.name for c in self.ground_truth_changes}
+            visible = set(exp_log.visible_objects or [])
+            newly_observed = visible & changed_names - getattr(self, '_observed_changed_objects', set())
+            newly_observed_changed = list(newly_observed)
+            if not hasattr(self, '_observed_changed_objects'):
+                self._observed_changed_objects = set()
+            self._observed_changed_objects.update(newly_observed)
+        
         # Create FBLog
         fb_log = FBLog(
             step=self.false_belief_step,
             room_state=room_state,
             agent_state=agent_state,
-            ground_truth_changes=self.ground_truth_changes
+            ground_truth_changes=self.ground_truth_changes,
+            newly_observed_changed_objects=newly_observed_changed
         )
 
         if done:
@@ -386,6 +398,7 @@ class SpatialGym(gym.Env):
         print("Transitioning to False Belief Phase")
         self.in_false_belief_phase = True
         self.false_belief_step = 0
+        self._observed_changed_objects = set()  # Track which changed objects have been observed
         
         # Modify room - move n objects (1-3)
         n_changes = self.np_random.integers(1, 4)
