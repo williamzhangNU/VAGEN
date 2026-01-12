@@ -690,7 +690,11 @@ def main():
             run_phase(args, mode="eval", seed_opts=seed_opts,
                               exp_types=exp_types, render_modes=render_modes)
         elif args.phase == 'cogmap':
-            run_phase(args, mode="cogmap", seed_opts=seed_opts,
+            if args.cogmap_fb:
+                run_phase(args, mode="cogmap_fb", seed_opts=seed_opts,
+                              exp_types=exp_types, render_modes=render_modes)
+            else:
+                run_phase(args, mode="cogmap", seed_opts=seed_opts,
                               exp_types=exp_types, render_modes=render_modes)
         elif args.phase == 'reeval':
             run_phase(args, mode="reeval", seed_opts=seed_opts,
@@ -713,8 +717,8 @@ def main():
                 active_exp_types = [e for e in exp_types if e == 'active']
                 run_phase(args, mode="cogmap", seed_opts=seed_opts,
                                   exp_types=active_exp_types, render_modes=render_modes)
-            # Run cogmap_fb if false_belief_exp is enabled and --cogmap-fb flag is set
-            if args.false_belief_exp and args.cogmap_fb:
+            # Run cogmap_fb if --cogmap-fb is set (can reuse existing false belief logs)
+            if args.cogmap_fb:
                 run_phase(args, mode="cogmap_fb", seed_opts=seed_opts,
                                   exp_types=exp_types, render_modes=render_modes)
         run_aggregation_phase(args)

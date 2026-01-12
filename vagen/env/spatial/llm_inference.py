@@ -350,10 +350,14 @@ def map_llm_responses(
                 # Evaluate cogmap with separate metrics for changed and unchanged objects
                 cogmap_result = _evaluate_false_belief_cogmap(cm, response_text, fb_turn_log)
                 # Update false belief turn log with cogmap_log
-                fb_turn_log["cogmap_log"] = cogmap_result
+                if "false_belief_log" not in fb_turn_log:
+                    fb_turn_log["false_belief_log"] = {}
+                fb_turn_log["false_belief_log"]["cogmap_log"] = cogmap_result
             except Exception as e:
                 print(f"Error evaluating false belief cogmap for FB turn {fb_idx}: {e}")
-                fb_turn_log["cogmap_log"] = {"original_response": response_text, "error": str(e)}
+                if "false_belief_log" not in fb_turn_log:
+                    fb_turn_log["false_belief_log"] = {}
+                fb_turn_log["false_belief_log"]["cogmap_log"] = {"original_response": response_text, "error": str(e)}
         
         # Save updated false belief logs
         history.save_false_belief()
@@ -526,7 +530,8 @@ def reevaluate_cogmap_fb_combo_dir(combo_dir: str) -> int:
     count = 0
     # Re-evaluate false belief turn cogmaps
     for fb_idx, fb_turn_log in enumerate(history.false_belief_turn_logs):
-        cogmap_log = fb_turn_log.get("cogmap_log", {})
+        fb_log = fb_turn_log.get("false_belief_log", {})
+        cogmap_log = fb_log.get("cogmap_log", {})
         if not cogmap_log:
             continue
 
@@ -538,7 +543,9 @@ def reevaluate_cogmap_fb_combo_dir(combo_dir: str) -> int:
         # Re-evaluate with separate metrics for changed and unchanged objects
         try:
             cogmap_result = _evaluate_false_belief_cogmap(cm, original_response, fb_turn_log)
-            fb_turn_log["cogmap_log"] = cogmap_result
+            if "false_belief_log" not in fb_turn_log:
+                fb_turn_log["false_belief_log"] = {}
+            fb_turn_log["false_belief_log"]["cogmap_log"] = cogmap_result
             count += 1
         except Exception as e:
             print(f"Error re-evaluating false belief cogmap for FB turn {fb_idx} in {combo_dir}: {e}")

@@ -148,9 +148,16 @@ def build_evaluation_from_combo(
             while task.eval_data.id in existing_id_for_task and retry:
                 q_text = task.generate_question()
                 retry -= 1
-            if task.eval_data.id in existing_id_for_task and len(existing_id_for_task) >= 2: # for bwd when max match place less than 3 (bwd_pov)
-                break
-            assert task.eval_data.id not in existing_id_for_task, f"Failed to generate unique question for {task_short} in {combo_dir}"
+            
+            if task.eval_data.id in existing_id_for_task:
+                base_id = task.eval_data.id
+                dup_cnt = 0
+                while f"{base_id}_dup{dup_cnt}" in existing_id_for_task:
+                    dup_cnt += 1
+                new_id = f"{base_id}_dup{dup_cnt}"
+                print(f"Warning: Duplicate question generated for {task_short} in {combo_dir} (id={base_id}). Renaming to {new_id}")
+                task.eval_data.id = new_id
+            
             existing_id_for_task.append(task.eval_data.id)
             assert base_msgs[-1]["role"] == "user"
             new_list = copy.deepcopy(base_msgs)
@@ -475,8 +482,8 @@ def build_cogmap_fb_from_combo(
         
         # Remove step counter from the user message
         base_user = re.sub(r"You have a maximum of\s*\d+\s*exploration steps left.*", "", next_user_msg, flags=re.DOTALL)
-        # Append cogmap prompt
-        cogmap_prompt = get_cogmap_prompt("global", enable_think)
+        # Append false-belief cogmap prompt (global + include ALL objects)
+        cogmap_prompt = get_cogmap_prompt("global_fb", enable_think)
         mod_seq.append({"role": "user", "content": base_user + cogmap_prompt})
         
         turn_num = fb_log.get("turn_number", fb_idx + 1)
