@@ -36,47 +36,56 @@ def _evaluate_false_belief_cogmap(
 ) -> Dict[str, Any]:
     """Evaluate false belief cognitive map with separate metrics for changed and unchanged objects.
     
+    Only evaluates changed objects if they were newly observed in this turn (first observation).
+    Uses facing+position metrics (no dir) for changed objects.
+    
     Args:
         cognitive_map_manager: CognitiveMapManager instance
         response_text: LLM response text with cognitive map
         fb_turn_log: False belief turn log containing room_state, agent_state, and false_belief_log
     
     Returns:
-        Dict with evaluation results including separate metrics for changed and unchanged objects
+        Dict with evaluation results (no 'full' metric, only changed and unchanged objects)
     """
     room_state = Room.from_dict(fb_turn_log['room_state'])
     agent_state = Agent.from_dict(fb_turn_log['agent_state'])
     fb_log = fb_turn_log.get('false_belief_log', {})
     
-    # Get ground truth changes
+    # Get newly observed changed objects in this turn
+    newly_observed_changed = fb_log.get('newly_observed_changed_objects', [])
+    
+    # Get ground truth changes (all changed objects)
     ground_truth_changes = fb_log.get('ground_truth_changes', [])
-    changed_object_names = set()
+    all_changed_names = set()
     for change in ground_truth_changes:
         if isinstance(change, dict):
-            changed_object_names.add(change.get('name'))
+            all_changed_names.add(change.get('name'))
     
     # All objects in the room
     all_object_names = {obj.name for obj in room_state.all_objects}
     
-    # Unchanged objects = all objects - changed objects
-    unchanged_object_names = all_object_names - changed_object_names
+    # Unchanged objects = all objects - all changed objects
+    unchanged_object_names = all_object_names - all_changed_names
     
-    # Evaluate full cogmap (all objects)
     responses_by_type = {"global": response_text}
-    full_cogmap_log = cognitive_map_manager.evaluate_cogmaps(
-        responses_by_type,
-        room_state,
-        agent_state,
-        list(all_object_names),
-    )
     
-    # Evaluate cogmap for changed objects only
-    changed_cogmap_log = cognitive_map_manager.evaluate_cogmaps(
-        responses_by_type,
-        room_state,
-        agent_state,
-        list(changed_object_names),
-    ) if changed_object_names else None
+    # Evaluate each newly observed changed object separately (first observation)
+    # Use no-dir metrics for changed objects
+    changed_objects_metrics = {}
+    if newly_observed_changed:
+        for obj_name in newly_observed_changed:
+            obj_cogmap_log = cognitive_map_manager.evaluate_cogmaps(
+                responses_by_type,
+                room_state,
+                agent_state,
+                [obj_name],  # Evaluate one object at a time
+            )
+            if obj_cogmap_log:
+                # Extract metrics for this object
+                global_log = obj_cogmap_log.to_dict().get('global', {})
+                metrics = global_log.get('metrics', {})
+                if metrics:
+                    changed_objects_metrics[obj_name] = metrics
     
     # Evaluate cogmap for unchanged objects only
     unchanged_cogmap_log = cognitive_map_manager.evaluate_cogmaps(
@@ -86,13 +95,13 @@ def _evaluate_false_belief_cogmap(
         list(unchanged_object_names),
     ) if unchanged_object_names else None
     
-    # Build result dictionary
+    # Build result dictionary (removed 'full' metric)
     result = {
-        "full": full_cogmap_log.to_dict() if full_cogmap_log else {},
-        "changed_objects": changed_cogmap_log.to_dict() if changed_cogmap_log else {},
+        "changed_objects_per_object": changed_objects_metrics,  # Per-object metrics for changed objects
         "unchanged_objects": unchanged_cogmap_log.to_dict() if unchanged_cogmap_log else {},
         "original_response": response_text,
-        "changed_object_names": list(changed_object_names),
+        "newly_observed_changed_objects": newly_observed_changed,
+        "all_changed_object_names": list(all_changed_names),
         "unchanged_object_names": list(unchanged_object_names),
     }
     
@@ -349,15 +358,11 @@ def map_llm_responses(
             try:
                 # Evaluate cogmap with separate metrics for changed and unchanged objects
                 cogmap_result = _evaluate_false_belief_cogmap(cm, response_text, fb_turn_log)
-                # Update false belief turn log with cogmap_log
-                if "false_belief_log" not in fb_turn_log:
-                    fb_turn_log["false_belief_log"] = {}
-                fb_turn_log["false_belief_log"]["cogmap_log"] = cogmap_result
+                # Update turn log with cogmap_log (directly, not nested under false_belief_log)
+                fb_turn_log["cogmap_log"] = cogmap_result
             except Exception as e:
                 print(f"Error evaluating false belief cogmap for FB turn {fb_idx}: {e}")
-                if "false_belief_log" not in fb_turn_log:
-                    fb_turn_log["false_belief_log"] = {}
-                fb_turn_log["false_belief_log"]["cogmap_log"] = {"original_response": response_text, "error": str(e)}
+                fb_turn_log["cogmap_log"] = {"original_response": response_text, "error": str(e)}
         
         # Save updated false belief logs
         history.save_false_belief()
