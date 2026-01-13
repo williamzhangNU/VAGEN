@@ -95,9 +95,10 @@ def build_evaluation_from_combo(
 
     # Get existing eval counts (will be empty if eval_override=True)
     existing_ids = hm.get_eval_ids()
-    # Always override Action2ViewEvaluationTask
-    if EvalTaskType.FWD_FOV.class_name in existing_ids:
-        del existing_ids[EvalTaskType.FWD_FOV.class_name]
+
+    # # Always override Action2ViewEvaluationTask
+    # if EvalTaskType.FWD_FOV.class_name in existing_ids:
+    #     del existing_ids[EvalTaskType.FWD_FOV.class_name]
 
     room = Room.from_dict(hm.room_dict).copy()
     agent = Agent.from_dict(hm.agent_dict).copy()
@@ -445,7 +446,7 @@ def build_cogmap_fb_from_combo(
         
         # Check if cogmap already exists (unless override)
         if not cogmap_fb_override:
-            existing_cogmap = fb_log.get("cogmap_log")
+            existing_cogmap = fb_log.get("false_belief_log", {}).get("cogmap_log")
             if existing_cogmap:
                 print(f"Skipping FB turn {fb_idx} in {combo_dir}: cogmap already exists")
                 continue

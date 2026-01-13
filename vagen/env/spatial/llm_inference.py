@@ -10,8 +10,6 @@ from vagen.env.spatial.Base.tos_base.evaluation.tasks import evaluate_from_dict
 from vagen.inference.model_interface.factory_model import ModelFactory
 from vagen.env.spatial.batch_processor import get_batch_processor
 from vagen.env.spatial.Base.tos_base.utils.utils import parse_llm_response
-from vagen.env.spatial.Base.tos_base.core.room import Room
-from vagen.env.spatial.Base.tos_base.core.object import Agent
 import dotenv
 dotenv.load_dotenv()
 
@@ -27,85 +25,6 @@ from vagen.env.spatial.common import (
 
 
 """Root-only inference runner: reads built files once and maps responses back via HistoryManager.load_from_dir."""
-
-
-def _evaluate_false_belief_cogmap(
-    cognitive_map_manager: CognitiveMapManager,
-    response_text: str,
-    fb_turn_log: Dict[str, Any],
-) -> Dict[str, Any]:
-    """Evaluate false belief cognitive map with separate metrics for changed and unchanged objects.
-    
-    Only evaluates changed objects if they were newly observed in this turn (first observation).
-    Uses facing+position metrics (no dir) for changed objects.
-    
-    Args:
-        cognitive_map_manager: CognitiveMapManager instance
-        response_text: LLM response text with cognitive map
-        fb_turn_log: False belief turn log containing room_state, agent_state, and false_belief_log
-    
-    Returns:
-        Dict with evaluation results (no 'full' metric, only changed and unchanged objects)
-    """
-    room_state = Room.from_dict(fb_turn_log['room_state'])
-    agent_state = Agent.from_dict(fb_turn_log['agent_state'])
-    fb_log = fb_turn_log.get('false_belief_log', {})
-    
-    # Get newly observed changed objects in this turn
-    newly_observed_changed = fb_log.get('newly_observed_changed_objects', [])
-    
-    # Get ground truth changes (all changed objects)
-    ground_truth_changes = fb_log.get('ground_truth_changes', [])
-    all_changed_names = set()
-    for change in ground_truth_changes:
-        if isinstance(change, dict):
-            all_changed_names.add(change.get('name'))
-    
-    # All objects in the room
-    all_object_names = {obj.name for obj in room_state.all_objects}
-    
-    # Unchanged objects = all objects - all changed objects
-    unchanged_object_names = all_object_names - all_changed_names
-    
-    responses_by_type = {"global": response_text}
-    
-    # Evaluate each newly observed changed object separately (first observation)
-    # Use no-dir metrics for changed objects
-    changed_objects_metrics = {}
-    if newly_observed_changed:
-        for obj_name in newly_observed_changed:
-            obj_cogmap_log = cognitive_map_manager.evaluate_cogmaps(
-                responses_by_type,
-                room_state,
-                agent_state,
-                [obj_name],  # Evaluate one object at a time
-            )
-            if obj_cogmap_log:
-                # Extract metrics for this object
-                global_log = obj_cogmap_log.to_dict().get('global', {})
-                metrics = global_log.get('metrics', {})
-                if metrics:
-                    changed_objects_metrics[obj_name] = metrics
-    
-    # Evaluate cogmap for unchanged objects only
-    unchanged_cogmap_log = cognitive_map_manager.evaluate_cogmaps(
-        responses_by_type,
-        room_state,
-        agent_state,
-        list(unchanged_object_names),
-    ) if unchanged_object_names else None
-    
-    # Build result dictionary (removed 'full' metric)
-    result = {
-        "changed_objects_per_object": changed_objects_metrics,  # Per-object metrics for changed objects
-        "unchanged_objects": unchanged_cogmap_log.to_dict() if unchanged_cogmap_log else {},
-        "original_response": response_text,
-        "newly_observed_changed_objects": newly_observed_changed,
-        "all_changed_object_names": list(all_changed_names),
-        "unchanged_object_names": list(unchanged_object_names),
-    }
-    
-    return result
 
 
 
@@ -283,16 +202,16 @@ def map_llm_responses(
             }
             history.update_eval_turn_log(turn_log)
 
-        elif (meta.get("type") or "").lower() == "cogmap": # for fog probe (vision)
+        elif (meta.get("type") or "").lower() == "cogmap":
             tnum = int(meta.get("turn_number", 1))
             t_idx = tnum - 1
             mtype = str(meta.get("map_type", "global") or "global")
             cogmap_groups.setdefault(t_idx, {})[mtype] = text
-            imgs = _to_rel_imgs(meta.get("message_images"))
+            imgs = _to_rel_imgs(meta.get("message_images"))  # for fog probe (vision)
             if imgs:
                 cogmap_message_images.setdefault(t_idx, {})[mtype] = imgs
         
-        elif (meta.get("type") or "").lower() == "cogmap_fb":
+        elif (meta.get("type") or "").lower() == "cogmap_fb": # for false belief cogmap
             fb_turn_idx = int(meta.get("fb_turn_index", 0))
             cogmap_fb_groups[fb_turn_idx] = text
 
@@ -354,15 +273,8 @@ def map_llm_responses(
             if not (0 <= fb_idx < len(history.false_belief_turn_logs)):
                 continue
             fb_turn_log = history.false_belief_turn_logs[fb_idx]
-            
-            try:
-                # Evaluate cogmap with separate metrics for changed and unchanged objects
-                cogmap_result = _evaluate_false_belief_cogmap(cm, response_text, fb_turn_log)
-                # Update turn log with cogmap_log (directly, not nested under false_belief_log)
-                fb_turn_log["cogmap_log"] = cogmap_result
-            except Exception as e:
-                print(f"Error evaluating false belief cogmap for FB turn {fb_idx}: {e}")
-                fb_turn_log["cogmap_log"] = {"original_response": response_text, "error": str(e)}
+            fb_turn_log.setdefault('false_belief_log', {})['cogmap_log'] = cm.evaluate_false_belief_cogmap(response_text, fb_turn_log)
+            fb_turn_log.pop('cogmap_log', None)
         
         # Save updated false belief logs
         history.save_false_belief()
@@ -535,8 +447,11 @@ def reevaluate_cogmap_fb_combo_dir(combo_dir: str) -> int:
     count = 0
     # Re-evaluate false belief turn cogmaps
     for fb_idx, fb_turn_log in enumerate(history.false_belief_turn_logs):
-        fb_log = fb_turn_log.get("false_belief_log", {})
-        cogmap_log = fb_log.get("cogmap_log", {})
+        # Check both locations: inside false_belief_log (preferred) or top-level (legacy)
+        cogmap_log = (fb_turn_log.get("false_belief_log") or {}).get("cogmap_log")
+        if not cogmap_log:
+            cogmap_log = fb_turn_log.get("cogmap_log")
+            
         if not cogmap_log:
             continue
 
@@ -547,10 +462,9 @@ def reevaluate_cogmap_fb_combo_dir(combo_dir: str) -> int:
 
         # Re-evaluate with separate metrics for changed and unchanged objects
         try:
-            cogmap_result = _evaluate_false_belief_cogmap(cm, original_response, fb_turn_log)
-            if "false_belief_log" not in fb_turn_log:
-                fb_turn_log["false_belief_log"] = {}
-            fb_turn_log["false_belief_log"]["cogmap_log"] = cogmap_result
+            cogmap_result = cm.evaluate_false_belief_cogmap(original_response, fb_turn_log)
+            fb_turn_log.setdefault("false_belief_log", {})["cogmap_log"] = cogmap_result
+            fb_turn_log.pop("cogmap_log", None)
             count += 1
         except Exception as e:
             print(f"Error re-evaluating false belief cogmap for FB turn {fb_idx} in {combo_dir}: {e}")
