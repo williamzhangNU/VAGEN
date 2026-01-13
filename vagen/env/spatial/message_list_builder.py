@@ -430,7 +430,8 @@ def build_cogmap_fb_from_combo(
         base_messages = base_messages[:-1]
     
     # Process each false belief turn (only the last turn should have completed phase)
-    for fb_idx, fb_log in enumerate(fb_logs):
+    for fb_idx, fb_log in enumerate(fb_logs[:-1]):
+        # Only process final turn (where changes are reported)
         fb_log_data = fb_log.get("false_belief_log", {})
         if fb_log_data.get("reported_changes") is None:
             continue
@@ -453,14 +454,9 @@ def build_cogmap_fb_from_combo(
             assistant_msg = fb_turn.get("assistant_raw_message", "")
             assert user_msg and assistant_msg, f"Missing messages in FB turn {i} of {combo_dir}"
             mod_seq.append({"role": "user", "content": user_msg,
-                            "images": fb_turn.get("message_images", [])})
+                            "images": fb_logs[i-1].get("message_images", []) if i > 0 else []})
             mod_seq.append({"role": "assistant", "content": assistant_msg})
         
-        # Add the next turn's user message (fb_idx + 1) and append cogmap prompt to it
-        # This follows the same pattern as cogmap construction
-        # If there's no next turn, skip this sample (no cogmap needed for the last turn)
-        if fb_idx + 1 >= len(fb_logs):
-            continue
         
         next_fb_turn = fb_logs[fb_idx + 1]
         next_user_msg = next_fb_turn.get("user_message", "")
@@ -469,7 +465,8 @@ def build_cogmap_fb_from_combo(
         base_user = re.sub(r"You have a maximum of\s*\d+\s*exploration steps left.*", "", next_user_msg, flags=re.DOTALL)
         # Append false-belief cogmap prompt (global + include ALL objects)
         cogmap_prompt = get_cogmap_prompt("global_fb", enable_think)
-        mod_seq.append({"role": "user", "content": base_user + cogmap_prompt})
+        mod_seq.append({"role": "user", "content": base_user + cogmap_prompt,
+                        "images": fb_logs[fb_idx].get("message_images", [])})
         
         turn_num = fb_log.get("turn_number", fb_idx + 1)
         
