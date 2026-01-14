@@ -400,9 +400,8 @@ class SpatialGym(gym.Env):
         self.false_belief_step = 0
         self._observed_changed_objects = set()  # Track which changed objects have been observed
         
-        # Modify room - move n objects (1-3)
-        n_changes = self.np_random.integers(1, 4)
-        modifier = ObjectModifier(seed=self.current_seed, n_changes=n_changes, agent_pos=self.agent.init_pos)
+        # Modify room - exactly four changes (2 moves, 2 rotations)
+        modifier = ObjectModifier(seed=self.current_seed, n_changes=4, agent_pos=self.agent.init_pos)
         self.modified_room, self.ground_truth_changes = modifier.modify(self.initial_room)
         if self.config.render_mode == 'vision':
             self.image_handler.transition_to_false_belief()
