@@ -363,6 +363,43 @@ class SpatialEnvAdapter:
             image_dir=image_dir,
             render_mode=render_mode,
         )
+    def _attach_eval_image(self, obs: Dict[str, Any], task: Any) -> None:
+        """
+        Attach evaluation image in the exact format Play.py expects:
+        obs["multi_modal_data"] = {"<image>": [ ... ]}
+        """
+        if task is None:
+            return
+
+        task_short = getattr(task, "task_type", "") or ""
+        if "vision" not in task_short:
+            return
+
+        # needs cached image handler
+        if not (hasattr(self.env, "image_handler") and self.env.image_handler):
+            return
+
+        eval_data = getattr(task, "eval_data", None)
+        ans = getattr(eval_data, "answer", None) or {}
+        final_pos = ans.get("final_pos")
+        final_ori = ans.get("final_ori")
+        object_positions = ans.get("object_positions", {}) or {}
+
+        object_name = None
+        if final_pos is not None:
+            fp = tuple(map(int, final_pos))
+            for name, pos in object_positions.items():
+                try:
+                    if tuple(map(int, pos)) == fp:
+                        object_name = name
+                        break
+                except Exception:
+                    pass
+
+        img_path = self.env.image_handler.get_image_path(object_name or final_pos, final_ori)
+
+        # Match Streamlit UI contract
+        obs["multi_modal_data"] = {"<image>": [img_path]}
 
     def step(self, user_action: str) -> Tuple[Dict[str, Any], float, bool, Dict[str, Any]]:
         """
@@ -375,7 +412,7 @@ class SpatialEnvAdapter:
         
         enable_think = bool(self.cfg.prompt_config.get("enable_think", True))
         llm_response = _wrap_user_action_for_env(user_action, enable_think=enable_think)
-
+        
         obs, reward, done, step_info = self.env.step(llm_response)
         # Check if exploration is done (Term action was sent)
         if done or "Term" in user_action:
@@ -388,37 +425,45 @@ class SpatialEnvAdapter:
                 current_task = self.evaluation_manager.get_current_task()
                 if current_task:
                     obs["obs_str"] = obs.get("obs_str", "") + "\n\n" + current_task.question
+                    self._attach_eval_image(obs, current_task)
                     done = False  # Continue with evaluation
         
         return obs, reward, done, step_info
     
     def _step_evaluation(self, user_action: str) -> Tuple[Dict[str, Any], float, bool, Dict[str, Any]]:
-        """Handle evaluation phase step."""
+        """Handle evaluation phase step (with image output)."""
         is_correct, reward = self.evaluation_manager.submit_answer(user_action)
-        
+
         obs: Dict[str, Any] = {}
         step_info = {
             "is_correct": is_correct,
             "phase": "evaluation",
         }
 
+        # If finished
         if self.evaluation_manager.is_complete():
-            # All evaluation tasks complete
             if self.debug:
                 obs["obs_str"] = f"Evaluation complete! Your answer was {'correct' if is_correct else 'incorrect'}."
             else:
                 obs["obs_str"] = "Evaluation complete!"
-            done = True
+            return obs, reward, True, step_info
+
+        # Otherwise show next question
+        current_task = self.evaluation_manager.get_current_task()
+
+        if self.debug:
+            obs["obs_str"] = f"Your answer was {'correct' if is_correct else 'incorrect'}.\n\n{current_task.question}"
         else:
-            # Show next question
-            current_task = self.evaluation_manager.get_current_task()
-            if self.debug:
-                obs["obs_str"] = f"Your answer was {'correct' if is_correct else 'incorrect'}.\n\n{current_task.question}"
-            else:
-                obs["obs_str"] = current_task.question
-            done = False
-            
-        return obs, reward, done, step_info
+            obs["obs_str"] = current_task.question
+
+        try:
+            self._attach_eval_image(obs, current_task)
+        except Exception as e:
+            # Don't let image failure break evaluation
+            print(f"[Eval image attach failed] {e}")
+
+
+        return obs, reward, False, step_info
 
     def get_eval_answers(self):
         answers = []
