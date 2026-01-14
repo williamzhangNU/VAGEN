@@ -19,10 +19,6 @@ from vagen.env.spatial.Base.tos_base.utils.image_handler import ImageHandler
 from vagen.env.spatial.Base.tos_base.utils.visualization.annotate_point import load_mapping_from_meta, draw_point
 # Shared common utilities/constants
 from vagen.env.spatial.common import (
-    MESSAGES_BASENAME,
-    EXPLORATION_LOG_BASENAME,
-    STATE_BASENAME,
-    read_json,
     resolve_built_root,
     paths_for_mode,
     iter_combo_dirs,
@@ -95,10 +91,6 @@ def build_evaluation_from_combo(
 
     # Get existing eval counts (will be empty if eval_override=True)
     existing_ids = hm.get_eval_ids()
-
-    # # Always override Action2ViewEvaluationTask
-    # if EvalTaskType.FWD_FOV.class_name in existing_ids:
-    #     del existing_ids[EvalTaskType.FWD_FOV.class_name]
 
     room = Room.from_dict(hm.room_dict).copy()
     agent = Agent.from_dict(hm.agent_dict).copy()
@@ -439,7 +431,6 @@ def build_cogmap_fb_from_combo(
     
     # Process each false belief turn (only the last turn should have completed phase)
     for fb_idx, fb_log in enumerate(fb_logs):
-        # Only process final turn (where changes are reported)
         fb_log_data = fb_log.get("false_belief_log", {})
         if fb_log_data.get("reported_changes") is None:
             continue
