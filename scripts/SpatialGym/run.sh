@@ -48,7 +48,78 @@ tmux new-session -d -s "gpt-5.2_2room_2" "python scripts/SpatialGym/spatial_run.
   --render-mode text,vision \
   --inference-mode batch 2>&1 | tee logs/gpt-5.2_2room_2.log; bash"
 
-tmux new-session -d -s "gpt-5.2_4room_1" "python scripts/SpatialGym/spatial_run.py \
+
+tmux new-session -d -s "gpt-fb" "python scripts/SpatialGym/spatial_run.py \
+  --phase cogmap \
+  --model-name gpt-5.2 \
+  --seed-range 30-31 \
+  --output-root results_debug/ \
+  --data-dir /home/pingyue/work/VAGEN/vagen/env/spatial/room_data_3_room_fb   \
+  --exp-type active \
+  --render-mode vision \
+  --cogmap-fb \
+  --inference-mode direct 2>&1 | tee logs/gpt-fb.log; bash"
+
+tmux new-session -d -s "gemini-cogmap-4" "python scripts/SpatialGym/spatial_run.py \
+  --phase cogmap \
+  --model-name gemini-3-pro-preview \
+  --seed-range 0-99 \
+  --output-root results_cogmap_4/ \
+  --data-dir /home/pingyue/work/VAGEN/vagen/env/spatial/room_data_3_room_fb  \
+  --exp-type active \
+  --render-mode text,vision \
+  --cogmap-last-global-only \
+  --cogmap-override \
+  --inference-mode batch 2>&1 | tee logs/gemini_cogmap_4.log; bash"
+
+tmux new-session -d -s "gpt-cogmap-4" "python scripts/SpatialGym/spatial_run.py \
+  --phase cogmap \
+  --model-name gpt-5.2 \
+  --seed-range 0-99 \
+  --output-root results_cogmap_4/ \
+  --data-dir /home/pingyue/work/VAGEN/vagen/env/spatial/room_data_3_room_fb  \
+  --exp-type active \
+  --render-mode text,vision \
+  --cogmap-last-global-only \
+  --cogmap-override \
+  --inference-mode batch 2>&1 | tee logs/gpt_cogmap_4.log; bash"
+
+tmux new-session -d -s "gpt" "python scripts/SpatialGym/spatial_run.py \
+  --phase eval \
+  --model-name gpt-5.2 \
+  --seed-range 18-18 \
+  --output-root results_debug/ \
+  --data-dir vagen/env/spatial/room_data_3_room_new/   \
+  --exp-type active \
+  --render-mode text \
+  --inference-mode direct 2>&1 | tee logs/gpt_debug.log; bash"
+
+
+tmux new-session -d -s "gemini_4room" "python scripts/SpatialGym/spatial_run.py \
+  --phase all \
+  --model-name gemini-3-pro-preview \
+  --seed-range 10-24 \
+  --max-exp-steps 25 \
+  --output-root results_4-room/ \
+  --data-dir /home/zihanhuang/VAGEN/data-4room/tos_dataset_1214_4room_25runs/   \
+  --exp-type active,passive \
+  --render-mode text,vision \
+  --inference-mode batch 2>&1 | tee logs/gemini_4room.log; bash"
+
+
+  tmux new-session -d -s "gemini_2room" "python scripts/SpatialGym/spatial_run.py \
+  --phase all \
+  --model-name gemini-3-pro-preview \
+  --seed-range 10-24 \
+  --max-exp-steps 15 \
+  --output-root results_2-room/ \
+  --data-dir /home/zihanhuang/VAGEN/data-2room/tos_dataset_1217_2room_25runs   \
+  --exp-type active,passive \
+  --render-mode text,vision \
+  --inference-mode batch 2>&1 | tee logs/gemini_2room.log; bash"
+
+
+tmux new-session -d -s "gpt-5.2_4room" "python scripts/SpatialGym/spatial_run.py \
   --phase all \
   --model-name gpt-5.2 \
   --num  25 \

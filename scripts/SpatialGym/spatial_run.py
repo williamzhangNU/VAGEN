@@ -108,6 +108,8 @@ def parse_args():
                    help="Override evaluation history (delete evaluation json only)")
     p.add_argument("--cogmap-override", action="store_true", dest="cogmap_override",
                    help="Override cognitive map cache (regenerate cogmap prompts)")
+    p.add_argument("--cogmap-last-global-only", action="store_true", dest="cogmap_last_global_only",
+                   help="Run only the last global cogmap per sample")
     p.add_argument("--false-belief-exp", action="store_true", dest="false_belief_exp",
                    help="Enable false belief experiment")
     p.add_argument("--false-belief-override", action="store_true", dest="false_belief_override",
@@ -614,6 +616,7 @@ def run_phase(args, mode: str, seed_opts: tuple[int, int] | None = None,
     else:  # cogmap
         inference_kwargs.update({
             "cogmap_override": args.cogmap_override,
+            "last_global_only": args.cogmap_last_global_only,
         })
 
     # Run inference

@@ -245,6 +245,7 @@ def build_cogmap_from_combo(
     combo_dir: str,
     cogmap_override: bool = False,
     image_dir: str = None,
+    last_global_only: bool = False,
 ) -> Tuple[List[List[Dict]], List[Dict]]:
     """Create cogmap message lists strictly following cog_utils logic (local/global only).
 
@@ -285,6 +286,8 @@ def build_cogmap_from_combo(
     if exp_type == "active":
         # For each turn after the first action, use previous turn index for decision
         for t_idx in range(1, len(turn_logs) + 1):
+            if last_global_only and t_idx != len(turn_logs):
+                continue
             if t_idx == len(turn_logs):
                 # After termination, only probe global map.
                 types = ["global"]
@@ -520,6 +523,7 @@ def build_all_for_combo_dirs(
     cogmap_override: bool = False,
     cogmap_fb_override: bool = False,
     image_dir: str = None,
+    last_global_only: bool = False,
 ) -> Tuple[List[List[Dict]], List[Dict]]:
     """Build messages/meta for a specific list of combo directories.
     
@@ -548,7 +552,12 @@ def build_all_for_combo_dirs(
         elif mode == "cogmap_fb":
             msgs, meta = build_cogmap_fb_from_combo(combo, cogmap_fb_override=cogmap_fb_override, image_dir=image_dir)
         else:
-            msgs, meta = build_cogmap_from_combo(combo, cogmap_override=cogmap_override, image_dir=image_dir)
+            msgs, meta = build_cogmap_from_combo(
+                combo,
+                cogmap_override=cogmap_override,
+                image_dir=image_dir,
+                last_global_only=last_global_only,
+            )
         all_msgs.extend(msgs)
         all_meta.extend(meta)
     

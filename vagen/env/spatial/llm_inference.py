@@ -508,6 +508,7 @@ def run_inference_for_combo_dirs(
     cogmap_override: bool = False,
     cogmap_fb_override: bool = False,
     image_dir: str = None,
+    last_global_only: bool = False,
 ) -> None:
     """Run inference for a specific list of combo directories.
 
@@ -532,7 +533,8 @@ def run_inference_for_combo_dirs(
         eval_override=eval_override,
         cogmap_override=cogmap_override,     
         cogmap_fb_override=cogmap_fb_override,
-        image_dir=image_dir
+        image_dir=image_dir,
+        last_global_only=last_global_only,
     )
     
     if not all_msgs or not all_meta:
