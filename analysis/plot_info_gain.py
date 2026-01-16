@@ -17,17 +17,21 @@ from typing import Dict, Optional, List, Union
 plt.rcParams['font.family'] = 'serif'
 plt.rcParams['font.serif'] = ['Times New Roman'] + plt.rcParams['font.serif']
 
-def read_info_gain_from_models(results_dir: str) -> tuple[Dict[str, Dict[str, List[float]]], Dict[str, Dict[str, List[int]]]]:
+def read_info_gain_from_models(results_dir: str) -> tuple[Dict[str, Dict[str, List[float]]], Dict[str, Dict[str, List[int]]], Dict[str, Dict[str, List[float]]], Dict[str, Dict[str, List[int]]]]:
     """Read env_data.json files under different model directories and extract
     information gain values and sample end steps (active configurations only).
 
     Returns:
-        tuple: (info_gains, sample_end_steps)
+        tuple: (info_gains, sample_end_steps, cogmap_full, sample_counts_per_turn)
         - info_gains: model_name -> config_name -> list of information gains
         - sample_end_steps: model_name -> config_name -> list of end step numbers
+        - cogmap_full: model_name -> config_name -> list of cogmap_full_per_turn averages
+        - sample_counts_per_turn: model_name -> config_name -> list of sample counts at each turn
     """
     info_gains = {}
     sample_end_steps = {}
+    cogmap_full = {}
+    sample_counts_per_turn = {}
 
     for model_dir in os.listdir(results_dir):
         model_path = os.path.join(results_dir, model_dir)
@@ -43,11 +47,19 @@ def read_info_gain_from_models(results_dir: str) -> tuple[Dict[str, Dict[str, Li
                 data = json.load(f)
 
             model_name = data.get('meta_info', {}).get('model_name', model_dir)
+            
+            # Skip oracle baselines
+            if model_name in ["Qwen3-VL-32B-Instruct", "GLM-4.5V"]:
+                continue
+            
             exp_summary = data.get('exp_summary', {}).get('group_performance', {})
+            cogmap_summary = data.get('cogmap_summary', {}).get('group_performance', {})
             samples = data.get('samples', {})
 
             model_configs = {}
             model_end_steps = {}
+            model_cogmap_full = {}
+            model_sample_counts = {}
 
             # Extract information gain from aggregated experiment summary
             for config_name, config_data in exp_summary.items():
@@ -63,6 +75,22 @@ def read_info_gain_from_models(results_dir: str) -> tuple[Dict[str, Dict[str, Li
                     final_info_gain = config_data.get('avg_final_information_gain')
                     if final_info_gain is not None:
                         model_configs[config_name] = [final_info_gain]  # convert to list format
+            
+            # Extract cogmap_full_per_turn from cogmap_summary
+            for config_name, cogmap_config_data in cogmap_summary.items():
+                # Only include configurations that are active
+                if "active" not in config_name.lower():
+                    continue
+                
+                # Navigate to per_turn_metrics to get cogmap_full_per_turn
+                per_turn_metrics = cogmap_config_data.get('per_turn_metrics', {})
+                cogmap_full_per_turn_dict = per_turn_metrics.get('cogmap_full_per_turn', {})
+                
+                # Extract the 'overall' key which contains the list of values
+                if isinstance(cogmap_full_per_turn_dict, dict) and 'overall' in cogmap_full_per_turn_dict:
+                    cogmap_full_per_turn = cogmap_full_per_turn_dict['overall']
+                    if isinstance(cogmap_full_per_turn, list) and len(cogmap_full_per_turn) > 0:
+                        model_cogmap_full[config_name] = cogmap_full_per_turn
 
             # For each config, collect per-sample end steps from env_turn_logs
             for config_name in model_configs.keys():
@@ -79,32 +107,52 @@ def read_info_gain_from_models(results_dir: str) -> tuple[Dict[str, Dict[str, Li
 
                 if end_steps:
                     model_end_steps[config_name] = end_steps
+                    
+                    # Calculate sample counts per turn
+                    if config_name in model_configs:
+                        max_turns = len(model_configs[config_name])
+                        sample_counts = []
+                        for turn_idx in range(max_turns):
+                            # Count how many samples are still active at this turn (turn is 1-indexed)
+                            count = sum(1 for step in end_steps if step >= turn_idx + 1)
+                            sample_counts.append(count)
+                        model_sample_counts[config_name] = sample_counts
 
             if model_configs:
                 info_gains[model_name] = model_configs
                 sample_end_steps[model_name] = model_end_steps
+                cogmap_full[model_name] = model_cogmap_full
+                sample_counts_per_turn[model_name] = model_sample_counts
                 print(f"Found information gain for {model_name}: {list(model_configs.keys())}")
                 print(f"  Sample end steps: {[(config, len(steps)) for config, steps in model_end_steps.items()]}")
 
         except Exception as e:
             print(f"{env_data_path} error: {e}")
 
-    return info_gains, sample_end_steps
+    return info_gains, sample_end_steps, cogmap_full, sample_counts_per_turn
 
 
 def plot_config_group_line_style(info_gains: Dict[str, Dict[str, List[float]]],
                                 sample_end_steps: Dict[str, Dict[str, List[int]]],
                                 group_name: str,
                                 group_configs: list,
-                                save_path: str) -> None:
+                                save_path: str,
+                                cogmap_full: Optional[Dict[str, Dict[str, List[float]]]] = None,
+                                plot_cogmap: bool = False,
+                                sample_counts_per_turn: Optional[Dict[str, Dict[str, List[int]]]] = None) -> None:
     """Create a line-style plot for a group of configurations (visual style is tuned).
+    
+    Args:
+        cogmap_full: Optional dict containing cogmap_full_per_turn data
+        plot_cogmap: Whether to plot cogmap_full data on the same figure
+        sample_counts_per_turn: Optional dict containing sample counts at each turn
     """
     if not group_configs:
         return
 
     # Prepare data - create a separate line for each configuration
-    # Use a narrower figure to make the overall table/plot tighter
-    plt.figure(figsize=(6, 4))
+    # Use a single figure for all data
+    fig, ax1 = plt.subplots(figsize=(8, 5))
 
     # Define color palette and marker styles
     colors = ['#4285f4', '#ea4335', '#34a853', '#fbbc05', '#ff6d00', '#795548', '#673ab7']
@@ -145,6 +193,11 @@ def plot_config_group_line_style(info_gains: Dict[str, Dict[str, List[float]]],
         config = data_info['config']
         infogain_list = data_info['data']
 
+        # If plotting cogmap, only show GPT and Gemini models in infogain plot too
+        if plot_cogmap and cogmap_full:
+            if not ('gpt' in model_name.lower() or 'gemini' in model_name.lower()):
+                continue
+
         if infogain_list:
             # Create legend label showing only the model short name
             model_short = model_name.split('/')[-1] if '/' in model_name else model_name
@@ -156,23 +209,56 @@ def plot_config_group_line_style(info_gains: Dict[str, Dict[str, List[float]]],
             x_data = x_positions[:len(infogain_list)]
             y_data = infogain_list
 
-            # Plot the full line
-            plt.plot(x_data, y_data,
-                    color=line_color,
-                    linestyle=linestyles[line_index % len(linestyles)],
-                    linewidth=2.5,
-                    alpha=0.8,
-                    label=model_short)
+            # Get sample counts for this model-config to adjust alpha
+            sample_counts = None
+            if sample_counts_per_turn and model_name in sample_counts_per_turn:
+                if config in sample_counts_per_turn[model_name]:
+                    sample_counts = sample_counts_per_turn[model_name][config]
+
+            # Plot the full line on ax1 with segments of varying alpha
+            # Use solid line for infogain when plotting cogmap, otherwise use varied linestyles
+            line_style = '-' if (plot_cogmap and cogmap_full) else linestyles[line_index % len(linestyles)]
+            
+            if sample_counts and len(sample_counts) > 0:
+                max_samples = max(sample_counts)
+                # Plot line segments with varying alpha based on sample count
+                for i in range(len(x_data) - 1):
+                    count = sample_counts[i] if i < len(sample_counts) else sample_counts[-1]
+                    # Alpha ranges from 0.2 (min samples) to 0.8 (max samples)
+                    alpha = 0.2 + 0.6 * (count / max_samples)
+                    ax1.plot([x_data[i], x_data[i+1]], [y_data[i], y_data[i+1]],
+                            color=line_color,
+                            linestyle=line_style,
+                            linewidth=2.5,
+                            alpha=alpha)
+                
+                # Add label with a dummy plot
+                ax1.plot([], [], color=line_color, linestyle=line_style,
+                        linewidth=2.5, alpha=0.8, label=model_short)
+            else:
+                # Fallback to original plotting if no sample counts available
+                ax1.plot(x_data, y_data,
+                        color=line_color,
+                        linestyle=line_style,
+                        linewidth=2.5,
+                        alpha=0.8,
+                        label=model_short)
 
             # Show markers only on odd steps to reduce clutter
             for i, (x, y) in enumerate(zip(x_data, y_data)):
                 if x % 2 == 1:  # odd step numbers
-                    plt.plot(x, y,
+                    # Adjust marker alpha based on sample count
+                    marker_alpha = 0.8
+                    if sample_counts and i < len(sample_counts):
+                        max_samples = max(sample_counts)
+                        marker_alpha = 0.2 + 0.6 * (sample_counts[i] / max_samples)
+                    ax1.plot(x, y,
                             marker=markers[line_index % len(markers)],
                             color=line_color,
                             markersize=4,
                             markerfacecolor='white',
-                            markeredgewidth=2)
+                            markeredgewidth=2,
+                            alpha=marker_alpha)
 
             legend_labels.append(model_short)
 
@@ -181,102 +267,197 @@ def plot_config_group_line_style(info_gains: Dict[str, Dict[str, List[float]]],
 
             line_index += 1
 
-    # Customize plot appearance
-    plt.title(f'Accumulated Information Gain', fontsize=14, fontweight='bold', pad=20)
-    plt.xlabel('Steps', fontsize=14, fontweight='bold')
-    plt.ylabel('Information Gain', fontsize=14, fontweight='bold')
+    # Customize plot appearance for ax1
+    if plot_cogmap and cogmap_full:
+        ax1.set_title(f'Accumulated Information Gain & Cognitive Map Coverage', fontsize=14, fontweight='bold', pad=20)
+        ax1.set_ylabel('Information Gain / Cognitive Map Coverage', fontsize=14, fontweight='bold')
+    else:
+        ax1.set_title(f'Accumulated Information Gain', fontsize=14, fontweight='bold', pad=20)
+        ax1.set_ylabel('Information Gain', fontsize=14, fontweight='bold')
+    ax1.set_xlabel('Steps', fontsize=14, fontweight='bold')
 
     # Set x-axis ticks - show every other tick (1,3,5,...)
     x_ticks = [x for x in x_positions if x % 2 == 1]  # show 1,3,5,7...
-    plt.xticks(x_ticks, fontsize=14)
-    plt.yticks(fontsize=14)
+    ax1.set_xticks(x_ticks)
+    ax1.tick_params(axis='both', labelsize=14)
 
     # Add a light grid
-    plt.grid(True, alpha=0.3, linestyle='--')
+    ax1.grid(True, alpha=0.3, linestyle='--')
 
-    # Draw vertical lines indicating sample end steps (percentile-based)
-    vline_positions = {}  # track counts per position to offset overlapping lines
-    vline_added_to_legend = False  # ensure the line label is added to legend only once
+    # Draw vertical lines indicating sample end steps (only when not plotting cogmap)
+    if not (plot_cogmap and cogmap_full):
+        vline_positions = {}  # track counts per position to offset overlapping lines
+        vline_added_to_legend = False  # ensure the line label is added to legend only once
 
-    for model_name, model_end_steps in sample_end_steps.items():
-        for config in group_configs:
-            if config in model_end_steps:
-                end_steps_list = model_end_steps[config]
-                if end_steps_list:
-                    # Compute the 80th percentile of end steps
-                    end_steps_sorted = sorted(end_steps_list)
-                    median_step = np.percentile(end_steps_sorted, 80)
+        for model_name, model_end_steps in sample_end_steps.items():
+            for config in group_configs:
+                if config in model_end_steps:
+                    end_steps_list = model_end_steps[config]
+                    if end_steps_list:
+                        # Compute the 80th percentile of end steps
+                        end_steps_sorted = sorted(end_steps_list)
+                        median_step = np.percentile(end_steps_sorted, 80)
 
-                    # Compute a small offset to avoid overlapping vertical lines
-                    if median_step in vline_positions:
-                        vline_positions[median_step] += 1
-                        offset = (vline_positions[median_step] - 1) * 0.1 - 0.05
-                    else:
-                        vline_positions[median_step] = 1
-                        offset = 0
+                        # Compute a small offset to avoid overlapping vertical lines
+                        if median_step in vline_positions:
+                            vline_positions[median_step] += 1
+                            offset = (vline_positions[median_step] - 1) * 0.1 - 0.05
+                        else:
+                            vline_positions[median_step] = 1
+                            offset = 0
 
-                    # Use the model's line color for the vertical marker
-                    vline_color = model_colors.get(model_name, 'gray')
+                        # Use the model's line color for the vertical marker
+                        vline_color = model_colors.get(model_name, 'gray')
 
-                    # Add the first vertical line to the legend as a gray dashed entry
-                    if not vline_added_to_legend:
-                        plt.axvline(x=median_step + offset,
-                                  color=vline_color,
-                                  linestyle='--',
-                                  alpha=0.7,
-                                  linewidth=2)
-                        # Create a separate gray legend entry for sample-end markers
-                        plt.plot([], [], color='gray', linestyle='--',
-                               linewidth=2, label='80% Samples Ends')
-                        vline_added_to_legend = True
-                    else:
-                        plt.axvline(x=median_step + offset,
-                                  color=vline_color,
-                                  linestyle='--',
-                                  alpha=0.7,
-                                  linewidth=2)
-
-    # Add legend including model names and the sample-end marker
-    all_legend_items = []
-    if legend_labels:
-        all_legend_items.extend(legend_labels)
-
-    if vline_added_to_legend:
-        pass
+                        # Add the first vertical line to the legend as a gray dashed entry
+                        if not vline_added_to_legend:
+                            ax1.axvline(x=median_step + offset,
+                                      color=vline_color,
+                                      linestyle='--',
+                                      alpha=0.7,
+                                      linewidth=2)
+                            # Create a separate gray legend entry for sample-end markers
+                            ax1.plot([], [], color='gray', linestyle='--',
+                                   linewidth=2, label='80% Samples Ends')
+                            vline_added_to_legend = True
+                        else:
+                            ax1.axvline(x=median_step + offset,
+                                      color=vline_color,
+                                      linestyle='--',
+                                      alpha=0.7,
+                                      linewidth=2)
 
     # Compact the legend inside the plot (lower right) for a tighter layout
-    # Slightly smaller legend to save horizontal space
-    plt.legend(loc='lower right', framealpha=0.85, fancybox=True, shadow=True,
-               fontsize=8, markerscale=0.7, handlelength=1.2, handletextpad=0.4,
-               borderpad=0.3, bbox_to_anchor=(0.98, 0.02), ncol=1)
+    # Only show legend if not plotting cogmap (cogmap will have combined legend)
+    if not (plot_cogmap and cogmap_full):
+        ax1.legend(loc='lower right', framealpha=0.85, fancybox=True, shadow=True,
+                   fontsize=8, markerscale=0.7, handlelength=1.2, handletextpad=0.4,
+                   borderpad=0.3, bbox_to_anchor=(0.98, 0.02), ncol=1)
 
-    # Set y-axis limits and ticks
-    all_values = []
-    for model_configs in info_gains.values():
-        for config in group_configs:
-            if config in model_configs:
-                infogain_list = model_configs[config]
-                all_values.extend(infogain_list)
+    # Set y-axis limits and ticks (only if not plotting cogmap, as cogmap will set 0-1 range)
+    if not (plot_cogmap and cogmap_full):
+        all_values = []
+        for model_configs in info_gains.values():
+            for config in group_configs:
+                if config in model_configs:
+                    infogain_list = model_configs[config]
+                    all_values.extend(infogain_list)
 
-    if all_values:
-        y_min = min(all_values)
-        y_max = max(all_values)
-        y_range = y_max - y_min
+        if all_values:
+            y_min = min(all_values)
+            y_max = max(all_values)
+            y_range = y_max - y_min
 
-        # If all values are equal, set a sensible range
-        if y_range == 0:
-            if y_max == 0:
-                plt.ylim(-0.1, 0.5)
+            # If all values are equal, set a sensible range
+            if y_range == 0:
+                if y_max == 0:
+                    ax1.set_ylim(-0.1, 0.5)
+                else:
+                    ax1.set_ylim(max(0, y_max - 0.5), y_max + 0.5)
             else:
-                plt.ylim(max(0, y_max - 0.5), y_max + 0.5)
-        else:
-            plt.ylim(max(0, y_min - y_range * 0.1), y_max + y_range * 0.1)
+                ax1.set_ylim(max(0, y_min - y_range * 0.1), y_max + y_range * 0.1)
 
-    # Adjust layout and tighten right margin
-    plt.subplots_adjust(right=0.90)
+    # Plot cogmap_full data on the same ax1 if requested
+    if plot_cogmap and cogmap_full:
+        # Collect cogmap data for the same configurations
+        # Only include models with 'gpt' or 'gemini' in their name
+        cogmap_model_data = {}
+        max_cogmap_turns = 0
+        
+        for model_name, model_configs in cogmap_full.items():
+            # Filter to only include GPT and Gemini models
+            if not ('gpt' in model_name.lower() or 'gemini' in model_name.lower()):
+                continue
+                
+            for config in group_configs:
+                if config in model_configs:
+                    cogmap_list = model_configs[config]
+                    model_config_key = f"{model_name}_{config}"
+                    cogmap_model_data[model_config_key] = {
+                        'model_name': model_name,
+                        'config': config,
+                        'data': cogmap_list
+                    }
+                    max_cogmap_turns = max(max_cogmap_turns, len(cogmap_list))
+        
+        if max_cogmap_turns > 0:
+            x_positions_cogmap = range(1, max_cogmap_turns + 1)
+            
+            # Plot cogmap data using dashed lines with different styling
+            cogmap_line_index = 0
+            for model_config_key, data_info in cogmap_model_data.items():
+                model_name = data_info['model_name']
+                config = data_info['config']
+                cogmap_list = data_info['data']
+                
+                if cogmap_list:
+                    model_short = model_name.split('/')[-1] if '/' in model_name else model_name
+                    # Use matching colors from the existing model_colors dict
+                    line_color = model_colors.get(model_name, colors[cogmap_line_index % len(colors)])
+                    
+                    x_data = x_positions_cogmap[:len(cogmap_list)]
+                    y_data = cogmap_list
+                    
+                    # Get sample counts for this model-config to adjust alpha
+                    sample_counts = None
+                    if sample_counts_per_turn and model_name in sample_counts_per_turn:
+                        if config in sample_counts_per_turn[model_name]:
+                            sample_counts = sample_counts_per_turn[model_name][config]
+                    
+                    # Plot with dashed line on the same ax1 with varying alpha
+                    if sample_counts and len(sample_counts) > 0:
+                        max_samples = max(sample_counts)
+                        # Plot line segments with varying alpha based on sample count
+                        for i in range(len(x_data) - 1):
+                            count = sample_counts[i] if i < len(sample_counts) else sample_counts[-1]
+                            # Alpha ranges from 0.2 (min samples) to 0.8 (max samples)
+                            alpha = 0.2 + 0.6 * (count / max_samples)
+                            ax1.plot([x_data[i], x_data[i+1]], [y_data[i], y_data[i+1]],
+                                    color=line_color,
+                                    linestyle='--',
+                                    linewidth=2.0,
+                                    alpha=alpha)
+                        
+                        # Add label with a dummy plot
+                        ax1.plot([], [], color=line_color, linestyle='--',
+                                linewidth=2.0, alpha=0.6, label=f'{model_short} (CogMap)')
+                    else:
+                        # Fallback to original plotting if no sample counts available
+                        ax1.plot(x_data, y_data,
+                                color=line_color,
+                                linestyle='--',
+                                linewidth=2.0,
+                                alpha=0.6,
+                                label=f'{model_short} (CogMap)')
+                    
+                    # Show markers with varying alpha
+                    for i, (x, y) in enumerate(zip(x_data, y_data)):
+                        if x % 2 == 1:
+                            # Adjust marker alpha based on sample count
+                            marker_alpha = 0.6
+                            if sample_counts and i < len(sample_counts):
+                                max_samples = max(sample_counts)
+                                marker_alpha = 0.2 + 0.6 * (sample_counts[i] / max_samples)
+                            ax1.plot(x, y,
+                                    marker='x',
+                                    color=line_color,
+                                    markersize=5,
+                                    markeredgewidth=1.5,
+                                    alpha=marker_alpha)
+                    
+                    cogmap_line_index += 1
+            
+            # Set unified y-axis limits to 0-1
+            ax1.set_ylim(0, 1.0)
+            
+            # Show combined legend
+            ax1.legend(loc='lower right', framealpha=0.85, 
+                      fancybox=True, shadow=True, fontsize=7, markerscale=0.6, 
+                      handlelength=1.5, handletextpad=0.4, borderpad=0.3, 
+                      bbox_to_anchor=(0.98, 0.02), ncol=1)
 
     # Save plot to file
-    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    fig.savefig(save_path, dpi=300, bbox_inches='tight')
     print(f"save to: {save_path}")
     plt.show()
 
@@ -297,14 +478,13 @@ def main():
     """Main entrypoint"""
     # 请将此路径修改为您实际的 results 目录
     results_dir = "/home/zihanhuang/VAGEN/results_arxiv"
+    
+    # 设置是否绘制 cogmap_full 数据
+    PLOT_COGMAP = True  # 设置为 True 以同时绘制 cogmap_full，False 则只绘制 information gain
 
     # Read information gain data and sample end steps
-    info_gains, sample_end_steps = read_info_gain_from_models(results_dir)
-    info_gains.pop("Qwen3-VL-32B-Instruct", None)  # 删除oracle基线
-    info_gains.pop("GLM-4.5V", None)  # 删除GLM-4.5V基线
-    sample_end_steps.pop("Qwen3-VL-32B-Instruct", None)  # 删除oracle基线的样本结束步数
-    sample_end_steps.pop("GLM-4.5V", None)  # 删除GLM-4.5V基线的样本结束步数
-
+    info_gains, sample_end_steps, cogmap_full, sample_counts_per_turn = read_info_gain_from_models(results_dir)
+    
     # Add Strategist model data (manually provided)
     strategist_data = [0.1045, 0.1903, 0.2669, 0.3584, 0.4007, 0.4582, 0.5107, 0.602, 0.6484, 0.6855, 0.7253, 0.7652, 0.8244, 0.8771, 0.9202, 0.9463, 0.9642, 0.976, 0.9821, 0.985, 0.9882]
     info_gains["Strategist"] = {"active_text": strategist_data}
@@ -328,7 +508,9 @@ def main():
     # Generate plots (line style) for each configuration group
     for group_name, group_configs in config_groups.items():
         save_path = f"info_gain_across_models.pdf"
-        plot_config_group_line_style(info_gains, sample_end_steps, group_name, group_configs, save_path)
+        plot_config_group_line_style(info_gains, sample_end_steps, group_name, group_configs, save_path, 
+                                    cogmap_full=cogmap_full, plot_cogmap=PLOT_COGMAP, 
+                                    sample_counts_per_turn=sample_counts_per_turn)
 
 
 if __name__ == "__main__":

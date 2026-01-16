@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 # Reuse existing components
 from vagen.env.spatial.Base.tos_base import Room, Agent
 from vagen.env.spatial.Base.tos_base.evaluation.task_types import EvalTaskType
-from vagen.env.spatial.Base.tos_base.prompts.cogmap_prompts import get_cogmap_prompt
+from vagen.env.spatial.Base.tos_base.prompts.cogmap_prompts import BASE_COGMAP_PROMPT, COGMAP_INSTRUCTION_GLOBAL_ONLY
 from vagen.env.spatial.Base.tos_base.utils.utils import hash, numpy_to_python, THINK_LABEL, ANSWER_LABEL
 from vagen.env.spatial.Base.tos_base.utils.image_handler import ImageHandler
 from vagen.env.spatial.Base.tos_base.utils.visualization.annotate_point import load_mapping_from_meta, draw_point
@@ -63,11 +63,51 @@ def _evaluation_format_footer(enable_think: bool) -> str:
     return f"## Output Format\n{ANSWER_LABEL}\n{answer_hint}"
 
 
+def _format_cogmap_json(cogmap_json: Dict[str, Any]) -> str:
+    """Format a cogmap JSON dict into a readable string for appending to prompts."""
+    if not cogmap_json:
+        return ""
+    return "```json\n" + json.dumps(cogmap_json, indent=2, ensure_ascii=False) + "\n```"
+
+
+def _get_gt_cogmap_json(room: Room, agent: Agent) -> Dict[str, Any]:
+    """Generate ground truth global cogmap JSON from room and agent."""
+    from vagen.env.spatial.Base.tos_base.managers.cognitive_map_manager import CognitiveMapManager
+    
+    cm = CognitiveMapManager(cogmap_type="standard", pos_allow_scale=False, scope="all")
+    # Build ground truth global baseroom using observed items (all objects)
+    all_item_names = [o.name for o in room.all_objects]
+    
+    # Use the same logic as evaluate_cogmap_type for global map
+    observed_set = set(all_item_names)
+    gt_global_br = cm._build_gt_global_baseroom(room, agent, observed_set)
+    gt_json = cm.baseroom_to_json(gt_global_br, include_gates=True)
+    
+    return gt_json
+
+
+def _get_model_cogmap_json(hm) -> Optional[Dict[str, Any]]:
+    """Get the last global cogmap from model's exploration history."""
+    if not hm.exploration_turn_logs:
+        return None
+    
+    # Get the last turn's cogmap_log
+    last_turn = hm.exploration_turn_logs[-1]
+    cogmap_log = last_turn.get('cogmap_log', {})
+    # Extract the global cogmap's pred_json
+    global_log = cogmap_log.get('global', {})
+    pred_json = global_log.get('pred_json', {})
+    if not pred_json:
+        raise ValueError(f"No predicted global cogmap found in last turn of combo_dir: {hm.combo_dir}")
+    return pred_json
+
+
 def build_evaluation_from_combo(
     combo_dir: str,
     eval_task_counts: Dict[str, int],
     eval_override: bool = False,
     image_dir: str = None,
+    mode: str = "default",
 ) -> Tuple[List[List[Dict]], List[Dict]]:
     """Create evaluation message lists from exploration history for one sample combo dir.
 
@@ -78,9 +118,14 @@ def build_evaluation_from_combo(
         eval_task_counts: Dict mapping task types to count
         seed: Seed for task generation
         eval_override: If True, ignore existing evaluation history and regenerate all questions
+        mode: Evaluation mode controlling cogmap handling:
+            - "default": No cogmap, normal evaluation
+            - "prompt_cogmap": Ask model to output cogmap before answering
+            - "use_gt_cogmap": Provide ground truth cogmap in prompt
+            - "use_model_cogmap": Provide model's last global cogmap in prompt
     """
-    # Load history manager with eval_override flag
-    hm = load_history_manager(combo_dir, eval_override=eval_override, all_tasks=list(eval_task_counts.keys()), image_dir=image_dir)
+    # Load history manager with eval_override flag and mode
+    hm = load_history_manager(combo_dir, eval_override=eval_override, all_tasks=list(eval_task_counts.keys()), image_dir=image_dir, eval_mode=mode)
     
     # Use messages from hm (which may have corrected paths)
     base_msgs = copy.deepcopy(hm.messages)
@@ -147,7 +192,31 @@ def build_evaluation_from_combo(
             existing_id_for_task.append(task.eval_data.id)
             assert base_msgs[-1]["role"] == "user"
             new_list = copy.deepcopy(base_msgs)
-            new_list[-1]['content'] = new_list[-1]['content'] + "\n" + q_text + "\n\n" + _evaluation_format_footer(enable_think)
+            
+            # Build question content based on mode
+            question_content = "\n" + q_text
+            
+            if mode == "prompt_cogmap":
+                # Mode 1: Ask model to first output cogmap, then answer
+                cogmap_prompt = f"{BASE_COGMAP_PROMPT}\n\n{COGMAP_INSTRUCTION_GLOBAL_ONLY}"
+                question_content = cogmap_prompt + "\nFirst provide your cognitive map, then answer the following question:\n\n" + q_text
+            
+            elif mode == "use_gt_cogmap":
+                # Mode 2: Provide ground truth cogmap
+                gt_cogmap = _get_gt_cogmap_json(room, base_agent)
+                if gt_cogmap:
+                    cogmap_str = _format_cogmap_json(gt_cogmap)
+                    question_content = "\n## Reference Cognitive Map\nHere is the ground truth cognitive map of the environment:\n" + cogmap_str + "\n\n" + q_text
+            
+            elif mode == "use_model_cogmap":
+                # Mode 3: Provide model's last global cogmap
+                model_cogmap = _get_model_cogmap_json(hm)
+                if model_cogmap:
+                    cogmap_str = _format_cogmap_json(model_cogmap)
+                    question_content = "\n## Reference Cognitive Map\nHere is your cognitive map of the environment from your exploration:\n" + cogmap_str + "\n\n" + q_text
+            
+            new_list[-1]['content'] = new_list[-1]['content'] + question_content + "\n\n" + _evaluation_format_footer(enable_think)
+            
             if is_vision_question:
                 if "images" not in new_list[-1]:
                     new_list[-1]["images"] = []
@@ -158,6 +227,7 @@ def build_evaluation_from_combo(
                         object_name = name
                         break
                 new_list[-1]["images"] += [image_handler.get_image_path(object_name or task.eval_data.answer['final_pos'], task.eval_data.answer.get('final_ori'))]
+            
             meta_obj = {
                 "type": "evaluation",
                 "task_type": task_short,
@@ -166,6 +236,7 @@ def build_evaluation_from_combo(
                 "combo_dir": os.path.abspath(combo_dir),
                 "message_images": new_list[-1].get("images", []),
                 "evaluation_data": task.eval_data.to_dict(),
+                "eval_mode": mode,
             }
             meta_obj["message_id"] = hash(json.dumps(meta_obj, sort_keys=True, default=numpy_to_python))
             if meta_obj["message_id"] in seen_message_ids:
@@ -524,6 +595,7 @@ def build_all_for_combo_dirs(
     cogmap_fb_override: bool = False,
     image_dir: str = None,
     last_global_only: bool = False,
+    eval_mode: str = "default",
 ) -> Tuple[List[List[Dict]], List[Dict]]:
     """Build messages/meta for a specific list of combo directories.
     
@@ -534,6 +606,11 @@ def build_all_for_combo_dirs(
         eval_override: If True, ignore existing evaluation history and regenerate all
         cogmap_override: If True, regenerate all cogmaps; if False, skip existing cogmaps
         cogmap_fb_override: If True, regenerate all false belief cogmaps
+        eval_mode: Evaluation mode for cogmap handling (only used when mode='eval')
+            - "default": No cogmap, normal evaluation
+            - "prompt_cogmap": Ask model to output cogmap before answering
+            - "use_gt_cogmap": Provide ground truth cogmap in prompt
+            - "use_model_cogmap": Provide model's last global cogmap in prompt
     
     Returns:
         Tuple of (messages_list, meta_list)
@@ -548,6 +625,7 @@ def build_all_for_combo_dirs(
                 combo, eval_task_counts, 
                 eval_override=eval_override,
                 image_dir=image_dir,
+                mode=eval_mode,
             )
         elif mode == "cogmap_fb":
             msgs, meta = build_cogmap_fb_from_combo(combo, cogmap_fb_override=cogmap_fb_override, image_dir=image_dir)
@@ -562,63 +640,3 @@ def build_all_for_combo_dirs(
         all_meta.extend(meta)
     
     return all_msgs, all_meta
-
-
-def build_all_under_root(
-    root_dir: str,
-    mode: str = "eval",
-    eval_task_counts: Dict[str, int] | None = None,
-    out: str | None = None,
-    seed: int | None = 0,
-) -> Tuple[List[List[Dict]], List[Dict]]:
-    """Aggregate and write messages/meta for all combo dirs into a single built folder under root_dir.
-    
-    Args:
-        root_dir: Root directory to scan for combo dirs
-        mode: 'eval' or 'cogmap'
-        eval_task_counts: Dict mapping task types to count (for eval mode)
-        out: Output directory path
-        seed: Seed for task generation (for eval mode)
-    """
-    all_msgs: List[List[Dict]] = []
-    all_meta: List[Dict] = []
-    for combo in iter_combo_dirs(root_dir):
-        if mode == "eval":
-            msgs, meta = build_evaluation_from_combo(combo, eval_task_counts or {"qa": 1})
-        else:
-            msgs, meta = build_cogmap_from_combo(combo)
-        all_msgs.extend(msgs)
-        all_meta.extend(meta)
-
-    built_root = resolve_built_root(root_dir, out)
-    os.makedirs(built_root, exist_ok=True)
-    msg_path, meta_path = paths_for_mode(built_root, mode)
-    save_messages_jsonl(all_msgs, msg_path, all_meta)
-    save_meta_jsonl(all_meta, meta_path)
-    return all_msgs, all_meta
-
-
-# ========================= CLI Entrypoint =========================
-
-def main_builder() -> None:
-    parser = argparse.ArgumentParser(description="Build evaluation/cogmap message lists into a single built folder under root")
-    parser.add_argument("--root-dir", required=True, help="Root dir to scan for all combo dirs")
-    parser.add_argument("--mode", choices=["eval", "cogmap"], default="eval")
-    parser.add_argument("--eval-task-counts", default='{"qa": 1}', help='JSON string, e.g., {"qa": 2}')
-    parser.add_argument("--out", default=None, help="Output directory (default: <root>/built_messages)")
-    parser.add_argument("--seed", type=int, default=0)
-    args = parser.parse_args()
-
-    build_all_under_root(
-        root_dir=args.root_dir,
-        mode=args.mode,
-        eval_task_counts=json.loads(args.eval_task_counts),
-        out=args.out,
-        seed=args.seed,
-    )
-    print("Built messages and meta under:", resolve_built_root(args.root_dir, args.out))
-
-
-if __name__ == "__main__":
-    main_builder()
-
