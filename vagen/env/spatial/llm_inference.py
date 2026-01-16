@@ -150,7 +150,14 @@ def map_llm_responses(
     - evaluation: write per-question via HistoryManager.update_eval_turn_log
     - cogmap: evaluate and write via HistoryManager.update_cogmap
     """
-    history = load_history_manager(combo_dir)
+    # Extract eval_mode from first evaluation meta (all should have same mode)
+    eval_mode = "default"
+    for meta in metas:
+        if (meta.get("type") or "").lower() == "evaluation":
+            eval_mode = meta.get("eval_mode", "default")
+            break
+    
+    history = load_history_manager(combo_dir, eval_mode=eval_mode)
     sample_cfg = json.load(open(history.state_path))
 
     meta_by_id = index_meta_by_id(metas)
@@ -509,6 +516,7 @@ def run_inference_for_combo_dirs(
     cogmap_fb_override: bool = False,
     image_dir: str = None,
     last_global_only: bool = False,
+    eval_mode: str = "default",
 ) -> None:
     """Run inference for a specific list of combo directories.
 
@@ -522,6 +530,11 @@ def run_inference_for_combo_dirs(
         eval_override: If True, ignore existing evaluation history and regenerate all
         cogmap_override: If True, regenerate all cogmaps; if False, skip existing cogmaps
         cogmap_fb_override: If True, regenerate all false belief cogmaps
+        eval_mode: Evaluation mode for cogmap handling (only used when mode='eval')
+            - "default": No cogmap, normal evaluation
+            - "prompt_cogmap": Ask model to output cogmap before answering
+            - "use_gt_cogmap": Provide ground truth cogmap in prompt
+            - "use_model_cogmap": Provide model's last global cogmap in prompt
     """
     from vagen.env.spatial.message_list_builder import build_all_for_combo_dirs
     
@@ -535,6 +548,7 @@ def run_inference_for_combo_dirs(
         cogmap_fb_override=cogmap_fb_override,
         image_dir=image_dir,
         last_global_only=last_global_only,
+        eval_mode=eval_mode,
     )
     
     if not all_msgs or not all_meta:

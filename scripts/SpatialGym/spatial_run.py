@@ -106,6 +106,9 @@ def parse_args():
                    help="Run cognitive map phase")
     p.add_argument("--eval-override", action="store_true", dest="eval_override",
                    help="Override evaluation history (delete evaluation json only)")
+    p.add_argument("--eval-mode", type=str, dest="eval_mode", default="default",
+                   choices=["default", "prompt_cogmap", "use_gt_cogmap", "use_model_cogmap"],
+                   help="Evaluation mode for cogmap handling: default (no cogmap), prompt_cogmap (ask model to output cogmap first), use_gt_cogmap (provide ground truth cogmap), use_model_cogmap (provide model's last global cogmap). Default: default")
     p.add_argument("--cogmap-override", action="store_true", dest="cogmap_override",
                    help="Override cognitive map cache (regenerate cogmap prompts)")
     p.add_argument("--cogmap-last-global-only", action="store_true", dest="cogmap_last_global_only",
@@ -608,6 +611,7 @@ def run_phase(args, mode: str, seed_opts: tuple[int, int] | None = None,
         inference_kwargs.update({
             "eval_task_counts": eval_task_counts,
             "eval_override": args.eval_override,
+            "eval_mode": args.eval_mode,
         })
     elif mode == "cogmap_fb":
         inference_kwargs.update({
