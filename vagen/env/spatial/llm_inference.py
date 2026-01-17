@@ -252,20 +252,11 @@ def map_llm_responses(
             if not (0 <= t_idx < len(history.exploration_turn_logs)):
                 continue
             turn_log = history.exploration_turn_logs[t_idx]
-            
-            # Calculate newly observed items
-            observed = turn_log.get("exploration_log", {}).get("observed_items") or []
-            if t_idx > 0:
-                prev = history.exploration_turn_logs[t_idx-1].get("exploration_log", {}).get("observed_items") or []
-            else:
-                prev = []
-            newly_observed_items = list(set(observed) - set(prev))
-            
             try:
-                cogmap_log = _evaluate_cogmaps(cm, resp_by_type, turn_log, newly_observed_items=newly_observed_items)
+                cogmap_log = _evaluate_cogmaps(cm, resp_by_type, turn_log)
                 result = cogmap_log.to_dict() if cogmap_log else {}
             except Exception as e:
-                # raise  e
+                print(f"Error evaluating cogmap for turn {t_idx} in {combo_dir}: {e}")
                 result = {k: {"original_response": v} for k, v in resp_by_type.items()}
             # Attach prompt images (e.g., fog-probe annotated top-down candidates) for visualization.
             for mtype, imgs in (cogmap_message_images.get(t_idx) or {}).items():
