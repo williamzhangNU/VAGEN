@@ -7,6 +7,7 @@ import argparse
 from vagen.env.spatial.Base.tos_base.managers.cognitive_map_manager import CognitiveMapManager
 from vagen.env.spatial.Base.tos_base.utils.cog_utils import _evaluate_cogmaps
 from vagen.env.spatial.Base.tos_base.evaluation.tasks import evaluate_from_dict
+from vagen.env.spatial.Base.tos_base.utils.eval_utilities import evaluate_task_answer_with_cogmap
 from vagen.inference.model_interface.factory_model import ModelFactory
 from vagen.env.spatial.batch_processor import get_batch_processor
 from vagen.env.spatial.Base.tos_base.utils.utils import parse_llm_response
@@ -190,7 +191,16 @@ def map_llm_responses(
             eval_data = (meta.get("evaluation_data") or {})
             # Evaluate using same logic as in env runtime
             _, answer, _ = parse_llm_response(text)
-            score, info = evaluate_from_dict(eval_data, answer)
+            
+            if eval_mode == "prompt_cogmap":
+                score, info, cogmap = evaluate_task_answer_with_cogmap(
+                    task_type=eval_data.get("task_type", ""),
+                    pred=answer,
+                    answer=eval_data.get("answer"),
+                    choices=eval_data.get("choices")
+                )
+            else:
+                score, info = evaluate_from_dict(eval_data, answer)
             task_class = meta.get("task_class") or meta.get("task_type")
             turn_log = {
                 "is_exploration_phase": False,
