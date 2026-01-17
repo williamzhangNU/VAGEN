@@ -179,14 +179,13 @@ class SpatialGym(gym.Env):
         """Get multi-modal data (images) for current state."""
         assert self.config.render_mode == 'vision', "Cannot get multi-modal data in text mode"
         # Find position: which object is at same location as agent
-        # Find position: which object is at same location as agent
         position_name = None if not np.allclose(room.init_pos, pos) else 'agent'
         if position_name is None:
             for obj in room.base_room.all_objects:
                 if np.allclose(obj.pos, pos):
                     position_name = obj.name
                     break
-        assert position_name is not None, "Agent position not found"
+        assert position_name is not None, f"Agent position not found for {pos}"
         
         direction = {(0, 1): 'north', (-1, 0): 'west', (0, -1): 'south', (1, 0): 'east'}[tuple(ori)]
         

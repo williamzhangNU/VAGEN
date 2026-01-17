@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 # Reuse existing components
 from vagen.env.spatial.Base.tos_base import Room, Agent
 from vagen.env.spatial.Base.tos_base.evaluation.task_types import EvalTaskType
-from vagen.env.spatial.Base.tos_base.prompts.cogmap_prompts import BASE_COGMAP_PROMPT, COGMAP_INSTRUCTION_GLOBAL_ONLY
+from vagen.env.spatial.Base.tos_base.prompts.cogmap_prompts import get_cogmap_prompt
 from vagen.env.spatial.Base.tos_base.utils.utils import hash, numpy_to_python, THINK_LABEL, ANSWER_LABEL
 from vagen.env.spatial.Base.tos_base.utils.image_handler import ImageHandler
 from vagen.env.spatial.Base.tos_base.utils.visualization.annotate_point import load_mapping_from_meta, draw_point
@@ -63,6 +63,28 @@ def _evaluation_format_footer(enable_think: bool) -> str:
     return f"## Output Format\n{ANSWER_LABEL}\n{answer_hint}"
 
 
+def _evaluation_cogmap_format_footer(enable_think: bool) -> str:
+    answer_hint = "[JSON map only]\n[your answer (only required answer, no extra text, notes, formatting or anything else)]"
+    if enable_think:
+        return (
+            f"## Output Format\n{THINK_LABEL}\n"
+            "[Your thoughts on cognitive map, then on the question]\n"
+            f"{ANSWER_LABEL}\n{answer_hint}"
+        )
+    return f"## Output Format\n{ANSWER_LABEL}\n{answer_hint}"
+
+
+def _strip_cogmap_format_rules(prompt: str) -> str:
+    marker = "!!! IMPORTANT OUTPUT RULES !!!"
+    if marker in prompt:
+        return prompt.split(marker, 1)[0].rstrip()
+    return prompt.rstrip()
+
+
+def _strip_steps_left(content: str) -> str:
+    return re.sub(r"You have a maximum of\s*\d+\s*exploration steps left.*", "", content, flags=re.DOTALL)
+
+
 def _format_cogmap_json(cogmap_json: Dict[str, Any]) -> str:
     """Format a cogmap JSON dict into a readable string for appending to prompts."""
     if not cogmap_json:
@@ -86,20 +108,16 @@ def _get_gt_cogmap_json(room: Room, agent: Agent) -> Dict[str, Any]:
     return gt_json
 
 
-def _get_model_cogmap_json(hm) -> Optional[Dict[str, Any]]:
-    """Get the last global cogmap from model's exploration history."""
-    if not hm.exploration_turn_logs:
-        return None
-    
-    # Get the last turn's cogmap_log
-    last_turn = hm.exploration_turn_logs[-1]
-    cogmap_log = last_turn.get('cogmap_log', {})
-    # Extract the global cogmap's pred_json
-    global_log = cogmap_log.get('global', {})
-    pred_json = global_log.get('pred_json', {})
-    if not pred_json:
-        raise ValueError(f"No predicted global cogmap found in last turn of combo_dir: {hm.combo_dir}")
-    return pred_json
+def _get_last_global_cogmap_response(hm) -> Optional[str]:
+    for t in reversed(hm.exploration_turn_logs or []):
+        global_log = (t.get("cogmap_log") or {}).get("global") or {}
+        if not isinstance(global_log, dict):
+            continue
+        return global_log["original_response"]
+        # pred_json = global_log.get("pred_json")
+        # if pred_json:
+        #     return _format_cogmap_json(pred_json)
+    return None
 
 
 def build_evaluation_from_combo(
@@ -194,28 +212,38 @@ def build_evaluation_from_combo(
             new_list = copy.deepcopy(base_msgs)
             
             # Build question content based on mode
-            question_content = "\n" + q_text
+            prefix = ""
             
             if mode == "prompt_cogmap":
                 # Mode 1: Ask model to first output cogmap, then answer
-                cogmap_prompt = f"{BASE_COGMAP_PROMPT}\n\n{COGMAP_INSTRUCTION_GLOBAL_ONLY}"
-                question_content = cogmap_prompt + "\nFirst provide your cognitive map, then answer the following question:\n\n" + q_text
+                cogmap_prompt = _strip_cogmap_format_rules(get_cogmap_prompt("global", enable_think))
+                prefix = (
+                    cogmap_prompt
+                    + "\n\nFirst output the cognitive map, then answer the following question:\n\n"
+                )
             
             elif mode == "use_gt_cogmap":
                 # Mode 2: Provide ground truth cogmap
                 gt_cogmap = _get_gt_cogmap_json(room, base_agent)
                 if gt_cogmap:
                     cogmap_str = _format_cogmap_json(gt_cogmap)
-                    question_content = "\n## Reference Cognitive Map\nHere is the ground truth cognitive map of the environment:\n" + cogmap_str + "\n\n" + q_text
+                    prefix = "\n## Reference Cognitive Map\nHere is the ground truth cognitive map of the environment:\n" + cogmap_str + "\n\n"
             
             elif mode == "use_model_cogmap":
-                # Mode 3: Provide model's last global cogmap
-                model_cogmap = _get_model_cogmap_json(hm)
-                if model_cogmap:
-                    cogmap_str = _format_cogmap_json(model_cogmap)
-                    question_content = "\n## Reference Cognitive Map\nHere is your cognitive map of the environment from your exploration:\n" + cogmap_str + "\n\n" + q_text
+                # Mode 3: Append last global cogmap prompt + response
+                cogmap_resp = _get_last_global_cogmap_response(hm)
+                if cogmap_resp:
+                    base_user = _strip_steps_left(new_list[-1]["content"])
+                    new_list[-1]["content"] = base_user + get_cogmap_prompt("global", enable_think)
+                    new_list.append({"role": "assistant", "content": cogmap_resp})
+                    new_list.append({"role": "user", "content": ""})
             
-            new_list[-1]['content'] = new_list[-1]['content'] + question_content + "\n\n" + _evaluation_format_footer(enable_think)
+            footer = (
+                _evaluation_cogmap_format_footer(enable_think)
+                if mode == "prompt_cogmap"
+                else _evaluation_format_footer(enable_think)
+            )
+            new_list[-1]['content'] = new_list[-1]['content'] + prefix + q_text + "\n\n" + footer
             
             if is_vision_question:
                 if "images" not in new_list[-1]:
@@ -383,7 +411,7 @@ def build_cogmap_from_combo(
                 raise IndexError
             seq = _clone_until_inclusive(messages, end_idx)
             assert seq[-1]["role"] == "user"
-            base_user = re.sub(r"You have a maximum of\s*\d+\s*exploration steps left.*", "", seq[-1]["content"], flags=re.DOTALL)
+            base_user = _strip_steps_left(seq[-1]["content"])
             mod_seq = [m.copy() for m in seq]
 
             for mtype in types:
