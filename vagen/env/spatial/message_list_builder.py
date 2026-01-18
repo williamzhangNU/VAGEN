@@ -64,7 +64,7 @@ def _evaluation_format_footer(enable_think: bool) -> str:
 
 
 def _evaluation_cogmap_format_footer(enable_think: bool) -> str:
-    answer_hint = "[JSON map only]\n[your answer (only required answer, no extra text, notes, formatting or anything else)]"
+    answer_hint = "<cogmap>\n[JSON map]\n</cogmap>\n<answer>\n[your answer]\n</answer>"
     if enable_think:
         return (
             f"## Output Format\n{THINK_LABEL}\n"
