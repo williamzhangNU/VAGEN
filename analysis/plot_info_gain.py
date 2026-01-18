@@ -479,8 +479,7 @@ def main():
     # 请将此路径修改为您实际的 results 目录
     results_dir = "/home/zihanhuang/VAGEN/results_arxiv"
     
-    # 设置是否绘制 cogmap_full 数据
-    PLOT_COGMAP = True  # 设置为 True 以同时绘制 cogmap_full，False 则只绘制 information gain
+    PLOT_COGMAP = True 
 
     # Read information gain data and sample end steps
     info_gains, sample_end_steps, cogmap_full, sample_counts_per_turn = read_info_gain_from_models(results_dir)
@@ -488,17 +487,13 @@ def main():
     # Add Strategist model data (manually provided)
     strategist_data = [0.1045, 0.1903, 0.2669, 0.3584, 0.4007, 0.4582, 0.5107, 0.602, 0.6484, 0.6855, 0.7253, 0.7652, 0.8244, 0.8771, 0.9202, 0.9463, 0.9642, 0.976, 0.9821, 0.985, 0.9882]
     info_gains["Strategist"] = {"active_text": strategist_data}
-    # Strategist不需要竖线，所以不添加到sample_end_steps中
     if not info_gains:
-        print("未找到信息增益数据！")
         return
 
     # Collect all configurations present in the data
     all_configs = set()
     for configs in info_gains.values():
         all_configs.update(configs.keys())
-
-    print(f"可用的active配置: {sorted(all_configs)}")
 
     # Define configuration groups
     config_groups = {
