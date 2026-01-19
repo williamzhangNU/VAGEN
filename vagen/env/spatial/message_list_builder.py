@@ -19,9 +19,6 @@ from vagen.env.spatial.Base.tos_base.utils.image_handler import ImageHandler
 from vagen.env.spatial.Base.tos_base.utils.visualization.annotate_point import load_mapping_from_meta, draw_point
 # Shared common utilities/constants
 from vagen.env.spatial.common import (
-    resolve_built_root,
-    paths_for_mode,
-    iter_combo_dirs,
     load_history_manager,
 )
 
@@ -331,15 +328,6 @@ def _generate_annotated_cogmap(cogmap_dir: str, image_dir: str, abs_candidates: 
     draw_point(top_down_img, out_img, mapping, label_dict, rows, cols, agent_pos)
     return str(out_img)
 
-def _transform_absolute_to_relative(coords: List[Tuple[int, int]], init_pos: np.ndarray) -> List[Tuple[int, int]]:
-    """Transform absolute grid coordinates to relative coordinates (shift by init_pos)."""
-    rel_coords = []
-    ox, oy = int(init_pos[0]), int(init_pos[1])
-    for (ax, ay) in coords:
-        rel_coords.append((ax - ox, ay - oy))
-    return rel_coords
-
-
 def build_cogmap_from_combo(
     combo_dir: str,
     cogmap_override: bool = False,
@@ -585,30 +573,6 @@ def build_cogmap_fb_from_combo(
         _add_message(out_msgs, meta, copy.deepcopy(mod_seq), meta_obj)
     
     return out_msgs, meta
-
-
-def save_messages_jsonl(messages_list: List[List[Dict]], out_path: str, meta_list: List[Dict] | None = None) -> None:
-    os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
-    with open(out_path, "w") as f:
-        for i, msgs in enumerate(messages_list):
-            mid = None
-            if meta_list and i < len(meta_list):
-                mid = (meta_list[i] or {}).get("message_id")
-            obj = {"messages": msgs}
-            if mid is not None:
-                obj["message_id"] = mid
-            f.write(json.dumps(obj, ensure_ascii=False) + "\n")
-
-
-def save_meta_jsonl(meta_list: List[Dict], out_path: str) -> None:
-    os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
-    with open(out_path, "w") as f:
-        for meta in meta_list:
-            f.write(json.dumps(meta, ensure_ascii=False) + "\n")
-
-
-
-
 
 
 

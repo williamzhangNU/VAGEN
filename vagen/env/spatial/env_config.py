@@ -89,7 +89,7 @@ class SpatialGymConfig(BaseEnvConfig):
         """Validate eval_tasks parameter."""
         valid_eval_tasks = EvalTaskType.get_short_names()
 
-        assert len(self.eval_tasks) == 1, "Only one evaluation task is supported"
+        # assert len(self.eval_tasks) == 1, "Only one evaluation task is supported"
 
         if isinstance(self.eval_tasks, ListConfig):
             self.eval_tasks = OmegaConf.to_container(self.eval_tasks, resolve=True)
