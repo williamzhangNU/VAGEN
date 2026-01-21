@@ -181,11 +181,11 @@ class SpatialGym(gym.Env):
         # Find position: which object is at same location as agent
         position_name = None if not np.allclose(room.init_pos, pos) else 'agent'
         if position_name is None:
-            for obj in room.base_room.all_objects:
+            for obj in room.exploration_room.all_objects:
                 if np.allclose(obj.pos, pos):
                     position_name = obj.name
                     break
-        assert position_name is not None, f"Agent position not found for {pos}"
+        assert position_name is not None, f"Agent position not found for {pos}, sample id: {self.current_seed}"
         
         direction = {(0, 1): 'north', (-1, 0): 'west', (0, -1): 'south', (1, 0): 'east'}[tuple(ori)]
         

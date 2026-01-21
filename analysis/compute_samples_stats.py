@@ -42,14 +42,21 @@ def parse_indices(s: str) -> Set[int]:
                 continue
     return res
 
-def compute_stats(values: List[float]) -> Dict[str, float]:
-    """Return {count, mean, stdev}."""
+def compute_stats(values: List[float], stdev_mean_values: List[float] | None = None) -> Dict[str, float]:
+    """Return {count, mean, stdev, stdev_mean?}."""
     cnt = len(values)
     if cnt == 0:
-        return {'count': 0, 'mean': float('nan'), 'stdev': float('nan')}
+        stats = {'count': 0, 'mean': float('nan'), 'stdev': float('nan')}
+        if stdev_mean_values is not None:
+            stats['stdev_mean'] = float('nan')
+        return stats
     m = mean(values)
     s = stdev(values) if cnt > 1 else 0.0
-    return {'count': cnt, 'mean': m, 'stdev': s}
+    stats = {'count': cnt, 'mean': m, 'stdev': s}
+    if stdev_mean_values is not None:
+        cnt_sm = len(stdev_mean_values)
+        stats['stdev_mean'] = stdev(stdev_mean_values) if cnt_sm > 1 else (0.0 if cnt_sm == 1 else float('nan'))
+    return stats
 
 def sample_idx_from_key(key: str) -> int | None:
     m = SAMPLE_RE.search(key)
@@ -106,6 +113,31 @@ def collect_eval_metrics(paths: List[Path], sample_indices: Set[int]) -> Dict[st
                         entry['tasks'].setdefault(t_name, []).append(float(t_acc))
     return data_map
 
+def collect_eval_file_averages(paths: List[Path], sample_indices: Set[int]) -> Dict[str, Any]:
+    file_map: Dict[str, Any] = {}
+    for path in paths:
+        if not path.exists():
+            print(f"Warning: File {path} does not exist, skipping.")
+            continue
+        data = read_json(path)
+        if not data:
+            continue
+        group_perf = ((data.get('eval_summary') or {}).get('group_performance') or {})
+        if not isinstance(group_perf, dict):
+            continue
+        for mod, mod_val in group_perf.items():
+            overall = (mod_val or {}).get('avg_accuracy')
+            if is_number(overall):
+                file_map.setdefault(mod, {}).setdefault('overall', []).append(float(overall))
+            task_metrics = (mod_val or {}).get('task_metrics') or {}
+            if not isinstance(task_metrics, dict):
+                continue
+            for t_name, t_val in task_metrics.items():
+                t_acc = (t_val or {}).get('accuracy') if isinstance(t_val, dict) else None
+                if is_number(t_acc):
+                    file_map.setdefault(mod, {}).setdefault('tasks', {}).setdefault(t_name, []).append(float(t_acc))
+    return file_map
+
 def collect_scalar_metrics(paths: List[Path], sample_indices: Set[int], extractor) -> Dict[str, Any]:
     data_map: Dict[str, Any] = {}
     for path in paths:
@@ -122,7 +154,7 @@ def collect_scalar_metrics(paths: List[Path], sample_indices: Set[int], extracto
                     data_map.setdefault(s_key, {}).setdefault(mod, []).append(float(val))
     return data_map
 
-def average_eval_metrics(eval_map: Dict[str, Any]) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+def average_eval_metrics(eval_map: Dict[str, Any], file_avgs: Dict[str, Any] | None = None) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     sample_avgs: Dict[str, Any] = {}
     overall_vals: Dict[str, List[float]] = {}
     task_vals: Dict[str, Dict[str, List[float]]] = {}
@@ -143,8 +175,16 @@ def average_eval_metrics(eval_map: Dict[str, Any]) -> Tuple[Dict[str, Any], Dict
 
     overall_stats = {}
     for mod, vals in overall_vals.items():
-        tasks_stats = {t: compute_stats(v) for t, v in (task_vals.get(mod) or {}).items()}
-        overall_stats[mod] = {'overall': compute_stats(vals), 'tasks': tasks_stats}
+        file_mod = (file_avgs or {}).get(mod) or {}
+        file_tasks = file_mod.get('tasks') or {}
+        tasks_stats = {
+            t: compute_stats(v, file_tasks.get(t))
+            for t, v in (task_vals.get(mod) or {}).items()
+        }
+        overall_stats[mod] = {
+            'overall': compute_stats(vals, file_mod.get('overall')),
+            'tasks': tasks_stats
+        }
 
     return sample_avgs, overall_stats
 
@@ -163,9 +203,21 @@ def average_scalar_metrics(metric_map: Dict[str, Any]) -> Tuple[Dict[str, Any], 
     overall_stats = {mod: compute_stats(vals) for mod, vals in overall_vals.items()}
     return sample_avgs, overall_stats
 
+def map_active_action_cost_stats(stats: Dict[str, Any]) -> Dict[str, Any]:
+    mapped: Dict[str, Any] = {}
+    for mod, val in stats.items():
+        if 'vision_active' in mod:
+            mapped['vision_active'] = val
+        elif 'text_active' in mod:
+            mapped['text_active'] = val
+    return mapped
+
 def _format_value(prefix: str, val: Any) -> str | None:
     if isinstance(val, dict) and 'mean' in val:
-        return f"{prefix} Mean={val['mean']:.4f}, SD={val['stdev']:.4f}, N={val['count']}"
+        extra = ""
+        if is_number(val.get('stdev_mean')):
+            extra = f", SD_mean={val['stdev_mean']:.4f}"
+        return f"{prefix} Mean={val['mean']:.4f}, SD={val['stdev']:.4f}{extra}, N={val['count']}"
     if is_number(val):
         return f"{prefix} Avg={float(val):.4f}"
     return None
@@ -276,7 +328,8 @@ def main(argv=None):
         return
 
     eval_raw = collect_eval_metrics(eval_files, sample_indices)
-    eval_avgs, eval_stats = average_eval_metrics(eval_raw)
+    eval_file_avgs = collect_eval_file_averages(eval_files, sample_indices)
+    eval_avgs, eval_stats = average_eval_metrics(eval_raw, eval_file_avgs)
     cogmap_raw = collect_scalar_metrics(
         cogmap_files, sample_indices,
         lambda m: (((m.get('cogmap') or {}).get('exploration') or {}).get('correctness') or {})
@@ -289,9 +342,19 @@ def main(argv=None):
     )
     infogain_avgs, infogain_stats = average_scalar_metrics(infogain_raw)
 
+    action_cost_stats = {}
     if eval_avgs:
         print('\n' + format_stats(eval_avgs, "Evaluation Averages (per sample)"))
         print('\n' + format_stats(eval_stats, "Evaluation Stats (across samples)"))
+        if not args.compute_cogmap_correlation:
+            action_cost_raw = collect_scalar_metrics(
+                eval_files, sample_indices,
+                lambda m: (m.get('exploration') or {}).get('action_cost')
+            )
+            _action_cost_avgs, action_cost_stats = average_scalar_metrics(action_cost_raw)
+            action_cost_stats = map_active_action_cost_stats(action_cost_stats)
+            if action_cost_stats:
+                print('\n' + format_stats(action_cost_stats, "Avg Action Cost Stats (across samples)"))
     if cogmap_avgs:
         print('\n' + format_stats(cogmap_avgs, "Cogmap Averages (per sample)"))
         print('\n' + format_stats(cogmap_stats, "Cogmap Stats (across samples)"))
@@ -329,6 +392,7 @@ def main(argv=None):
             'evaluation': {'sample_avgs': eval_avgs, 'stats': eval_stats},
             'cogmap': {'sample_avgs': cogmap_avgs, 'stats': cogmap_stats},
             'infogain': {'sample_avgs': infogain_avgs, 'stats': infogain_stats},
+            'avg_action_cost': {'stats': action_cost_stats} if action_cost_stats else {},
             'correlation': corr_results,
         }
         Path(args.save_json).write_text(json.dumps(out_obj, indent=2))

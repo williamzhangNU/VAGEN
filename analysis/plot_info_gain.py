@@ -13,7 +13,7 @@ import os
 import json
 import matplotlib.pyplot as plt
 import numpy as np
-from typing import Dict, Optional, List, Union
+from typing import Dict, Optional, List
 plt.rcParams['font.family'] = 'serif'
 plt.rcParams['font.serif'] = ['Times New Roman'] + plt.rcParams['font.serif']
 
@@ -139,7 +139,9 @@ def plot_config_group_line_style(info_gains: Dict[str, Dict[str, List[float]]],
                                 save_path: str,
                                 cogmap_full: Optional[Dict[str, Dict[str, List[float]]]] = None,
                                 plot_cogmap: bool = False,
-                                sample_counts_per_turn: Optional[Dict[str, Dict[str, List[int]]]] = None) -> None:
+                                sample_counts_per_turn: Optional[Dict[str, Dict[str, List[int]]]] = None,
+                                plot_info_gain: bool = True,
+                                cogmap_configs: Optional[List[str]] = None) -> None:
     """Create a line-style plot for a group of configurations (visual style is tuned).
     
     Args:
@@ -151,8 +153,7 @@ def plot_config_group_line_style(info_gains: Dict[str, Dict[str, List[float]]],
         return
 
     # Prepare data - create a separate line for each configuration
-    # Use a single figure for all data
-    fig, ax1 = plt.subplots(figsize=(8, 5))
+    fig, ax1 = plt.subplots(figsize=(6, 4))
 
     # Define color palette and marker styles
     colors = ['#4285f4', '#ea4335', '#34a853', '#fbbc05', '#ff6d00', '#795548', '#673ab7']
@@ -177,11 +178,24 @@ def plot_config_group_line_style(info_gains: Dict[str, Dict[str, List[float]]],
                 }
                 max_turns = max(max_turns, len(infogain_list))
 
-    if max_turns == 0:
+    if max_turns == 0 and not (plot_cogmap and cogmap_full):
         return
 
     # x-axis positions represent step numbers (starting from 1)
-    x_positions = range(1, max_turns + 1)
+    x_positions = range(1, max_turns + 1) if max_turns > 0 else []
+
+    def _alpha_from_counts(sample_counts: Optional[List[int]], idx: int) -> float:
+        if not sample_counts:
+            return 0.9
+        max_samples = max(sample_counts)
+        count = sample_counts[idx] if idx < len(sample_counts) else sample_counts[-1]
+        alpha = 0.1 + 0.9 * (count / max_samples)
+        turn = idx + 1
+        if 15 <= turn <= 17:
+            alpha *= 1.0 - 0.2 * (turn - 15)
+        elif turn > 17:
+            alpha *= max(0.05, 0.5 ** (turn - 17))
+        return alpha
 
     # Plot a line for each model-config combination
     line_index = 0
@@ -198,9 +212,10 @@ def plot_config_group_line_style(info_gains: Dict[str, Dict[str, List[float]]],
             if not ('gpt' in model_name.lower() or 'gemini' in model_name.lower()):
                 continue
 
-        if infogain_list:
+        if infogain_list and plot_info_gain:
             # Create legend label showing only the model short name
             model_short = model_name.split('/')[-1] if '/' in model_name else model_name
+            model_short = model_short.replace("gemini-3-pro-preview", "gemini-3-pro")
 
             # Use a distinct color per plotted line
             line_color = colors[line_index % len(colors)]
@@ -220,12 +235,9 @@ def plot_config_group_line_style(info_gains: Dict[str, Dict[str, List[float]]],
             line_style = '-' if (plot_cogmap and cogmap_full) else linestyles[line_index % len(linestyles)]
             
             if sample_counts and len(sample_counts) > 0:
-                max_samples = max(sample_counts)
                 # Plot line segments with varying alpha based on sample count
                 for i in range(len(x_data) - 1):
-                    count = sample_counts[i] if i < len(sample_counts) else sample_counts[-1]
-                    # Alpha ranges from 0.2 (min samples) to 0.8 (max samples)
-                    alpha = 0.2 + 0.6 * (count / max_samples)
+                    alpha = _alpha_from_counts(sample_counts, i)
                     ax1.plot([x_data[i], x_data[i+1]], [y_data[i], y_data[i+1]],
                             color=line_color,
                             linestyle=line_style,
@@ -234,7 +246,7 @@ def plot_config_group_line_style(info_gains: Dict[str, Dict[str, List[float]]],
                 
                 # Add label with a dummy plot
                 ax1.plot([], [], color=line_color, linestyle=line_style,
-                        linewidth=2.5, alpha=0.8, label=model_short)
+                        linewidth=2.5, alpha=0.8, label=f'{model_short} (InfoGain)')
             else:
                 # Fallback to original plotting if no sample counts available
                 ax1.plot(x_data, y_data,
@@ -242,16 +254,13 @@ def plot_config_group_line_style(info_gains: Dict[str, Dict[str, List[float]]],
                         linestyle=line_style,
                         linewidth=2.5,
                         alpha=0.8,
-                        label=model_short)
+                        label=f'{model_short} (InfoGain)')
 
             # Show markers only on odd steps to reduce clutter
             for i, (x, y) in enumerate(zip(x_data, y_data)):
                 if x % 2 == 1:  # odd step numbers
                     # Adjust marker alpha based on sample count
-                    marker_alpha = 0.8
-                    if sample_counts and i < len(sample_counts):
-                        max_samples = max(sample_counts)
-                        marker_alpha = 0.2 + 0.6 * (sample_counts[i] / max_samples)
+                    marker_alpha = _alpha_from_counts(sample_counts, i) if sample_counts else 0.9
                     ax1.plot(x, y,
                             marker=markers[line_index % len(markers)],
                             color=line_color,
@@ -269,11 +278,17 @@ def plot_config_group_line_style(info_gains: Dict[str, Dict[str, List[float]]],
 
     # Customize plot appearance for ax1
     if plot_cogmap and cogmap_full:
-        ax1.set_title(f'Accumulated Information Gain & Cognitive Map Coverage', fontsize=14, fontweight='bold', pad=20)
-        ax1.set_ylabel('Information Gain / Cognitive Map Coverage', fontsize=14, fontweight='bold')
+        if plot_info_gain:
+            ax1.set_title('Accumulated Info Gain & Cognitive Map Coverage', fontsize=14, fontweight='bold', pad=20)
+        else:
+            ax1.set_title('Cognitive Map Coverage', fontsize=14, fontweight='bold', pad=20)
     else:
-        ax1.set_title(f'Accumulated Information Gain', fontsize=14, fontweight='bold', pad=20)
-        ax1.set_ylabel('Information Gain', fontsize=14, fontweight='bold')
+        ax1.set_title(f'Accumulated Info Gain', fontsize=14, fontweight='bold', pad=20)
+    if plot_info_gain:
+        ax1.set_ylabel('Info Gain', fontsize=14, fontweight='bold')
+    else:
+        ax1.set_ylabel('')
+        ax1.set_yticks([])
     ax1.set_xlabel('Steps', fontsize=14, fontweight='bold')
 
     # Set x-axis ticks - show every other tick (1,3,5,...)
@@ -285,7 +300,7 @@ def plot_config_group_line_style(info_gains: Dict[str, Dict[str, List[float]]],
     ax1.grid(True, alpha=0.3, linestyle='--')
 
     # Draw vertical lines indicating sample end steps (only when not plotting cogmap)
-    if not (plot_cogmap and cogmap_full):
+    if plot_info_gain and not (plot_cogmap and cogmap_full):
         vline_positions = {}  # track counts per position to offset overlapping lines
         vline_added_to_legend = False  # ensure the line label is added to legend only once
 
@@ -329,13 +344,13 @@ def plot_config_group_line_style(info_gains: Dict[str, Dict[str, List[float]]],
 
     # Compact the legend inside the plot (lower right) for a tighter layout
     # Only show legend if not plotting cogmap (cogmap will have combined legend)
-    if not (plot_cogmap and cogmap_full):
+    if plot_info_gain and not (plot_cogmap and cogmap_full):
         ax1.legend(loc='lower right', framealpha=0.85, fancybox=True, shadow=True,
                    fontsize=8, markerscale=0.7, handlelength=1.2, handletextpad=0.4,
                    borderpad=0.3, bbox_to_anchor=(0.98, 0.02), ncol=1)
 
     # Set y-axis limits and ticks (only if not plotting cogmap, as cogmap will set 0-1 range)
-    if not (plot_cogmap and cogmap_full):
+    if plot_info_gain and not (plot_cogmap and cogmap_full):
         all_values = []
         for model_configs in info_gains.values():
             for config in group_configs:
@@ -357,8 +372,10 @@ def plot_config_group_line_style(info_gains: Dict[str, Dict[str, List[float]]],
             else:
                 ax1.set_ylim(max(0, y_min - y_range * 0.1), y_max + y_range * 0.1)
 
-    # Plot cogmap_full data on the same ax1 if requested
+    # Plot cogmap_full data on the right y-axis if requested
     if plot_cogmap and cogmap_full:
+        ax2 = ax1.twinx()
+        ax2.set_ylabel('Cognitive Map Coverage', fontsize=14, fontweight='bold')
         # Collect cogmap data for the same configurations
         # Only include models with 'gpt' or 'gemini' in their name
         cogmap_model_data = {}
@@ -369,7 +386,7 @@ def plot_config_group_line_style(info_gains: Dict[str, Dict[str, List[float]]],
             if not ('gpt' in model_name.lower() or 'gemini' in model_name.lower()):
                 continue
                 
-            for config in group_configs:
+            for config in (cogmap_configs or group_configs):
                 if config in model_configs:
                     cogmap_list = model_configs[config]
                     model_config_key = f"{model_name}_{config}"
@@ -392,8 +409,11 @@ def plot_config_group_line_style(info_gains: Dict[str, Dict[str, List[float]]],
                 
                 if cogmap_list:
                     model_short = model_name.split('/')[-1] if '/' in model_name else model_name
+                    model_short = model_short.replace("gemini-3-pro-preview", "gemini-3-pro")
                     # Use matching colors from the existing model_colors dict
-                    line_color = model_colors.get(model_name, colors[cogmap_line_index % len(colors)])
+                    if model_name not in model_colors:
+                        model_colors[model_name] = colors[cogmap_line_index % len(colors)]
+                    line_color = model_colors.get(model_name)
                     
                     x_data = x_positions_cogmap[:len(cogmap_list)]
                     y_data = cogmap_list
@@ -404,42 +424,40 @@ def plot_config_group_line_style(info_gains: Dict[str, Dict[str, List[float]]],
                         if config in sample_counts_per_turn[model_name]:
                             sample_counts = sample_counts_per_turn[model_name][config]
                     
-                    # Plot with dashed line on the same ax1 with varying alpha
+                    is_vision = "vision" in config.lower()
+                    cogmap_linestyle = ':' if is_vision else '--'
+                    cogmap_marker = '^' if is_vision else 'x'
+                    cogmap_label = 'Vision' if is_vision else 'Text'
+                    # Plot with dashed line on the right axis with varying alpha
                     if sample_counts and len(sample_counts) > 0:
-                        max_samples = max(sample_counts)
                         # Plot line segments with varying alpha based on sample count
                         for i in range(len(x_data) - 1):
-                            count = sample_counts[i] if i < len(sample_counts) else sample_counts[-1]
-                            # Alpha ranges from 0.2 (min samples) to 0.8 (max samples)
-                            alpha = 0.2 + 0.6 * (count / max_samples)
-                            ax1.plot([x_data[i], x_data[i+1]], [y_data[i], y_data[i+1]],
+                            alpha = _alpha_from_counts(sample_counts, i)
+                            ax2.plot([x_data[i], x_data[i+1]], [y_data[i], y_data[i+1]],
                                     color=line_color,
-                                    linestyle='--',
+                                    linestyle=cogmap_linestyle,
                                     linewidth=2.0,
                                     alpha=alpha)
                         
                         # Add label with a dummy plot
-                        ax1.plot([], [], color=line_color, linestyle='--',
-                                linewidth=2.0, alpha=0.6, label=f'{model_short} (CogMap)')
+                        ax2.plot([], [], color=line_color, linestyle=cogmap_linestyle,
+                                linewidth=2.0, alpha=0.7, label=f'{model_short} (CogMap {cogmap_label})')
                     else:
                         # Fallback to original plotting if no sample counts available
-                        ax1.plot(x_data, y_data,
+                        ax2.plot(x_data, y_data,
                                 color=line_color,
-                                linestyle='--',
+                                linestyle=cogmap_linestyle,
                                 linewidth=2.0,
-                                alpha=0.6,
-                                label=f'{model_short} (CogMap)')
+                                alpha=0.7,
+                                label=f'{model_short} (CogMap {cogmap_label})')
                     
                     # Show markers with varying alpha
                     for i, (x, y) in enumerate(zip(x_data, y_data)):
                         if x % 2 == 1:
                             # Adjust marker alpha based on sample count
-                            marker_alpha = 0.6
-                            if sample_counts and i < len(sample_counts):
-                                max_samples = max(sample_counts)
-                                marker_alpha = 0.2 + 0.6 * (sample_counts[i] / max_samples)
-                            ax1.plot(x, y,
-                                    marker='x',
+                            marker_alpha = _alpha_from_counts(sample_counts, i) if sample_counts else 0.7
+                            ax2.plot(x, y,
+                                    marker=cogmap_marker,
                                     color=line_color,
                                     markersize=5,
                                     markeredgewidth=1.5,
@@ -448,10 +466,24 @@ def plot_config_group_line_style(info_gains: Dict[str, Dict[str, List[float]]],
                     cogmap_line_index += 1
             
             # Set unified y-axis limits to 0-1
-            ax1.set_ylim(0, 1.0)
+            ax2.set_ylim(0, 1.0)
             
             # Show combined legend
-            ax1.legend(loc='lower right', framealpha=0.85, 
+            handles1, labels1 = ax1.get_legend_handles_labels()
+            handles2, labels2 = ax2.get_legend_handles_labels()
+            desired_order = ["gpt-5.2", "gemini-3-pro"]
+            legend_items = []
+            for handle, label in zip(handles1 + handles2, labels1 + labels2):
+                model_name = label.split(" (", 1)[0].lower().replace("gemini-3-pro-preview", "gemini-3-pro")
+                legend_items.append((handle, label, model_name))
+            def _order_key(item):
+                name = item[2]
+                for idx, key in enumerate(desired_order):
+                    if key in name:
+                        return (idx, name)
+                return (len(desired_order), name)
+            legend_items.sort(key=_order_key)
+            ax2.legend([h for h, _, _ in legend_items], [l for _, l, _ in legend_items], loc='lower right', framealpha=0.85, 
                       fancybox=True, shadow=True, fontsize=7, markerscale=0.6, 
                       handlelength=1.5, handletextpad=0.4, borderpad=0.3, 
                       bbox_to_anchor=(0.98, 0.02), ncol=1)
@@ -476,8 +508,7 @@ def plot_config_group_line_style(info_gains: Dict[str, Dict[str, List[float]]],
 
 def main():
     """Main entrypoint"""
-    # 请将此路径修改为您实际的 results 目录
-    results_dir = "/home/zihanhuang/VAGEN/results_arxiv"
+    results_dir = "results_arxiv"
     
     PLOT_COGMAP = True 
 
@@ -494,18 +525,30 @@ def main():
     all_configs = set()
     for configs in info_gains.values():
         all_configs.update(configs.keys())
+    for configs in cogmap_full.values():
+        all_configs.update(configs.keys())
 
     # Define configuration groups
     config_groups = {
         "Active Text": [c for c in all_configs if "text" in c.lower() and "active" in c.lower()],
     }
+    vision_cogmap_configs = [c for c in all_configs if "vision" in c.lower() and "active" in c.lower()]
 
     # Generate plots (line style) for each configuration group
     for group_name, group_configs in config_groups.items():
-        save_path = f"info_gain_across_models.pdf"
-        plot_config_group_line_style(info_gains, sample_end_steps, group_name, group_configs, save_path, 
-                                    cogmap_full=cogmap_full, plot_cogmap=PLOT_COGMAP, 
-                                    sample_counts_per_turn=sample_counts_per_turn)
+        save_path = "info_gain_across_models.pdf"
+        plot_config_group_line_style(
+            info_gains,
+            sample_end_steps,
+            group_name,
+            group_configs,
+            save_path,
+            cogmap_full=cogmap_full,
+            plot_cogmap=PLOT_COGMAP,
+            sample_counts_per_turn=sample_counts_per_turn,
+            plot_info_gain=True,
+            cogmap_configs=group_configs + vision_cogmap_configs,
+        )
 
 
 if __name__ == "__main__":
