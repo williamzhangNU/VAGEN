@@ -88,8 +88,12 @@ def read_json(path: Path) -> Dict[str, Any] | None:
         print(f"Error reading {path}: {e}")
         return None
 
-def collect_eval_metrics(paths: List[Path], sample_indices: Set[int]) -> Dict[str, Any]:
+def _evaluation_key(eval_mode: str) -> str:
+    return 'evaluation' if eval_mode == 'default' else f'evaluation_{eval_mode}'
+
+def collect_eval_metrics(paths: List[Path], sample_indices: Set[int], eval_mode: str) -> Dict[str, Any]:
     data_map: Dict[str, Any] = {}
+    eval_key = _evaluation_key(eval_mode)
     for path in paths:
         if not path.exists():
             print(f"Warning: File {path} does not exist, skipping.")
@@ -99,7 +103,7 @@ def collect_eval_metrics(paths: List[Path], sample_indices: Set[int]) -> Dict[st
             continue
         for s_key, _idx, s_val in iter_samples(data, sample_indices):
             for mod, metrics in iter_modality_metrics(s_val):
-                eval_m = (metrics or {}).get('evaluation') or {}
+                eval_m = (metrics or {}).get(eval_key) or {}
                 overall = (eval_m.get('overall') or {}).get('avg_accuracy')
                 per_task = eval_m.get('per_task') or {}
                 if not isinstance(per_task, dict):
@@ -113,7 +117,7 @@ def collect_eval_metrics(paths: List[Path], sample_indices: Set[int]) -> Dict[st
                         entry['tasks'].setdefault(t_name, []).append(float(t_acc))
     return data_map
 
-def collect_eval_file_averages(paths: List[Path], sample_indices: Set[int]) -> Dict[str, Any]:
+def collect_eval_file_averages(paths: List[Path], sample_indices: Set[int], eval_mode: str) -> Dict[str, Any]:
     file_map: Dict[str, Any] = {}
     for path in paths:
         if not path.exists():
@@ -122,7 +126,11 @@ def collect_eval_file_averages(paths: List[Path], sample_indices: Set[int]) -> D
         data = read_json(path)
         if not data:
             continue
-        group_perf = ((data.get('eval_summary') or {}).get('group_performance') or {})
+        eval_summary = data.get('eval_summary') or {}
+        if eval_mode == 'default':
+            group_perf = (eval_summary.get('group_performance') or {})
+        else:
+            group_perf = ((eval_summary.get('group_performance_by_mode') or {}).get(eval_mode) or {})
         if not isinstance(group_perf, dict):
             continue
         for mod, mod_val in group_perf.items():
@@ -313,6 +321,7 @@ def main(argv=None):
     ap.add_argument('--exp-files', nargs='*', default=[], help='paths to exploration env_data.json files')
     ap.add_argument('--samples', default='0-24', help='Range of samples to process (e.g. 0-24, 0,1,5)')
     ap.add_argument('--save-json', '-o', help='optional path to save JSON summary')
+    ap.add_argument('--eval-mode', default='default', help='evaluation mode to read (default or custom)')
     ap.add_argument('--compute-cogmap-correlation', action='store_true', 
                     help='Compute cogmap correlation across paths')
     args = ap.parse_args(argv)
@@ -327,8 +336,8 @@ def main(argv=None):
         print("No input files provided.")
         return
 
-    eval_raw = collect_eval_metrics(eval_files, sample_indices)
-    eval_file_avgs = collect_eval_file_averages(eval_files, sample_indices)
+    eval_raw = collect_eval_metrics(eval_files, sample_indices, args.eval_mode)
+    eval_file_avgs = collect_eval_file_averages(eval_files, sample_indices, args.eval_mode)
     eval_avgs, eval_stats = average_eval_metrics(eval_raw, eval_file_avgs)
     cogmap_raw = collect_scalar_metrics(
         cogmap_files, sample_indices,

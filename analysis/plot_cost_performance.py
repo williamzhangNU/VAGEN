@@ -434,7 +434,7 @@ def plot_scatter(
             ax.add_artist(model_legend)
 
     plt.tight_layout()
-    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    plt.savefig(save_path, dpi=500, bbox_inches='tight')
     print(f"Saved scatter plot to {save_path}")
     plt.close()
 
@@ -461,7 +461,7 @@ def main():
         data,
         "text",
         "Text: Exploration Cost vs Performance",
-        os.path.join(args.output_dir, "scatter_active_text.pdf"),
+        os.path.join(args.output_dir, "scatter_active_text.png"),
         connect_points=False,
         show_badges=False,
         alpha_rules=[("passive", 0.5)]
@@ -472,7 +472,7 @@ def main():
         data,
         "vision",
         "Vision: Exploration Cost vs Performance",
-        os.path.join(args.output_dir, "scatter_active_vision.pdf"),
+        os.path.join(args.output_dir, "scatter_active_vision.png"),
         connect_points=False,
         show_badges=False,
         alpha_rules=[("passive", 0.5)]
@@ -483,7 +483,7 @@ def main():
         data,
         "active",
         "Text + Vision (Active): Exploration Cost vs Performance",
-        os.path.join(args.output_dir, "scatter_active_combined.pdf"),
+        os.path.join(args.output_dir, "scatter_active_combined.png"),
         connect_points=False,
         show_badges=False,
         alpha_rules=[("text", 0.5)]
@@ -494,7 +494,7 @@ def main():
         data,
         "",
         "All: Passive vs Active (Text & Vision)",
-        os.path.join(args.output_dir, "scatter_all_strategies.pdf"),
+        os.path.join(args.output_dir, "scatter_all_strategies.png"),
         connect_points=False,
         show_badges=True,
         alpha_rules=[("passive", 0.3)]
